@@ -62,8 +62,9 @@ void gpu_init(gpu_config_t *config);
 	{ 			 				\
 		CUresult status = func;				\
 		if (status != CUDA_SUCCESS) {			\
-			printf("error (line %d): %s\n", __LINE__,\
-				cuGetErrorMessage(status));	\
+			const char *errstr;			\
+			cuGetErrorString(status, &errstr);	\
+			printf("error (line %d): %s\n", __LINE__, errstr); \
 			exit(-1);				\
 		}						\
 	}

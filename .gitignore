@@ -1,0 +1,79 @@
+# Compiled executables
+msieve
+msieve.exe
+
+# Static library
+libmsieve.a
+
+# Object files
+*.o
+*.qo
+*.no
+
+# CUDA compiled kernels
+*.ptx
+
+# Shared libraries
+*.so
+*.dll
+*.dylib
+
+# CUB library build marker
+cub/built
+
+# Msieve output/data files
+*.dat
+*.mat
+*.dep
+*.cyc
+*.fb
+*.p
+*.lp
+*.m
+*.t
+msieve.log
+msieve.dat.*
+worktodo.ini
+factor.log
+
+# Backup and temporary files
+*~
+*.bak
+*.swp
+*.swo
+.*.swp
+.*.swo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.Zone.Identifier
+*:Zone.Identifier
+
+# Version control
+.svn/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-*
+*.code-workspace
+
+# GDB and debugging
+core
+core.*
+*.dSYM/
+vgcore.*
+
+# Git files
+*.orig
+*.rej
+
+# Compilation databases
+compile_commands.json
+
+# Build directories (if any)
+build/
+bin/
+obj/
