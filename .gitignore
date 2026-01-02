@@ -35,6 +35,10 @@ msieve.log
 msieve.dat.*
 worktodo.ini
 factor.log
+*.ms
+*.ms.*
+*.out
+.cado_processed_lines
 
 # Backup and temporary files
 *~
@@ -77,3 +81,6 @@ compile_commands.json
 build/
 bin/
 obj/
+
+#backups
+backup*/
