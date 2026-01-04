@@ -1027,8 +1027,8 @@ sieve_lattice_gpu_core(msieve_obj *obj,
 		special_q_max2 = special_q_max;
 	}
 #if 1
-	gmp_printf("coeff %Zd specialq %u - %u other %u - %u\n",
-			c->high_coeff,
+	gmp_printf("coeff %Zd norm %.2e specialq %u - %u other %u - %u\n",
+			c->high_coeff, c->norm_max_effective,
 			special_q_min2, special_q_max2,
 			p_min, p_max);
 #endif
@@ -1146,7 +1146,7 @@ gpu_thread_data_init(void *data, int threadid)
 	   changes the GPU cache size on the fly */
 
 	CUDA_TRY(cuCtxCreate(&t->gpu_context,
-			NULL, //comment this out on CUDA < 13
+			// NULL, //uncomment this on CUDA >= 13
 			CU_CTX_BLOCKING_SYNC,
 			d->gpu_info->device_handle))
 

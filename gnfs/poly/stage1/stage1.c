@@ -17,6 +17,25 @@ $Id: stage1.c 1023 2018-08-19 00:30:42Z jasonp_sf $
 /* main driver for stage 1 */
 
 /*------------------------------------------------------------------------*/
+
+/* Coefficients for computing optimal norm_max that pushes special_q_max
+   to just below 2^32. Derived from the constraint:
+   special_q_max = p_size_max / p_max^2 = MAX_SPECIAL_Q
+   where p_max depends on sieve_bound via constraint 2 in sieve_lattice_cpu.
+
+   Formula: norm_max_opt = NORM_MAX_COEFF[degree] * m0^NORM_MAX_EXP[degree]
+
+   A 5% safety margin is applied to avoid overshooting due to floating
+   point imprecision or constraint switching. */
+
+#define NORM_MAX_COEFF_DEG4 19855.0   /* 20900 * 0.95 */
+#define NORM_MAX_COEFF_DEG5 1637.8    /* 1724 * 0.95 */
+#define NORM_MAX_COEFF_DEG6 1141.9    /* 1202 * 0.95 */
+
+#define NORM_MAX_EXP_DEG4 0.6         /* m0^0.6 */
+#define NORM_MAX_EXP_DEG5 0.7         /* m0^0.7 */
+#define NORM_MAX_EXP_DEG6 0.714285714 /* m0^(5/7) */
+
 static void
 stage1_bounds_update(poly_search_t *poly, poly_coeff_t *c)
 {
@@ -28,6 +47,29 @@ stage1_bounds_update(poly_search_t *poly, poly_coeff_t *c)
 	double high_coeff = mpz_get_d(c->high_coeff);
 	double m0 = pow(N / high_coeff, 1./degree);
 	double skewness_min, coeff_max;
+	double norm_max_opt, norm_max;
+
+	/* Compute the optimal norm_max that maximizes search area by
+	   pushing special_q_max to just below 2^32. Use the minimum
+	   of this and the user-provided norm_max as a ceiling. */
+
+	switch (degree) {
+	case 4:
+		norm_max_opt = NORM_MAX_COEFF_DEG4 * pow(m0, NORM_MAX_EXP_DEG4);
+		break;
+	case 5:
+		norm_max_opt = NORM_MAX_COEFF_DEG5 * pow(m0, NORM_MAX_EXP_DEG5);
+		break;
+	case 6:
+		norm_max_opt = NORM_MAX_COEFF_DEG6 * pow(m0, NORM_MAX_EXP_DEG6);
+		break;
+	default:
+		norm_max_opt = poly->norm_max;
+		break;
+	}
+
+	/* Use the smaller of optimal and user-provided norm_max */
+	norm_max = MIN(norm_max_opt, poly->norm_max);
 
 	/* we don't know the optimal skewness for this polynomial
 	   but at least can bound the skewness. The value of the
@@ -36,18 +78,18 @@ stage1_bounds_update(poly_search_t *poly, poly_coeff_t *c)
 
 	switch (degree) {
 	case 4:
-		skewness_min = sqrt(m0 / poly->norm_max);
-		coeff_max = poly->norm_max;
+		skewness_min = sqrt(m0 / norm_max);
+		coeff_max = norm_max;
 		break;
 
 	case 5:
-		skewness_min = pow(m0 / poly->norm_max, 2./3.);
-		coeff_max = poly->norm_max / sqrt(skewness_min);
+		skewness_min = pow(m0 / norm_max, 2./3.);
+		coeff_max = norm_max / sqrt(skewness_min);
 		break;
 
 	case 6:
-		skewness_min = sqrt(m0 / poly->norm_max);
-		coeff_max = poly->norm_max / skewness_min;
+		skewness_min = sqrt(m0 / norm_max);
+		coeff_max = norm_max / skewness_min;
 		break;
 
 	default:
@@ -59,6 +101,7 @@ stage1_bounds_update(poly_search_t *poly, poly_coeff_t *c)
 	c->m0 = m0;
 	c->coeff_max = coeff_max;
 	c->p_size_max = coeff_max / skewness_min;
+	c->norm_max_effective = norm_max;
 
 	/* we perform the collision search on a transformed version
 	   of N and the low-order rational coefficient m. In the
@@ -211,6 +254,7 @@ poly_coeff_copy(poly_coeff_t *dest, poly_coeff_t *src)
 	dest->coeff_max = src->coeff_max;
 	dest->m0 = src->m0;
 	dest->p_size_max = src->p_size_max;
+	dest->norm_max_effective = src->norm_max_effective;
 
 	mpz_set(dest->high_coeff, src->high_coeff);
 	mpz_set(dest->trans_N, src->trans_N);

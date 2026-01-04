@@ -723,8 +723,8 @@ sieve_lattice_cpu(msieve_obj *obj, poly_search_t *poly,
 			special_q_max2 = special_q_max;
 		}
 
-		gmp_printf("coeff %Zd specialq %u - %u other %u - %u\n",
-				c->high_coeff,
+		gmp_printf("coeff %Zd norm %.2e specialq %u - %u other %u - %u\n",
+				c->high_coeff, c->norm_max_effective,
 				special_q_min2, special_q_max2,
 				p_min, p_max);
 

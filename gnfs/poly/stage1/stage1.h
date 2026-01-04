@@ -114,6 +114,11 @@ typedef struct {
 
 	double p_size_max;
 
+	/* effective norm_max used for this coefficient (may be
+	   dynamically computed to maximize special_q range) */
+
+	double norm_max_effective;
+
 	/* internal values used */
 
 	mpz_t trans_N;
