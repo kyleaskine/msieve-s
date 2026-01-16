@@ -1,4 +1,11 @@
-# NFS Polynomial Optimization Configuration
+# NFS Polynomial Optimization Configuration Template
+#
+# SETUP INSTRUCTIONS:
+# 1. Copy this file to nfs_config.ini:
+#    cp nfs_config.ini.template nfs_config.ini
+# 2. Edit nfs_config.ini with your local paths and settings
+# 3. The nfs_config.ini file is in .gitignore and won't be committed
+#
 # This file configures all settings for the NFS polyselect optimization workflow
 
 # ============================================================================
@@ -7,8 +14,8 @@
 
 [paths]
 # CADO-NFS build directory (adjust for your system)
-# On this PC: /home/kylea/cado-nfs/build/Kyle-PC-V2
-cado_build_dir = $HOME/cado-nfs/build/Kyle-PC-V2
+# Example: $HOME/cado-nfs/build/localhost
+cado_build_dir = $HOME/cado-nfs/build/localhost
 
 # Msieve binary location (relative to this directory)
 msieve_binary = ./msieve
