@@ -34,9 +34,12 @@ cado_build_dir = $HOME/cado-nfs/build/YOUR-BUILD-DIR
 # View current configuration
 ./nfs_optimize.sh config
 
-# Standard workflow: preprocess, then batch process
-./nfs_optimize.sh preprocess
+# Continuous batch processing (standalone)
 ./nfs_optimize.sh batch
+
+# Or: preprocess first, then run full pipeline
+./nfs_optimize.sh preprocess
+./nfs_optimize.sh pipeline
 
 # Watch results in real-time (in another terminal)
 ./nfs_optimize.sh watch
@@ -69,13 +72,10 @@ msieve-s/
 
 ### Workflow 1: Continuous Batch Processing (Recommended)
 
-Best for ongoing optimization of large polynomial sets.
+Best for ongoing optimization of large polynomial sets. Runs standalone without preprocessing.
 
 ```bash
-# Step 1: Preprocess your input polynomials
-./nfs_optimize.sh preprocess
-
-# Step 2: Start continuous batch processing
+# Start continuous batch processing
 ./nfs_optimize.sh batch
 ```
 
@@ -102,9 +102,13 @@ kill -USR1 <PID>
 
 ### Workflow 2: Full Optimization Pipeline
 
-Best for targeted optimization of a specific polynomial set.
+Best for targeted optimization of a specific polynomial set. Requires preprocessing first.
 
 ```bash
+# Step 1: Preprocess your input polynomials
+./nfs_optimize.sh preprocess
+
+# Step 2: Run full optimization pipeline
 ./nfs_optimize.sh pipeline
 ```
 
