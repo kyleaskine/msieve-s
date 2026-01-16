@@ -27,16 +27,14 @@ msieve-s/
 ```
 msieve-s/
 ├── nfs_optimize.sh          ← NEW: Main entry point
-├── nfs_config.ini           ← NEW: Configuration file
+├── nfs_config.ini.template  ← NEW: Configuration template
+├── nfs_config.ini           ← NEW: Local configuration (gitignored)
 ├── scripts/                 ← NEW: All shell scripts moved here
 │   ├── dedupe_and_sopt.sh
 │   ├── process_batches.sh
 │   ├── full_optimization_pipeline.sh
-│   ├── test_sopteffort.sh
-│   ├── test_ropt_comparison.sh
 │   ├── run_msieve_ropt_annotated.sh
-│   ├── cleanup.sh
-│   └── watcher.sh
+│   └── cleanup.sh
 └── utils/                   ← NEW: All Python scripts moved here
     ├── cado_to_msieve.py
     ├── sort_cado_by_expe.py
@@ -68,7 +66,15 @@ msieve-s/
 
 ## First-Time Setup
 
-### Step 1: Update Configuration
+### Step 1: Create Local Configuration
+
+Copy the template to create your local configuration:
+
+```bash
+cp nfs_config.ini.template nfs_config.ini
+```
+
+### Step 2: Update Configuration
 
 Edit `nfs_config.ini` and update the CADO-NFS path:
 
@@ -82,7 +88,9 @@ To find your CADO build directory:
 find ~/cado-nfs -type d -name "build" 2>/dev/null
 ```
 
-### Step 2: Verify Setup
+**Note**: `nfs_config.ini` is in `.gitignore` and won't be committed to version control.
+
+### Step 3: Verify Setup
 
 ```bash
 ./nfs_optimize.sh config
@@ -90,7 +98,7 @@ find ~/cado-nfs -type d -name "build" 2>/dev/null
 
 This will show your current configuration and verify all paths are correct.
 
-### Step 3: Test Basic Functionality
+### Step 4: Test Basic Functionality
 
 ```bash
 # If you have existing data files, run:

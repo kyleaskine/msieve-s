@@ -21,6 +21,9 @@ libmsieve.a
 # CUB library build marker
 cub/built
 
+# Local configuration (use nfs_config.ini.template as a starting point)
+nfs_config.ini
+
 # Msieve output/data files
 *.dat
 *.mat
@@ -39,6 +42,10 @@ factor.log
 *.ms.*
 *.out
 .cado_processed_lines
+cado_sopt_output.txt
+cado_sopt_unsorted.txt
+pipeline_results/
+pipeline_work/
 
 # Backup and temporary files
 *~

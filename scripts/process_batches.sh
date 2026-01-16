@@ -86,8 +86,8 @@ MSIEVE_INPUT="outMsieve.ms"
 # Final output
 FINAL_OUTPUT="outMsieve.p"
 
-# CADO-NFS path
-CADO_SOPT="$HOME/cado-nfs/build/Kyle-PC-V2/polyselect/sopt"
+# CADO-NFS path (use environment variable if set via nfs_optimize.sh, otherwise use default)
+CADO_SOPT="${CADO_SOPT:-$HOME/cado-nfs/build/localhost/polyselect/sopt}"
 
 # Check dependencies
 if [ ! -f "$CADO_SOPT" ]; then

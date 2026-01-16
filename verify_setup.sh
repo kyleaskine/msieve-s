@@ -61,11 +61,8 @@ SHELL_SCRIPTS=(
     "scripts/dedupe_and_sopt.sh"
     "scripts/process_batches.sh"
     "scripts/full_optimization_pipeline.sh"
-    "scripts/test_sopteffort.sh"
-    "scripts/test_ropt_comparison.sh"
     "scripts/run_msieve_ropt_annotated.sh"
     "scripts/cleanup.sh"
-    "scripts/watcher.sh"
 )
 
 for script in "${SHELL_SCRIPTS[@]}"; do

@@ -46,7 +46,7 @@ parse_config() {
 
 load_config() {
     # Paths
-    CADO_BUILD_DIR=$(parse_config "paths" "cado_build_dir" "$HOME/cado-nfs/build/Kyle-PC-V2")
+    CADO_BUILD_DIR=$(parse_config "paths" "cado_build_dir" "$HOME/cado-nfs/build/localhost")
     MSIEVE=$(parse_config "paths" "msieve_binary" "./msieve")
     UTILS_DIR=$(parse_config "paths" "utils_dir" "./utils")
 
@@ -73,11 +73,6 @@ load_config() {
     MSIEVE_ROPT_COUNT=$(parse_config "pipeline" "msieve_ropt_count" "10")
     CADO_ROPT_COUNT=$(parse_config "pipeline" "cado_ropt_count" "100")
     ROPT_EFFORT=$(parse_config "pipeline" "ropt_effort" "10")
-
-    # Testing
-    TEST_POLY_COUNT=$(parse_config "testing" "test_poly_count" "100")
-    TEST_SOPT_EFFORT=$(parse_config "testing" "test_sopt_effort" "10")
-    ROPT_COMPARISON_COUNT=$(parse_config "testing" "ropt_comparison_count" "10")
 
     # Output
     WORK_DIR=$(parse_config "output" "work_dir" "pipeline_work")
@@ -189,18 +184,6 @@ cmd_pipeline() {
         -t "$THREADS"
 }
 
-cmd_test_sopteffort() {
-    echo "Testing sopteffort parameter..."
-    cd "$SCRIPT_DIR"
-    ./scripts/test_sopteffort.sh -n "$TEST_POLY_COUNT" -e "$TEST_SOPT_EFFORT"
-}
-
-cmd_test_ropt() {
-    echo "Testing root optimization methods..."
-    cd "$SCRIPT_DIR"
-    ./scripts/test_ropt_comparison.sh -n "$ROPT_COMPARISON_COUNT" -t "$THREADS"
-}
-
 cmd_cleanup() {
     echo "Running cleanup..."
     cd "$SCRIPT_DIR"
@@ -228,9 +211,6 @@ Commands:
   batch                Start continuous batch processing (Phase 1: sopt, Phase 2: ropt)
   pipeline             Run full optimization pipeline (extract top N, re-sopt, ropt)
 
-  test-sopteffort      Test the impact of -sopteffort parameter
-  test-ropt            Compare root optimization methods (msieve vs CADO, original vs inverted)
-
   cleanup [--deep]     Clean up intermediate files (--deep removes all outputs)
   watch                Monitor results in real-time
 
@@ -247,10 +227,6 @@ Examples:
 
   # Advanced workflow
   $0 pipeline                # Run complete pipeline with re-optimization
-
-  # Testing
-  $0 test-sopteffort         # Test sopteffort parameter impact
-  $0 test-ropt              # Compare ropt methods
 
   # Monitoring
   $0 watch                  # Watch results in real-time
@@ -272,7 +248,11 @@ EOF
 # Load configuration
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "Error: Configuration file not found: $CONFIG_FILE"
-    echo "Please create the configuration file first."
+    echo ""
+    echo "Please create your local configuration file:"
+    echo "  cp nfs_config.ini.template nfs_config.ini"
+    echo ""
+    echo "Then edit nfs_config.ini to match your system paths."
     exit 1
 fi
 
@@ -298,14 +278,6 @@ case "$COMMAND" in
     pipeline)
         check_dependencies
         cmd_pipeline "$@"
-        ;;
-    test-sopteffort)
-        check_dependencies
-        cmd_test_sopteffort "$@"
-        ;;
-    test-ropt)
-        check_dependencies
-        cmd_test_ropt "$@"
         ;;
     cleanup)
         cmd_cleanup "$@"

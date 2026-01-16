@@ -20,10 +20,10 @@ TOP_M_CADO=100           # Run CADO ropt on best 100 from re-sopt
 ROPT_EFFORT=10           # CADO ropt effort
 THREADS=4                # Number of parallel threads for ropt
 
-# Paths
-CADO_SOPT="$HOME/cado-nfs/build/Kyle-PC-V2/polyselect/sopt"
-CADO_ROPT="$HOME/cado-nfs/build/Kyle-PC-V2/polyselect/polyselect_ropt"
-MSIEVE="./msieve"
+# Paths (use environment variables if set via nfs_optimize.sh, otherwise use defaults)
+CADO_SOPT="${CADO_SOPT:-$HOME/cado-nfs/build/localhost/polyselect/sopt}"
+CADO_ROPT="${CADO_ROPT:-$HOME/cado-nfs/build/localhost/polyselect/polyselect_ropt}"
+MSIEVE="${MSIEVE:-./msieve}"
 
 # Working directories
 WORK_DIR="pipeline_work"

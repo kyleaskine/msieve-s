@@ -12,13 +12,21 @@ This system provides a streamlined interface for polynomial optimization in the 
 
 ### 1. Configuration
 
-Edit `nfs_config.ini` to match your system:
+Create your local configuration file from the template:
+
+```bash
+cp nfs_config.ini.template nfs_config.ini
+```
+
+Then edit `nfs_config.ini` to match your system:
 
 ```ini
 [paths]
 # Update this to your CADO-NFS build directory
 cado_build_dir = $HOME/cado-nfs/build/YOUR-BUILD-DIR
 ```
+
+**Note**: `nfs_config.ini` is in `.gitignore` and won't be committed to version control.
 
 ### 2. Basic Usage
 
@@ -39,16 +47,14 @@ cado_build_dir = $HOME/cado-nfs/build/YOUR-BUILD-DIR
 ```
 msieve-s/
 ├── nfs_optimize.sh          # Main entry point
-├── nfs_config.ini           # Configuration file
+├── nfs_config.ini.template  # Configuration template (copy to nfs_config.ini)
+├── nfs_config.ini           # Local configuration (gitignored)
 ├── scripts/                 # Workflow scripts
 │   ├── dedupe_and_sopt.sh
 │   ├── process_batches.sh
 │   ├── full_optimization_pipeline.sh
-│   ├── test_sopteffort.sh
-│   ├── test_ropt_comparison.sh
 │   ├── run_msieve_ropt_annotated.sh
-│   ├── cleanup.sh
-│   └── watcher.sh
+│   └── cleanup.sh
 ├── utils/                   # Python utilities
 │   ├── cado_to_msieve.py
 │   ├── sort_cado_by_expe.py

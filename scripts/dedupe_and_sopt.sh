@@ -14,8 +14,8 @@ CADO_SOPT_OUTPUT="cado_sopt_output.txt"          # CADO format output (sorted by
 CADO_SOPT_UNSORTED="cado_sopt_unsorted.txt"      # CADO format (unsorted, for reference)
 FINAL_SORTED="cado_results_sorted.ms"            # Msieve format sorted by exp_E
 
-# CADO-NFS path
-CADO_SOPT="$HOME/cado-nfs/build/Kyle-PC-V2/polyselect/sopt"
+# CADO-NFS path (use environment variable if set via nfs_optimize.sh, otherwise use default)
+CADO_SOPT="${CADO_SOPT:-$HOME/cado-nfs/build/localhost/polyselect/sopt}"
 
 # Show help
 show_help() {
