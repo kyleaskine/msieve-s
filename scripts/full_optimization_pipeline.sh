@@ -24,6 +24,7 @@ THREADS=4                # Number of parallel threads for ropt
 CADO_SOPT="${CADO_SOPT:-$HOME/cado-nfs/build/localhost/polyselect/sopt}"
 CADO_ROPT="${CADO_ROPT:-$HOME/cado-nfs/build/localhost/polyselect/polyselect_ropt}"
 MSIEVE="${MSIEVE:-./msieve}"
+SKEWOPT="${SKEWOPT:-}"  # Optional: path to skewopt binary
 
 # Working directories
 WORK_DIR="pipeline_work"
@@ -726,3 +727,32 @@ echo "======================================"
 echo "Full report: $FINAL_DIR/pipeline_report.txt"
 echo "All results in: $FINAL_DIR/"
 echo ""
+
+# =============================================================================
+# PHASE 8: SKEWOPT OPTIMIZATION (if configured)
+# =============================================================================
+
+if [ -n "$SKEWOPT" ] && [ -f "$SKEWOPT" ]; then
+    echo "======================================"
+    echo "PHASE 8: SKEWOPT OPTIMIZATION"
+    echo "======================================"
+    echo ""
+
+    SKEWOPT_SCRIPT="${UTILS_DIR:-./utils}/run_skewopt_on_best.py"
+
+    if [ -f "$SKEWOPT_SCRIPT" ]; then
+        python3 "$SKEWOPT_SCRIPT" \
+            --skewopt "$SKEWOPT" \
+            "$FINAL_DIR/cado_ropt_orig.txt" \
+            "$FINAL_DIR/cado_ropt_inv.txt" \
+            | tee "$FINAL_DIR/skewopt_results.txt"
+        echo ""
+        echo "Skewopt results saved to: $FINAL_DIR/skewopt_results.txt"
+    else
+        echo "Warning: skewopt script not found at $SKEWOPT_SCRIPT"
+    fi
+    echo ""
+elif [ -n "$SKEWOPT" ]; then
+    echo "Warning: skewopt binary not found at $SKEWOPT"
+    echo ""
+fi

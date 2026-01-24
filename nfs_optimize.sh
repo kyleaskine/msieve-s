@@ -49,6 +49,7 @@ load_config() {
     CADO_BUILD_DIR=$(parse_config "paths" "cado_build_dir" "$HOME/cado-nfs/build/localhost")
     MSIEVE=$(parse_config "paths" "msieve_binary" "./msieve")
     UTILS_DIR=$(parse_config "paths" "utils_dir" "./utils")
+    SKEWOPT=$(parse_config "paths" "skewopt_binary" "")
 
     # System
     THREADS=$(parse_config "system" "threads" "4")
@@ -91,7 +92,7 @@ load_config() {
     CADO_ROPT="$CADO_BUILD_DIR/polyselect/polyselect_ropt"
 
     # Export for use by subscripts
-    export CADO_SOPT CADO_ROPT MSIEVE UTILS_DIR THREADS
+    export CADO_SOPT CADO_ROPT MSIEVE UTILS_DIR THREADS SKEWOPT
 }
 
 # ============================================================================
@@ -135,6 +136,7 @@ show_config() {
     echo "  CADO ropt:   $CADO_ROPT"
     echo "  msieve:      $MSIEVE"
     echo "  Utils:       $UTILS_DIR"
+    echo "  skewopt:     ${SKEWOPT:-<not configured>}"
     echo ""
     echo "System:"
     echo "  Threads:     $THREADS"
