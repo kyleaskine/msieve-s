@@ -171,7 +171,7 @@ cmd_preprocess() {
 cmd_batch() {
     echo "Starting continuous batch processing..."
     cd "$SCRIPT_DIR"
-    ./scripts/process_batches.sh -t "$THREADS" -b "$BATCH_SIZE" -s "$SLEEP_INTERVAL"
+    ./scripts/process_batches.sh -t "$THREADS" -b "$BATCH_SIZE" -s "$SLEEP_INTERVAL" "$@"
 }
 
 cmd_pipeline() {
@@ -210,7 +210,8 @@ Usage: $0 <command> [options]
 
 Commands:
   preprocess           Run preprocessing: deduplicate and CADO size optimization
-  batch                Start continuous batch processing (Phase 1: sopt, Phase 2: ropt)
+  batch [-c N]         Start batch processing (Phase 1: sopt, Phase 2: ropt)
+                         -c N  Stop after N cycles (default: unlimited)
   pipeline             Run full optimization pipeline (extract top N, re-sopt, ropt)
 
   cleanup [--deep]     Clean up intermediate files (--deep removes all outputs)
@@ -226,6 +227,7 @@ Examples:
   # Standard workflow
   $0 preprocess              # First, preprocess your polynomials
   $0 batch                   # Then run continuous batch processing
+  $0 batch -c 3              # Run 3 batch cycles then stop
 
   # Advanced workflow
   $0 pipeline                # Run complete pipeline with re-optimization

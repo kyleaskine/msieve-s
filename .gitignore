@@ -46,6 +46,7 @@ cado_sopt_output.txt
 cado_sopt_unsorted.txt
 pipeline_results/
 pipeline_work/
+worktodo.ini
 
 # Backup and temporary files
 *~

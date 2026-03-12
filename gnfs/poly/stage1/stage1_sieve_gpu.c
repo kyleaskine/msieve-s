@@ -972,7 +972,7 @@ sieve_lattice_gpu_core(msieve_obj *obj,
 			    c->p_size_max / p_max / p_max);
 	special_q_max = MAX(special_q_max, 1);
 	
-	p_max *= 32;
+	p_max *= 64;
 	p_min = MAX(1, p_max / P_SCALE);
 	special_q_min = 1;
 

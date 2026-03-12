@@ -27,6 +27,7 @@ Options:
   -t, --threads N      Set number of parallel msieve workers (default: 4)
   -b, --batch-size N   Set root optimization batch size (default: 100)
   -s, --sleep N        Set sleep interval between cycles in seconds (default: 0)
+  -c, --cycles N       Stop after N cycles (default: 0 = unlimited)
 
 Configuration files:
   Input:  msieve.dat.ms         (stage1 polynomials)
@@ -50,6 +51,7 @@ CADO_RESULTS="cado_results.ms"  # Accumulated CADO results with alphas
 ROOTOPT_BATCH_SIZE=100  # Process top N per cycle
 PARALLEL_THREADS=4  # Number of parallel workers (both CADO and msieve)
 SLEEP_INTERVAL=0  # Sleep between cycles (default: 0 seconds)
+MAX_CYCLES=0  # Maximum cycles to run (0 = unlimited)
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -67,6 +69,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -s|--sleep)
             SLEEP_INTERVAL="$2"
+            shift 2
+            ;;
+        -c|--cycles)
+            MAX_CYCLES="$2"
             shift 2
             ;;
         *)
@@ -113,6 +119,9 @@ echo "For graceful shutdown: kill -USR1 $$"
 echo ""
 echo "Phase 1: CADO size optimization (all new polynomials, $PARALLEL_THREADS threads)"
 echo "Phase 2: Root optimization (top $ROOTOPT_BATCH_SIZE at a time, $PARALLEL_THREADS threads)"
+if [ "$MAX_CYCLES" -gt 0 ]; then
+    echo "Cycle limit: $MAX_CYCLES"
+fi
 echo "Input: $INPUT_FILE"
 echo "CADO results: $CADO_RESULTS"
 echo "Final output: $FINAL_OUTPUT"
@@ -161,6 +170,7 @@ extract_complete_polys() {
 }
 
 # Main loop
+CYCLE_COUNT=0
 while true; do
     echo ""
     echo "=========================================="
@@ -529,6 +539,15 @@ while true; do
         echo ""
         echo "Sleeping for $SLEEP_INTERVAL seconds before next cycle..."
         sleep $SLEEP_INTERVAL
+    fi
+
+    CYCLE_COUNT=$((CYCLE_COUNT + 1))
+    if [ "$MAX_CYCLES" -gt 0 ] && [ "$CYCLE_COUNT" -ge "$MAX_CYCLES" ]; then
+        echo ""
+        echo "=========================================="
+        echo "Completed $CYCLE_COUNT/$MAX_CYCLES cycles. Stopping."
+        echo "=========================================="
+        exit 0
     fi
 
     echo ""
