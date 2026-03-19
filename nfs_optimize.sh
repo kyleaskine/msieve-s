@@ -155,6 +155,9 @@ show_config() {
     echo "  Re-sopt effort: $RESOPT_EFFORT"
     echo "  msieve ropt: $MSIEVE_ROPT_COUNT polys"
     echo "  CADO ropt:   $CADO_ROPT_COUNT polys"
+    if [ -n "$SIZE_PRESET" ]; then
+        echo "  Size preset: $SIZE_PRESET"
+    fi
     echo "======================================"
 }
 
@@ -206,7 +209,12 @@ show_help() {
     cat << EOF
 NFS Polynomial Optimization - Unified Interface
 
-Usage: $0 <command> [options]
+Usage: $0 [--size SIZE] <command> [options]
+
+Global Options:
+  --size SIZE          Select ropt count preset based on composite size
+                         Reads from [size_small], [size_medium], [size_big]
+                         sections in nfs_config.ini
 
 Commands:
   preprocess           Run preprocessing: deduplicate and CADO size optimization
@@ -230,7 +238,9 @@ Examples:
   $0 batch -c 3              # Run 3 batch cycles then stop
 
   # Advanced workflow
-  $0 pipeline                # Run complete pipeline with re-optimization
+  $0 --size small pipeline   # Pipeline with small ropt counts
+  $0 --size big pipeline     # Pipeline with big ropt counts
+  $0 pipeline                # Pipeline using config file values
 
   # Monitoring
   $0 watch                  # Watch results in real-time
@@ -243,6 +253,31 @@ For more information, see README.md
 
 EOF
     exit 0
+}
+
+# ============================================================================
+# SIZE PRESETS
+# ============================================================================
+
+# Read ropt counts from [size_small], [size_medium], or [size_big] config sections
+apply_size_preset() {
+    local size=$1
+    local section="size_${size}"
+
+    local extract_val=$(parse_config "$section" "extract_top_n" "")
+    local msieve_val=$(parse_config "$section" "msieve_ropt_count" "")
+    local cado_val=$(parse_config "$section" "cado_ropt_count" "")
+
+    if [ -z "$msieve_val" ] || [ -z "$cado_val" ]; then
+        echo "Error: Unknown or incomplete size preset: $size"
+        echo "Expected [${section}] section in $CONFIG_FILE with msieve_ropt_count and cado_ropt_count"
+        exit 1
+    fi
+
+    [ -n "$extract_val" ] && EXTRACT_TOP_N="$extract_val"
+    MSIEVE_ROPT_COUNT="$msieve_val"
+    CADO_ROPT_COUNT="$cado_val"
+    echo "Size preset '$size': extract_top=$EXTRACT_TOP_N, msieve_ropt=$MSIEVE_ROPT_COUNT, cado_ropt=$CADO_ROPT_COUNT"
 }
 
 # ============================================================================
@@ -261,6 +296,29 @@ if [ ! -f "$CONFIG_FILE" ]; then
 fi
 
 load_config
+
+# Parse global options
+SIZE_PRESET=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --size)
+            if [ $# -lt 2 ]; then
+                echo "Error: --size requires an argument (small, medium, big)"
+                exit 1
+            fi
+            SIZE_PRESET="$2"
+            shift 2
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+# Apply size preset if specified
+if [ -n "$SIZE_PRESET" ]; then
+    apply_size_preset "$SIZE_PRESET"
+fi
 
 # Parse command
 if [ $# -eq 0 ]; then

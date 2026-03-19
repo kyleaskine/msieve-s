@@ -23,6 +23,10 @@ msieve_binary = ./msieve
 # Python utilities directory
 utils_dir = ./utils
 
+# Skewopt binary for final skew optimization (optional)
+# Leave empty to skip skewopt processing
+skewopt_binary =
+
 [system]
 # Number of CPU threads to use for parallel processing
 # Set to 0 to auto-detect (uses nproc)
@@ -73,6 +77,24 @@ cado_ropt_count = 150
 
 # CADO root optimization effort level
 ropt_effort = 10
+
+# Size presets for --size flag (override msieve/cado ropt counts)
+# Usage: ./nfs_optimize.sh --size small|medium|big pipeline
+
+[size_small]
+extract_top_n = 500
+msieve_ropt_count = 64
+cado_ropt_count = 32
+
+[size_medium]
+extract_top_n = 1000
+msieve_ropt_count = 150
+cado_ropt_count = 75
+
+[size_big]
+extract_top_n = 2000
+msieve_ropt_count = 300
+cado_ropt_count = 150
 
 [testing]
 # Number of top polynomials to use for sopteffort testing
