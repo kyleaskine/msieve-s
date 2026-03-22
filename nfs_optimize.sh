@@ -309,6 +309,9 @@ while [ $# -gt 0 ]; do
             SIZE_PRESET="$2"
             shift 2
             ;;
+        -h|--help|help)
+            show_help
+            ;;
         *)
             break
             ;;
@@ -327,6 +330,13 @@ fi
 
 COMMAND=$1
 shift
+
+# Catch --help after the command (e.g. "pipeline --help")
+for arg in "$@"; do
+    if [ "$arg" = "--help" ] || [ "$arg" = "-h" ]; then
+        show_help
+    fi
+done
 
 case "$COMMAND" in
     preprocess)
