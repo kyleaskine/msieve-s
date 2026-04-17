@@ -233,6 +233,10 @@ void find_poly_core(msieve_obj *obj, mpz_t n,
 				logprintf(obj, "leading coeff multiplier: %u\n",
 					stage1_data.high_coeff_multiplier);
 			}
+			if (strstr(obj->nfs_args, "coeff_list=1") != NULL) {
+				stage1_data.use_coeff_list = 1;
+				logprintf(obj, "reading leading coefficients from coeff_list.txt\n");
+			}
 		}
 
 		if (lower_limit != NULL)

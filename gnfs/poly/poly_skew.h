@@ -35,6 +35,7 @@ typedef struct {
 	double norm_max;
 	uint32 deadline;
 	uint32 high_coeff_multiplier;  /* user override for leading coeff increment (0=auto) */
+	uint32 use_coeff_list;         /* if nonzero, read leading coeffs from coeff_list.txt */
 	stage1_callback_t callback;
 	void *callback_data;
 } poly_stage1_t;

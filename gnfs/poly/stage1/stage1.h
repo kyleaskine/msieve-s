@@ -78,6 +78,10 @@ typedef struct {
 
 	uint32 high_coeff_multiplier;
 
+	/* if nonzero, read leading coefficients from coeff_list.txt */
+
+	uint32 use_coeff_list;
+
 	/* function to call when a collision is found */
 
 	stage1_callback_t callback;

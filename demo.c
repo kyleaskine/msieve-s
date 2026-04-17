@@ -149,6 +149,8 @@ void print_usage(char *progname) {
 		 "                     in stage 1\n"
 		 "   high_coeff_mult=X override leading coefficient increment\n"
 		 "                     (default: auto-selected based on size)\n"
+		 "   coeff_list=1      read leading coefficients from coeff_list.txt\n"
+		 "                     (newline-delimited) instead of searching a range\n"
 		 "   stage1_norm=X     the maximum norm value for stage 1\n"
 		 "   stage2_norm=X     the maximum norm value for stage 2\n"
 		 "   min_evalue=X      the minimum score of saved polyomials\n"

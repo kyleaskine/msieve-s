@@ -203,6 +203,7 @@ poly_search_init(poly_search_t *poly, poly_stage1_t *data)
 	poly->degree = data->degree;
 	poly->norm_max = data->norm_max;
 	poly->high_coeff_multiplier = data->high_coeff_multiplier;
+	poly->use_coeff_list = data->use_coeff_list;
 	poly->callback = data->callback;
 	poly->callback_data = data->callback_data;
 }
@@ -474,7 +475,6 @@ search_coeffs(msieve_obj *obj, poly_search_t *poly, uint32 deadline)
 {
 	double deadline_per_coeff;
 	double cumulative_time = 0;
-	sieve_t ad_sieve;
 	poly_coeff_t *c = poly_coeff_init();
 #ifdef HAVE_CUDA
 	void *gpu_data = gpu_data_init(obj, poly);
@@ -484,52 +484,94 @@ search_coeffs(msieve_obj *obj, poly_search_t *poly, uint32 deadline)
 	printf("deadline: %.0lf CPU-seconds per coefficient\n",
 					deadline_per_coeff);
 
-	/* set up lower limit on a_d */
+	if (poly->use_coeff_list) {
+		FILE *coeff_file = fopen("coeff_list.txt", "r");
+		char line[1024];
 
-	init_ad_sieve(&ad_sieve, poly);
+		if (coeff_file == NULL) {
+			printf("error: cannot open coeff_list.txt\n");
+			goto cleanup;
+		}
+		logprintf(obj, "reading leading coefficients from coeff_list.txt\n");
 
-	mpz_sub_ui(poly->tmp1, poly->gmp_high_coeff_begin, 1);
-	mpz_fdiv_q_ui(poly->tmp1, poly->tmp1, 
-			ad_sieve.high_coeff_multiplier);
-	mpz_add_ui(poly->tmp1, poly->tmp1, 1);
-	mpz_mul_ui(poly->gmp_high_coeff_begin, poly->tmp1, 
-			ad_sieve.high_coeff_multiplier);
+		while (fgets(line, sizeof(line), coeff_file)) {
+			double elapsed;
 
-	while (1) {
-		double elapsed;
+			if (line[0] == '\n' || line[0] == '\r' || line[0] == '\0')
+				continue;
+			if (gmp_sscanf(line, "%Zd", c->high_coeff) != 1)
+				continue;
 
-		/* we only use a_d which are composed of
-		   many small prime factors, in order to
-		   have lots of projective roots going
-		   into stage 2 */
-
-		if (find_next_ad(&ad_sieve, poly, c->high_coeff))
-			break;
-
-		/* recalculate internal parameters used
-		   for search */
-
-		stage1_bounds_update(poly, c);
-
-		/* finally, sieve for polynomials using
-		   Kleinjung's improved algorithm */
+			stage1_bounds_update(poly, c);
 
 #ifdef HAVE_CUDA
-		cumulative_time = sieve_lattice_gpu(obj, poly, c,
-					gpu_data, deadline_per_coeff);
+			cumulative_time = sieve_lattice_gpu(obj, poly, c,
+						gpu_data, deadline_per_coeff);
 #else
-		elapsed = sieve_lattice_cpu(obj, poly, c, deadline_per_coeff);
-		cumulative_time += elapsed;
+			elapsed = sieve_lattice_cpu(obj, poly, c, deadline_per_coeff);
+			cumulative_time += elapsed;
 #endif
 
-		if (obj->flags & MSIEVE_FLAG_STOP_SIEVING)
-			break;
+			if (obj->flags & MSIEVE_FLAG_STOP_SIEVING)
+				break;
 
-		if (deadline && cumulative_time > deadline)
-			break;
+			if (deadline && cumulative_time > deadline)
+				break;
+		}
+		fclose(coeff_file);
+	}
+	else {
+		sieve_t ad_sieve;
+
+		/* set up lower limit on a_d */
+
+		init_ad_sieve(&ad_sieve, poly);
+
+		mpz_sub_ui(poly->tmp1, poly->gmp_high_coeff_begin, 1);
+		mpz_fdiv_q_ui(poly->tmp1, poly->tmp1,
+				ad_sieve.high_coeff_multiplier);
+		mpz_add_ui(poly->tmp1, poly->tmp1, 1);
+		mpz_mul_ui(poly->gmp_high_coeff_begin, poly->tmp1,
+				ad_sieve.high_coeff_multiplier);
+
+		while (1) {
+			double elapsed;
+
+			/* we only use a_d which are composed of
+			   many small prime factors, in order to
+			   have lots of projective roots going
+			   into stage 2 */
+
+			if (find_next_ad(&ad_sieve, poly, c->high_coeff))
+				break;
+
+			/* recalculate internal parameters used
+			   for search */
+
+			stage1_bounds_update(poly, c);
+
+			/* finally, sieve for polynomials using
+			   Kleinjung's improved algorithm */
+
+#ifdef HAVE_CUDA
+			cumulative_time = sieve_lattice_gpu(obj, poly, c,
+						gpu_data, deadline_per_coeff);
+#else
+			elapsed = sieve_lattice_cpu(obj, poly, c, deadline_per_coeff);
+			cumulative_time += elapsed;
+#endif
+
+			if (obj->flags & MSIEVE_FLAG_STOP_SIEVING)
+				break;
+
+			if (deadline && cumulative_time > deadline)
+				break;
+		}
+
+		free_ad_sieve(&ad_sieve);
 	}
 
-	free_ad_sieve(&ad_sieve);
+cleanup:
 #ifdef HAVE_CUDA
 	gpu_data_free(gpu_data);
 #endif
