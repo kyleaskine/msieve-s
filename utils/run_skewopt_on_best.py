@@ -147,7 +147,7 @@ def run_skewopt(poly_data):
         for line in output.split('\n'):
             if line.startswith('Best Skew:'):
                 skew = float(line.split(':')[1].strip())
-            elif line.startswith('Murphy Score:'):
+            elif line.startswith('MurphyE:'):
                 murphy = float(line.split(':')[1].strip())
 
         return skew, murphy
