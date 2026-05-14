@@ -1146,7 +1146,7 @@ gpu_thread_data_init(void *data, int threadid)
 	   changes the GPU cache size on the fly */
 
 	CUDA_TRY(cuCtxCreate(&t->gpu_context,
-			// NULL, //uncomment this on CUDA >= 13
+			NULL, // CUDA >= 13 cuCtxCreate params
 			CU_CTX_BLOCKING_SYNC,
 			d->gpu_info->device_handle))
 
