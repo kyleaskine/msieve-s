@@ -45,6 +45,24 @@ cado_build_dir = $HOME/cado-nfs/build/YOUR-BUILD-DIR
 ./nfs_optimize.sh watch
 ```
 
+## Current Wrapper State
+
+`./nfs_optimize.sh` currently supports these commands:
+
+```bash
+./nfs_optimize.sh preprocess
+./nfs_optimize.sh batch [-c N]
+./nfs_optimize.sh pipeline
+./nfs_optimize.sh cleanup [--deep]
+./nfs_optimize.sh watch
+./nfs_optimize.sh config
+./nfs_optimize.sh help
+```
+
+The wrapper does **not** currently implement `test-sopteffort` or `test-ropt`; those commands are not present in `nfs_optimize.sh`, and the old standalone test scripts are not in the current tree.
+
+Configuration is partly centralized. The wrapper uses the path settings, thread counts, batch size/sleep, pipeline counts/efforts, and size presets. Some template keys are parsed or documented but not wired through to the scripts yet; see "Configuration Reference" for details.
+
 ## Directory Structure
 
 ```
@@ -57,6 +75,7 @@ msieve-s/
 │   ├── process_batches.sh
 │   ├── full_optimization_pipeline.sh
 │   ├── run_msieve_ropt_annotated.sh
+│   ├── fix_cuda13_ctxcreate.sh
 │   └── cleanup.sh
 ├── utils/                   # Python utilities
 │   ├── cado_to_msieve.py
@@ -64,7 +83,8 @@ msieve-s/
 │   ├── extract_input_polys_sorted.py
 │   ├── extract_top_cado_poly.py
 │   ├── invert_c_coefficients.py
-│   └── invert_msieve_single_line.py
+│   ├── invert_msieve_single_line.py
+│   └── run_skewopt_on_best.py
 └── README_NFS_OPTIMIZE.md   # This file
 ```
 
@@ -143,30 +163,18 @@ Just deduplicate and run CADO size optimization once.
    - `cado_sopt_output.txt` (CADO format, sorted)
    - `cado_results_sorted.ms` (msieve format, sorted)
 
-## Testing & Analysis
+**Current caveat:** `preprocessing.sopt_effort` is present in `nfs_config.ini.template`, but `preprocess` does not pass it to `scripts/dedupe_and_sopt.sh`. That script currently runs CADO `sopt` without an explicit `-sopteffort` argument.
 
-### Test sopteffort Parameter
+## Testing & Analysis Status
 
-Compare default sopt vs higher effort levels:
+The unified wrapper does not currently expose dedicated testing commands. These documented commands are **not implemented**:
 
 ```bash
 ./nfs_optimize.sh test-sopteffort
-```
-
-**Configuration**:
-- `testing.test_poly_count`: Number of polynomials to test (default: 100)
-- `testing.test_sopt_effort`: Effort level to test (default: 10)
-
-### Compare Root Optimization Methods
-
-Compare msieve vs CADO, original vs inverted:
-
-```bash
 ./nfs_optimize.sh test-ropt
 ```
 
-**Configuration**:
-- `testing.ropt_comparison_count`: Number of polynomials to test (default: 10)
+There are also no `test_sopteffort.sh` or `test_ropt_comparison.sh` scripts in the current `scripts/` directory. For now, use `pipeline` with small counts, or run the lower-level scripts manually with custom inputs, when comparing sopt/ropt settings.
 
 ## Monitoring
 
@@ -233,21 +241,35 @@ Deep clean (removes everything including results):
 - `batch_size`: Polynomials per root optimization batch
 - `sleep_interval`: Seconds between cycles (0 = continuous)
 
+### Currently Wired Settings
+
+These settings are actively used by `./nfs_optimize.sh`:
+
+- `[paths]`: `cado_build_dir`, `msieve_binary`, `utils_dir`, `skewopt_binary`
+- `[system]`: `threads`
+- `[preprocessing]`: `input_file`, `sopt_threads`
+- `[batch_processing]`: `batch_size`, `sleep_interval`
+- `[pipeline]`: `extract_top_n`, `resopt_effort`, `msieve_ropt_count`, `cado_ropt_count`, `ropt_effort`
+- `[size_small]`, `[size_medium]`, `[size_big]`: `extract_top_n`, `msieve_ropt_count`, `cado_ropt_count`
+
+These settings exist in the template but are not currently wired through by the wrapper:
+
+- `[preprocessing]`: `sopt_effort`
+- `[batch_processing]`: `enabled`, `poly_degree`
+- `[output]`: `work_dir`, `results_dir`, `final_output`, `keep_intermediate`, `auto_backup`
+- `[files]`: all file override keys
+- `[testing]`: all keys
+
 ### Performance Tuning
 
 **For faster processing:**
 - Increase `system.threads` (up to your CPU core count)
 - Decrease `batch_processing.batch_size` (processes smaller batches more frequently)
-- Set `preprocessing.sopt_effort = 0` (fastest sopt)
+- Use smaller pipeline counts while testing changes
 
 **For better quality:**
-- Increase `preprocessing.sopt_effort` (0-10, higher = better but slower)
 - Increase `pipeline.resopt_effort` (re-optimize top polys with higher effort)
 - Increase `pipeline.ropt_effort` (more thorough root optimization)
-
-**For testing:**
-- Decrease `testing.test_poly_count` for faster tests
-- Increase for more comprehensive analysis
 
 ## Porting to Another PC
 
@@ -333,15 +355,15 @@ Run any script with `-h` or `--help` for detailed usage.
 
 ## Summary of Changes
 
-This unified system consolidates 8 shell scripts and 6 Python utilities into:
+This unified system provides:
 - **1 main interface** (`nfs_optimize.sh`)
-- **1 config file** (`nfs_config.ini`)
+- **1 primary config file** (`nfs_config.ini`) for the main workflows
 - **Organized structure** (`scripts/` and `utils/` directories)
 
 ### Benefits
 - ✅ Single entry point for all operations
 - ✅ Portable configuration file
-- ✅ Consistent parameter handling
+- ✅ Consistent parameter handling for the active wrapper commands
 - ✅ Better organization
 - ✅ Easier to use on multiple PCs
 
@@ -353,15 +375,12 @@ This unified system consolidates 8 shell scripts and 6 Python utilities into:
 - `full_optimization_pipeline.sh` - Complete pipeline
 - `run_msieve_ropt_annotated.sh` - Helper for msieve
 
-**Testing Scripts:**
-- `test_sopteffort.sh` - Parameter testing
-- `test_ropt_comparison.sh` - Method comparison
-
 **Utilities:**
 - `cleanup.sh` - Maintenance
-- `watcher.sh` - Monitoring (now integrated into main script)
+- `fix_cuda13_ctxcreate.sh` - CUDA 13 compatibility helper
+- `watch` command - Monitoring is integrated into `nfs_optimize.sh`
 
-**All Python utilities are active and used by the workflows.**
+Some Python utilities are workflow helpers, and some are standalone/manual tools.
 
 ## Performance Characteristics
 
@@ -516,8 +535,8 @@ head -5 cado_results_sorted.ms | wc -w
 # Verify exp_E values are present
 head -5 outMsieve.p | grep exp_E
 
-# Run comparison test to verify quality
-./nfs_optimize.sh test-ropt
+# For quality comparisons, run a small pipeline or invoke lower-level
+# scripts manually; there is no wrapper-level test-ropt command today.
 ```
 
 ### Performance Issues

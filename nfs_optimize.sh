@@ -143,10 +143,10 @@ show_config() {
     echo ""
     echo "Preprocessing:"
     echo "  Input:       $INPUT_FILE"
-    echo "  sopt effort: $SOPT_EFFORT"
+    echo "  sopt effort: $SOPT_EFFORT (not wired for preprocess)"
     echo ""
     echo "Batch Processing:"
-    echo "  Enabled:     $BATCH_ENABLED"
+    echo "  Enabled:     $BATCH_ENABLED (not used by wrapper)"
     echo "  Batch size:  $BATCH_SIZE"
     echo "  Sleep:       ${SLEEP_INTERVAL}s"
     echo ""
@@ -249,7 +249,7 @@ Examples:
   $0 cleanup                # Clean intermediate files (keeps results)
   $0 cleanup --deep         # Deep clean (removes everything)
 
-For more information, see README.md
+For more information, see README_NFS_OPTIMIZE.md
 
 EOF
     exit 0

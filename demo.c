@@ -140,6 +140,12 @@ void print_usage(char *progname) {
 		 " polynomial selection options:\n"
 #ifdef HAVE_CUDA
 		 "   sortlib=X       use GPU sorting library X\n"
+		 "   collengine=X    use GPU collision engine X (gerbicz)\n"
+		 "   colllib=X       use GPU collision library X\n"
+		 "   collhash=X      hash keys before Gerbicz bucketing "
+		 "(default 1)\n"
+		 "   collstats=X     print Gerbicz collision summary stats\n"
+		 "   colldebug=X     print Gerbicz per-batch diagnostics\n"
 		 "   gpu_mem_mb=X    use X megabytes of GPU memory\n"
 #endif
 		 "   polydegree=X      select polynomials with degree X\n"

@@ -53,16 +53,16 @@ msieve-s/
 | `./dedupe_and_sopt.sh` | `./nfs_optimize.sh preprocess` |
 | `./process_batches.sh -t 8` | `./nfs_optimize.sh batch` (threads configured in config) |
 | `./full_optimization_pipeline.sh -n 100` | `./nfs_optimize.sh pipeline` (settings in config) |
-| `./test_sopteffort.sh` | `./nfs_optimize.sh test-sopteffort` |
-| `./test_ropt_comparison.sh` | `./nfs_optimize.sh test-ropt` |
 | `./cleanup.sh` | `./nfs_optimize.sh cleanup` |
 | `./watcher.sh` | `./nfs_optimize.sh watch` |
+
+The old `test_sopteffort.sh` and `test_ropt_comparison.sh` commands are not currently available in this tree, and `nfs_optimize.sh` does not implement `test-sopteffort` or `test-ropt`.
 
 ### Configuration Changes
 
 **Before**: Settings hard-coded in each script or passed as command-line arguments
 
-**After**: All settings in `nfs_config.ini` - edit once, works everywhere
+**After**: Main workflow settings live in `nfs_config.ini`. Some template keys are not wired through yet; see `README_NFS_OPTIMIZE.md` for the current supported list.
 
 ## First-Time Setup
 
@@ -110,7 +110,7 @@ ls -la scripts/ utils/
 
 ## What Stayed the Same
 
-- **All workflows still work exactly the same way internally**
+- **The active workflows still work the same way internally**
 - **Input/output file formats unchanged**
 - **No changes to msieve or CADO-NFS usage**
 - **Data files remain in the same location**
@@ -130,14 +130,16 @@ nano nfs_config.ini  # Update cado_build_dir
 ```
 
 ### 2. Consistency
-All settings in one place:
+Common settings in one place:
 - Thread counts
 - Batch sizes
 - Effort levels
 - File paths
 
+Not every template key is wired through yet. In particular, `preprocessing.sopt_effort`, `[testing]`, `[output]`, and `[files]` overrides are currently documentation/config placeholders unless the lower-level scripts use them directly.
+
 ### 3. Simplicity
-One command to rule them all:
+One command for the active workflows:
 ```bash
 ./nfs_optimize.sh <command>
 ```
@@ -161,7 +163,7 @@ Update `cado_build_dir` in `nfs_config.ini`
 Scripts have been moved to `utils/` but all path references are updated automatically.
 
 ### Want to use old commands?
-You can still run scripts directly:
+You can still run the active scripts directly:
 ```bash
 cd scripts
 ./process_batches.sh -t 8 -b 100
@@ -171,7 +173,7 @@ But you'll need to manually specify parameters. The new unified interface is rec
 
 ## What If I Don't Like the New Structure?
 
-The old scripts are unchanged (just moved to `scripts/` directory). You can:
+The active scripts are still available under `scripts/`. You can:
 
 1. **Use the old way**: `cd scripts && ./script_name.sh`
 2. **Copy scripts back to root**: `cp scripts/*.sh . && cp utils/*.py .`

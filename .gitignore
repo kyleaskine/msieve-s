@@ -21,6 +21,17 @@ libmsieve.a
 # CUB library build marker
 cub/built
 
+# GPU profiler artifacts
+*.nsys-rep
+*.ncu-rep
+*.sqlite
+profile_*.log
+trans_*.log
+sort_*.log
+
+# Benchmark build artifacts
+gerbicz_bench/bench
+
 # Local configuration (use nfs_config.ini.template as a starting point)
 nfs_config.ini
 

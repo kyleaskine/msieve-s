@@ -64,6 +64,8 @@ else
 endif
 	CFLAGS += -I"$(CUDA_ROOT)/include" -Icub -Imgpu -DHAVE_CUDA
 	LIBS += $(CUDA_LIBS)
+	CUB_ENGINE_ARCH ?= -gencode arch=compute_120,code=sm_120 \
+			   -gencode arch=compute_89,code=compute_89
 endif
 ifeq ($(MPI),1)
 	CC = mpicc
@@ -216,7 +218,8 @@ NFS_HDR = \
 NFS_GPU_HDR = \
 	gnfs/poly/stage1/stage1_core_gpu/stage1_core.cu \
 	gnfs/poly/stage1/stage1_core_gpu/cuda_intrinsics.h \
-	gnfs/poly/stage1/stage1_core_gpu/stage1_core.h
+	gnfs/poly/stage1/stage1_core_gpu/stage1_core.h \
+	cub/collision_bucket.h
 
 NFS_NOGPU_HDR = \
 	gnfs/poly/stage1/cpu_intrinsics.h
@@ -334,11 +337,12 @@ mpqs/sieve_core_generic_64k.qo: mpqs/sieve_core.c $(COMMON_HDR) $(QS_HDR)
 # GPU build rules
 
 stage1_core_sm90.ptx: $(NFS_GPU_HDR)
-	$(NVCC) -arch sm_90 -ptx -o $@ $<
+	$(NVCC) -arch sm_90 -ptx -I. -Icub -Ignfs -Ignfs/poly/stage1 -o $@ $<
 
 stage1_core_sm89.ptx: $(NFS_GPU_HDR)
-	$(NVCC) -arch sm_89 -ptx -o $@ $<
+	$(NVCC) -arch sm_89 -ptx -I. -Icub -Ignfs -Ignfs/poly/stage1 -o $@ $<
 
-cub/built: cub/sort_engine.cu
-	$(NVCC) -arch sm_90 --shared -Xcompiler -fPIC -o cub/sort_engine.so cub/sort_engine.cu
+cub/built: cub/sort_engine.cu cub/collision_engine.cu cub/collision_engine.h cub/collision_bucket.h
+	$(NVCC) $(CUB_ENGINE_ARCH) --shared -Xcompiler -fPIC -o cub/sort_engine.so cub/sort_engine.cu
+	$(NVCC) $(CUB_ENGINE_ARCH) --shared -Xcompiler -fPIC -I. -Icub -Ignfs -Ignfs/poly/stage1 -o cub/collision_engine.so cub/collision_engine.cu
 	touch cub/built
