@@ -588,3 +588,116 @@ For issues or questions:
 ## License
 
 Same as msieve and CADO-NFS parent projects.
+
+---
+
+## Migration from legacy scripts
+
+Earlier revisions of this tree kept all the NFS optimization scripts loose in the repo root. They've been reorganized into the unified system documented above. This section is preserved for users coming from the old layout.
+
+### Old structure (pre-reorg)
+
+```
+msieve-s/
+├── watcher.sh
+├── dedupe_and_sopt.sh
+├── test_sopteffort.sh
+├── test_ropt_comparison.sh
+├── full_optimization_pipeline.sh
+├── run_msieve_ropt_annotated.sh
+├── process_batches.sh
+├── cleanup.sh
+├── cado_to_msieve.py
+├── sort_cado_by_expe.py
+├── extract_input_polys_sorted.py
+├── invert_c_coefficients.py
+├── extract_top_cado_poly.py
+└── invert_msieve_single_line.py
+```
+
+### New structure
+
+```
+msieve-s/
+├── nfs_optimize.sh          ← main entry point
+├── nfs_config.ini.template  ← configuration template
+├── nfs_config.ini           ← local config (gitignored)
+├── scripts/                 ← all shell scripts moved here
+│   ├── dedupe_and_sopt.sh
+│   ├── process_batches.sh
+│   ├── full_optimization_pipeline.sh
+│   ├── run_msieve_ropt_annotated.sh
+│   └── cleanup.sh
+└── utils/                   ← all Python scripts moved here
+    ├── cado_to_msieve.py
+    ├── sort_cado_by_expe.py
+    ├── extract_input_polys_sorted.py
+    ├── extract_top_cado_poly.py
+    ├── invert_c_coefficients.py
+    └── invert_msieve_single_line.py
+```
+
+### Command mapping
+
+| Old command | New command |
+|---|---|
+| `./dedupe_and_sopt.sh` | `./nfs_optimize.sh preprocess` |
+| `./process_batches.sh -t 8` | `./nfs_optimize.sh batch` (threads from config) |
+| `./full_optimization_pipeline.sh -n 100` | `./nfs_optimize.sh pipeline` (settings from config) |
+| `./cleanup.sh` | `./nfs_optimize.sh cleanup` |
+| `./watcher.sh` | `./nfs_optimize.sh watch` |
+
+`test_sopteffort.sh` and `test_ropt_comparison.sh` are not currently wired into `nfs_optimize.sh`; the test-sopteffort / test-ropt subcommands are not implemented.
+
+### Configuration change
+
+Old: settings hard-coded in scripts or passed as CLI args.
+New: workflow settings in `nfs_config.ini`. Some template keys remain documentation placeholders pending downstream-script integration — in particular `preprocessing.sopt_effort`, `[testing]`, `[output]`, and `[files]` aren't all wired through yet.
+
+### First-time migration setup
+
+1. **Create local configuration:**
+   ```bash
+   cp nfs_config.ini.template nfs_config.ini
+   ```
+2. **Update CADO-NFS path** in `nfs_config.ini`:
+   ```ini
+   [paths]
+   cado_build_dir = $HOME/cado-nfs/build/YOUR-BUILD-DIR
+   ```
+   Find the right value with:
+   ```bash
+   find ~/cado-nfs -type d -name "build" 2>/dev/null
+   ```
+   `nfs_config.ini` is in `.gitignore` and isn't committed.
+3. **Verify setup:**
+   ```bash
+   ./nfs_optimize.sh config
+   ```
+4. **Test:**
+   ```bash
+   ./nfs_optimize.sh preprocess  # if you have data files
+   # or just verify scripts are found:
+   ls -la scripts/ utils/
+   ```
+
+### What didn't change
+
+- Active workflows behave the same internally
+- Input/output file formats unchanged
+- No changes to msieve or CADO-NFS usage
+- Data files stay in the same location
+
+### Migration troubleshooting
+
+- **`nfs_optimize.sh: command not found`** — `chmod +x nfs_optimize.sh`
+- **`CADO sopt not found`** — update `cado_build_dir` in `nfs_config.ini`
+- **Python scripts not found** — they moved to `utils/` but path references are updated automatically.
+- **Want to use old commands directly?** `cd scripts && ./script_name.sh` still works, you just have to pass parameters manually. The unified interface is recommended.
+
+### Rolling back
+
+The active scripts are still in `scripts/`. To go back to the old way:
+1. `cd scripts && ./script_name.sh` — direct invocation
+2. `cp scripts/*.sh . && cp utils/*.py .` — copy them back to root
+3. Mix and match — use `nfs_optimize.sh` for some tasks, direct scripts for others.

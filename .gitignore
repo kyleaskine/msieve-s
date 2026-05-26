@@ -29,6 +29,9 @@ profile_*.log
 trans_*.log
 sort_*.log
 
+# Local GPU profiling artifacts (kept locally, never committed)
+profiling/
+
 # Benchmark build artifacts
 gerbicz_bench/bench
 

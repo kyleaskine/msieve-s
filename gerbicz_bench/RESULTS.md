@@ -14,7 +14,7 @@ At the msieve regime (N=50M, 56-bit keys, uniform random input):
 | Gerbicz Phase A + B + C (this port)  | **~4.27 ms** (median, 5 runs)       |
 | Speedup                              | **2.75×**          |
 
-Best run: 4.21 ms → 2.79×. Worst: 4.96 ms → 2.37×. Below JasonP's reported 4× — the remaining lever is to fuse Phase A into the trans kernel (msieve integration scope, not standalone).
+Best run: 4.21 ms → 2.79×. Worst: 4.96 ms → 2.37×. Below JasonP's reported 4×. At the standalone-benchmark stage, the apparent remaining lever was to fuse Phase A into the trans kernel (msieve integration scope, not standalone). That integrated spike was later tried and reverted because it raised trans register pressure enough to lose a block/SM; see `POLYSELECT_OPTIMIZATION_NOTES.md`.
 
 The number above excludes H2D because in real msieve usage the keys are already on the GPU. Wall-clock including H2D is ~45-50 ms at this cell.
 
@@ -176,11 +176,11 @@ cd /home/kylea/msieve-s/gerbicz_bench && make
 ./bench --n 10000000 --bits 30 --threads 8                        # multi-core CPU comparison
 ```
 
-## Next concrete step
+## Historical next step
 
-Integration is in tree and builds. Recommended order from here:
+Integration is in tree and builds. This was the recommended order immediately after the standalone benchmark; later profiling and fusion experiments are summarized in `POLYSELECT_OPTIMIZATION_NOTES.md`.
 
 1. Run several small real composites or fixed coefficient ranges with the existing sort path and `collengine=gerbicz`, then compare output contents, not just file sizes.
 2. Use `collstats=1` on representative coeffs to capture real batch counts, bucket maxima, candidate rates, growth counts, and hash-cap frequency.
 3. Re-profile the post-port stage-1 path. The old profile said sort dominated; after removing it, the trans kernels and collision Phase A should decide the next optimization.
-4. If the profile confirms Phase A scatter is now a top cost, plan the fused trans+bucket-scatter kernel. That remains the biggest algorithmic lever.
+4. If the profile confirms Phase A scatter is now a top cost, plan the fused trans+bucket-scatter kernel. This was attempted later as Option A and reverted after a clear register-pressure regression.
