@@ -45,7 +45,11 @@ ifeq ($(WIN),1)
 else
 	LIBS += -ldl
 endif
+ifneq ($(CUDA),)
+
 ifeq ($(CUDA),1)
+$(error CUDA=1 is no longer supported. Specify the compute capability, e.g. CUDA=70 (V100), CUDA=75 (Turing), CUDA=80/86 (Ampere), CUDA=89 (Ada/RTX 4090), CUDA=90 (Hopper/H100), CUDA=120 (Blackwell))
+endif
 
 ifeq ($(WIN),1)
 	CUDA_ROOT = $(shell echo $$CUDA_PATH)
@@ -64,8 +68,7 @@ else
 endif
 	CFLAGS += -I"$(CUDA_ROOT)/include" -Icub -Imgpu -DHAVE_CUDA
 	LIBS += $(CUDA_LIBS)
-	CUB_ENGINE_ARCH ?= -gencode arch=compute_120,code=sm_120 \
-			   -gencode arch=compute_89,code=compute_89
+	CUB_ENGINE_ARCH ?= -gencode arch=compute_$(CUDA),code=sm_$(CUDA)
 endif
 ifeq ($(MPI),1)
 	CC = mpicc
@@ -161,7 +164,7 @@ COMMON_GPU_SRCS =
 
 COMMON_NOGPU_SRCS =
 
-ifeq ($(CUDA),1)
+ifneq ($(CUDA),)
 	COMMON_SRCS += $(COMMON_GPU_SRCS)
 	COMMON_HDR += $(COMMON_GPU_HDR)
 else
@@ -199,8 +202,7 @@ QS_OBJS = \
 #---------------------------------- GPU file lists -------------------------
 
 GPU_OBJS += \
-	stage1_core_sm90.ptx \
-	stage1_core_sm89.ptx \
+	stage1_core.ptx \
 	cub/built
 
 #---------------------------------- NFS file lists -------------------------
@@ -269,7 +271,7 @@ NFS_NOGPU_SRCS = \
 
 NFS_NOGPU_OBJS = $(NFS_NOGPU_SRCS:.c=.no)
 
-ifeq ($(CUDA),1)
+ifneq ($(CUDA),)
 	NFS_HDR += $(NFS_GPU_HDR)
 	NFS_SRCS += $(NFS_GPU_SRCS)
 	NFS_OBJS += $(NFS_GPU_OBJS)
@@ -288,7 +290,8 @@ help:
 	@echo "add 'WIN=1 if building on windows"
 	@echo "add 'WIN64=1 if building on 64-bit windows"
 	@echo "add 'ECM=1' if GMP-ECM is available (enables ECM)"
-	@echo "add 'CUDA=1' for Nvidia graphics card support"
+	@echo "add 'CUDA=<CC>' for Nvidia GPU support, where <CC> is the compute capability"
+	@echo "    (e.g. CUDA=70 for V100, CUDA=89 for RTX 4090, CUDA=90 for H100, CUDA=120 for Blackwell)"
 	@echo "add 'MPI=1' for parallel processing using MPI"
 	@echo "add 'BOINC=1' to add BOINC wrapper"
 	@echo "add 'NO_ZLIB=1' if you don't have zlib"
@@ -336,11 +339,8 @@ mpqs/sieve_core_generic_64k.qo: mpqs/sieve_core.c $(COMMON_HDR) $(QS_HDR)
 
 # GPU build rules
 
-stage1_core_sm90.ptx: $(NFS_GPU_HDR)
-	$(NVCC) -arch sm_90 -ptx -I. -Icub -Ignfs -Ignfs/poly/stage1 -o $@ $<
-
-stage1_core_sm89.ptx: $(NFS_GPU_HDR)
-	$(NVCC) -arch sm_89 -ptx -I. -Icub -Ignfs -Ignfs/poly/stage1 -o $@ $<
+stage1_core.ptx: $(NFS_GPU_HDR)
+	$(NVCC) -arch sm_$(CUDA) -ptx -I. -Icub -Ignfs -Ignfs/poly/stage1 -o $@ $<
 
 cub/built: cub/sort_engine.cu cub/collision_engine.cu cub/collision_engine.h cub/collision_bucket.h
 	$(NVCC) $(CUB_ENGINE_ARCH) --shared -Xcompiler -fPIC -o cub/sort_engine.so cub/sort_engine.cu
