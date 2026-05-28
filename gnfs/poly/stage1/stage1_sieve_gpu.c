@@ -1470,10 +1470,16 @@ gpu_thread_data_init(void *data, int threadid)
 	   with the sort engine, because apparently it
 	   changes the GPU cache size on the fly */
 
+#if CUDA_VERSION >= 13000
 	CUDA_TRY(cuCtxCreate(&t->gpu_context,
-			NULL, // CUDA >= 13 cuCtxCreate params
+			NULL,
 			CU_CTX_BLOCKING_SYNC,
 			d->gpu_info->device_handle))
+#else
+	CUDA_TRY(cuCtxCreate(&t->gpu_context,
+			CU_CTX_BLOCKING_SYNC,
+			d->gpu_info->device_handle))
+#endif
 
 	/* load GPU kernels */
 
