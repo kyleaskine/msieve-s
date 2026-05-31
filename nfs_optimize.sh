@@ -155,6 +155,7 @@ show_config() {
     echo "  Re-sopt effort: $RESOPT_EFFORT"
     echo "  msieve ropt: $MSIEVE_ROPT_COUNT polys"
     echo "  CADO ropt:   $CADO_ROPT_COUNT polys"
+    echo "  CADO ropt effort: $ROPT_EFFORT"
     if [ -n "$SIZE_PRESET" ]; then
         echo "  Size preset: $SIZE_PRESET"
     fi

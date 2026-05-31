@@ -68,6 +68,7 @@ else
 endif
 	CFLAGS += -I"$(CUDA_ROOT)/include" -Icub -Imgpu -DHAVE_CUDA
 	LIBS += $(CUDA_LIBS)
+	CUDA_PTX_ARCH ?= compute_$(CUDA)
 	CUB_ENGINE_ARCH ?= -gencode arch=compute_$(CUDA),code=sm_$(CUDA)
 endif
 ifeq ($(MPI),1)
@@ -340,7 +341,7 @@ mpqs/sieve_core_generic_64k.qo: mpqs/sieve_core.c $(COMMON_HDR) $(QS_HDR)
 # GPU build rules
 
 stage1_core.ptx: $(NFS_GPU_HDR)
-	$(NVCC) -arch sm_$(CUDA) -ptx -I. -Icub -Ignfs -Ignfs/poly/stage1 -o $@ $<
+	$(NVCC) -arch $(CUDA_PTX_ARCH) -ptx -I. -Icub -Ignfs -Ignfs/poly/stage1 -o $@ $<
 
 cub/built: cub/sort_engine.cu cub/collision_engine.cu cub/collision_engine.h cub/collision_bucket.h
 	$(NVCC) $(CUB_ENGINE_ARCH) --shared -Xcompiler -fPIC -o cub/sort_engine.so cub/sort_engine.cu

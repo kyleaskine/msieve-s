@@ -413,15 +413,14 @@ with open('$input_file', 'r') as f:
 
 # Split into exactly $threads chunks
 num_polys = len(polynomials)
-threads = $threads
-polys_per_chunk = (num_polys + threads - 1) // threads
+threads = max(1, min($threads, num_polys))
 
 for chunk_idx in range(threads):
-    start_idx = chunk_idx * polys_per_chunk
-    end_idx = min(start_idx + polys_per_chunk, num_polys)
+    start_idx = chunk_idx * num_polys // threads
+    end_idx = (chunk_idx + 1) * num_polys // threads
 
-    if start_idx >= num_polys:
-        break
+    if start_idx == end_idx:
+        continue
 
     chunk_file = '$chunk_dir/chunk_%02d.txt' % chunk_idx
     with open(chunk_file, 'w') as out:
@@ -434,7 +433,7 @@ for chunk_idx in range(threads):
 
     if [ "$num_chunks" -eq 0 ]; then
         echo "  Warning: No polynomials found to process"
-        touch "$output_file"
+        : > "$output_file"
         return
     fi
 
@@ -456,6 +455,7 @@ for chunk_idx in range(threads):
     done
 
     # Merge results
+    : > "$output_file"
     for result_file in "$chunk_dir"/chunk_*_result.txt; do
         if [ -f "$result_file" ]; then
             cat "$result_file" >> "$output_file"
@@ -541,7 +541,7 @@ echo "=== PHASE 7: GENERATE COMPARISON REPORT ==="
     # CADO original
     echo "3. CADO polyselect_ropt ropteffort=$ROPT_EFFORT (original):"
     if [ -f "$FINAL_DIR/cado_ropt_orig.txt" ]; then
-        COUNT=$(grep -c "### Root-optimized polynomial" "$FINAL_DIR/cado_ropt_orig.txt" 2>/dev/null || true)
+        COUNT=$(grep -ci "### root-optimized polynomial" "$FINAL_DIR/cado_ropt_orig.txt" 2>/dev/null || true)
         if [ -n "$COUNT" ] && [ "$COUNT" -gt 0 ] 2>/dev/null; then
             echo "  Found $COUNT root-optimized polynomial(s)"
         fi
@@ -567,7 +567,7 @@ echo "=== PHASE 7: GENERATE COMPARISON REPORT ==="
     # CADO inverted
     echo "4. CADO polyselect_ropt ropteffort=$ROPT_EFFORT (inverted):"
     if [ -f "$FINAL_DIR/cado_ropt_inv.txt" ]; then
-        COUNT=$(grep -c "### Root-optimized polynomial" "$FINAL_DIR/cado_ropt_inv.txt" 2>/dev/null || true)
+        COUNT=$(grep -ci "### root-optimized polynomial" "$FINAL_DIR/cado_ropt_inv.txt" 2>/dev/null || true)
         if [ -n "$COUNT" ] && [ "$COUNT" -gt 0 ] 2>/dev/null; then
             echo "  Found $COUNT root-optimized polynomial(s)"
         fi

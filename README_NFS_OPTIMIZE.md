@@ -74,6 +74,7 @@ msieve-s/
 │   ├── dedupe_and_sopt.sh
 │   ├── process_batches.sh
 │   ├── full_optimization_pipeline.sh
+│   ├── deep_cado_ropt.sh
 │   ├── run_msieve_ropt_annotated.sh
 │   ├── fix_cuda13_ctxcreate.sh
 │   └── cleanup.sh
@@ -146,6 +147,45 @@ Best for targeted optimization of a specific polynomial set. Requires preprocess
 - `pipeline.msieve_ropt_count`: How many for msieve ropt (default: 10)
 - `pipeline.cado_ropt_count`: How many for CADO ropt (default: 100)
 - `pipeline.ropt_effort`: CADO ropteffort level (default: 10)
+
+### Optional: Post-Pipeline Deep CADO Ropt
+
+After a low-effort pipeline pass, run a deeper CADO root-optimization pass on
+only the most promising candidates:
+
+```bash
+./nfs_optimize.sh --size small pipeline
+./scripts/deep_cado_ropt.sh --exp-top 32 --murphy-top 8 --effort 50 -t 8
+```
+
+The deep pass selects candidates from the size-optimized CADO files, using the
+top `exp_E` entries plus any broad-pass MurphyE wildcards, then reruns
+`polyselect_ropt` at the requested effort on both original and inverted
+algebraic signs. Outputs go under `pipeline_results/cado_deep_ropt_effort50/`.
+Use `--select-only` to write the candidate manifest without running ropt.
+
+### Experimental: Deep Msieve Ropt Sweep
+
+The local msieve build accepts root-optimization stage 2 sweep controls:
+
+```bash
+rootopt_stage2_steps=100 rootopt_stage2_start=1.0327 rootopt_stage2_mult=1.0327
+```
+
+The default remains the original coarse sweep of 5 steps at 1.5x. The deep
+settings above implement a finer Gimarel-style sweep and can be passed through
+`scripts/run_msieve_ropt_annotated.sh` as the optional fifth argument.
+Pass a sixth argument to limit the run to the first `N` candidates, for example
+top 24 only:
+
+```bash
+./scripts/run_msieve_ropt_annotated.sh \
+  pipeline_results/best150_msieve.ms \
+  pipeline_results/msieve_deep_ropt_orig_top24.p \
+  5 8 \
+  "rootopt_stage2_steps=100 rootopt_stage2_start=1.0327 rootopt_stage2_mult=1.0327" \
+  24
+```
 
 ### Workflow 3: Simple Preprocessing
 

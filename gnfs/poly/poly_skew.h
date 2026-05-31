@@ -87,6 +87,9 @@ typedef struct {
 	double max_sizeopt_norm;
 	double min_e;
 	double min_e_bernstein;
+	uint32 rootopt_stage2_steps;
+	double rootopt_stage2_start;
+	double rootopt_stage2_mult;
 
 	void *internal;
 

@@ -271,6 +271,9 @@ poly_rootopt_init(poly_rootopt_t *data,
 	mpz_init(data->gmp_N);
 	data->obj = obj;
 	data->murphy_p_bound = PRIME_BOUND;
+	data->rootopt_stage2_steps = 5;
+	data->rootopt_stage2_start = 1.5;
+	data->rootopt_stage2_mult = 1.5;
 	data->callback = callback;
 	data->callback_data = callback_data;
 
@@ -340,13 +343,14 @@ poly_rootopt_run(poly_rootopt_t *data, mpz_t * alg_coeffs,
 
 	if (sizeopt_norm * exp(projective_alpha) <= data->max_sizeopt_norm)
 	{
-        data->max_sizeopt_norm = sizeopt_norm * exp(projective_alpha) * 1.5;
-        for (i = 0; i < 5; i++, data->max_sizeopt_norm *= 1.5)
-        {
-            root_sieve_run(data, sizeopt_norm, projective_alpha);
-        }
-        data->max_sizeopt_norm = max_sizeopt_norm_backup;
-    }
+		data->max_sizeopt_norm = sizeopt_norm * exp(projective_alpha) *
+						data->rootopt_stage2_start;
+		for (i = 0; i < data->rootopt_stage2_steps; i++,
+				data->max_sizeopt_norm *= data->rootopt_stage2_mult) {
+			root_sieve_run(data, sizeopt_norm, projective_alpha);
+		}
+		data->max_sizeopt_norm = max_sizeopt_norm_backup;
+	}
 
 finished:
 	if (precision_changed)

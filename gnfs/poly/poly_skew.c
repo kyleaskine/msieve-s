@@ -14,6 +14,10 @@ $Id: poly_skew.c 1025 2018-08-19 02:20:28Z jasonp_sf $
 
 #include "poly_skew.h"
 
+#define ROOTOPT_STAGE2_STEPS_ARG "rootopt_stage2_steps="
+#define ROOTOPT_STAGE2_START_ARG "rootopt_stage2_start="
+#define ROOTOPT_STAGE2_MULT_ARG "rootopt_stage2_mult="
+
 /*------------------------------------------------------------------*/
 /* callback for root optimization */
 
@@ -330,6 +334,42 @@ void find_poly_core(msieve_obj *obj, mpz_t n,
 		rootopt_data.max_sizeopt_norm = params->stage2_norm;
 		rootopt_data.min_e = params->final_norm;
 		rootopt_data.min_e_bernstein = 0;
+
+		if (obj->nfs_args != NULL) {
+			const char *tmp;
+
+			tmp = strstr(obj->nfs_args, ROOTOPT_STAGE2_STEPS_ARG);
+			if (tmp != NULL) {
+				rootopt_data.rootopt_stage2_steps = strtoul(
+					tmp + sizeof(ROOTOPT_STAGE2_STEPS_ARG) - 1,
+					NULL, 10);
+			}
+
+			tmp = strstr(obj->nfs_args, ROOTOPT_STAGE2_START_ARG);
+			if (tmp != NULL) {
+				rootopt_data.rootopt_stage2_start = strtod(
+					tmp + sizeof(ROOTOPT_STAGE2_START_ARG) - 1,
+					NULL);
+			}
+
+			tmp = strstr(obj->nfs_args, ROOTOPT_STAGE2_MULT_ARG);
+			if (tmp != NULL) {
+				rootopt_data.rootopt_stage2_mult = strtod(
+					tmp + sizeof(ROOTOPT_STAGE2_MULT_ARG) - 1,
+					NULL);
+			}
+		}
+
+		if (rootopt_data.rootopt_stage2_start <= 0)
+			rootopt_data.rootopt_stage2_start = 1.5;
+		if (rootopt_data.rootopt_stage2_mult <= 0)
+			rootopt_data.rootopt_stage2_mult = 1.5;
+
+		logprintf(obj, "rootopt stage2 sweep: %u steps, "
+				"start %.6g, multiplier %.6g\n",
+				rootopt_data.rootopt_stage2_steps,
+				rootopt_data.rootopt_stage2_start,
+				rootopt_data.rootopt_stage2_mult);
 
 		/* smaller problems (especially degree 5) run much faster 
 		   when Bernstein's scoring function is used to weed out 

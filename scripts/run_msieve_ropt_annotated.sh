@@ -6,9 +6,11 @@
 set -euo pipefail
 
 if [ $# -lt 3 ]; then
-    echo "Usage: run_msieve_ropt_annotated.sh <input_ms_file> <output_p_file> <poly_degree> [threads]" >&2
+    echo "Usage: run_msieve_ropt_annotated.sh <input_ms_file> <output_p_file> <poly_degree> [threads] [nfs_args] [top_count]" >&2
     echo "  Processes polynomials and annotates with original exp_E" >&2
     echo "  threads: Number of parallel msieve processes (default: 1)" >&2
+    echo "  nfs_args: Extra quoted msieve NFS args, e.g. rootopt_stage2_steps=100 rootopt_stage2_start=1.0327 rootopt_stage2_mult=1.0327" >&2
+    echo "  top_count: Optional limit; process only the first N input polynomials" >&2
     exit 1
 fi
 
@@ -16,11 +18,31 @@ INPUT_FILE="$1"
 OUTPUT_FILE="$2"
 POLY_DEGREE="$3"
 THREADS="${4:-1}"  # Default to 1 thread if not specified
+EXTRA_NFS_ARGS="${5:-}"
+TOP_COUNT="${6:-0}"
 
 MSIEVE="./msieve"
 
 if [ ! -f "$MSIEVE" ]; then
     echo "Error: msieve not found at $MSIEVE" >&2
+    exit 1
+fi
+
+if [ ! -f "$INPUT_FILE" ]; then
+    echo "Error: input file not found: $INPUT_FILE" >&2
+
+    shopt -s nullglob
+    available_msieve_inputs=(pipeline_results/best*_msieve.ms pipeline_results/best*_msieve_inv.ms)
+    if [ "${#available_msieve_inputs[@]}" -gt 0 ]; then
+        echo "Available pipeline msieve inputs:" >&2
+        printf '  %s\n' "${available_msieve_inputs[@]}" >&2
+    fi
+
+    exit 1
+fi
+
+if ! [[ "$TOP_COUNT" =~ ^[0-9]+$ ]] || [ "$TOP_COUNT" -lt 0 ]; then
+    echo "Error: top_count must be a non-negative integer, got: $TOP_COUNT" >&2
     exit 1
 fi
 
@@ -42,14 +64,24 @@ ROOT_DIR="$(pwd)"
 WORKTODO_PATH="$ROOT_DIR/worktodo.ini"
 
 # Get total number of polynomials
-TOTAL_POLYS=$(wc -l < "$INPUT_FILE")
-echo "Processing $TOTAL_POLYS polynomial(s) with $THREADS thread(s)..."
+TOTAL_INPUT_POLYS=$(wc -l < "$INPUT_FILE")
+if [ "$TOP_COUNT" -gt 0 ] && [ "$TOP_COUNT" -lt "$TOTAL_INPUT_POLYS" ]; then
+    TOTAL_POLYS="$TOP_COUNT"
+    echo "Processing top $TOTAL_POLYS of $TOTAL_INPUT_POLYS polynomial(s) with $THREADS thread(s)..."
+else
+    TOTAL_POLYS="$TOTAL_INPUT_POLYS"
+    echo "Processing $TOTAL_POLYS polynomial(s) with $THREADS thread(s)..."
+fi
 
 # Read input file line by line and process
 POLY_NUM=0
 ACTIVE_JOBS=0
 
 while IFS= read -r line; do
+    if [ "$POLY_NUM" -ge "$TOTAL_POLYS" ]; then
+        break
+    fi
+
     POLY_NUM=$((POLY_NUM + 1))
 
     # Extract exp_E from the line
@@ -77,7 +109,17 @@ while IFS= read -r line; do
 
         # Run msieve
         if [ "$POLY_DEGREE" -eq 6 ]; then
-            "$MSIEVE_ABS" -npr "polydegree=6" -s poly > poly.log 2>&1
+            NFS_ARGS="polydegree=6"
+        else
+            NFS_ARGS=""
+        fi
+
+        if [ -n "$EXTRA_NFS_ARGS" ]; then
+            NFS_ARGS="${NFS_ARGS:+$NFS_ARGS }$EXTRA_NFS_ARGS"
+        fi
+
+        if [ -n "$NFS_ARGS" ]; then
+            "$MSIEVE_ABS" -npr "$NFS_ARGS" -s poly > poly.log 2>&1
         else
             "$MSIEVE_ABS" -npr -s poly > poly.log 2>&1
         fi
