@@ -75,6 +75,7 @@ msieve-s/
 │   ├── process_batches.sh
 │   ├── full_optimization_pipeline.sh
 │   ├── deep_cado_ropt.sh
+│   ├── deep_msieve_ropt.sh
 │   ├── run_msieve_ropt_annotated.sh
 │   ├── fix_cuda13_ctxcreate.sh
 │   └── cleanup.sh
@@ -172,19 +173,20 @@ The local msieve build accepts root-optimization stage 2 sweep controls:
 rootopt_stage2_steps=100 rootopt_stage2_start=1.0327 rootopt_stage2_mult=1.0327
 ```
 
-The default remains the original coarse sweep of 5 steps at 1.5x. The deep
-settings above implement a finer Gimarel-style sweep and can be passed through
-`scripts/run_msieve_ropt_annotated.sh` as the optional fifth argument.
-Pass a sixth argument to limit the run to the first `N` candidates, for example
-top 24 only:
+The default remains the original coarse sweep of 5 steps at 1.5x. For a
+Gimarel-style fine pass after the pipeline, use the wrapper:
 
 ```bash
-./scripts/run_msieve_ropt_annotated.sh \
-  pipeline_results/best150_msieve.ms \
-  pipeline_results/msieve_deep_ropt_orig_top24.p \
-  5 8 \
-  "rootopt_stage2_steps=100 rootopt_stage2_start=1.0327 rootopt_stage2_mult=1.0327" \
-  24
+./scripts/deep_msieve_ropt.sh
+```
+
+It auto-selects the newest `pipeline_results/best*_msieve.ms` and inverted
+mate, auto-detects degree, processes the top 24, and runs the 100-step
+`1.0327x` sweep. Common overrides are short:
+
+```bash
+./scripts/deep_msieve_ropt.sh --top 16 -t 8
+./scripts/deep_msieve_ropt.sh --top 24 --no-inverted
 ```
 
 ### Workflow 3: Simple Preprocessing
