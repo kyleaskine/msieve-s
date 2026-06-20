@@ -64,7 +64,7 @@ endif
 else
 	NVCC = "$(shell which nvcc)"
 	CUDA_ROOT = $(shell dirname $(NVCC))/../
-	CUDA_LIBS = -lcuda
+	CUDA_LIBS = -L"$(CUDA_ROOT)/lib64/stubs" -lcuda
 endif
 	CFLAGS += -I"$(CUDA_ROOT)/include" -Icub -Imgpu -DHAVE_CUDA
 	LIBS += $(CUDA_LIBS)
