@@ -100,6 +100,10 @@ vgcore.*
 # Compilation databases
 compile_commands.json
 
+# Python bytecode cache
+__pycache__/
+*.pyc
+
 # Build directories (if any)
 build/
 bin/

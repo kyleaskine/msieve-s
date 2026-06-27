@@ -81,9 +81,18 @@ def parse_cado_results(path):
     return best
 
 
+def _ms_col_indices(ncols):
+    """msieve .ms layout: (degree+1) algebraic coeffs c_deg..c0, then Y1, Y0,
+    proj_alpha, exp_E [, trailing]. degree 6 has a c6 column => 12 columns,
+    matching detect_poly_degree() in deep_msieve_ropt.sh. So Y1 is at index
+    degree+1 and exp_E at degree+4 (deg5 -> 6/9, deg6 -> 7/10). Returns
+    (y1_idx, exp_e_idx)."""
+    degree = 6 if ncols >= 12 else 5
+    return degree + 1, degree + 4
+
+
 def parse_msieve_universe(path):
-    """best300_msieve.ms -> {Y1: (raw_line, exp_E)}. Columns: c5 c4 c3 c2 c1 c0
-    Y1 Y0 proj_alpha exp_E ..."""
+    """best300_msieve.ms -> {Y1: (raw_line, exp_E)}. Handles degree 5 and 6."""
     seeds = {}
     if not Path(path).exists():
         return seeds
@@ -91,11 +100,12 @@ def parse_msieve_universe(path):
         if not line.strip():
             continue
         cols = line.split()
-        if len(cols) < 10:
+        y1_idx, exp_idx = _ms_col_indices(len(cols))
+        if len(cols) <= exp_idx:
             continue
-        y1 = cols[6]
+        y1 = cols[y1_idx]
         try:
-            exp_e = float(cols[9])
+            exp_e = float(cols[exp_idx])
         except ValueError:
             exp_e = math.inf
         seeds[y1] = (line, exp_e)
@@ -103,7 +113,7 @@ def parse_msieve_universe(path):
 
 
 def parse_msieve_universe_inv(path):
-    """best300_msieve_inv.ms -> {Y1: raw_line}."""
+    """best300_msieve_inv.ms -> {Y1: raw_line}. Handles degree 5 and 6."""
     seeds = {}
     if not Path(path).exists():
         return seeds
@@ -111,9 +121,10 @@ def parse_msieve_universe_inv(path):
         if not line.strip():
             continue
         cols = line.split()
-        if len(cols) < 7:
+        y1_idx, _ = _ms_col_indices(len(cols))
+        if len(cols) <= y1_idx:
             continue
-        seeds[cols[6]] = line
+        seeds[cols[y1_idx]] = line
     return seeds
 
 
