@@ -206,6 +206,15 @@ void sieve_fb_init(void *s_in, poly_coeff_t *coeff,
 void sieve_fb_reset(void *s_in, uint32 p_min, uint32 p_max,
 			uint32 num_roots_min, uint32 num_roots_max);
 
+/* count the (p, root) pairs the factory will produce for the
+   given parameters, without computing any roots. Only cheap
+   for factories restricted to smooth p (fb_only nonzero);
+   returns 0 (unknown) if large prime p would also be produced.
+   The factory is left reset and ready for a fresh run */
+
+uint64 sieve_fb_count(void *s_in, uint32 p_min, uint32 p_max,
+			uint32 num_roots_min, uint32 num_roots_max);
+
 /* function that 'does something' when a single p 
    and all its roots is found */
 

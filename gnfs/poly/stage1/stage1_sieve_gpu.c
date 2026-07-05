@@ -930,6 +930,10 @@ sieve_specialq(msieve_obj *obj,
 	uint32 max_batch_specialq32;
 	uint32 max_batch_specialq64;
 	double elapsed = 0;
+	uint64 total_qroots;
+	uint64 done_qroots = 0;
+	time_t wall_start;
+	time_t last_progress;
 
 	t->gpu_elapsed = 0;
 	t->collision_batches = 0;
@@ -991,10 +995,21 @@ sieve_specialq(msieve_obj *obj,
 		store_specialq(1, 1, trivroots, q_array);
 	}
 
+	/* count the special-q roots in the range up front, so
+	   that progress and an ETA can be reported as batches
+	   complete; include any trivial special-q already stored */
+
+	total_qroots = sieve_fb_count(q_fb, special_q_min,
+				special_q_max, degree, MAX_ROOTS);
+	if (total_qroots != 0)
+		total_qroots += q_array->num_specialq;
+
 	/* handle special-q in batches */
 
-	sieve_fb_reset(q_fb, special_q_min, 
+	sieve_fb_reset(q_fb, special_q_min,
 			special_q_max, degree, MAX_ROOTS);
+
+	wall_start = last_progress = time(NULL);
 
 	while (!quit && !all_q_done) {
 
@@ -1062,6 +1077,35 @@ sieve_specialq(msieve_obj *obj,
 		elapsed = get_cpu_time() - cpu_start_time + t->gpu_elapsed;
 		if (elapsed > deadline)
 			quit = 1;
+
+		/* report progress and an ETA for this coefficient,
+		   based on the fraction of special-q roots completed
+		   and the wall time spent on them so far */
+
+		done_qroots += batch_size;
+
+		if (!quit && total_qroots != 0 &&
+		    done_qroots < total_qroots) {
+
+			time_t now = time(NULL);
+
+			if (now - last_progress >= 60) {
+
+				double done_frac = (double)done_qroots /
+							total_qroots;
+				uint32 eta_sec = (uint32)((now - wall_start) *
+						(1.0 / done_frac - 1.0) + 0.5);
+
+				gmp_printf("coeff %Zd: %.1f%% done, "
+						"ETA %uh%02um\n",
+						c->high_coeff,
+						100.0 * done_frac,
+						eta_sec / 3600,
+						(eta_sec % 3600) / 60);
+				fflush(stdout);
+				last_progress = now;
+			}
+		}
 	}
 
 		if (d->collision_stats && t->collision_batches != 0) {
