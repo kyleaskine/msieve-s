@@ -17,6 +17,17 @@ $Id: stage1_sieve_gpu.c 1056 2024-06-09 13:04:11Z brgladman $
 #include <stage1.h>
 #include <stage1_core_gpu/stage1_core.h>
 
+/* On an interactive terminal we can rewrite the progress line in
+   place with '\r'; when stdout is redirected (or several GPU threads
+   share it) we fall back to plain newline-terminated lines so logs
+   stay readable and threads don't clobber each other's updates. */
+#if defined(WIN32) || defined(_WIN64)
+	#include <io.h>
+	#define stdout_is_tty() (_isatty(_fileno(stdout)) != 0)
+#else
+	#define stdout_is_tty() (isatty(fileno(stdout)) != 0)
+#endif
+
 /* GPU collision search; this code looks for self-collisions
    among arithmetic progressions, by finding k1 and k2 such that
    for two arithmetic progressions r1+k*p1^2 and r2+k*p2^2 we
@@ -934,6 +945,8 @@ sieve_specialq(msieve_obj *obj,
 	uint64 done_qroots = 0;
 	time_t wall_start;
 	time_t last_progress;
+	int progress_shown = 0;
+	int inplace_progress = stdout_is_tty() && d->num_threads == 1;
 
 	t->gpu_elapsed = 0;
 	t->collision_batches = 0;
@@ -1096,16 +1109,41 @@ sieve_specialq(msieve_obj *obj,
 				uint32 eta_sec = (uint32)((now - wall_start) *
 						(1.0 / done_frac - 1.0) + 0.5);
 
-				gmp_printf("coeff %Zd: %.1f%% done, "
-						"ETA %uh%02um\n",
-						c->high_coeff,
-						100.0 * done_frac,
-						eta_sec / 3600,
-						(eta_sec % 3600) / 60);
+				if (inplace_progress) {
+					/* rewrite the same line in place
+					   (leading '\r', no newline) so
+					   progress updates don't scroll;
+					   trailing spaces clear any leftovers
+					   from a longer previous line */
+
+					gmp_printf("\rcoeff %Zd: %.1f%% done, "
+							"ETA %uh%02um    ",
+							c->high_coeff,
+							100.0 * done_frac,
+							eta_sec / 3600,
+							(eta_sec % 3600) / 60);
+					progress_shown = 1;
+				}
+				else {
+					gmp_printf("coeff %Zd: %.1f%% done, "
+							"ETA %uh%02um\n",
+							c->high_coeff,
+							100.0 * done_frac,
+							eta_sec / 3600,
+							(eta_sec % 3600) / 60);
+				}
 				fflush(stdout);
 				last_progress = now;
 			}
 		}
+	}
+
+	/* the in-place progress line has no trailing newline, so
+	   finish it off before any further output for this coeff */
+
+	if (progress_shown) {
+		printf("\n");
+		fflush(stdout);
 	}
 
 		if (d->collision_stats && t->collision_batches != 0) {
@@ -1312,10 +1350,27 @@ sieve_lattice_gpu_core(msieve_obj *obj,
 		special_q_max2 = special_q_max;
 	}
 #if 1
-	gmp_printf("coeff %Zd norm %.2e specialq %u - %u other %u - %u\n",
-			c->high_coeff, c->norm_max_effective,
-			special_q_min2, special_q_max2,
-			p_min, p_max);
+	{
+		time_t now = time(NULL);
+		struct tm tm_buf;
+		char timebuf[32];
+
+		/* localtime() shares a static struct tm; use the
+		   reentrant variant since several GPU threads may
+		   reach this point concurrently */
+#if defined(WIN32) || defined(_WIN64)
+		localtime_s(&tm_buf, &now);
+#else
+		localtime_r(&now, &tm_buf);
+#endif
+		strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M:%S",
+				&tm_buf);
+		gmp_printf("[%s] coeff %Zd norm %.2e "
+				"specialq %u - %u other %u - %u\n",
+				timebuf, c->high_coeff, c->norm_max_effective,
+				special_q_min2, special_q_max2,
+				p_min, p_max);
+	}
 #endif
 	sieve_specialq(obj, c, d, t,
 			special_q_min2, special_q_max2, p_min, p_max,
