@@ -484,6 +484,18 @@ search_coeffs(msieve_obj *obj, poly_search_t *poly, uint32 deadline)
 	printf("deadline: %.0lf CPU-seconds per coefficient\n",
 					deadline_per_coeff);
 
+	/* advertise that a first Ctrl-C here should finish the
+	   leading coefficients already in flight rather than abort
+	   them; see handle_signal() and gpu_data_free(). This only
+	   applies to the GPU path: it has an async threadpool with
+	   coefficients in flight, whereas the CPU path sieves one
+	   coefficient synchronously and must honor a first Ctrl-C
+	   by aborting it immediately (stage1_sieve_cpu.c) */
+
+#ifdef HAVE_CUDA
+	obj->flags |= MSIEVE_FLAG_POLY1_SOFT_STOP;
+#endif
+
 	if (poly->use_coeff_list) {
 		FILE *coeff_file = fopen("coeff_list.txt", "r");
 		char line[1024];
@@ -512,7 +524,8 @@ search_coeffs(msieve_obj *obj, poly_search_t *poly, uint32 deadline)
 			cumulative_time += elapsed;
 #endif
 
-			if (obj->flags & MSIEVE_FLAG_STOP_SIEVING)
+			if (obj->flags & (MSIEVE_FLAG_STOP_SIEVING |
+					  MSIEVE_FLAG_STOP_SIEVING_SOFT))
 				break;
 
 			if (deadline && cumulative_time > deadline)
@@ -561,7 +574,8 @@ search_coeffs(msieve_obj *obj, poly_search_t *poly, uint32 deadline)
 			cumulative_time += elapsed;
 #endif
 
-			if (obj->flags & MSIEVE_FLAG_STOP_SIEVING)
+			if (obj->flags & (MSIEVE_FLAG_STOP_SIEVING |
+					  MSIEVE_FLAG_STOP_SIEVING_SOFT))
 				break;
 
 			if (deadline && cumulative_time > deadline)
@@ -573,8 +587,23 @@ search_coeffs(msieve_obj *obj, poly_search_t *poly, uint32 deadline)
 
 cleanup:
 #ifdef HAVE_CUDA
+	/* gpu_data_free() drains the GPU threadpool gracefully as long
+	   as the hard stop flag is unset, so any leading coefficients
+	   still in flight after a soft stop finish here */
+
 	gpu_data_free(gpu_data);
+
+	/* the in-flight coefficients have now completed; promote a
+	   soft stop to a full stop so the rest of the factorization
+	   treats it as an interrupt too, and disarm the soft stop.
+	   Gated to the GPU path, which is the only one that arms it */
+
+	if (obj->flags & MSIEVE_FLAG_STOP_SIEVING_SOFT)
+		obj->flags |= MSIEVE_FLAG_STOP_SIEVING;
+	obj->flags &= ~(MSIEVE_FLAG_POLY1_SOFT_STOP |
+			MSIEVE_FLAG_STOP_SIEVING_SOFT);
 #endif
+
 	poly_coeff_free(c);
 }
 

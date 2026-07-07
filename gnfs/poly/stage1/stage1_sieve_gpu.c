@@ -1273,6 +1273,14 @@ sieve_lattice_gpu_core(msieve_obj *obj,
 	double target = c->coeff_max / c->m0;
 	uint32 max_aprog_vals = ceil(2 * P_SCALE);
 
+	/* if a soft stop was requested, don't begin a leading
+	   coefficient that is still only queued on the threadpool;
+	   the coefficients already running are past this point and
+	   run to completion */
+
+	if (obj->flags & MSIEVE_FLAG_STOP_SIEVING_SOFT)
+		return;
+
 	/* Kleinjung shows that the third-to-largest algebraic
 	   polynomial coefficient is of size approximately
 

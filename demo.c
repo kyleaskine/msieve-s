@@ -26,11 +26,29 @@ void handle_signal(int sig) {
 
 	msieve_obj *obj = g_curr_factorization;
 
-	printf("\nreceived signal %d; shutting down\n", sig);
+	if (obj && (obj->flags & MSIEVE_FLAG_SIEVING_IN_PROGRESS)) {
 
-	if (obj && (obj->flags & MSIEVE_FLAG_SIEVING_IN_PROGRESS))
-		obj->flags |= MSIEVE_FLAG_STOP_SIEVING;
+		/* GPU stage 1 poly selection arms a two-level stop: the
+		   first Ctrl-C lets the leading coefficients already in
+		   flight finish (so their hits are saved) before quitting,
+		   and a second Ctrl-C stops immediately. Every other phase
+		   (and a Ctrl-C once the soft stop is already pending)
+		   stops immediately */
+
+		if ((obj->flags & MSIEVE_FLAG_POLY1_SOFT_STOP) &&
+		    !(obj->flags & MSIEVE_FLAG_STOP_SIEVING_SOFT)) {
+			printf("\nreceived signal %d; finishing current leading "
+				"coefficient (press Ctrl-C again to stop now)\n",
+				sig);
+			obj->flags |= MSIEVE_FLAG_STOP_SIEVING_SOFT;
+		}
+		else {
+			printf("\nreceived signal %d; shutting down\n", sig);
+			obj->flags |= MSIEVE_FLAG_STOP_SIEVING;
+		}
+	}
 	else {
+		printf("\nreceived signal %d; shutting down\n", sig);
 		/* Use exit() instead of _exit() to ensure atexit()
 		   handlers are called for proper GPU cleanup */
 		exit(0);
