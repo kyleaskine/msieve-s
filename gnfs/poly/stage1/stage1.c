@@ -204,6 +204,8 @@ poly_search_init(poly_search_t *poly, poly_stage1_t *data)
 	poly->norm_max = data->norm_max;
 	poly->high_coeff_multiplier = data->high_coeff_multiplier;
 	poly->use_coeff_list = data->use_coeff_list;
+	poly->target_poly_count = data->target_poly_count;
+	poly->poly_count = 0;
 	poly->callback = data->callback;
 	poly->callback_data = data->callback_data;
 }
@@ -231,6 +233,7 @@ poly_coeff_init(void)
 	mpz_init(c->tmp1);
 	mpz_init(c->tmp2);
 	mpz_init(c->tmp3);
+	c->found_count = 0;
 	return c;
 }
 
@@ -470,6 +473,52 @@ free_ad_sieve(sieve_t *sieve)
 }
 
 /*------------------------------------------------------------------------*/
+/* sieve a single leading coefficient and decide whether the search
+   should stop afterwards. Shared by both loops in search_coeffs so the
+   sieve call, per-coefficient reporting and stop conditions live in one
+   place. Returns nonzero if the search should break (interrupt requested,
+   num_polys= target reached, or the overall deadline exceeded). */
+
+static int
+run_one_coeff(msieve_obj *obj, poly_search_t *poly, poly_coeff_t *c,
+		void *gpu_data, uint32 deadline, uint32 deadline_per_coeff,
+		double *cumulative_time)
+{
+#ifdef HAVE_CUDA
+	*cumulative_time = sieve_lattice_gpu(obj, poly, c, gpu_data,
+						deadline_per_coeff);
+#else
+	/* the GPU path reports per-coefficient counts from its worker
+	   thread (see sieve_specialq); the CPU path runs one coefficient
+	   synchronously here, so report it directly once it finishes */
+
+	(void)gpu_data;
+	c->found_count = 0;
+	*cumulative_time += sieve_lattice_cpu(obj, poly, c, deadline_per_coeff);
+	gmp_printf("coeff %Zd: found %u polys (%u total)\n",
+			c->high_coeff, c->found_count, poly->poly_count);
+	fflush(stdout);
+#endif
+
+	if (obj->flags & (MSIEVE_FLAG_STOP_SIEVING |
+			  MSIEVE_FLAG_STOP_SIEVING_SOFT))
+		return 1;
+
+	/* num_polys= target reached: stop starting new leading coefficients
+	   but let the search finish cleanly. This never sets obj->flags, so
+	   unlike a Ctrl-C soft stop it does not abort the factorization */
+
+	if (poly->target_poly_count &&
+	    poly->poly_count >= poly->target_poly_count)
+		return 1;
+
+	if (deadline && *cumulative_time > deadline)
+		return 1;
+
+	return 0;
+}
+
+/*------------------------------------------------------------------------*/
 static void
 search_coeffs(msieve_obj *obj, poly_search_t *poly, uint32 deadline)
 {
@@ -478,6 +527,8 @@ search_coeffs(msieve_obj *obj, poly_search_t *poly, uint32 deadline)
 	poly_coeff_t *c = poly_coeff_init();
 #ifdef HAVE_CUDA
 	void *gpu_data = gpu_data_init(obj, poly);
+#else
+	void *gpu_data = NULL;
 #endif
 
 	deadline_per_coeff = 8640000;
@@ -507,8 +558,6 @@ search_coeffs(msieve_obj *obj, poly_search_t *poly, uint32 deadline)
 		logprintf(obj, "reading leading coefficients from coeff_list.txt\n");
 
 		while (fgets(line, sizeof(line), coeff_file)) {
-			double elapsed;
-
 			if (line[0] == '\n' || line[0] == '\r' || line[0] == '\0')
 				continue;
 			if (gmp_sscanf(line, "%Zd", c->high_coeff) != 1)
@@ -516,19 +565,8 @@ search_coeffs(msieve_obj *obj, poly_search_t *poly, uint32 deadline)
 
 			stage1_bounds_update(poly, c);
 
-#ifdef HAVE_CUDA
-			cumulative_time = sieve_lattice_gpu(obj, poly, c,
-						gpu_data, deadline_per_coeff);
-#else
-			elapsed = sieve_lattice_cpu(obj, poly, c, deadline_per_coeff);
-			cumulative_time += elapsed;
-#endif
-
-			if (obj->flags & (MSIEVE_FLAG_STOP_SIEVING |
-					  MSIEVE_FLAG_STOP_SIEVING_SOFT))
-				break;
-
-			if (deadline && cumulative_time > deadline)
+			if (run_one_coeff(obj, poly, c, gpu_data, deadline,
+					deadline_per_coeff, &cumulative_time))
 				break;
 		}
 		fclose(coeff_file);
@@ -548,8 +586,6 @@ search_coeffs(msieve_obj *obj, poly_search_t *poly, uint32 deadline)
 				ad_sieve.high_coeff_multiplier);
 
 		while (1) {
-			double elapsed;
-
 			/* we only use a_d which are composed of
 			   many small prime factors, in order to
 			   have lots of projective roots going
@@ -566,19 +602,8 @@ search_coeffs(msieve_obj *obj, poly_search_t *poly, uint32 deadline)
 			/* finally, sieve for polynomials using
 			   Kleinjung's improved algorithm */
 
-#ifdef HAVE_CUDA
-			cumulative_time = sieve_lattice_gpu(obj, poly, c,
-						gpu_data, deadline_per_coeff);
-#else
-			elapsed = sieve_lattice_cpu(obj, poly, c, deadline_per_coeff);
-			cumulative_time += elapsed;
-#endif
-
-			if (obj->flags & (MSIEVE_FLAG_STOP_SIEVING |
-					  MSIEVE_FLAG_STOP_SIEVING_SOFT))
-				break;
-
-			if (deadline && cumulative_time > deadline)
+			if (run_one_coeff(obj, poly, c, gpu_data, deadline,
+					deadline_per_coeff, &cumulative_time))
 				break;
 		}
 

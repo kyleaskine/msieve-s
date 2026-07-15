@@ -508,6 +508,13 @@ typedef struct {
 	uint32 found_saturated_batches;
 	uint64 found_total;
 
+	/* cumulative number of stage-1 polynomials this worker has found
+	   across all leading coefficients. Unlike the found_* stats above
+	   it is NOT reset per coefficient; each worker owns its own count,
+	   so the running total is the sum over threads (see sieve_specialq) */
+
+	uint32 polys_found;
+
 } device_thread_data_t;
 
 typedef struct {
@@ -680,6 +687,13 @@ check_found_array(poly_coeff_t *c, device_data_t *d,
 			task_control_t task_control;
 			stage1_hit_data_t *hit_data = (stage1_hit_data_t *)
 						xmalloc(sizeof(stage1_hit_data_t));
+
+			/* count the poly here (on this coefficient's own
+			   worker thread) rather than on the stage-2 pool, so
+			   the per-coefficient tally is attributable and needs
+			   no locking */
+
+			c->found_count++;
 
 			hit_data->callback = d->poly->callback;
 			hit_data->callback_data = d->poly->callback_data;
@@ -919,6 +933,25 @@ handle_special_q_batch(msieve_obj *obj, device_data_t *d,
 }
 
 /*------------------------------------------------------------------------*/
+/* format the current local time as "YYYY-MM-DD HH:MM:SS" into buf.
+   localtime() shares a static struct tm, so use the reentrant variant
+   since several GPU worker threads may format timestamps concurrently */
+
+static void
+format_local_time(char *buf, size_t len)
+{
+	time_t now = time(NULL);
+	struct tm tm_buf;
+
+#if defined(WIN32) || defined(_WIN64)
+	localtime_s(&tm_buf, &now);
+#else
+	localtime_r(&now, &tm_buf);
+#endif
+	strftime(buf, len, "%Y-%m-%d %H:%M:%S", &tm_buf);
+}
+
+/*------------------------------------------------------------------------*/
 static uint32
 sieve_specialq(msieve_obj *obj,
 		poly_coeff_t *c, device_data_t *d,
@@ -969,6 +1002,7 @@ sieve_specialq(msieve_obj *obj,
 	t->found_batches = 0;
 	t->found_saturated_batches = 0;
 	t->found_total = 0;
+	c->found_count = 0;
 
 	/* build all the arithmetic progressions */
 
@@ -1254,6 +1288,35 @@ sieve_specialq(msieve_obj *obj,
 				t->found_total, FOUND_ARRAY_SIZE);
 	}
 
+	/* fold this coefficient's finds into this worker's running total.
+	   Each worker owns its own polys_found, so that accumulation never
+	   races; the grand total is the sum across workers. */
+
+	t->polys_found += c->found_count;
+	{
+		uint32 i, total = 0;
+		char timebuf[32];
+
+		for (i = 0; i < d->num_threads; i++)
+			total += d->threads[i].polys_found;
+
+		/* publish the grand total for the main thread's num_polys=
+		   stop check and the display. With several workers this is a
+		   plain cross-thread store of a word-sized advisory value: a
+		   concurrent publish could momentarily lose an update, so only
+		   ever advance it. The num_polys= stop is already approximate
+		   (in-flight coefficients overshoot the target), so a total
+		   that trails by at most one coefficient is harmless. */
+
+		if (total > d->poly->poly_count)
+			d->poly->poly_count = total;
+
+		format_local_time(timebuf, sizeof(timebuf));
+		gmp_printf("[%s] coeff %Zd: found %u polys (%u total)\n",
+				timebuf, c->high_coeff, c->found_count, total);
+		fflush(stdout);
+	}
+
 	t->cumulative_elapsed += elapsed;
 	return quit;
 }
@@ -1279,6 +1342,13 @@ sieve_lattice_gpu_core(msieve_obj *obj,
 	   run to completion */
 
 	if (obj->flags & MSIEVE_FLAG_STOP_SIEVING_SOFT)
+		return;
+
+	/* likewise skip queued coefficients once the num_polys= target
+	   has been reached; the ones already in flight finish and drain */
+
+	if (d->poly->target_poly_count &&
+	    d->poly->poly_count >= d->poly->target_poly_count)
 		return;
 
 	/* Kleinjung shows that the third-to-largest algebraic
@@ -1359,20 +1429,9 @@ sieve_lattice_gpu_core(msieve_obj *obj,
 	}
 #if 1
 	{
-		time_t now = time(NULL);
-		struct tm tm_buf;
 		char timebuf[32];
 
-		/* localtime() shares a static struct tm; use the
-		   reentrant variant since several GPU threads may
-		   reach this point concurrently */
-#if defined(WIN32) || defined(_WIN64)
-		localtime_s(&tm_buf, &now);
-#else
-		localtime_r(&now, &tm_buf);
-#endif
-		strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M:%S",
-				&tm_buf);
+		format_local_time(timebuf, sizeof(timebuf));
 		gmp_printf("[%s] coeff %Zd norm %.2e "
 				"specialq %u - %u other %u - %u\n",
 				timebuf, c->high_coeff, c->norm_max_effective,

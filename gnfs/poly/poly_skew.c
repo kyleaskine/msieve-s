@@ -241,6 +241,12 @@ void find_poly_core(msieve_obj *obj, mpz_t n,
 				stage1_data.use_coeff_list = 1;
 				logprintf(obj, "reading leading coefficients from coeff_list.txt\n");
 			}
+			tmp = strstr(obj->nfs_args, "num_polys=");
+			if (tmp != NULL) {
+				stage1_data.target_poly_count = strtoul(tmp + 10, NULL, 10);
+				logprintf(obj, "stage 1 polynomial target: %u\n",
+					stage1_data.target_poly_count);
+			}
 		}
 
 		if (lower_limit != NULL)
