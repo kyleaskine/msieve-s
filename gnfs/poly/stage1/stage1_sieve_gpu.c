@@ -1601,7 +1601,13 @@ load_collision_engine(msieve_obj *obj, device_data_t *d)
 
 	d->collision_engine_handle = load_dynamic_lib(libname);
 	if(d->collision_engine_handle == NULL) {
-		printf("error: failed to load GPU collision engine from \"%s\"\n", libname);
+		printf("error: failed to load GPU collision engine from \"%s\"\n",
+				libname);
+		printf("       the Gerbicz collision engine requires a Volta or newer "
+				"GPU (compute capability 7.0+) and is not built for "
+				"CUDA<70.\n");
+		printf("       omit \"collengine=gerbicz\" to use the default sort "
+				"engine, or rebuild with CUDA>=70.\n");
 		exit(-1);
 	}
 

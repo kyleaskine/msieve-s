@@ -345,5 +345,14 @@ stage1_core.ptx: $(NFS_GPU_HDR)
 
 cub/built: cub/sort_engine.cu cub/collision_engine.cu cub/collision_engine.h cub/collision_bucket.h
 	$(NVCC) $(CUB_ENGINE_ARCH) --shared -Xcompiler -fPIC -o cub/sort_engine.so cub/sort_engine.cu
+# The Gerbicz collision engine uses __match_any_sync, which requires
+# compute capability 7.0 (Volta) or newer. For older GPUs, skip building it;
+# the sort engine is the default and works on sm_60. (Do not pass
+# collengine=gerbicz on such a build - see load_collision_engine().)
+ifeq ($(shell [ -n "$(CUDA)" ] && [ "$(CUDA)" -ge 70 ] && echo yes),yes)
 	$(NVCC) $(CUB_ENGINE_ARCH) --shared -Xcompiler -fPIC -I. -Icub -Ignfs -Ignfs/poly/stage1 -o cub/collision_engine.so cub/collision_engine.cu
+else
+	@echo "NOTE: CUDA=$(CUDA) < 70 (pre-Volta); skipping the Gerbicz collision engine (requires sm_70+). Building the sort engine only - do not pass collengine=gerbicz."
+	@rm -f cub/collision_engine.so
+endif
 	touch cub/built
