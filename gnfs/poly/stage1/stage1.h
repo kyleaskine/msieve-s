@@ -82,6 +82,23 @@ typedef struct {
 
 	uint32 use_coeff_list;
 
+	/* if nonzero, stop the search once this many stage-1 polynomials
+	   have been found (the num_polys= flag). poly_count is the running
+	   total. On the GPU path each worker owns its own lock-free count in
+	   device_thread_data_t.polys_found; when a leading coefficient
+	   completes the worker publishes the sum here for the main thread to
+	   read. That publish is a plain cross-thread store of a word-sized
+	   advisory value (only ever advanced) rather than a synchronized
+	   counter, which is fine because reaching the target only stops
+	   starting new coefficients and is already approximate. The CPU path
+	   is single-threaded and increments poly_count directly. poly_count
+	   is only read, never used to drive obj->flags, so reaching the
+	   target stops stage 1 without aborting the rest of the
+	   factorization. */
+
+	uint32 target_poly_count;
+	uint32 poly_count;
+
 	/* function to call when a collision is found */
 
 	stage1_callback_t callback;
@@ -127,11 +144,16 @@ typedef struct {
 
 	mpz_t trans_N;
 	mpz_t trans_m0;
-	mpz_t m; 
+	mpz_t m;
 	mpz_t p;
 	mpz_t tmp1;
 	mpz_t tmp2;
 	mpz_t tmp3;
+
+	/* number of stage-1 polynomials found for this leading coefficient;
+	   reset when the coefficient starts and reported when it finishes */
+
+	uint32 found_count;
 } poly_coeff_t;
 
 poly_coeff_t * poly_coeff_init(void);

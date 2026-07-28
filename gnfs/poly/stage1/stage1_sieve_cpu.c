@@ -353,6 +353,13 @@ handle_special_q(msieve_obj *obj, poly_search_t *poly, poly_coeff_t *c,
 							poly->callback(c->high_coeff,
 								c->p, c->m,
 								poly->callback_data);
+
+							/* CPU path is single-threaded, so
+							   both counters can be bumped here
+							   without locking */
+
+							c->found_count++;
+							poly->poly_count++;
 						}
 					}
 				}
