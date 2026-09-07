@@ -486,6 +486,25 @@ echo ""
 # PHASE 7: Generate comparison report
 echo "=== PHASE 7: GENERATE COMPARISON REPORT ==="
 
+# Find the composite N so the msieve polynomials in the report are complete
+# (msieve ropt output omits the "n:" line; CADO output already has it).
+POLY_N=""
+for n_src in "$FINAL_DIR/best${TOP_M_CADO}_cado.txt" \
+             "$FINAL_DIR/cado_ropt_orig.txt" \
+             "$WORK_DIR/top${TOP_N_EXTRACT}_input.ms" \
+             "$WORK_DIR/resopt_output.txt"; do
+    if [ -f "$n_src" ]; then
+        POLY_N=$(grep -m1 '^n: [0-9][0-9]*$' "$n_src" 2>/dev/null | awk '{print $2}' || true)
+        [ -n "$POLY_N" ] && break
+    fi
+done
+if [ -z "$POLY_N" ] && [ -f "worktodo.ini" ]; then
+    POLY_N=$(grep -m1 -o '[0-9]\{20,\}' worktodo.ini 2>/dev/null || true)
+fi
+if [ -z "$POLY_N" ]; then
+    echo "  Warning: could not determine N; msieve polynomials in the report will omit the n: line"
+fi
+
 {
     echo "======================================"
     echo "FULL OPTIMIZATION PIPELINE RESULTS"
@@ -616,7 +635,11 @@ echo "=== PHASE 7: GENERATE COMPARISON REPORT ==="
         fi
 
         echo "  $best_line"
-        echo ""
+        if [ -n "$POLY_N" ]; then
+            echo "n: $POLY_N"
+        else
+            echo ""
+        fi
 
         # Extract polynomial body (lines after the # line until next # or end)
         # Find line number of best polynomial
