@@ -53,11 +53,20 @@ cado_build_dir = $HOME/cado-nfs/build/YOUR-BUILD-DIR
 ./nfs_optimize.sh preprocess
 ./nfs_optimize.sh batch [-c N]
 ./nfs_optimize.sh pipeline
+./nfs_optimize.sh report
 ./nfs_optimize.sh cleanup [--deep]
 ./nfs_optimize.sh watch
 ./nfs_optimize.sh config
 ./nfs_optimize.sh help
 ```
+
+`report` re-runs only the final phase of the pipeline (the comparison report,
+plus skewopt if configured) against the results already in `pipeline_results/`.
+It recomputes nothing, takes a couple of seconds, and is the thing to run when
+the pipeline finished but you lost the terminal it was printing to. The counts
+and effort levels are recovered from the previous `pipeline_report.txt`; the
+report it replaces is kept as `pipeline_report.prev.txt`. The underlying flag is
+`./scripts/full_optimization_pipeline.sh --report-only`.
 
 The wrapper does **not** currently implement `test-sopteffort` or `test-ropt`; those commands are not present in `nfs_optimize.sh`, and the old standalone test scripts are not in the current tree.
 

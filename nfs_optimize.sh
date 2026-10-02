@@ -190,6 +190,12 @@ cmd_pipeline() {
         -t "$THREADS"
 }
 
+cmd_report() {
+    echo "Regenerating pipeline report from existing results..."
+    cd "$SCRIPT_DIR"
+    ./scripts/full_optimization_pipeline.sh --report-only "$@"
+}
+
 cmd_cleanup() {
     echo "Running cleanup..."
     cd "$SCRIPT_DIR"
@@ -222,6 +228,8 @@ Commands:
   batch [-c N]         Start batch processing (Phase 1: sopt, Phase 2: ropt)
                          -c N  Stop after N cycles (default: unlimited)
   pipeline             Run full optimization pipeline (extract top N, re-sopt, ropt)
+  report               Re-print the final pipeline report from existing results
+                         (no recomputation; use if you lost the pipeline output)
 
   cleanup [--deep]     Clean up intermediate files (--deep removes all outputs)
   watch                Monitor results in real-time
@@ -245,6 +253,7 @@ Examples:
 
   # Monitoring
   $0 watch                  # Watch results in real-time
+  $0 report                 # Re-show the last pipeline's best results
 
   # Cleanup
   $0 cleanup                # Clean intermediate files (keeps results)
@@ -351,6 +360,9 @@ case "$COMMAND" in
     pipeline)
         check_dependencies
         cmd_pipeline "$@"
+        ;;
+    report)
+        cmd_report "$@"
         ;;
     cleanup)
         cmd_cleanup "$@"

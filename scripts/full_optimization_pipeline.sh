@@ -25,6 +25,7 @@ CADO_SOPT="${CADO_SOPT:-$HOME/cado-nfs/build/localhost/polyselect/sopt}"
 CADO_ROPT="${CADO_ROPT:-$HOME/cado-nfs/build/localhost/polyselect/polyselect_ropt}"
 MSIEVE="${MSIEVE:-./msieve}"
 SKEWOPT="${SKEWOPT:-}"  # Optional: path to skewopt binary
+REPORT_ONLY=0            # If 1, skip phases 1-6 and only regenerate the report
 
 # Working directories
 WORK_DIR="pipeline_work"
@@ -39,6 +40,8 @@ Complete polynomial optimization pipeline
 
 Options:
   -h, --help              Show this help message and exit
+  --report-only           Skip phases 1-6; regenerate the report (and skewopt)
+                          from results already in $FINAL_DIR/
   -n, --extract N         Extract top N from initial sopt (default: 100)
   --msieve-ropt M         Run msieve ropt on top M after re-sopt (default: 10)
   --cado-ropt M           Run CADO ropt on top M after re-sopt (default: 100)
@@ -57,12 +60,28 @@ Pipeline steps:
      - msieve -npr on top M_msieve (original + inverted)
      - CADO polyselect_ropt on top M_cado (original + inverted)
 
+Report-only mode:
+  --report-only re-runs just the final reporting phase against the results
+  already on disk. It is safe to use after the pipeline has finished (or if
+  you lost the terminal it was printing to). Counts and efforts are taken
+  from the previous $FINAL_DIR/pipeline_report.txt when it exists, so plain
+  "--report-only" normally needs no other arguments; anything you pass
+  explicitly overrides what the old report says.
+
 Output:
   $FINAL_DIR/ - All final results and comparison
 
 EOF
     exit 0
 }
+
+# Track which values the user set explicitly (used by --report-only)
+SET_TOP_N_EXTRACT=0
+SET_TOP_M_MSIEVE=0
+SET_TOP_M_CADO=0
+SET_RESOPT_EFFORT=0
+SET_ROPT_EFFORT=0
+SET_THREADS=0
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -72,26 +91,32 @@ while [[ $# -gt 0 ]]; do
             ;;
         -n|--extract)
             TOP_N_EXTRACT="$2"
+            SET_TOP_N_EXTRACT=1
             shift 2
             ;;
         --msieve-ropt)
             TOP_M_MSIEVE="$2"
+            SET_TOP_M_MSIEVE=1
             shift 2
             ;;
         --cado-ropt)
             TOP_M_CADO="$2"
+            SET_TOP_M_CADO=1
             shift 2
             ;;
         --resopt-effort)
             RESOPT_EFFORT="$2"
+            SET_RESOPT_EFFORT=1
             shift 2
             ;;
         --ropt-effort)
             ROPT_EFFORT="$2"
+            SET_ROPT_EFFORT=1
             shift 2
             ;;
         -t|--threads)
             THREADS="$2"
+            SET_THREADS=1
             shift 2
             ;;
         --initial-sorted)
@@ -106,6 +131,10 @@ while [[ $# -gt 0 ]]; do
             MSIEVE_SOPT_SORTED="$2"
             shift 2
             ;;
+        --report-only)
+            REPORT_ONLY=1
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
             echo "Use -h or --help for usage information"
@@ -114,7 +143,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Check dependencies
+# Check dependencies (report-only mode reuses results already on disk, so it
+# needs none of the binaries or the large sopt inputs)
+if [ "$REPORT_ONLY" -eq 0 ]; then
 for cmd in "$CADO_SOPT" "$CADO_ROPT" "$MSIEVE"; do
     if [ ! -f "$cmd" ]; then
         echo "Error: Required binary not found: $cmd"
@@ -136,13 +167,75 @@ for file in "$INITIAL_SOPT_SORTED" "$INITIAL_SOPT_UNSORTED" "$MSIEVE_SOPT_SORTED
         exit 1
     fi
 done
+fi
 
 # Create working directories
 mkdir -p "$WORK_DIR" "$FINAL_DIR"
 
 echo "======================================"
-echo "FULL OPTIMIZATION PIPELINE"
+if [ "$REPORT_ONLY" -eq 1 ]; then
+    echo "FULL OPTIMIZATION PIPELINE (REPORT ONLY)"
+else
+    echo "FULL OPTIMIZATION PIPELINE"
+fi
 echo "======================================"
+
+# Report-only mode: recover the settings of the run that produced the results
+# on disk. Anything passed explicitly on the command line wins.
+if [ "$REPORT_ONLY" -eq 1 ]; then
+    PREV_REPORT="$FINAL_DIR/pipeline_report.txt"
+
+    prev_num() {
+        # $1 = sed expression with one capture group; prints "" if not found
+        if [ -f "$PREV_REPORT" ]; then
+            sed -n "s/$1/\\1/p" "$PREV_REPORT" | head -n1
+        fi
+    }
+
+    if [ "$SET_TOP_N_EXTRACT" -eq 0 ]; then
+        v=$(prev_num '^  Extracted top \([0-9][0-9]*\) from initial sopt$')
+        if [ -n "$v" ]; then TOP_N_EXTRACT="$v"; fi
+    fi
+    if [ "$SET_RESOPT_EFFORT" -eq 0 ]; then
+        v=$(prev_num '^  Re-ran sopt with effort \([0-9][0-9]*\)$')
+        if [ -n "$v" ]; then RESOPT_EFFORT="$v"; fi
+    fi
+    if [ "$SET_TOP_M_MSIEVE" -eq 0 ]; then
+        v=$(prev_num '^  Selected best \([0-9][0-9]*\) for msieve ropt$')
+        if [ -n "$v" ]; then TOP_M_MSIEVE="$v"; fi
+    fi
+    if [ "$SET_TOP_M_CADO" -eq 0 ]; then
+        v=$(prev_num '^  Selected best \([0-9][0-9]*\) for CADO ropt$')
+        if [ -n "$v" ]; then TOP_M_CADO="$v"; fi
+    fi
+    if [ "$SET_ROPT_EFFORT" -eq 0 ]; then
+        v=$(prev_num '^  CADO ropt effort: \([0-9][0-9]*\)$')
+        if [ -n "$v" ]; then ROPT_EFFORT="$v"; fi
+    fi
+    if [ "$SET_THREADS" -eq 0 ]; then
+        v=$(prev_num '^  Parallel threads: \([0-9][0-9]*\)$')
+        if [ -n "$v" ]; then THREADS="$v"; fi
+    fi
+
+    # Fall back to whatever selection files are actually present
+    if [ "$SET_TOP_M_MSIEVE" -eq 0 ] && [ ! -f "$FINAL_DIR/best${TOP_M_MSIEVE}_msieve.ms" ]; then
+        v=$(ls "$FINAL_DIR"/best*_msieve.ms 2>/dev/null | \
+            sed -n 's#.*/best\([0-9][0-9]*\)_msieve\.ms$#\1#p' | sort -n | tail -n1 || true)
+        if [ -n "$v" ]; then TOP_M_MSIEVE="$v"; fi
+    fi
+    if [ "$SET_TOP_M_CADO" -eq 0 ] && [ ! -f "$FINAL_DIR/best${TOP_M_CADO}_cado.txt" ]; then
+        v=$(ls "$FINAL_DIR"/best*_cado.txt 2>/dev/null | \
+            sed -n 's#.*/best\([0-9][0-9]*\)_cado\.txt$#\1#p' | sort -n | tail -n1 || true)
+        if [ -n "$v" ]; then TOP_M_CADO="$v"; fi
+    fi
+
+    echo "Reusing results in $FINAL_DIR/ (phases 1-6 skipped)"
+    if [ -f "$PREV_REPORT" ]; then
+        echo "Settings recovered from $PREV_REPORT"
+    fi
+    echo ""
+fi
+
 echo "Extract top $TOP_N_EXTRACT from initial sopt"
 echo "Re-run sopt with effort $RESOPT_EFFORT"
 echo "Run msieve ropt on best $TOP_M_MSIEVE after re-sopt"
@@ -150,6 +243,8 @@ echo "Run CADO ropt on best $TOP_M_CADO after re-sopt"
 echo "CADO ropt effort: $ROPT_EFFORT"
 echo "Parallel threads: $THREADS"
 echo ""
+
+if [ "$REPORT_ONLY" -eq 0 ]; then
 
 # PHASE 1: Extract top N input polynomials from initial sopt
 echo "=== PHASE 1: EXTRACT TOP $TOP_N_EXTRACT INPUT POLYNOMIALS ==="
@@ -482,6 +577,64 @@ END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))
 echo "  Completed in ${DURATION}s"
 echo ""
+
+else
+
+# Report-only: recover the exp_E ranges phase 7 prints, from the selection
+# files (preferred) or from the previous report if pipeline_work/ is gone.
+MSIEVE_SELECTION="$FINAL_DIR/best${TOP_M_MSIEVE}_msieve.ms"
+RESOPT_SORTED_MS="$WORK_DIR/resopt_msieve_sorted.ms"
+
+NUM_COLS=0
+for f in "$MSIEVE_SELECTION" "$RESOPT_SORTED_MS"; do
+    if [ -s "$f" ]; then
+        NUM_COLS=$(head -n 1 "$f" | wc -w)
+        break
+    fi
+done
+if [ "$NUM_COLS" -eq 12 ]; then
+    EXPE_COL=11
+else
+    EXPE_COL=10
+fi
+
+MSIEVE_BEST_EXPE=""
+MSIEVE_WORST_EXPE=""
+if [ -s "$MSIEVE_SELECTION" ]; then
+    MSIEVE_BEST_EXPE=$(head -n 1 "$MSIEVE_SELECTION" | awk -v col=$EXPE_COL '{print $col}')
+    MSIEVE_WORST_EXPE=$(tail -n 1 "$MSIEVE_SELECTION" | awk -v col=$EXPE_COL '{print $col}')
+fi
+
+CADO_BEST_EXPE=""
+CADO_WORST_EXPE=""
+if [ -s "$RESOPT_SORTED_MS" ]; then
+    CADO_BEST_EXPE=$(head -n 1 "$RESOPT_SORTED_MS" | awk -v col=$EXPE_COL '{print $col}')
+    CADO_WORST_EXPE=$(head -n "$TOP_M_CADO" "$RESOPT_SORTED_MS" | tail -n 1 | awk -v col=$EXPE_COL '{print $col}')
+fi
+
+# Last resort: lift the ranges straight out of the previous report
+if [ -f "$PREV_REPORT" ]; then
+    if [ -z "$MSIEVE_BEST_EXPE" ]; then
+        MSIEVE_BEST_EXPE=$(prev_num '^msieve exp_E range: \([^ ]*\) to .*$')
+        MSIEVE_WORST_EXPE=$(prev_num '^msieve exp_E range: [^ ]* to \(.*\)$')
+    fi
+    if [ -z "$CADO_BEST_EXPE" ]; then
+        CADO_BEST_EXPE=$(prev_num '^CADO exp_E range:  *\([^ ]*\) to .*$')
+        CADO_WORST_EXPE=$(prev_num '^CADO exp_E range:  *[^ ]* to \(.*\)$')
+    fi
+fi
+
+# Keep the report we are about to overwrite, in case regeneration goes wrong
+if [ -f "$PREV_REPORT" ]; then
+    cp "$PREV_REPORT" "$FINAL_DIR/pipeline_report.prev.txt"
+fi
+
+MSIEVE_BEST_EXPE="${MSIEVE_BEST_EXPE:-N/A}"
+MSIEVE_WORST_EXPE="${MSIEVE_WORST_EXPE:-N/A}"
+CADO_BEST_EXPE="${CADO_BEST_EXPE:-N/A}"
+CADO_WORST_EXPE="${CADO_WORST_EXPE:-N/A}"
+
+fi
 
 # PHASE 7: Generate comparison report
 echo "=== PHASE 7: GENERATE COMPARISON REPORT ==="
