@@ -10,8 +10,9 @@ cado_orig_r0084.poly = CADO polyselect_ropt (orig) best on the winning seed, at 
 skewopt skew. results.tsv: per poly and q range, special-q count, relations,
 relations per special-q (+ standard error), CPU seconds per relation.
 
-This is a stand-in for the real job: these numbers are not sieved with GGNFS lasieve
-or the job file you would actually use. For that, use ~/code/test-sieve.
+This is a stand-in for the real job: these numbers are not sieved with the siever or
+the job file you would actually use. Future test sieves use the GPU siever's script,
+~/code/cuda-sieve/bench/testsieve.sh.
 
 Second run (results_lpbr29_lpba30.tsv): the user's c145-style settings, lpb0 (rational)
 29, lpb1 (algebraic) 30, I = 14, q from 10M (lims, mfb 58/58 unchanged; lambda0 2.0,

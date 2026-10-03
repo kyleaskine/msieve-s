@@ -33,8 +33,12 @@ tools/            Python 3, no dependencies beyond the standard library
   prefilter_window.py  exhaustive windows around the benchmark optima: does a small-prime
                     prefilter (classes mod 2520) lose the best cell?
   make_fixture.py   builds data/<job>/ from a pipeline run
+  fixture_raw.py    writes a fixture's raw polys as CADO-format input for any sopt
+  cado_expe.c       full-precision lognorm / exp_E / alpha from CADO's own code (built on
+                    first use against the configured CADO build); M1's scorer
 data/
   c146/             2026-10-02 c146 run (full data below)
+  c161/             2026-10-03 c161 run (full data below)
   c204/             2026-10-02 c204 run (the three winners only; the rest was deleted)
 ```
 
@@ -43,8 +47,9 @@ Run the tools from the repository root; their defaults are the pipeline's file n
 from `$CADO_BUILD_DIR`, else `cado_build_dir` in `nfs_config.ini`; override with `--sopt` /
 `--score`. `sopt_compare.py` rejects any result that is not a valid polynomial for N (Y1
 changed, a zero or non-multiple leading coefficient, or Res(f, g) not a nonzero multiple
-of N) and exits 1. It compares CADO's printed 2-decimal exp_E; M1's full-precision
-rescoring still needs an exp_E implementation (part of M1).
+of N) and exits 1. Plain runs compare CADO's printed 2-decimal exp_E; `--rescore`
+rescores with `cado_expe` at full precision (M1's rule) and also exits 1 if any row is
+worse or a fixture row of a covered set is missing.
 
 ## data/c146
 
@@ -67,12 +72,47 @@ the same poly, translated). CADO-orig found a separate optimum at u = 120,
 1.2133e-11. The second-best seed overall is exp_E rank 407 (1.225e-11), outside the
 pipeline's top 300.
 
+## data/c161
+
+N = 7326172377…774589164086067 (161 digits, in `n.txt`), degree 5, 814,307 deduped raw
+polys from msieve `-np1 -nps` (2026-10-03 run). Same pipeline settings as c146: top 1000
+re-sopt at effort 50, msieve ropt on the best 300, CADO ropt (effort 5) on the best 150,
+8 threads, CADO default parameters for MurphyE.
+
+| File | Contents |
+|---|---|
+| `n.txt` | N |
+| `sopt_sample.tsv.gz` | 11,000 raw polys: the top 1000 by effort-0 exp_E (`set=top`, with CADO's effort-50 results from the pipeline's re-sopt) and a random 10,000 of the rest (`set=random`, seed 1). Built before any stage23_gpu code saw this number: a clean second acceptance set. |
+| `ropt_seeds.tsv.gz` | As for c146: every seed of effort-50 exp_E ranks 1–1000 in the pipeline's order, with ran flags and best scores. msieve ran on ranks 1–300 (3 printed nothing), CADO on 1–150. |
+| `winners/` | The winning seed (Y1 = 419093078612002505953, exp_E rank 16 of 1000, 42.12 vs 41.34 best, multiplier −8): `raw.poly`, `sopt.poly`, and the best `msieve_best`, `cado_orig_best`, `cado_inv_best` results. |
+
+Benchmark for this seed: CADO's winner scores **1.6246e-12** under skewopt (CADO-inv found
+the identical poly, negated). msieve's best is a separate optimum, 1.6101e-12; it is at
+u = 0 like CADO's (t = −658,490, v = −1,219,680 from CADO's), so on this seed the two
+optima differ by translation and v only, not by a large u as on c146 and c204. Both
+tools rank the same seed first and exp_E rank 2 second (1.49e-12, 8% behind).
+
 ## data/c204
 
 N in `n.txt`. The three winners of the 2026-10-02 c204 run, all from one seed (Y1 =
 552226208798178007565897, multiplier 2): `A_msieve.poly` (5.019e-15), `B_cado_orig.poly`
 (5.160e-15, 5.194e-15 after skewopt, at u = 90 from A) and `C_cado_inv.poly`. **Target: beat
 5.194e-15.** The raw polys and other results of this run were not kept.
+
+## M1 acceptance (GPU sopt vs CADO)
+
+```bash
+python3 stage23_bench/tools/fixture_raw.py stage23_bench/data/c146/sopt_sample.tsv.gz /tmp/raw.poly
+# ... run the GPU sopt (or CADO's sopt -sopteffort 0) on /tmp/raw.poly -> RESULT ...
+python3 stage23_bench/tools/sopt_compare.py stage23_bench/data/c146/sopt_sample.tsv.gz RESULT --rescore
+```
+
+A row passes if the polynomial is identical to CADO's effort-0 result, or valid and no
+worse in exp_E when both are recomputed at full precision by CADO's code (`cado_expe`).
+Self-test: CADO's own sopt on the exported raws gives 13,000/13,000 identical (pass
+100%). Against the effort-50 results (`--effort e50`, or effort-50 outputs as OTHER),
+CADO's effort 50 is slightly worse than its effort 0 on 2 of 3000 at full precision
+(by 0.0015 and 0.0006), so higher effort is not monotone either.
 
 ## Reproducing the M0 checks (c146 numbers in GPU_STAGE23_PLAN.md)
 
@@ -100,9 +140,11 @@ python3 $T/rotation_diff.py stage23_bench/data/c146/winners/msieve_best.poly \
     stage23_bench/data/c146/winners/cado_orig_best.poly
 ```
 
-Test sieving with the parameters you would actually sieve with (GGNFS lasieve, job
-file) uses the separate `~/code/test-sieve` repository (`test_sieve.sh`, or
-`cado_test_sieve.sh` for CADO las); it is not copied here.
+Test sieving uses the GPU siever's script, `~/code/cuda-sieve/bench/testsieve.sh`
+(job file with the parameters you would actually sieve with; q in millions; it can also
+sweep sieve geometry and factor-base bounds). It keeps the whole flow on the GPU and is
+much faster than the CPU sievers. The c146 test sieve in `data/c146/test_sieve/` was run
+earlier with CADO `las` and is kept for reference.
 
 To run sopt or ropt on more ranks, cut the ranked files the way the pipeline does
 (`pipeline_work/resopt_msieve_sorted.ms` is the effort-50 ranking in msieve format; the

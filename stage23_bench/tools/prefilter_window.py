@@ -93,7 +93,7 @@ def own_frame(c, g, u, v, t):
 
 
 def lognorms(n, polys, y1):
-    """Input lognorm (at its L2 skew) of each poly, as CADO sopt prints it."""
+    """Input lognorm (at CADO's combined f/g skew) of each poly, as CADO sopt prints it."""
     fd, path = tempfile.mkstemp(suffix='.poly')
     with os.fdopen(fd, 'w') as fh:
         for cs, y0 in polys:

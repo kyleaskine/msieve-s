@@ -254,9 +254,35 @@ def spearman(a, b):
     return cov / var ** 0.5 if var else 0.0
 
 
-def cado_binary(name):
-    """Path of CADO's polyselect/<name>: from $CADO_BUILD_DIR, else cado_build_dir in the
-    repository's nfs_config.ini (the setting nfs_optimize.sh uses)."""
+def load_fixture(path, effort='e0'):
+    """(raw, opt, rank, set) rows of a make_fixture.py sopt_sample.tsv.gz; opt is the CADO
+    result at the given effort ('e0' or 'e50'; None where that effort was not run).
+    N comes from n.txt in the same directory."""
+    import gzip
+    with open(os.path.join(os.path.dirname(os.path.abspath(path)), 'n.txt')) as fh:
+        n = int(fh.read())
+    rows = []
+    with gzip.open(path, 'rt') as fh:
+        header = fh.readline().rstrip('\n').split('\t')
+        for line in fh:
+            r = dict(zip(header, line.rstrip('\n').split('\t')))
+            d = max(int(k[len('raw_c'):]) for k in r if k.startswith('raw_c'))
+            raw = {'n': n, 'Y1': int(r['Y1']), 'Y0': int(r['raw_Y0'])}
+            raw.update({'c%d' % i: int(r['raw_c%d' % i]) for i in range(d + 1)})
+            opt = None
+            if r.get(effort + '_Y0'):
+                opt = {'n': n, 'Y1': raw['Y1'], 'Y0': int(r[effort + '_Y0'])}
+                opt.update({'c%d' % i: int(r['%s_c%d' % (effort, i)]) for i in range(d + 1)})
+                opt.update(skew=float(r[effort + '_skew']), lognorm=float(r[effort + '_lognorm']),
+                           exp_E=float(r[effort + '_exp_E']), alpha=float(r[effort + '_alpha']),
+                           proj=float(r[effort + '_proj']), rroots=int(r[effort + '_rroots']))
+            rows.append((raw, opt, int(r['rank_e0']), r['set']))
+    return rows
+
+
+def cado_build_dir():
+    """CADO build directory: $CADO_BUILD_DIR, else cado_build_dir in the repository's
+    nfs_config.ini (the setting nfs_optimize.sh uses)."""
     build = os.environ.get('CADO_BUILD_DIR')
     if not build:
         ini = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'nfs_config.ini')
@@ -268,6 +294,76 @@ def cado_binary(name):
                         build = m.group(1)
                         break
     if not build:
-        raise SystemExit(f"can't locate CADO's {name}: set CADO_BUILD_DIR, cado_build_dir in "
-                         "nfs_config.ini, or pass the binary's path")
-    return os.path.join(os.path.expanduser(os.path.expandvars(build)), 'polyselect', name)
+        raise SystemExit("can't locate CADO: set CADO_BUILD_DIR or cado_build_dir in nfs_config.ini")
+    return os.path.expanduser(os.path.expandvars(build))
+
+
+def cado_binary(name):
+    """Path of CADO's polyselect/<name>."""
+    return os.path.join(cado_build_dir(), 'polyselect', name)
+
+
+def cado_src_dir(build=None):
+    """CADO source directory, from the build directory's CMakeCache.txt."""
+    build = build or cado_build_dir()
+    cache = os.path.join(build, 'CMakeCache.txt')
+    try:
+        with open(cache) as fh:
+            for line in fh:
+                if line.startswith('CMAKE_HOME_DIRECTORY'):
+                    return line.split('=', 1)[1].strip()
+    except OSError as e:
+        raise SystemExit(f"can't read {cache}: {e}")
+    raise SystemExit(f"no CMAKE_HOME_DIRECTORY in {cache}")
+
+
+def cado_compile_args(build=None):
+    """(include flags, static libs, link flags) for code using CADO's polyselect and utils
+    libraries. The one definition shared with stage23_gpu/Makefile (see main below)."""
+    build = build or cado_build_dir()
+    src = cado_src_dir(build)
+    incs = [f'-I{src}', f'-I{src}/utils', f'-I{src}/polyselect', f'-I{build}']
+    libs = [f'{build}/polyselect/libpolyselect_common.a', f'{build}/utils/libutils.a']
+    return incs, libs, ['-lgmp', '-lm', '-lpthread', '-lstdc++']
+
+
+def cado_expe_binary():
+    """Path of cado_expe (full-precision exp_E from CADO's own code), built on first use
+    against the configured CADO build, and rebuilt when its source or CADO's libs change."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    binary, src = os.path.join(here, 'cado_expe'), os.path.join(here, 'cado_expe.c')
+    incs, libs, ldflags = cado_compile_args()
+    newest = max(os.path.getmtime(f) for f in [src] + libs)
+    if os.path.exists(binary) and os.path.getmtime(binary) >= newest:
+        return binary
+    import subprocess
+    subprocess.run(['gcc', '-O2', '-std=c99', '-fopenmp'] + incs + ['-o', binary, src] + libs + ldflags,
+                   check=True)
+    return binary
+
+
+def cado_expe(polys, n):
+    """Full-precision (skew, lognorm, exp_E, alpha, alpha_proj) for each poly, computed by
+    CADO's own code at CADO's combined f/g skew, exactly as sopt computes the exp_E it
+    prints (rounded) - see cado_expe.c."""
+    import subprocess
+    if not polys:
+        return []
+    text = '\n'.join(cado_poly_text({k: v for k, v in p.items()
+                                     if k in ('Y0', 'Y1') or (k[0] == 'c' and k[1:].isdigit())}, n)
+                     for p in polys) + '\n'
+    out = subprocess.run([cado_expe_binary()], input=text, capture_output=True, text=True,
+                         check=True).stdout.splitlines()
+    if len(out) != len(polys):
+        raise RuntimeError(f"cado_expe scored {len(out)} of {len(polys)} polynomials")
+    keys = ('skew', 'lognorm', 'exp_E', 'alpha', 'alpha_proj')
+    return [dict(zip(keys, (float(x) for x in line.split('\t')[3:]))) for line in out]
+
+
+if __name__ == '__main__':
+    # make variables for stage23_gpu/Makefile: polyfmt.py --cado-inc|--cado-libs [BUILD]
+    import sys
+    if len(sys.argv) not in (2, 3) or sys.argv[1] not in ('--cado-inc', '--cado-libs'):
+        raise SystemExit('usage: polyfmt.py --cado-inc|--cado-libs [CADO_BUILD_DIR]')
+    incs, libs, ldflags = cado_compile_args(sys.argv[2] if len(sys.argv) == 3 and sys.argv[2] else None)
+    print(' '.join(incs if sys.argv[1] == '--cado-inc' else libs + ldflags))

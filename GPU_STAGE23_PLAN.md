@@ -221,6 +221,23 @@ beat 1.2391e-11. The raw poly, its sopt result and the three winners are in
 `stage23_bench/data/c146/winners/`; the per-seed ropt baseline for ranks 1–1000 is
 `stage23_bench/data/c146/ropt_seeds.tsv.gz`.
 
+### Third seed: c161, 2026-10-03
+
+n = 7326172377…774589164086067 (161 digits). Y1 = 419093078612002505953, raw c5 = 22680,
+sopt multiplier a = −8 (c5 = −181440, Res = −8N). The seed was `exp_E` rank 16 (42.12
+vs 41.34 best). All four ropt runs (msieve and CADO, orig and inv) picked this seed.
+
+| Result | t vs CADO orig | (u, v) | skewopt MurphyE |
+|---|---:|---|---:|
+| CADO orig (inv identical, negated) | 0 | (0, 0) | **1.6246e-12** |
+| msieve `-npr` orig | −658,490 | (0, −1,219,680) | 1.6101e-12 |
+| msieve `-npr` inv | | | 1.532e-12 (msieve's `e`) |
+
+Here the two tools' optima are both at u = 0 relative to the sopt poly; they differ by
+translation and v only. The next seed (exp_E rank 2) is 8% behind under both tools.
+Target for this seed: beat 1.6246e-12. Files: `stage23_bench/data/c161/winners/` and
+`ropt_seeds.tsv.gz`.
+
 Appendix A has the recovery math. The original fixture in
 `POLYSELECT_RANKING_IMPROVEMENT_PLAN.md` (a different c204, E 4.237e-15) is a second test
 case. Its alternative optima are unknown.
@@ -240,8 +257,10 @@ case. Its alternative optima are unknown.
    - Translation and rotation work by cancellation.
    - Degree 5 at c204: c0 is about 153–161 bits, and translation intermediates reach about
      200 bits.
-   - Use fixed-width 256-bit limbs in registers, with an overflow flag that falls back to
-     the CPU path. Degree 6 at c250+ may need 320 bits.
+   - Fixed-width integers with an overflow flag that falls back to the CPU path. As
+     built (`stage23_gpu/include/mpint.h`): 512-bit polynomial coefficients, 4096-bit
+     for the exact LLL and the discriminant, whose intermediates measured up to 2,433
+     bits on c204 (so ~2,600-3,072 bits would do). Degree 6 at c250+ will need more.
    - The existing `stage1_core_gpu/cuda_intrinsics.h` only covers 64-bit modular
      arithmetic, so the multiprecision layer is new.
 3. **No general LLL, but the multiplier a must be searched.**
@@ -278,6 +297,12 @@ case. Its alternative optima are unknown.
    - Flatten this into (poly, candidate) work lists, run a descent kernel with a fixed
      iteration cap and early-exit masks, then reduce per poly.
    - Same pattern as the stage-1 collision engine.
+   - **The reduction must keep CADO's sequential semantics, or ties stop matching.**
+     CADO walks the sorted, deduplicated translation list in order; after best_norm2 a
+     candidate whose resulting k was already produced by an earlier candidate is skipped
+     (first one wins); and `lognorm < best_lognorm` keeps the first of equal exp_E. So
+     dedupe the post-best_norm2 k in list order before the descent, and reduce per poly
+     by (exp_E, candidate index) with strict-less semantics.
 5. **Alpha is invariant under translation, so search in (u, v) with re-translation.**
    - At fixed translation, a +0.2 lognorm budget allows only u ∈ {−1, 0, 1} for this seed.
      Yet B differs from A by u = 90.
@@ -349,7 +374,9 @@ raw poly (Y1, Y0, c5).
       effort 50 (168 s on 8 processes, 0.67 s per poly): mean gain 0.013 nats, max 0.73.
       None enter the top 150; 2 enter the top 300 (from ranks 1302 and 1391).
 - [x] **How much does effort 0 → 50 change `exp_E`?** Little. On the top 1000, 745 are
-      identical; mean gain 0.015 nats, max 0.60, never worse; 75 change their multiplier a.
+      identical; mean gain 0.015 nats, max 0.60, never worse at CADO's printed precision
+      (at full precision, 2 of the top 3000 are slightly worse, by ≤ 0.0015); 75 change
+      their multiplier a.
       The effort-50 top 150 has 147 from effort-0 ranks ≤ 250; the deepest is rank 607.
 - [x] **Do job parameters reorder the finalists?** No. 43 distinct finalists, each with
       skew optimized separately under CADO defaults and under c145 job parameters
@@ -390,8 +417,9 @@ raw poly (Y1, Y0, c5).
       over q ∈ [3M, 3.004M], [8M, 8.004M], [16M, 16.004M], about 700 special-q per poly;
       the standard error of relations per special-q is about 0.3% per poly (polys, exact
       command and results in `stage23_bench/data/c146/test_sieve/`). CADO's c145
-      parameters stand in for a real job file here; real validation should sieve with
-      GGNFS lasieve and the job's parameters (`~/code/test-sieve`):
+      parameters stand in for a real job file here; real validation should test-sieve
+      on the GPU with the job's parameters (`~/code/cuda-sieve/bench/testsieve.sh`,
+      the user's preferred tool: GPU-only like the rest of this work, and much faster):
 
       | Poly (exp_E rank, tool) | skew | MurphyE vs winner | yield vs winner | speed vs winner |
       |---|---:|---:|---:|---:|
@@ -440,13 +468,13 @@ Findings that change the design:
     the top 10–30.
 - **MurphyE has a 3–4% error floor against test sieving at the top**, the same size as
   the gains being chased. Final selection among the best candidates should be by test
-  sieve (about 3 minutes per poly on 8 threads at c146, `~/code/test-sieve`), and the
+  sieve (`~/code/cuda-sieve/bench/testsieve.sh`, on the GPU), and the
   GPU's job is to hand it a short, diverse list rather than a single MurphyE winner.
 
 ### M1: GPU sopt reproducing CADO's objective
 
 - **Components:**
-  - 256-bit polynomial arithmetic (translate, rotate)
+  - fixed-width polynomial arithmetic (translate, rotate; 512-bit as built)
   - L2 lognorm (closed form) and best skew (numeric: roots of a degree-d polynomial in s²,
     comparing the lognorm at each extremum, as `polyselect_norms.c` does)
   - `expected_rotation_gain`
@@ -457,11 +485,68 @@ Findings that change the design:
 - **Interface:** start as a standalone binary that reads the raw `.ms` and writes CADO
   `sopt` format, so `utils/sort_cado_by_expe.py` and the pipeline work unchanged. Inline
   integration (the `poly_sizeopt_run` hook) comes later.
-- **Done when:** on the acceptance set (top 3000 + random 10,000), nearly every poly
-  is either identical to CADO's result or has `exp_E` ≤ CADO's + 0.005 with both outputs
-  rescored by one full-precision exp_E implementation (CADO prints 2 decimals), joined on
-  the raw poly (Y1, Y0, c5). `sopt_compare.py` also rejects invalid polys. Investigate the
-  rest. `stage23_bench/data/c146/sopt_sample.tsv.gz` is the first target.
+- **Done when:** on the acceptance set (top 3000 + random 10,000), every poly is either
+  identical to CADO's result or valid and no worse (within 1e-6) in `exp_E`, with both
+  outputs rescored at full precision by CADO's own code (`cado_expe`; CADO prints 2
+  decimals), joined on the raw poly (Y1, Y0, c5). `sopt_compare.py --rescore` applies
+  this and fails its exit status otherwise. `stage23_bench/data/c146/sopt_sample.tsv.gz`
+  is the first target.
+- **Progress (2026-10-03):** `stage23_gpu/` holds the host/device code. `Int<L>`
+  (32-bit-limb fixed-width integers) matches GMP; the exact-integer LLL and CADO's
+  `best_norm` (translate, lattice, LLL, row choice) are identical to CADO on 24,343
+  cases from the c146 fixture and the c204 winners, tested as a host build of the same
+  source. Widest intermediate 2,433 bits (c204). On the GPU (2026-10-03) all 24,343
+  cases are identical to the host build.
+- **M1 steps 3-4 (2026-10-03, CPU build):** `stage23_gpu/tools/s23_sopt` ports CADO's
+  whole size optimization (translation candidates, best_norm2, local descent,
+  expected_rotation_gain with the exact projective alpha, effort > 0) to the host/device
+  code. On the CPU build it passes M1 acceptance: effort 0 on all 13,000 polys (12,996
+  identical, 4 no worse, 0 worse) and effort 50 on the top 3000 (2,993 identical, 7 no
+  worse, 0 worse), with no polynomial needing the CADO fallback.
+- **Rounding parity (2026-10-03, after review):** the remaining differences were not
+  ties. CADO's C code (norms, alpha, size optimization) is unfused, but its C++ root
+  finder (`double_poly.cpp`) is compiled with fused multiply-adds (objdump: every Horner
+  step of `double_poly_eval`, and `a*pb` in false position). Both our builds now disable
+  automatic contraction and write exactly those fused operations as `fma()`. The CPU
+  build is then **13,000/13,000 identical** to CADO at effort 0 (and 3,000/3,000 at
+  effort 50, top set), and so is the GPU build at effort 0
+  (`s23_sopt`, effort 0, all 13,000 identical, 0 fallbacks). The GPU uses CUDA's `log`
+  (within 1 ulp of glibc's), the one known remaining source of last-bit differences; it
+  changed nothing on this set.
+- **Second number (c161, 2026-10-03):** a fixture built from a new pipeline run, unseen
+  during development (`stage23_bench/data/c161/`, top 1000 + random 10,000): the GPU
+  build gives **11,000/11,000 identical** to CADO at effort 0, 0 fallbacks. The CPU build
+  on the **whole set, 814,307 polys: all identical** to CADO's effort-0 results, 0
+  fallbacks; effort 50 on the top 1000: 1,000/1,000 identical.
+- **Output cost to fix:** in that full run, 3,110 s of 4,681 s were optimization; most of
+  the rest is printing CADO's stats line (lognorm, exp_E, alpha to 2000, real roots) for
+  every output poly on one host thread via CADO's code. Now (review fix) the stats and
+  formatting run on all host threads (c146 13,000 at effort 0: 59 s -> 45 s, same
+  bytes). For a one-device pipeline they still need computing on the GPU (alpha to 2000,
+  the real-root count and the combined skew are new; see below), or overlapping with the
+  next launch.
+- **M1 on the GPU (2026-10-03):** `make accept-gpu`, effort 0: 13,000/13,000 identical to
+  CADO on c146 and 11,000/11,000 on c161, 0 fallbacks, so M1's correctness bar is met on
+  the GPU. (Before the `fma()` fix it was 12,999 identical + 1 no worse.) Speed is not yet:
+  19 ms per poly (11x slower than 8 CPU threads), with one thread per poly taking up to
+  ~20 s, so effort 50 cannot run under the 60 s watchdog. Next: per-candidate parallelism
+  (constraint 4), then narrower integers and fewer spills, re-checked with
+  `make accept-gpu` after each step.
+- **Acceptance tooling (ready, 2026-10-03):** `fixture_raw.py` exports the fixture's raw
+  polys; `sopt_compare.py FIXTURE RESULT --rescore` applies the rule, rescoring with
+  `cado_expe` (CADO's own `cado_poly_compute_expected_stats` at the skew sopt prints,
+  `L2_combined_skewness2(g, f)`; it rounds to CADO's printed exp_E on 1000/1000 polys).
+  Self-test: CADO sopt on the exported raws passes 13,000/13,000 as identical.
+- **Printed exp_E is not the objective sopt minimizes.** `size_optimization` keeps the
+  lowest lognorm at f's own L2 skew + `expected_rotation_gain`; the exp_E it prints (and
+  the pipeline ranks by, and `cado_expe` computes) is the lognorm at the combined f/g skew
+  + the same gain, which is never lower and not always in the same order. So more effort
+  always lowers the objective but can raise the printed exp_E: c161 top 1000, effort 50
+  vs 0, one poly (rank 261) has objective 43.0524 vs 43.0686 but printed exp_E 0.0023
+  worse. Consequences: (1) M1's "no worse" judges by the printed value, which is what
+  the pipeline uses; a result that is better by sopt's own objective can still fail it,
+  so once the GPU stops being bit-exact, check such rows against both. (2) Stats on the
+  GPU need `L2_combined_skewness2` as well as the port's objective.
 - **Throughput target:** all 1.94M polys at effort 0 in minutes, and effort-50 equivalent
   on all of them in under an hour. *(est.)*
 
@@ -478,9 +563,10 @@ Findings that change the design:
   - on the benchmark seed, it finds B or C (or better) from A as the origin;
   - it reaches or beats 5.194e-15 under skewopt scoring;
   - it reports how many separate optima above 5.0e-15 exist;
+  - on the c161 seed it beats 1.6246e-12;
   - on the c146 seed it beats 1.2391e-11, and its best few candidates test-sieve at least
-    as fast as the pipeline's winner (`~/code/test-sieve`, with the job's real
-    parameters), since MurphyE alone can't resolve 1–3% differences.
+    as fast as the pipeline's winner (`~/code/cuda-sieve/bench/testsieve.sh`, with the
+    job's real parameters), since MurphyE alone can't resolve 1–3% differences.
 - **Then:** run the top 10–30 seeds of a real job and compare against the
   msieve + CADO union.
 
