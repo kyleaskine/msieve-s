@@ -288,15 +288,10 @@ echo "Sorting by exp_E (lower is better)..."
 # Detect polynomial degree from number of columns
 NUM_COLS=$(head -n 1 "$MSIEVE_WITH_EXPE" | wc -w)
 
-if [ "$NUM_COLS" -eq 12 ]; then
-    POLY_DEGREE=6
-    EXPE_COL=11
-    echo "  Detected degree 6 polynomial format (12 columns)"
-else
-    POLY_DEGREE=5
-    EXPE_COL=10
-    echo "  Detected degree 5 polynomial format (11 columns)"
-fi
+# Lines are c_d .. c0, Y1, Y0, proj_alpha, exp_E, 0: exp_E is column NF-1, degree NF-6
+POLY_DEGREE=$((NUM_COLS - 6))
+EXPE_COL=$((NUM_COLS - 1))
+echo "  Detected degree $POLY_DEGREE polynomial format ($NUM_COLS columns)"
 
 # Sort by exp_E column (lower is better)
 sort -k${EXPE_COL},${EXPE_COL}n "$MSIEVE_WITH_EXPE" > "$FINAL_SORTED"

@@ -60,13 +60,28 @@ cado_build_dir = $HOME/cado-nfs/build/YOUR-BUILD-DIR
 ./nfs_optimize.sh help
 ```
 
-`report` re-runs only the final phase of the pipeline (the comparison report,
-plus skewopt if configured) against the results already in `pipeline_results/`.
-It recomputes nothing, takes a couple of seconds, and is the thing to run when
-the pipeline finished but you lost the terminal it was printing to. The counts
-and effort levels are recovered from the previous `pipeline_report.txt`; the
-report it replaces is kept as `pipeline_report.prev.txt`. The underlying flag is
-`./scripts/full_optimization_pipeline.sh --report-only`.
+`report` re-runs only the final phase of the pipeline (the comparison report)
+against the results already in `pipeline_results/`. It recomputes nothing
+(existing skewopt results are reprinted; skewopt only runs if they are missing),
+takes a couple of seconds, and is the thing to run when the pipeline finished but
+you lost the terminal it was printing to.
+
+- The counts and effort levels come from `pipeline_results/pipeline_settings.txt`,
+  which the pipeline writes when it starts filling `pipeline_results/` and marks
+  complete when root optimization finishes. `report` warns if the last run did not
+  finish.
+- For results from before that file existed, the settings are recovered from the
+  previous `pipeline_report.txt`. Anything that can't be recovered is shown as
+  `unknown` rather than guessed.
+- Values you pass explicitly (e.g. `report -t 8`) apply to that one report only.
+- When the regenerated report differs from the existing one, the old one is kept as
+  `pipeline_report.prev.txt`.
+- `report` exits with an error if `pipeline_results/` holds no ropt results.
+- Each run owns `pipeline_results/`: when a new pipeline run starts writing there, the
+  previous run's files are moved to `pipeline_results/previous/<timestamp>/`.
+  `cleanup --deep` removes them along with everything else.
+- `./nfs_optimize.sh pipeline --report-only` is the same as `report`. The underlying
+  flag is `./scripts/full_optimization_pipeline.sh --report-only`.
 
 The wrapper does **not** currently implement `test-sopteffort` or `test-ropt`; those commands are not present in `nfs_optimize.sh`, and the old standalone test scripts are not in the current tree.
 

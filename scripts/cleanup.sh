@@ -98,8 +98,9 @@ if [ "$CREATE_BACKUP" = true ]; then
 
     # Pipeline results
     if [ -d "pipeline_results" ]; then
-        echo "  Backing up pipeline_results/..."
+        echo "  Backing up pipeline_results/ (without previous/ run archives)..."
         cp -r pipeline_results "$BACKUP_DIR/"
+        rm -rf "$BACKUP_DIR/pipeline_results/previous"
         BACKUP_COUNT=$((BACKUP_COUNT + 1))
     fi
 

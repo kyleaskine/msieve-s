@@ -85,11 +85,8 @@ while IFS= read -r line; do
     POLY_NUM=$((POLY_NUM + 1))
 
     # Extract exp_E from the line
-    if [ "$POLY_DEGREE" -eq 6 ]; then
-        EXP_E=$(echo "$line" | awk '{print $11}')
-    else
-        EXP_E=$(echo "$line" | awk '{print $10}')
-    fi
+    # exp_E is the second-to-last column for every degree (..., proj_alpha, exp_E, 0)
+    EXP_E=$(echo "$line" | awk 'NF >= 2 {print $(NF-1)}')   # blank line: empty, not an awk error
 
     # Create work subdirectory for this polynomial
     WORK_SUBDIR="$WORK_DIR/poly_$POLY_NUM"
@@ -108,8 +105,8 @@ while IFS= read -r line; do
         fi
 
         # Run msieve
-        if [ "$POLY_DEGREE" -eq 6 ]; then
-            NFS_ARGS="polydegree=6"
+        if [ "$POLY_DEGREE" -ne 5 ]; then
+            NFS_ARGS="polydegree=$POLY_DEGREE"
         else
             NFS_ARGS=""
         fi

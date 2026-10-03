@@ -40,8 +40,8 @@ Complete polynomial optimization pipeline
 
 Options:
   -h, --help              Show this help message and exit
-  --report-only           Skip phases 1-6; regenerate the report (and skewopt)
-                          from results already in $FINAL_DIR/
+  --report-only           Skip phases 1-6; regenerate the report from results
+                          already in $FINAL_DIR/ (skewopt results are reprinted)
   -n, --extract N         Extract top N from initial sopt (default: 100)
   --msieve-ropt M         Run msieve ropt on top M after re-sopt (default: 10)
   --cado-ropt M           Run CADO ropt on top M after re-sopt (default: 100)
@@ -63,16 +63,96 @@ Pipeline steps:
 Report-only mode:
   --report-only re-runs just the final reporting phase against the results
   already on disk. It is safe to use after the pipeline has finished (or if
-  you lost the terminal it was printing to). Counts and efforts are taken
-  from the previous $FINAL_DIR/pipeline_report.txt when it exists, so plain
-  "--report-only" normally needs no other arguments; anything you pass
-  explicitly overrides what the old report says.
+  you lost the terminal it was printing to). Counts and efforts are read from
+  $FINAL_DIR/pipeline_settings.txt, which the pipeline writes when it starts
+  filling $FINAL_DIR/ and marks complete when root optimization finishes. For
+  results from before that file existed, they are recovered from the previous
+  pipeline_report.txt; anything that can't be recovered is shown as "unknown".
+  Values passed explicitly apply to this one report only. Existing skewopt
+  results are reprinted; skewopt only runs if they are missing.
 
 Output:
-  $FINAL_DIR/ - All final results and comparison
+  $FINAL_DIR/ - All final results and comparison. When a new run starts writing
+  there (phase 3), the previous run's files are moved to $FINAL_DIR/previous/<timestamp>/
+  (the newest KEEP_PREVIOUS, default 3, are kept).
 
 EOF
     exit 0
+}
+
+SETTINGS_FILE="$FINAL_DIR/pipeline_settings.txt"
+SETTINGS_KEYS="TOP_N_EXTRACT RESOPT_EFFORT TOP_M_MSIEVE TOP_M_CADO ROPT_EFFORT THREADS"
+
+# Record the settings of the run that is filling $FINAL_DIR/ ($1 = running|complete).
+# The values come from the variables named by SETTINGS_KEYS, with prefix $2 if given.
+write_settings() {
+    local key src
+    {
+        echo "# Written by full_optimization_pipeline.sh; read by --report-only"
+        echo "STATUS=$1"
+        echo "UPDATED=$(date '+%Y-%m-%d %H:%M:%S')"
+        echo "FAILED=${ROPT_FAILED:-}"
+        for key in $SETTINGS_KEYS; do
+            src="${2:-}$key"
+            echo "$key=${!src}"
+        done
+    } > "$SETTINGS_FILE.tmp"
+    mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
+}
+
+# Record a root-optimization pass ($1) as failed if its output ($2) is missing or has
+# no line matching $3.
+ROPT_FAILED=""
+check_ropt_output() {
+    if [ ! -f "$2" ] || ! grep -q "$3" "$2"; then
+        echo "  WARNING: $1 produced no results ($2)"
+        ROPT_FAILED="${ROPT_FAILED:+$ROPT_FAILED,}$1"
+    fi
+}
+
+# A new run starts from an empty $FINAL_DIR/: move the previous run's files into
+# $FINAL_DIR/previous/<timestamp>/, so nothing from an older run (other-size best*
+# files, skewopt results, report backups) can be reported as this run's. Only the newest
+# KEEP_PREVIOUS archives are kept (environment, default 3).
+KEEP_PREVIOUS="${KEEP_PREVIOUS:-3}"
+archive_previous_results() {
+    local f dest moved=0
+    dest="$FINAL_DIR/previous/$(date +%Y%m%d_%H%M%S)"
+    for f in "$FINAL_DIR"/*; do
+        if [ ! -e "$f" ] || [ "$(basename "$f")" = previous ]; then continue; fi
+        mkdir -p "$dest"
+        mv "$f" "$dest/"
+        moved=1
+    done
+    if [ "$moved" -eq 1 ]; then
+        echo "  Previous results moved to $dest/"
+    fi
+    # Keep only the newest $KEEP_PREVIOUS archives (timestamped names sort by age)
+    local old
+    old=$(ls -d "$FINAL_DIR"/previous/*/ 2>/dev/null | sort | head -n -"$KEEP_PREVIOUS" || true)
+    if [ -n "$old" ]; then
+        echo "$old" | while IFS= read -r d; do rm -rf "$d"; done
+        echo "  Removed $(echo "$old" | wc -l) older archive(s); keeping the newest $KEEP_PREVIOUS"
+    fi
+}
+
+# Print the value of KEY ($1) from the settings file, or nothing
+read_setting() {
+    sed -n "s/^$1=\([A-Za-z0-9._:,-]*\)\$/\1/p" "$SETTINGS_FILE" | head -n1
+}
+
+# Print "best worst" exp_E of an msieve-format selection file. exp_E is the
+# second-to-last column for every degree (..., Y1, Y0, proj_alpha, exp_E, 0).
+msieve_expe_range() {
+    awk '{v = $(NF-1); if (NR == 1 || v+0 < lo+0) lo = v; if (NR == 1 || v+0 > hi+0) hi = v}
+         END {if (NR) print lo, hi}' "$1"
+}
+
+# Print "best worst" exp_E of a CADO-format selection file
+cado_expe_range() {
+    sed -n 's/.*, exp_E \([-0-9.]*\),.*/\1/p' "$1" | \
+        awk '{if (NR == 1 || $1+0 < lo+0) lo = $1; if (NR == 1 || $1+0 > hi+0) hi = $1}
+             END {if (NR) print lo, hi}'
 }
 
 # Track which values the user set explicitly (used by --report-only)
@@ -169,8 +249,9 @@ for file in "$INITIAL_SOPT_SORTED" "$INITIAL_SOPT_UNSORTED" "$MSIEVE_SOPT_SORTED
 done
 fi
 
-# Create working directories
-mkdir -p "$WORK_DIR" "$FINAL_DIR"
+if [ "$REPORT_ONLY" -eq 0 ]; then
+    mkdir -p "$WORK_DIR" "$FINAL_DIR"
+fi
 
 echo "======================================"
 if [ "$REPORT_ONLY" -eq 1 ]; then
@@ -185,54 +266,73 @@ echo "======================================"
 if [ "$REPORT_ONLY" -eq 1 ]; then
     PREV_REPORT="$FINAL_DIR/pipeline_report.txt"
 
-    prev_num() {
-        # $1 = sed expression with one capture group; prints "" if not found
-        if [ -f "$PREV_REPORT" ]; then
+    have_results=0
+    for f in msieve_ropt_orig.p msieve_ropt_inv.p cado_ropt_orig.txt cado_ropt_inv.txt; do
+        if [ -f "$FINAL_DIR/$f" ]; then have_results=1; fi
+    done
+    if [ "$have_results" -eq 0 ]; then
+        echo "Error: no root-optimization results in $FINAL_DIR/ (msieve_ropt_*.p, cado_ropt_*.txt)." >&2
+        echo "Run this from the directory the pipeline ran in." >&2
+        exit 1
+    fi
+
+    # REC_<key> = the value recorded for the run, "" if unknown
+    for key in $SETTINGS_KEYS; do printf -v "REC_$key" '%s' ""; done
+    if [ -f "$SETTINGS_FILE" ]; then
+        for key in $SETTINGS_KEYS; do printf -v "REC_$key" '%s' "$(read_setting "$key")"; done
+        echo "Settings read from $SETTINGS_FILE"
+        case "$(read_setting STATUS)" in
+            complete) ;;
+            incomplete)
+                echo "WARNING: the last pipeline run finished, but these root-optimization passes"
+                echo "         produced no results: $(read_setting FAILED)" ;;
+            *)
+                echo "WARNING: the last pipeline run did not finish (or is still running);"
+                echo "         its results in $FINAL_DIR/ may be incomplete." ;;
+        esac
+    elif [ -f "$PREV_REPORT" ]; then
+        # Results from before the settings file existed: scrape the old report
+        scrape_report() {
             sed -n "s/$1/\\1/p" "$PREV_REPORT" | head -n1
+        }
+        REC_TOP_N_EXTRACT=$(scrape_report '^  Extracted top \([0-9][0-9]*\) from initial sopt$')
+        REC_RESOPT_EFFORT=$(scrape_report '^  Re-ran sopt with effort \([0-9][0-9]*\)$')
+        REC_TOP_M_MSIEVE=$(scrape_report '^  Selected best \([0-9][0-9]*\) for msieve ropt$')
+        REC_TOP_M_CADO=$(scrape_report '^  Selected best \([0-9][0-9]*\) for CADO ropt$')
+        REC_ROPT_EFFORT=$(scrape_report '^  CADO ropt effort: \([0-9][0-9]*\)$')
+        REC_THREADS=$(scrape_report '^  Parallel threads: \([0-9][0-9]*\)$')
+        echo "No $SETTINGS_FILE (results predate it); settings recovered from $PREV_REPORT"
+        # Save them once, so later reports start from these values rather than
+        # from a report that explicit overrides may have changed
+        write_settings complete REC_
+        echo "Recovered settings saved to $SETTINGS_FILE"
+    else
+        echo "WARNING: no $SETTINGS_FILE or previous report; unrecorded settings are shown as unknown"
+    fi
+
+    for key in $SETTINGS_KEYS; do
+        set_flag="SET_$key"
+        rec="REC_$key"
+        if [ "${!set_flag}" -eq 0 ]; then
+            printf -v "$key" '%s' "${!rec:-unknown}"
         fi
-    }
+    done
 
-    if [ "$SET_TOP_N_EXTRACT" -eq 0 ]; then
-        v=$(prev_num '^  Extracted top \([0-9][0-9]*\) from initial sopt$')
-        if [ -n "$v" ]; then TOP_N_EXTRACT="$v"; fi
-    fi
-    if [ "$SET_RESOPT_EFFORT" -eq 0 ]; then
-        v=$(prev_num '^  Re-ran sopt with effort \([0-9][0-9]*\)$')
-        if [ -n "$v" ]; then RESOPT_EFFORT="$v"; fi
-    fi
-    if [ "$SET_TOP_M_MSIEVE" -eq 0 ]; then
-        v=$(prev_num '^  Selected best \([0-9][0-9]*\) for msieve ropt$')
-        if [ -n "$v" ]; then TOP_M_MSIEVE="$v"; fi
-    fi
-    if [ "$SET_TOP_M_CADO" -eq 0 ]; then
-        v=$(prev_num '^  Selected best \([0-9][0-9]*\) for CADO ropt$')
-        if [ -n "$v" ]; then TOP_M_CADO="$v"; fi
-    fi
-    if [ "$SET_ROPT_EFFORT" -eq 0 ]; then
-        v=$(prev_num '^  CADO ropt effort: \([0-9][0-9]*\)$')
-        if [ -n "$v" ]; then ROPT_EFFORT="$v"; fi
-    fi
-    if [ "$SET_THREADS" -eq 0 ]; then
-        v=$(prev_num '^  Parallel threads: \([0-9][0-9]*\)$')
-        if [ -n "$v" ]; then THREADS="$v"; fi
-    fi
-
-    # Fall back to whatever selection files are actually present
-    if [ "$SET_TOP_M_MSIEVE" -eq 0 ] && [ ! -f "$FINAL_DIR/best${TOP_M_MSIEVE}_msieve.ms" ]; then
-        v=$(ls "$FINAL_DIR"/best*_msieve.ms 2>/dev/null | \
-            sed -n 's#.*/best\([0-9][0-9]*\)_msieve\.ms$#\1#p' | sort -n | tail -n1 || true)
-        if [ -n "$v" ]; then TOP_M_MSIEVE="$v"; fi
-    fi
-    if [ "$SET_TOP_M_CADO" -eq 0 ] && [ ! -f "$FINAL_DIR/best${TOP_M_CADO}_cado.txt" ]; then
-        v=$(ls "$FINAL_DIR"/best*_cado.txt 2>/dev/null | \
-            sed -n 's#.*/best\([0-9][0-9]*\)_cado\.txt$#\1#p' | sort -n | tail -n1 || true)
-        if [ -n "$v" ]; then TOP_M_CADO="$v"; fi
-    fi
+    # If the selection file for a count is missing, use the newest one present
+    for kind in msieve cado; do
+        if [ "$kind" = msieve ]; then key=TOP_M_MSIEVE; ext=ms; else key=TOP_M_CADO; ext=txt; fi
+        set_flag="SET_$key"
+        if [ "${!set_flag}" -eq 0 ] && [ ! -f "$FINAL_DIR/best${!key}_${kind}.$ext" ]; then
+            v=$(ls -t "$FINAL_DIR"/best*_"$kind".$ext 2>/dev/null | \
+                sed -n "s#.*/best\([0-9][0-9]*\)_$kind\.$ext\$#\1#p" | head -n1 || true)
+            if [ -n "$v" ]; then
+                echo "Using newest selection file $FINAL_DIR/best${v}_${kind}.$ext (recorded count: ${!key})"
+                printf -v "$key" '%s' "$v"
+            fi
+        fi
+    done
 
     echo "Reusing results in $FINAL_DIR/ (phases 1-6 skipped)"
-    if [ -f "$PREV_REPORT" ]; then
-        echo "Settings recovered from $PREV_REPORT"
-    fi
     echo ""
 fi
 
@@ -372,12 +472,10 @@ fi
 # Sort msieve format by exp_E
 echo "Sorting msieve format by exp_E..."
 # Detect degree
+# Lines are c_d .. c0, Y1, Y0, proj_alpha, exp_E, 0: exp_E is column NF-1, degree NF-6
 NUM_COLS=$(head -n 1 "$WORK_DIR/resopt_msieve.ms" | wc -w)
-if [ "$NUM_COLS" -eq 12 ]; then
-    EXPE_COL=11
-else
-    EXPE_COL=10
-fi
+EXPE_COL=$((NUM_COLS - 1))
+POLY_DEGREE=$((NUM_COLS - 6))
 sort -k${EXPE_COL},${EXPE_COL}n "$WORK_DIR/resopt_msieve.ms" > "$WORK_DIR/resopt_msieve_sorted.ms"
 echo "  Sorted msieve format: $WORK_DIR/resopt_msieve_sorted.ms"
 echo ""
@@ -385,14 +483,17 @@ echo ""
 # PHASE 3: Extract polynomials for root optimization
 echo "=== PHASE 3: EXTRACT POLYNOMIALS FOR ROOT OPTIMIZATION ==="
 
+# From here on $FINAL_DIR/ holds this run's results; record its settings
+archive_previous_results
+write_settings running
+
 # Extract for msieve (smaller count typically)
 echo "Extracting top $TOP_M_MSIEVE for msieve ropt (msieve format)..."
 head -n "$TOP_M_MSIEVE" "$WORK_DIR/resopt_msieve_sorted.ms" > "$FINAL_DIR/best${TOP_M_MSIEVE}_msieve.ms"
 echo "  Extracted: $FINAL_DIR/best${TOP_M_MSIEVE}_msieve.ms"
 
 # Get exp_E range for msieve
-MSIEVE_BEST_EXPE=$(head -n 1 "$FINAL_DIR/best${TOP_M_MSIEVE}_msieve.ms" | awk -v col=$EXPE_COL '{print $col}')
-MSIEVE_WORST_EXPE=$(tail -n 1 "$FINAL_DIR/best${TOP_M_MSIEVE}_msieve.ms" | awk -v col=$EXPE_COL '{print $col}')
+read -r MSIEVE_BEST_EXPE MSIEVE_WORST_EXPE < <(msieve_expe_range "$FINAL_DIR/best${TOP_M_MSIEVE}_msieve.ms") || true
 echo "  exp_E range: $MSIEVE_BEST_EXPE (best) to $MSIEVE_WORST_EXPE (worst)"
 
 # Extract for CADO (larger count typically)
@@ -404,12 +505,9 @@ else
     exit 1
 fi
 
-# Get exp_E range for CADO (from msieve format)
-head -n "$TOP_M_CADO" "$WORK_DIR/resopt_msieve_sorted.ms" > "$WORK_DIR/temp_cado_check.ms"
-CADO_BEST_EXPE=$(head -n 1 "$WORK_DIR/temp_cado_check.ms" | awk -v col=$EXPE_COL '{print $col}')
-CADO_WORST_EXPE=$(tail -n 1 "$WORK_DIR/temp_cado_check.ms" | awk -v col=$EXPE_COL '{print $col}')
+# Get exp_E range for CADO
+read -r CADO_BEST_EXPE CADO_WORST_EXPE < <(cado_expe_range "$FINAL_DIR/best${TOP_M_CADO}_cado.txt") || true
 echo "  exp_E range: $CADO_BEST_EXPE (best) to $CADO_WORST_EXPE (worst)"
-rm -f "$WORK_DIR/temp_cado_check.ms"
 echo ""
 
 # PHASE 4: Create inverted versions
@@ -429,14 +527,7 @@ echo ""
 # PHASE 5: Root optimization with msieve
 echo "=== PHASE 5: ROOT OPTIMIZATION WITH MSIEVE ==="
 
-# Detect polynomial degree
-if [ "$NUM_COLS" -eq 12 ]; then
-    POLY_DEGREE=6
-    echo "Polynomial degree: 6"
-else
-    POLY_DEGREE=5
-    echo "Polynomial degree: 5"
-fi
+echo "Polynomial degree: $POLY_DEGREE"
 
 echo "Running msieve -npr on original (annotated with exp_E, $THREADS threads)..."
 echo "  Processing $TOP_M_MSIEVE polynomials..."
@@ -447,6 +538,7 @@ if ./scripts/run_msieve_ropt_annotated.sh "$FINAL_DIR/best${TOP_M_MSIEVE}_msieve
     DURATION=$((END_TIME - START_TIME))
     echo "  Completed in ${DURATION}s"
 fi
+check_ropt_output msieve_orig "$FINAL_DIR/msieve_ropt_orig.p" '^# norm'
 
 echo "Running msieve -npr on inverted (annotated with exp_E, $THREADS threads)..."
 echo "  Processing $TOP_M_MSIEVE polynomials..."
@@ -457,6 +549,7 @@ if ./scripts/run_msieve_ropt_annotated.sh "$FINAL_DIR/best${TOP_M_MSIEVE}_msieve
     DURATION=$((END_TIME - START_TIME))
     echo "  Completed in ${DURATION}s"
 fi
+check_ropt_output msieve_inv "$FINAL_DIR/msieve_ropt_inv.p" '^# norm'
 echo ""
 
 # PHASE 6: Root optimization with CADO
@@ -568,6 +661,7 @@ run_cado_parallel "$FINAL_DIR/best${TOP_M_CADO}_cado.txt" "$FINAL_DIR/cado_ropt_
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))
 echo "  Completed in ${DURATION}s"
+check_ropt_output cado_orig "$FINAL_DIR/cado_ropt_orig.txt" 'MurphyE'
 
 echo "Running CADO polyselect_ropt on inverted ($THREADS threads)..."
 echo "  Processing $TOP_M_CADO polynomials..."
@@ -576,59 +670,31 @@ run_cado_parallel "$FINAL_DIR/best${TOP_M_CADO}_cado_inv.txt" "$FINAL_DIR/cado_r
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))
 echo "  Completed in ${DURATION}s"
+check_ropt_output cado_inv "$FINAL_DIR/cado_ropt_inv.txt" 'MurphyE'
 echo ""
 
+if [ -z "$ROPT_FAILED" ]; then
+    write_settings complete
 else
-
-# Report-only: recover the exp_E ranges phase 7 prints, from the selection
-# files (preferred) or from the previous report if pipeline_work/ is gone.
-MSIEVE_SELECTION="$FINAL_DIR/best${TOP_M_MSIEVE}_msieve.ms"
-RESOPT_SORTED_MS="$WORK_DIR/resopt_msieve_sorted.ms"
-
-NUM_COLS=0
-for f in "$MSIEVE_SELECTION" "$RESOPT_SORTED_MS"; do
-    if [ -s "$f" ]; then
-        NUM_COLS=$(head -n 1 "$f" | wc -w)
-        break
-    fi
-done
-if [ "$NUM_COLS" -eq 12 ]; then
-    EXPE_COL=11
-else
-    EXPE_COL=10
+    write_settings incomplete
+    echo "WARNING: root-optimization passes with no results: $ROPT_FAILED"
+    echo ""
 fi
 
+else
+
+# Report-only: the exp_E ranges come from the selection files themselves, so
+# they always describe the polynomials that were root-optimized.
 MSIEVE_BEST_EXPE=""
 MSIEVE_WORST_EXPE=""
-if [ -s "$MSIEVE_SELECTION" ]; then
-    MSIEVE_BEST_EXPE=$(head -n 1 "$MSIEVE_SELECTION" | awk -v col=$EXPE_COL '{print $col}')
-    MSIEVE_WORST_EXPE=$(tail -n 1 "$MSIEVE_SELECTION" | awk -v col=$EXPE_COL '{print $col}')
+if [ -s "$FINAL_DIR/best${TOP_M_MSIEVE}_msieve.ms" ]; then
+    read -r MSIEVE_BEST_EXPE MSIEVE_WORST_EXPE < <(msieve_expe_range "$FINAL_DIR/best${TOP_M_MSIEVE}_msieve.ms") || true
 fi
-
 CADO_BEST_EXPE=""
 CADO_WORST_EXPE=""
-if [ -s "$RESOPT_SORTED_MS" ]; then
-    CADO_BEST_EXPE=$(head -n 1 "$RESOPT_SORTED_MS" | awk -v col=$EXPE_COL '{print $col}')
-    CADO_WORST_EXPE=$(head -n "$TOP_M_CADO" "$RESOPT_SORTED_MS" | tail -n 1 | awk -v col=$EXPE_COL '{print $col}')
+if [ -s "$FINAL_DIR/best${TOP_M_CADO}_cado.txt" ]; then
+    read -r CADO_BEST_EXPE CADO_WORST_EXPE < <(cado_expe_range "$FINAL_DIR/best${TOP_M_CADO}_cado.txt") || true
 fi
-
-# Last resort: lift the ranges straight out of the previous report
-if [ -f "$PREV_REPORT" ]; then
-    if [ -z "$MSIEVE_BEST_EXPE" ]; then
-        MSIEVE_BEST_EXPE=$(prev_num '^msieve exp_E range: \([^ ]*\) to .*$')
-        MSIEVE_WORST_EXPE=$(prev_num '^msieve exp_E range: [^ ]* to \(.*\)$')
-    fi
-    if [ -z "$CADO_BEST_EXPE" ]; then
-        CADO_BEST_EXPE=$(prev_num '^CADO exp_E range:  *\([^ ]*\) to .*$')
-        CADO_WORST_EXPE=$(prev_num '^CADO exp_E range:  *[^ ]* to \(.*\)$')
-    fi
-fi
-
-# Keep the report we are about to overwrite, in case regeneration goes wrong
-if [ -f "$PREV_REPORT" ]; then
-    cp "$PREV_REPORT" "$FINAL_DIR/pipeline_report.prev.txt"
-fi
-
 MSIEVE_BEST_EXPE="${MSIEVE_BEST_EXPE:-N/A}"
 MSIEVE_WORST_EXPE="${MSIEVE_WORST_EXPE:-N/A}"
 CADO_BEST_EXPE="${CADO_BEST_EXPE:-N/A}"
@@ -678,88 +744,68 @@ fi
     echo "======================================"
     echo ""
 
-    # Msieve original
+    # Print the top-10 list ($1), or a placeholder if it is empty. The lists are
+    # captured first: under pipefail, "... | head || echo" also fires when head
+    # exits early and sort gets SIGPIPE, which happens on any long result file.
+    print_top_or_none() {
+        if [ -n "$1" ]; then printf '%s\n' "$1"; else echo "  (No results)"; fi
+    }
+
+    report_msieve_section() {
+        local file=$1 count top best
+        if [ ! -f "$file" ]; then
+            echo "  (No output file)"
+            return
+        fi
+        count=$(grep -c "^# norm" "$file" || true)
+        echo "  Found $count root-optimized polynomial(s)"
+        echo ""
+        echo "  Top 10 results (sorted by Murphy E, column 7):"
+        top=$(grep '^#' "$file" | LANG=C sort -rgk7 | uniq | head -n10 || true)
+        print_top_or_none "$top"
+        echo ""
+        best=$(grep '^#' "$file" | awk '{print $7}' | sort -g | tail -n 1 || true)
+        echo "  Best Murphy E: ${best:-N/A}"
+    }
+
+    report_cado_section() {
+        local file=$1 count top best
+        if [ ! -f "$file" ]; then
+            echo "  (No output file)"
+            return
+        fi
+        count=$(grep -ci "### root-optimized polynomial" "$file" || true)
+        if [ -n "$count" ] && [ "$count" -gt 0 ] 2>/dev/null; then
+            echo "  Found $count root-optimized polynomial(s)"
+        fi
+        echo ""
+        echo "  Top 10 results (sorted by Murphy E, highest first):"
+        top=$(grep '^# side 1 MurphyE' "$file" | \
+            awk -F= '{val=$NF; $0=$0; print val " ||| " $0}' | \
+            sort -k1 -gr | \
+            head -n10 | \
+            cut -d'|' -f4- | \
+            sed 's/^/ /' || true)
+        print_top_or_none "$top"
+        echo ""
+        best=$(grep '^# side 1 MurphyE' "$file" | awk -F= '{print $NF}' | sort -g | tail -n 1 || true)
+        echo "  Best Murphy E: ${best:-N/A}"
+    }
+
     echo "1. msieve -npr (original):"
-    if [ -f "$FINAL_DIR/msieve_ropt_orig.p" ]; then
-        COUNT=$(grep -c "^# norm" "$FINAL_DIR/msieve_ropt_orig.p" || echo 0)
-        echo "  Found $COUNT root-optimized polynomial(s)"
-        echo ""
-        echo "  Top 10 results (sorted by Murphy E, column 7):"
-        grep '^#' "$FINAL_DIR/msieve_ropt_orig.p" | LANG=C sort -rgk7 | uniq | head -n10 || echo "  (No results)"
-        echo ""
-        BEST_MURPHY=$(grep '^#' "$FINAL_DIR/msieve_ropt_orig.p" | awk '{print $7}' | sort -g | tail -n 1 || echo "N/A")
-        echo "  Best Murphy E: $BEST_MURPHY"
-    else
-        echo "  (No output file)"
-    fi
+    report_msieve_section "$FINAL_DIR/msieve_ropt_orig.p"
     echo ""
 
-    # Msieve inverted
     echo "2. msieve -npr (inverted):"
-    if [ -f "$FINAL_DIR/msieve_ropt_inv.p" ]; then
-        COUNT=$(grep -c "^# norm" "$FINAL_DIR/msieve_ropt_inv.p" || echo 0)
-        echo "  Found $COUNT root-optimized polynomial(s)"
-        echo ""
-        echo "  Top 10 results (sorted by Murphy E, column 7):"
-        grep '^#' "$FINAL_DIR/msieve_ropt_inv.p" | LANG=C sort -rgk7 | uniq | head -n10 || echo "  (No results)"
-        echo ""
-        BEST_MURPHY=$(grep '^#' "$FINAL_DIR/msieve_ropt_inv.p" | awk '{print $7}' | sort -g | tail -n 1 || echo "N/A")
-        echo "  Best Murphy E: $BEST_MURPHY"
-    else
-        echo "  (No output file)"
-    fi
+    report_msieve_section "$FINAL_DIR/msieve_ropt_inv.p"
     echo ""
 
-    # CADO original
     echo "3. CADO polyselect_ropt ropteffort=$ROPT_EFFORT (original):"
-    if [ -f "$FINAL_DIR/cado_ropt_orig.txt" ]; then
-        COUNT=$(grep -ci "### root-optimized polynomial" "$FINAL_DIR/cado_ropt_orig.txt" 2>/dev/null || true)
-        if [ -n "$COUNT" ] && [ "$COUNT" -gt 0 ] 2>/dev/null; then
-            echo "  Found $COUNT root-optimized polynomial(s)"
-        fi
-        echo ""
-        echo "  Top 10 results (sorted by Murphy E, highest first):"
-        grep '^# side 1 MurphyE' "$FINAL_DIR/cado_ropt_orig.txt" 2>/dev/null | \
-            awk -F= '{val=$NF; $0=$0; print val " ||| " $0}' | \
-            sort -k1 -gr | \
-            head -n10 | \
-            cut -d'|' -f4- | \
-            sed 's/^/ /' || echo "  (No results)"
-        echo ""
-        BEST_MURPHY=$(grep '^# side 1 MurphyE' "$FINAL_DIR/cado_ropt_orig.txt" 2>/dev/null | \
-            awk -F= '{print $NF}' | \
-            sort -g | \
-            tail -n 1 || echo "N/A")
-        echo "  Best Murphy E: $BEST_MURPHY"
-    else
-        echo "  (No output file)"
-    fi
+    report_cado_section "$FINAL_DIR/cado_ropt_orig.txt"
     echo ""
 
-    # CADO inverted
     echo "4. CADO polyselect_ropt ropteffort=$ROPT_EFFORT (inverted):"
-    if [ -f "$FINAL_DIR/cado_ropt_inv.txt" ]; then
-        COUNT=$(grep -ci "### root-optimized polynomial" "$FINAL_DIR/cado_ropt_inv.txt" 2>/dev/null || true)
-        if [ -n "$COUNT" ] && [ "$COUNT" -gt 0 ] 2>/dev/null; then
-            echo "  Found $COUNT root-optimized polynomial(s)"
-        fi
-        echo ""
-        echo "  Top 10 results (sorted by Murphy E, highest first):"
-        grep '^# side 1 MurphyE' "$FINAL_DIR/cado_ropt_inv.txt" 2>/dev/null | \
-            awk -F= '{val=$NF; $0=$0; print val " ||| " $0}' | \
-            sort -k1 -gr | \
-            head -n10 | \
-            cut -d'|' -f4- | \
-            sed 's/^/ /' || echo "  (No results)"
-        echo ""
-        BEST_MURPHY=$(grep '^# side 1 MurphyE' "$FINAL_DIR/cado_ropt_inv.txt" 2>/dev/null | \
-            awk -F= '{print $NF}' | \
-            sort -g | \
-            tail -n 1 || echo "N/A")
-        echo "  Best Murphy E: $BEST_MURPHY"
-    else
-        echo "  (No output file)"
-    fi
+    report_cado_section "$FINAL_DIR/cado_ropt_inv.txt"
     echo ""
 
     echo "======================================"
@@ -892,15 +938,39 @@ fi
     echo "  cado_ropt_inv.txt - CADO ropt results (inverted, $TOP_M_CADO polys)"
     echo "======================================"
 
-} > "$FINAL_DIR/pipeline_report.txt"
+} > "$FINAL_DIR/pipeline_report.txt.new"
+
+# Report-only keeps the report it replaces as .prev, but only when the content
+# changed, so re-running report never discards the last differing version.
+REPORT_ROTATED=0
+if [ "$REPORT_ONLY" -eq 1 ] && [ -f "$FINAL_DIR/pipeline_report.txt" ]; then
+    if cmp -s "$FINAL_DIR/pipeline_report.txt" "$FINAL_DIR/pipeline_report.txt.new"; then
+        rm -f "$FINAL_DIR/pipeline_report.txt.new"
+    else
+        mv "$FINAL_DIR/pipeline_report.txt" "$FINAL_DIR/pipeline_report.prev.txt"
+        REPORT_ROTATED=1
+    fi
+fi
+if [ -f "$FINAL_DIR/pipeline_report.txt.new" ]; then
+    mv "$FINAL_DIR/pipeline_report.txt.new" "$FINAL_DIR/pipeline_report.txt"
+fi
 
 cat "$FINAL_DIR/pipeline_report.txt"
 
 echo ""
 echo "======================================"
-echo "PIPELINE COMPLETE!"
+if [ "$REPORT_ONLY" -eq 1 ]; then
+    echo "REPORT REGENERATED"
+else
+    echo "PIPELINE COMPLETE!"
+fi
 echo "======================================"
 echo "Full report: $FINAL_DIR/pipeline_report.txt"
+if [ "$REPORT_ROTATED" -eq 1 ]; then
+    echo "Previous version: $FINAL_DIR/pipeline_report.prev.txt"
+elif [ "$REPORT_ONLY" -eq 1 ]; then
+    echo "(unchanged)"
+fi
 echo "All results in: $FINAL_DIR/"
 echo ""
 
@@ -908,7 +978,15 @@ echo ""
 # PHASE 8: SKEWOPT OPTIMIZATION (if configured)
 # =============================================================================
 
-if [ -n "$SKEWOPT" ] && [ -f "$SKEWOPT" ]; then
+if [ "$REPORT_ONLY" -eq 1 ] && [ -f "$FINAL_DIR/skewopt_results.txt" ]; then
+    # Report-only recomputes nothing: reprint the skewopt results already on disk
+    echo "======================================"
+    echo "PHASE 8: SKEWOPT RESULTS (from $FINAL_DIR/skewopt_results.txt)"
+    echo "======================================"
+    echo ""
+    cat "$FINAL_DIR/skewopt_results.txt"
+    echo ""
+elif [ -n "$SKEWOPT" ] && [ -f "$SKEWOPT" ]; then
     echo "======================================"
     echo "PHASE 8: SKEWOPT OPTIMIZATION"
     echo "======================================"

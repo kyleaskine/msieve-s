@@ -179,15 +179,33 @@ cmd_batch() {
 }
 
 cmd_pipeline() {
+    # "pipeline --report-only" means "report": never start a full run for it
+    local arg rest=()
+    local report_only=0
+    for arg in "$@"; do
+        if [ "$arg" = "--report-only" ]; then
+            report_only=1
+        else
+            rest+=("$arg")
+        fi
+    done
+    if [ "$report_only" -eq 1 ]; then
+        cmd_report "${rest[@]}"
+        return
+    fi
+
+    check_dependencies
     echo "Running full optimization pipeline..."
     cd "$SCRIPT_DIR"
+    # Extra arguments come last so they override the configured values
     ./scripts/full_optimization_pipeline.sh \
         -n "$EXTRACT_TOP_N" \
         --resopt-effort "$RESOPT_EFFORT" \
         --msieve-ropt "$MSIEVE_ROPT_COUNT" \
         --cado-ropt "$CADO_ROPT_COUNT" \
         --ropt-effort "$ROPT_EFFORT" \
-        -t "$THREADS"
+        -t "$THREADS" \
+        "$@"
 }
 
 cmd_report() {
@@ -358,7 +376,6 @@ case "$COMMAND" in
         cmd_batch "$@"
         ;;
     pipeline)
-        check_dependencies
         cmd_pipeline "$@"
         ;;
     report)
