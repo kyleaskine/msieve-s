@@ -34,11 +34,36 @@ tools/            Python 3, no dependencies beyond the standard library
                     prefilter (classes mod 2520) lose the best cell?
   make_fixture.py   builds data/<job>/ from a pipeline run
   fixture_raw.py    writes a fixture's raw polys as CADO-format input for any sopt
+  score_polys.py    MurphyE of CADO-format polys, e.g. s23_ropt -out, at the best skew on a
+                    fixed grid (at CADO's 1,000 sample points MurphyE has many spurious
+                    skew peaks, so a grid relative to each poly's start gives one poly
+                    different scores), optionally the best translation (--trans), under
+                    default or job parameters (--params), with --known reference polys
+                    scored the same way. Defaults to 4,000 sample points for the search
+                    and 16,000 for the printed value; --cado scores as CADO does (1,000,
+                    which reads high by about 0.2%, up to 1.4%, and which --trans
+                    overfits; GPU_STAGE23_PLAN.md, "Review checks")
+  cado_murphy.cpp   the scorer behind it: CADO's MurphyE loop in-process with alpha
+                    computed once per poly (bit-identical to CADO's MurphyE(), -selftest),
+                    built on first use (C++20, CADO's embedded fmt headers); -K N sets
+                    the sample angles of the skew/translation search (CADO's 1000),
+                    -Keval N those of the printed value at the chosen skew
+  content_seeds.py  derived seeds (f + (u0 x + v0) g)/d for the rotations with content d
+                    (d | the sopt multiplier; solved per prime power, then CRT), which
+                    CADO's ropt divides out; s23_ropt searches each as a seed of its own
+  slice_size.py     size cost of a fixed quadratic rotation f + (w x^2 + u x + v) g: the
+                    best lognorm over integer u, v, t and real skew for each w, against
+                    w = 0 (closed-form integer (u, v) at fixed translation and skew; an
+                    upper bound, since it is the best point found). c168: w = +-1 costs
+                    5.8-8.3 nats
+  regress.py        regression checks for these tools (run by stage23_gpu's make test):
+                    scorer vs CADO, the c168 quadrature trap, content seeds
   cado_expe.c       full-precision lognorm / exp_E / alpha from CADO's own code (built on
                     first use against the configured CADO build); M1's scorer
 data/
   c146/             2026-10-02 c146 run (full data below)
   c161/             2026-10-03 c161 run (full data below)
+  c168/             2026-10-03 c168 run (the winners, and content-seed fixtures, below)
   c204/             2026-10-02 c204 run (the three winners only; the rest was deleted)
 ```
 
@@ -91,6 +116,24 @@ the identical poly, negated). msieve's best is a separate optimum, 1.6101e-12; i
 u = 0 like CADO's (t = −658,490, v = −1,219,680 from CADO's), so on this seed the two
 optima differ by translation and v only, not by a large u as on c146 and c204. Both
 tools rank the same seed first and exp_E rank 2 second (1.49e-12, 8% behind).
+
+## data/c168
+
+`winners/`: the 2026-10-03 c168 job's winner seed (exp_E rank 2, Y1 =
+879314489222145128657, Res = 15 N), one cell found by both tools: `msieve_best.poly`
+(msieve ropt, 4.5604e-8 under the job's parameters lpb 30/31, I 14, qmin 25M),
+`cado_best.poly` (CADO ropt, 4.5504e-8: same cell, CADO's translation) and
+`gpu_tuned_best.poly` (the same cell with the translation tuned for MurphyE by
+`cado_murphy -trans`, t + 197246 from CADO's: 4.5979e-8, +0.8% at 1,000 sample points).
+The +0.8% is sampling noise. At 256,000 points the three are 4.5499e-8 (msieve),
+4.5475e-8 (CADO) and 4.5471e-8 (tuned): a tie.
+The GPU breadth run over all 1000 re-sopt seeds found nothing better
+(`GPU_STAGE23_PLAN.md`, M2).
+
+`content/`: five of the job's re-sopt seeds (s0000 has no content lattice; s0051, s0068,
+s0075 and s0388 have d = 2, 3, 5 and 2 and 4) and, in `content/expected/`, their derived
+seeds as the original content-seed script wrote them; `tools/regress.py` checks
+`content_seeds.py` against them.
 
 ## data/c204
 

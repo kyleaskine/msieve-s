@@ -1,13 +1,24 @@
 /* CADO-NFS size optimization (polyselect/size_optimization.c, size_optimization_aux
  * with max_rot = d - 2), ported to fixed-width integers and doubles for host and
- * device, degree 5:
+ * device, degree 5, as five phases over a batch of polynomials:
  *
- *   translation candidates k (closed-form quadratics, rational approximations of the
- *   q2 roots, plus Farey fractions per unit of effort) and k = 0, sorted, deduplicated
- *   -> for each k: best_norm2 (exact LLL via best_norm, recursing on the roots of a
- *      quadratic in k) -> skip a k already optimized -> local descent on translation
- *      and rotations (up to 300 steps) -> lognorm + expected_rotation_gain
- *   -> keep the lowest (that sum is exp_E).
+ *   prepare  (per poly)      the raw pair's objective (lognorm + expected_rotation_gain),
+ *                            and its translation candidates k: closed-form quadratics,
+ *                            rational approximations of the q2 roots, Farey fractions
+ *                            per unit of effort, and k = 0, sorted and deduplicated
+ *   lll      (per candidate) best_norm2: exact LLL via best_norm, recursing on the roots
+ *                            of a quadratic in k; gives a pair and the final k
+ *   dedupe   (per poly)      in list order, a candidate whose final k an earlier one
+ *                            already produced is dropped (CADO skips it)
+ *   descent  (per remaining  local descent on translation and rotations (up to 300
+ *             candidate)     steps), then lognorm + expected_rotation_gain
+ *   reduce   (per poly)      in list order, the first strictly lowest objective, starting
+ *                            from the raw pair's (that objective is the exp_E sopt minimizes)
+ *
+ * This is CADO's sequential loop with its work split up: the result, ties included, is
+ * the same. The candidates of one polynomial are independent until dedupe and reduce,
+ * which keep CADO's order, so the drivers (tools/s23_sopt.cu) run each phase over all
+ * items of a batch in any order, on CPU threads or GPU warps.
  *
  * Polynomials live in Int<LP> (a few hundred bits); the LLL and the discriminant use
  * Int<LL> (thousands of bits) in caller-provided scratch, since they are too large for
@@ -23,8 +34,9 @@
 
 namespace s23 {
 
-/* SOPT_TIMEOUT: the deadline passed (the caller redoes the polynomial elsewhere) */
-enum { SOPT_OK = 0, SOPT_FAIL = 1, SOPT_TIMEOUT = 2 };
+/* SOPT_FAIL: overflow, a dependent LLL basis, recursion or loop caps, non-finite values:
+ * the caller redoes the polynomial with CADO */
+enum { SOPT_OK = 0, SOPT_FAIL = 1 };
 #ifndef S23_SOPT_MAX_RECURSION
 #define S23_SOPT_MAX_RECURSION 128
 #endif
@@ -39,7 +51,7 @@ enum {
     SOPT_MAX_RECURSION = S23_SOPT_MAX_RECURSION
 };
 
-/* nanoseconds, for deadlines: the global timer on the device, steady_clock on the host */
+/* nanoseconds, for time slices: the global timer on the device, steady_clock on the host */
 S23_HD uint64_t now_ns()
 {
 #ifdef __CUDA_ARCH__
@@ -71,7 +83,36 @@ struct SoptScratch {
     Int<LL> fw[DEG + 1], gw[2], kw, sw; /* best_norm2's wide copies (dead before it recurses) */
     DiscScratch<LL, DEG> disc;
     int64_t list_k[SOPT_MAX_K];
-    int64_t list_k_opt[SOPT_MAX_K];
+};
+
+/* the candidates a polynomial can have at this effort (translations_deg5's bound) */
+S23_HD int sopt_max_cand(int effort)
+{
+    return 2 * 16 * (2 + effort) + 1;
+}
+
+/* one polynomial of a batch */
+template <int LP, int DEG>
+struct SoptPoly {
+    Int<LP> f[DEG + 1], g[2], skew; /* input: the raw pair, and sopt_get_skewness */
+    int status;                     /* input SOPT_OK (SOPT_FAIL: skip it); output */
+    int ncand;                      /* prepare: candidates, in its first ncand slots */
+    double obj;                     /* prepare: the raw pair's objective; reduce: the result's */
+    Int<LP> f_opt[DEG + 1], g_opt[2]; /* reduce: the result */
+};
+
+/* CAND_NEW: set by prepare, so a slot whose lll never ran (slots are reused across
+ * batches) cannot pass for a finished candidate */
+enum { CAND_FAIL = 0, CAND_LLL = 1, CAND_DUP = 2, CAND_DONE = 3, CAND_NEW = 4 };
+
+/* one translation candidate of a polynomial */
+template <int LP, int DEG>
+struct SoptCand {
+    Int<LP> f[DEG + 1], g[2]; /* lll: best_norm2's pair; descent: the local optimum */
+    Int<LP> kv;               /* lll: k after best_norm2 */
+    double obj;               /* descent: lognorm + expected_rotation_gain */
+    int64_t k;                /* prepare: the translation */
+    int state;                /* CAND_* after lll, dedupe, descent */
 };
 
 /* fr = f + k * x^t * g (deg g = 1) */
@@ -393,7 +434,7 @@ S23_HD bool round_k(int64_t &k, double e)
 
 /* sopt_find_translations_deg5: append candidate translations to list_k */
 template <int L>
-S23_HD bool translations_deg5(int64_t *list_k, int &len, const Int<L> *f, const Int<L> *g, int sopt_effort)
+S23_HD bool translations_deg5(int64_t *list_k, int &len, int cap, const Int<L> *f, const Int<L> *g, int sopt_effort)
 {
     double a5 = get_d(f[5]), a4 = get_d(f[4]), a3 = get_d(f[3]), a2 = get_d(f[2]);
     double g1 = get_d(g[1]), g0 = get_d(g[0]);
@@ -441,7 +482,7 @@ S23_HD bool translations_deg5(int64_t *list_k, int &len, const Int<L> *f, const 
             dp_cleandeg(C, 2);
             unsigned nb_k_roots = dp_compute_all_roots(double_roots_k, C);
             for (unsigned l = 0; l < nb_k_roots; l++) {
-                if (len >= SOPT_MAX_K || !round_k(list_k[len], double_roots_k[l]))
+                if (len >= cap || !round_k(list_k[len], double_roots_k[l]))
                     return false;
                 len++;
             }
@@ -561,32 +602,23 @@ S23_HD double best_norm2(Int<LP> *fopt, Int<LP> *gopt, const Int<LP> *f_raw, con
     }
 }
 
-template <int L> S23_HD int64_t get_si(const Int<L> &a)
-{
-    return (int64_t)(((uint64_t)a.w[1] << 32) | a.w[0]);
-}
-
-/* size_optimization (max_rot = d - 2). Returns SOPT_OK and the best pair and its
- * exp_E (lognorm + expected_rotation_gain), SOPT_FAIL (overflow, a dependent LLL basis,
- * recursion or loop caps, non-finite values, effort above SOPT_MAX_EFFORT), or
- * SOPT_TIMEOUT if now_ns() passes deadline (0: none) before a translation candidate:
- * use the CPU path then. */
+/* Phase 1, per polynomial: the raw pair's objective and its translation candidates,
+ * written to C[0 .. ncand-1].k (C has sopt_max_cand(effort) slots). */
 template <int LP, int LL, int DEG>
-S23_HD int size_optimize(Int<LP> *f_opt, Int<LP> *g_opt, double &best_lognorm, const Int<LP> *f_raw,
-                         const Int<LP> *g_raw, const Int<LP> &skew, int sopt_effort, uint64_t deadline,
-                         SoptScratch<LP, LL, DEG> &S)
+S23_HD void sopt_prepare(SoptPoly<LP, DEG> &P, SoptCand<LP, DEG> *C, int effort, SoptScratch<LP, LL, DEG> &S)
 {
-    if (sopt_effort < 0 || sopt_effort > SOPT_MAX_EFFORT)
-        return SOPT_FAIL;
-    bool ok = true;
-    best_lognorm = L2_skew_lognorm(f_raw, DEG);
-    best_lognorm += expected_rotation_gain<LP, LL, DEG>(f_raw, g_raw, S.disc, ok);
-    if (!ok)
-        return SOPT_FAIL;
-
+    P.ncand = 0;
+    if (P.status != SOPT_OK)
+        return;
+    bool ok = effort >= 0 && effort <= SOPT_MAX_EFFORT;
+    if (ok)
+        P.obj = L2_skew_lognorm(P.f, DEG) + expected_rotation_gain<LP, LL, DEG>(P.f, P.g, S.disc, ok);
     int len = 0;
-    if (!translations_deg5<LP>(S.list_k, len, f_raw, g_raw, sopt_effort) || len >= SOPT_MAX_K)
-        return SOPT_FAIL;
+    const int cap = sopt_max_cand(effort);
+    if (!ok || !translations_deg5<LP>(S.list_k, len, cap - 1, P.f, P.g, effort)) {
+        P.status = SOPT_FAIL;
+        return;
+    }
     S.list_k[len++] = 0;
     for (int i = 1; i < len; i++) { /* sort ascending */
         int64_t x = S.list_k[i];
@@ -601,44 +633,86 @@ S23_HD int size_optimize(Int<LP> *f_opt, Int<LP> *g_opt, double &best_lognorm, c
     for (int i = 1; i < len; i++)
         if (S.list_k[i] != S.list_k[n - 1])
             S.list_k[n++] = S.list_k[i];
-    len = n;
+    for (int i = 0; i < n; i++) {
+        C[i].k = S.list_k[i];
+        C[i].state = CAND_NEW;
+    }
+    P.ncand = n;
+}
 
-    copy_poly<LP, DEG>(f_opt, f_raw);
-    g_opt[0] = g_raw[0];
-    g_opt[1] = g_raw[1];
-    int nopt = 0;
-    Int<LP> ft[DEG + 1], gt[2], fld[DEG + 1], gld[2], ki;
-    for (int i = 0; i < len; i++) {
-        if (deadline && now_ns() > deadline)
-            return SOPT_TIMEOUT;
-        set_si(ki, S.list_k[i]);
-        best_norm2<LP, LL, DEG>(ft, gt, f_raw, g_raw, skew, ki, DBL_MAX, S, ok);
-        if (!ok)
-            return SOPT_FAIL;
-        int64_t kv = get_si(ki);
-        bool is_new = true;
-        for (int j = 0; j < nopt; j++)
-            if (S.list_k_opt[j] == kv) {
-                is_new = false;
+/* Phase 2, per candidate: best_norm2 from its k */
+template <int LP, int LL, int DEG>
+S23_HD void sopt_lll(const SoptPoly<LP, DEG> &P, SoptCand<LP, DEG> &c, SoptScratch<LP, LL, DEG> &S)
+{
+    bool ok = true;
+    set_si(c.kv, c.k);
+    best_norm2<LP, LL, DEG>(c.f, c.g, P.f, P.g, P.skew, c.kv, DBL_MAX, S, ok);
+    c.state = ok ? CAND_LLL : CAND_FAIL;
+}
+
+/* Phase 3, per polynomial: in list order, a candidate whose final k an earlier kept one
+ * already has becomes CAND_DUP (CADO compares the whole k, mpz_cmp). Any failed
+ * candidate fails the polynomial, as it would stop CADO's loop. */
+template <int LP, int DEG>
+S23_HD void sopt_dedupe(SoptPoly<LP, DEG> &P, SoptCand<LP, DEG> *C)
+{
+    if (P.status != SOPT_OK)
+        return;
+    for (int i = 0; i < P.ncand; i++) {
+        if (C[i].state == CAND_FAIL || C[i].state == CAND_NEW) { /* NEW: the driver missed its lll */
+            P.status = SOPT_FAIL;
+            return;
+        }
+        for (int j = 0; j < i; j++)
+            if (C[j].state == CAND_LLL && C[j].kv.w[0] == C[i].kv.w[0] && cmp(C[j].kv, C[i].kv) == 0) {
+                C[i].state = CAND_DUP;
                 break;
             }
-        if (!is_new)
-            continue;
-        S.list_k_opt[nopt++] = kv;
-        double lognorm = local_descent<LP, DEG>(fld, gld, ft, gt, 300, ok);
-        if (!ok)
-            return SOPT_FAIL;
+    }
+}
+
+/* Phase 4, per kept candidate: local descent, then the objective */
+template <int LP, int LL, int DEG>
+S23_HD void sopt_descent(SoptCand<LP, DEG> &c, SoptScratch<LP, LL, DEG> &S)
+{
+    if (c.state != CAND_LLL)
+        return;
+    bool ok = true;
+    Int<LP> fld[DEG + 1], gld[2];
+    double lognorm = local_descent<LP, DEG>(fld, gld, c.f, c.g, 300, ok);
+    if (ok)
         lognorm += expected_rotation_gain<LP, LL, DEG>(fld, gld, S.disc, ok);
-        if (!ok)
-            return SOPT_FAIL;
-        if (lognorm < best_lognorm) {
-            best_lognorm = lognorm;
-            copy_poly<LP, DEG>(f_opt, fld);
-            g_opt[0] = gld[0];
-            g_opt[1] = gld[1];
+    copy_poly<LP, DEG>(c.f, fld);
+    c.g[0] = gld[0];
+    c.g[1] = gld[1];
+    c.obj = lognorm;
+    c.state = ok ? CAND_DONE : CAND_FAIL;
+}
+
+/* Phase 5, per polynomial: the first strictly lowest objective, in list order, starting
+ * from the raw pair's (CADO: if (lognorm < best_lognorm)) */
+template <int LP, int DEG>
+S23_HD void sopt_reduce(SoptPoly<LP, DEG> &P, const SoptCand<LP, DEG> *C)
+{
+    if (P.status != SOPT_OK)
+        return;
+    int best = -1;
+    for (int i = 0; i < P.ncand; i++) {
+        /* a kept candidate that never reached the descent (CAND_LLL) means the driver
+         * missed an item: fail, so the poly goes to CADO instead of a silent wrong answer */
+        if (C[i].state == CAND_FAIL || C[i].state == CAND_LLL || C[i].state == CAND_NEW) {
+            P.status = SOPT_FAIL;
+            return;
+        }
+        if (C[i].state == CAND_DONE && C[i].obj < P.obj) {
+            P.obj = C[i].obj;
+            best = i;
         }
     }
-    return SOPT_OK;
+    const Int<LP> *f = best < 0 ? P.f : C[best].f, *g = best < 0 ? P.g : C[best].g;
+    copy_poly<LP, DEG>(P.f_opt, f);
+    P.g_opt[0] = g[0];
+    P.g_opt[1] = g[1];
 }
 
 } // namespace s23

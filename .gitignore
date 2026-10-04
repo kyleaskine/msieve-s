@@ -36,6 +36,7 @@ profiling/
 gerbicz_bench/bench
 stage23_bench/tools/alpha_window
 stage23_bench/tools/cado_expe
+stage23_bench/tools/cado_murphy
 stage23_gpu/build/
 
 # Local configuration (use nfs_config.ini.template as a starting point)

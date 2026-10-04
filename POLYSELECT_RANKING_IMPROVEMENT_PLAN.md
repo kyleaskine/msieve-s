@@ -7,6 +7,10 @@
 > **Status 2026-10-03:** the M0 checks in `GPU_STAGE23_PLAN.md` (run on a c146 job)
 > settled several items below; each is marked **Done** with the result. Tools and test
 > data for rerunning them are in `stage23_bench/`.
+>
+> **2026-10-04:** checks from an outside review (`GPU_STAGE23_PLAN.md`, "Review checks")
+> qualify conclusions 1 and 5, answer the `las` question under "Verify first", and move a
+> modest lattice-aware calculator (workstream 1) earlier.
 
 ## Context
 
@@ -61,6 +65,20 @@ skew: 114791685.398
    - Example: s = 1e9, q = 1e8 gives k ≈ 3.2. Rows at b up to ~3× optimal have
      degree-5 algebraic norms up to ~3^5 times larger.
    - The damage is concentrated at low q, which should be the most profitable range.
+   - *Qualified (2026-10-04):* CADO's `las` does not sieve one fixed box for every
+     special-q.
+     - With `adjust-strategy` 0 (the default) it keeps logI and sets J per special-q so
+       that the boundary is capped.
+     - With 1 it caps the norm in the (a, b) plane instead.
+     - With 2 it chooses logI and a skewed basis per special-q by estimated yield,
+       trying a few alternative bases (`sieve/las-choose-sieve-area.cpp:94`,
+       `estimate_yield_in_sieve_area` in `sieve/las-norms.cpp:1073`).
+
+     So the k-factor analysis above describes a fixed I × J box. What matters is the
+     region the siever in use actually covers. The user's GPU siever
+     (`~/code/cuda-sieve`) is the one to model. It is also no reason for a universal
+     high-skew penalty: the question is how a given poly meets the job's q range and
+     region.
 
 2. **The root-property variance blind spot is already addressed by David–Zimmermann's
    E′ (2020).**
@@ -101,6 +119,13 @@ skew: 114791685.398
      MurphyE gets 20–27% gaps right, but has a 3–4% RMS error at the top. One poly
      MurphyE put 11% behind the winner sieved only 1.7% slower; it had the lowest
      skew of the top group, which fits the high-skew blind spot above.
+   - The 3–4% is a residual on 7 polys from one job, not a fundamental floor. It mixes
+     three separate errors:
+     - numerical error: CADO's 1,000-point integral reads high by about 0.2% and up to
+       1.4% (`GPU_STAGE23_PLAN.md`, "Review checks");
+     - the idealized region against the special-q regions actually sieved;
+     - a smoothness model that does not describe the real relation-acceptance rules
+       (lims, large-prime counts, mfb, cofactorization cost).
 
 ## Verify first (CADO source)
 
@@ -109,7 +134,10 @@ skew: 114791685.398
       that CADO sopt prints (`utils/sort_cado_by_expe.py`, then the exp_E column of the
       msieve-format file); CADO ropt ranks by MurphyE at its default parameters.
 - [ ] Is E′ (`dist-alpha`) in master? What does the final ranking use?
-- [ ] `las` adjust-strategy modes: does any reshape the sieve region per special-q?
+- [x] `las` adjust-strategy modes: does any reshape the sieve region per special-q?
+      **Done (2026-10-04):** yes. Mode 0 (default) sets J per special-q, 1 caps the
+      (a, b)-plane norm, 2 picks logI and the basis by estimated yield, 3 combines 2 and
+      0. See conclusion 1.
 - [ ] Exactly how `las` reduces the q-lattice with skew (match it in the calculator).
 - [x] `sopteffort` semantics. Does size-opt already do any pre-rotation? **Done:** each
       unit of effort adds 16 rational q2 values in [−1, 1] for translation candidates;
@@ -119,6 +147,17 @@ skew: 114791685.398
 ## Workstreams (priority order)
 
 ### 1. Lattice-aware E calculator (highest value)
+
+*2026-10-04 (review):* start a modest version now, alongside the GPU ropt (M2), rather
+than after it.
+- Reuse the GPU siever's own q-lattice reduction (`qlat_build` in
+  `~/code/cuda-sieve/bench/poly.c:905`, skewed Gauss reduction as las does) and its
+  norm evaluation. Sample the region that siever actually visits, with the forced
+  special-q factor on the correct side, over several q bands.
+- Prior art: las's yield estimator (`estimate_yield_in_sieve_area`) already integrates
+  ρ·ρ over a candidate sieve region to choose between bases (conclusion 1).
+- Keep the integration accurate (K ≥ 16,000 or split at the real roots). Otherwise
+  geometry effects of 1% drown in the quadrature noise.
 
 Inputs:
 - CADO .poly file (n, c_i, Y0, Y1, skew).

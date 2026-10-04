@@ -40,6 +40,10 @@ double cio_cado_sopt(cio_poly *opt, const cio_poly *raw, unsigned effort);
  * "### Size-optimized polynomial (idx) ###" with CADO's expected stats, as sopt prints */
 void cio_print_pair(FILE *out, unsigned idx, const cio_poly *raw, const cio_poly *opt, int raw_stats);
 
+/* CADO's projective alpha (get_alpha_projective, primes < B) of the rotation
+ * f + (u x + v) g of p: a reference for the root sieve's projective tables */
+double cio_alpha_projective_rot(const cio_poly *p, long u, long v, unsigned long B);
+
 #ifdef __cplusplus
 }
 #endif

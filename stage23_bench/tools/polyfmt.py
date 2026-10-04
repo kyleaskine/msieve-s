@@ -157,6 +157,34 @@ def parse_cado_poly(path):
     return p
 
 
+def read_cado_blocks(path):
+    """Every polynomial of a CADO-format file, [(label, poly)]: blocks of n:, Y0:, Y1:,
+    c0: ... (and skew:) separated by blank lines; a block needs c0. label is the text of
+    the last '# ...' line before the block ('' if none). Other lines (type: gnfs, ...)
+    are ignored."""
+    out, cur, label = [], {}, ''
+    with open(path) as fh:
+        for line in fh:
+            line = line.strip()
+            if line.startswith('#'):
+                label = line[1:].strip()
+                continue
+            if not line:
+                if 'c0' in cur:
+                    out.append((label, cur))
+                    label = ''
+                cur = {}
+                continue
+            m = _COEFF.match(line)
+            if m:
+                cur[m.group(1)] = int(m.group(2))
+            elif line.startswith('skew:'):
+                cur['skew'] = float(line.split()[1])
+    if 'c0' in cur:
+        out.append((label, cur))
+    return out
+
+
 def cado_poly_text(p, n=None):
     """CADO-format text for p (n: from p or the argument)."""
     n = p.get('n', n)
@@ -327,19 +355,34 @@ def cado_compile_args(build=None):
     return incs, libs, ['-lgmp', '-lm', '-lpthread', '-lstdc++']
 
 
-def cado_expe_binary():
-    """Path of cado_expe (full-precision exp_E from CADO's own code), built on first use
-    against the configured CADO build, and rebuilt when its source or CADO's libs change."""
+def _cado_tool(name, src_name, cmd):
+    """Path of a helper built from src_name against the configured CADO build, built on
+    first use and rebuilt when its source or CADO's libs change. cmd(incs, libs, ldflags,
+    binary, src) gives the compiler command."""
     here = os.path.dirname(os.path.abspath(__file__))
-    binary, src = os.path.join(here, 'cado_expe'), os.path.join(here, 'cado_expe.c')
+    binary, src = os.path.join(here, name), os.path.join(here, src_name)
     incs, libs, ldflags = cado_compile_args()
     newest = max(os.path.getmtime(f) for f in [src] + libs)
     if os.path.exists(binary) and os.path.getmtime(binary) >= newest:
         return binary
     import subprocess
-    subprocess.run(['gcc', '-O2', '-std=c99', '-fopenmp'] + incs + ['-o', binary, src] + libs + ldflags,
-                   check=True)
+    subprocess.run(cmd(incs, libs, ldflags, binary, src), check=True)
     return binary
+
+
+def cado_expe_binary():
+    """Path of cado_expe (full-precision exp_E from CADO's own code)."""
+    return _cado_tool('cado_expe', 'cado_expe.c', lambda incs, libs, ldflags, binary, src:
+                      ['gcc', '-O2', '-std=c99', '-fopenmp'] + incs + ['-o', binary, src] + libs + ldflags)
+
+
+def cado_murphy_binary():
+    """Path of cado_murphy (MurphyE at the best skew, optionally best translation, with
+    CADO's own code in-process); C++20, since CADO's C++ headers need it, with CADO's
+    embedded fmt headers."""
+    fmt = f'-I{cado_src_dir()}/utils/embedded'
+    return _cado_tool('cado_murphy', 'cado_murphy.cpp', lambda incs, libs, ldflags, binary, src:
+                      ['g++', '-O2', '-std=c++20', '-fopenmp'] + incs + [fmt, '-o', binary, src] + libs + ldflags)
 
 
 def cado_expe(polys, n):

@@ -7,9 +7,9 @@
 #   make s23_sopt CUDA=120  size optimization tool, GPU build
 #   make accept-cpu         M1 acceptance (13,000 c146 polys vs CADO), CPU build
 #   make accept-gpu         M1 acceptance, GPU build (needs a free GPU)
-#                           (EFFORT=50 SET=top: effort 50 on the 3000 polys CADO ran at 50;
-#                           CPU build only until per-candidate parallelism: on the GPU one
-#                           thread would run far past the 60 s WSL2 watchdog)
+#                           (EFFORT=50 SET=top: effort 50 on the 3000 polys CADO ran at 50)
+#   make s23_ropt_cpu       root-sieve experiments (M2), CPU build
+#   make s23_ropt CUDA=120  root-sieve experiments, GPU build
 #
 # The device code lives in include/*.h as __host__ __device__ templates, so the host
 # tests exercise the same source the GPU runs.
@@ -37,7 +37,7 @@ HEADERS := $(wildcard include/*.h)
 CXXFLAGS := -O2 -std=c++17 -Wall -Wextra -Iinclude -Itests
 CASES := $(BUILD)/cases.txt
 
-.PHONY: all test device run-device clean s23_sopt_cpu s23_sopt accept-cpu accept-gpu
+.PHONY: all test device run-device clean s23_sopt_cpu s23_sopt accept-cpu accept-gpu s23_ropt_cpu s23_ropt
 
 SOPT_SRC := tools/s23_sopt.cu tools/cado_io.h $(HEADERS)
 
@@ -55,9 +55,23 @@ $(BUILD)/test_lll: tests/test_lll.cpp $(HEADERS) $(CADO_LIB_FILES) | $(BUILD)
 $(CASES): tests/gen_cases.py | $(BUILD)
 	python3 tests/gen_cases.py $@
 
-test: $(BUILD)/test_mpint $(BUILD)/test_lll $(CASES)
+# root-sieve tables vs brute-force root counting, on the benchmark winners
+RSIEVE_POLYS := $(addprefix ../stage23_bench/data/,c146/winners/sopt.poly c146/winners/msieve_best.poly \
+	c161/winners/sopt.poly c161/winners/cado_orig_best.poly c204/A_msieve.poly c204/B_cado_orig.poly \
+	c168/winners/cado_best.poly)
+
+$(BUILD)/test_rsieve: tests/test_rsieve.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO_LIB_FILES) | $(BUILD)
+	$(CXX) $(CXXFLAGS) -Itools -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -fopenmp
+
+$(BUILD)/test_rselect: tests/test_rselect.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO_LIB_FILES) | $(BUILD)
+	$(CXX) $(CXXFLAGS) -Itools -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -fopenmp
+
+test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_rselect $(CASES)
 	./$(BUILD)/test_mpint
 	./$(BUILD)/test_lll $(CASES)
+	./$(BUILD)/test_rsieve $(RSIEVE_POLYS)
+	./$(BUILD)/test_rselect $(RSIEVE_POLYS)
+	python3 ../stage23_bench/tools/regress.py
 
 $(BUILD)/test_device: tests/test_device.cu $(HEADERS) | $(BUILD)
 	$(NVCC) -O2 -std=c++17 -arch=sm_$(CUDA) -Iinclude -Itests -o $@ $< -lgmp
@@ -83,6 +97,19 @@ $(BUILD)/s23_sopt: $(SOPT_SRC) $(BUILD)/cado_io.o $(CADO_LIB_FILES)
 
 s23_sopt_cpu: $(BUILD)/s23_sopt_cpu
 s23_sopt: $(BUILD)/s23_sopt
+
+ROPT_SRC := tools/s23_ropt.cu tools/cado_io.h $(HEADERS)
+
+$(BUILD)/s23_ropt_cpu: $(ROPT_SRC) $(BUILD)/cado_io.o $(CADO_LIB_FILES)
+	$(CXX) -O3 -march=native -ffp-contract=off -std=c++17 -fopenmp -Iinclude -Itools -x c++ tools/s23_ropt.cu \
+		-x none $(BUILD)/cado_io.o -o $@ $(CADO_LIBS)
+
+$(BUILD)/s23_ropt: $(ROPT_SRC) $(BUILD)/cado_io.o $(CADO_LIB_FILES)
+	$(NVCC) -O3 -std=c++17 -arch=sm_$(CUDA) --fmad=false -Iinclude -Itools -Xcompiler -fopenmp \
+		-o $@ tools/s23_ropt.cu $(BUILD)/cado_io.o $(CADO_LIBS) -lgomp
+
+s23_ropt_cpu: $(BUILD)/s23_ropt_cpu
+s23_ropt: $(BUILD)/s23_ropt
 
 # M1 acceptance against the c146 fixture (stage23_bench/data/c146/sopt_sample.tsv.gz)
 EFFORT ?= 0

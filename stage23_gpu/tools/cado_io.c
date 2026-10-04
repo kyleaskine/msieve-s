@@ -7,6 +7,7 @@
 #include "cado_poly.h"
 #include "mpz_poly.h"
 #include "params.h"
+#include "polyselect_alpha.h"
 #include "size_optimization.h"
 #include "cado_io.h"
 #include "sopt_skew.h"
@@ -128,6 +129,34 @@ double cio_cado_sopt(cio_poly *opt, const cio_poly *raw, unsigned effort)
     mpz_poly_clear(fo);
     mpz_poly_clear(go);
     return v;
+}
+
+double cio_alpha_projective_rot(const cio_poly *p, long u, long v, unsigned long B)
+{
+    mpz_poly f;
+    mpz_t c, t;
+    mpz_poly_init(f, p->deg);
+    mpz_init(c);
+    mpz_init(t);
+    for (int i = 0; i <= p->deg; i++)
+        mpz_poly_setcoeff(f, i, p->f[i]);
+    /* + (u x + v)(g1 x + g0): x^2 u g1, x (u g0 + v g1), 1 v g0 */
+    mpz_mul_si(t, p->g[1], u);
+    mpz_add(c, p->f[2], t);
+    mpz_poly_setcoeff(f, 2, c);
+    mpz_mul_si(t, p->g[0], u);
+    mpz_add(c, p->f[1], t);
+    mpz_mul_si(t, p->g[1], v);
+    mpz_add(c, c, t);
+    mpz_poly_setcoeff(f, 1, c);
+    mpz_mul_si(t, p->g[0], v);
+    mpz_add(c, p->f[0], t);
+    mpz_poly_setcoeff(f, 0, c);
+    const double a = get_alpha_projective(f, B);
+    mpz_clear(t);
+    mpz_clear(c);
+    mpz_poly_clear(f);
+    return a;
 }
 
 void cio_print_pair(FILE *out, unsigned idx, const cio_poly *raw, const cio_poly *opt, int raw_stats)
