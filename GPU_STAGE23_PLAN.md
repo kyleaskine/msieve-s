@@ -21,16 +21,37 @@ poly by poly; the ropt of M2 is our own design.)
 Speed alone is not the motivation. The CPU pipeline takes about 2 h, while stage 1 takes
 about 24 h on a rented 5090.
 
-## Current status (2026-10-04)
+## Current status (2026-10-05)
 
 This section supersedes the conclusions written along the way in the milestones below.
 Where an older claim turned out wrong or weaker than first written, it is marked in place.
 
-- **M1 (GPU sopt) is done.** It is byte-identical to CADO on every set tried: c146, c161,
-  and all 772,402 polys of c168. On c168 with an idle GPU:
-  - effort 0 takes 14:32 wall, against CADO's 25.6 min on 8 threads (1.8×);
-  - effort 50 on the top 1000 takes 63 s, against about 2.5 min.
-- **M2 (GPU ropt) is competitive with CADO's ropt, not finished.**
+- **M1 (GPU sopt) is done.**
+  - It is byte-identical to CADO on c146, c161 and all 772,402 polys of c168. On c168
+    with an idle GPU:
+    - effort 0 takes 14:32 wall, against CADO's 25.6 min on 8 threads (1.8×);
+    - effort 50 on the top 1000 takes 63 s, against about 2.5 min.
+  - On c208 (2,198,964 polys, CPU shared with the pipeline; M2, "Breadth run, c208"):
+    - effort 0 took 51 min wall, against about 111 min for CADO on 8 threads;
+    - 12 outputs differ from CADO's: the first differences on any job. They have the
+      same printed exp_E and a different translation or constant rotation, all are no
+      worse at full precision, and none is in the top 2000;
+    - effort 50 on the top 2000 took 145 s and was identical 2000/2000.
+- **M2 (GPU ropt) is competitive with CADO's ropt at c168 size, but not at c208 size.**
+  - **c208 (2026-10-05, rerun 2026-10-06):** on MurphyE the GPU's best is 2.6% behind msieve's best. It
+    loses 5–30% on msieve's best seeds. Every such loss checked is a coverage loss, from
+    the cell cap (winners at +1.3 to +2.1 nats with the budget cut to 0.75–1.75) or from
+    the 1000-line scan (a basin at u = −16152). Covering those cells densely costs
+    1e13–1e14 cells per seed, so at this size the selective search (Next, item 3) is
+    required.
+    - *But (test sieve, 2026-10-06):* MurphyE overrates high-skew polys under a lattice
+      siever (known problem 7), and every one of those msieve cells has skew
+      3e8–1.6e9. So the losses are overstated.
+    - The two best polys by test sieve are both from seed 10, where the GPU's best cell
+      also is.
+    - *Rescored with the lattice-aware score (2026-10-06):* the GPU's best is 3.3% behind
+      the best (CADO orig, seed 10). On that seed the gap is coverage: at budget 1.5
+      (5e12 cells) the GPU finds CADO's exact cell and ties it.
   - It recovers every known optimum of the benchmark jobs.
   - On c168, scored with MurphyE under the job's parameters at 16,000 sample points (see
     "Review checks"; run before the 2026-10-04 fixes):
@@ -59,9 +80,30 @@ Where an older claim turned out wrong or weaker than first written, it is marked
      lost part of their true top 8. *Fixed:* it is exact now, at the same speed. On 100
      c168 seeds no seed's best changed.
   4. The cell cap lowers the budget. Flat seeds therefore lose high-alpha cells that sit
-     far above the size minimum.
+     far above the size minimum. *On c208 it sets the budget for most seeds (median 1.5
+     nats) and causes every large loss.*
   5. The band search is not exhaustive. The bands come from the size model's local
      searches, they assume one v interval per line, and stopping rules end the scan in u.
+     *On c208 the 1000-line scan missed basins thousands of lines out. msieve's winners
+     sit at u = 2014 and u = −16152, and with 4000 lines seed 32's best line minimum is
+     1.06 nats lower.*
+  6. *(2026-10-05)* The sieve's block list was unbounded and also built by `-plan`: nine
+     runs took 107 GB and crashed the machine. *Fixed 2026-10-06:* the blocks are
+     generated a launch at a time, so memory no longer grows with the search ("Memory
+     guard").
+  7. *(2026-10-06)* **MurphyE ignores the lattice siever's geometry.** A special-q lattice
+     can't realize a skew much above (I/J)·q. On c208 two skew-1.33e9 polys that MurphyE
+     put within 1.5% of the best sieved 15–20% worse at q = 80M, and 5–12% worse over
+     80M–1G (M2, "Breadth run, c208", test sieve). Every ranking here inherits this:
+     msieve's and CADO's ropt, and this project's comparisons. *Fixed for scoring
+     (2026-10-06):* `score_polys.py --lattice` reproduces the test sieves within 0.04
+     (Next, item 5). The ropt proxies still rank by size and alpha only.
+  8. *(2026-10-06)* Each `s23_ropt` GPU launch ran about 2^36 cells, seconds per kernel.
+     Under WSL2 the Windows desktop shares the GPU, and long kernels made it lag.
+     *Fixed:* a launch holds about 2^32 cells (`-launch`, about 0.1 s each) and at least
+     four waves of blocks. Throughput is the same at the default `-seg` (3.53e10 against
+     3.46e10 cells/s), and outputs are byte-identical. `s23_sopt`'s 10 s `-slice` would
+     lag the same way; a short slice is a flag away, untested.
 - **Content seeds** are now generated by a tool, `stage23_bench/tools/content_seeds.py`.
 - **Exactness is not retention.** The block choice is now the exact top K *by the proxy*.
   A cell ranked K+1 in its block can still be the seed's best by accurate MurphyE: the
@@ -77,7 +119,7 @@ Where an older claim turned out wrong or weaker than first written, it is marked
   - "16,000 points is within 0.02% of 256,000" was measured on the c168 winners. It is
     evidence, not an error guarantee.
 - **Next, as a concrete work package** (revised 2026-10-04 after the second and third
-  reviews):
+  reviews, and 2026-10-05 after the c208 run):
   1. **A loss-audit corpus.** Gather the known losses: the large capped losses (flat
      seeds), the loss at the full budget (seed 234), the content cases, and any seed
      close enough to the incumbent to matter.
@@ -95,6 +137,13 @@ Where an older claim turned out wrong or weaker than first written, it is marked
        stayed 5–6 nats above a far basin that a wide search found (see item 6). On
        ordinary seeds the two agree; sample some lines to confirm none of them has a
        far basin either.
+     - *c208 (2026-10-05)* adds six cases whose boundary is already known (M2, "Breadth
+       run, c208"). Seeds 15, 27, 32, 103 and 151 were lost to the cell cap, and seed 222
+       to the line scan. The scan in u has the same weakness as the translation search: it
+       walks outwards line by line and stops on a count. 160 of 343 c208 searches hit its
+       1000-line limit, and seed 32's minimum lies further out. A coarse scan of u (every
+       k-th line, or the closed-form minimum over u from item 2) would find far basins
+       before the fine scan.
   2. **A faster size model.** Its ~75% is of summed per-process time, which is not the
      share of elapsed time a GPU port would remove: with 4 workers the size model of one
      seed overlaps the sieve of another. So measure complete searches under the intended
@@ -115,6 +164,11 @@ Where an older claim turned out wrong or weaker than first written, it is marked
   3. **A selective search over wider regions**, replacing the budget-lowering cap. Run
      the dense GPU kernel inside promising residue classes (u, v) = (u0, v0) + M·(i, j),
      rather than meeting the budget mainly by narrowing the norm range.
+     - **c208 makes this the first priority.** msieve's winners on its best seeds sit
+       1.3–2.1 nats above the best line minimum, at u = 189 to 2014. Reaching them
+       densely costs 3e12–4e13 cells per seed at budget 2.25 (seed 27: about 20 min of
+       sieving). At c168 size the dense search could afford its bands; at c208 size it
+       cannot. A class of density 1/M costs 1/M as much.
      - **Both CPU tools already do this.** CADO's ropt stage 1 chooses sublattices by
        Hensel lifting and CRT. msieve's degree-5 sieve uses M = 2^3·3^2·5·7 = 2520 for
        lines longer than 1e5 (`find_lattice_size_y`). Its `find_hits` keeps only each
@@ -158,6 +212,31 @@ Where an older claim turned out wrong or weaker than first written, it is marked
      - That shows whether the next gain is in coverage, geometry-aware ranking, or a
        richer smoothness model.
      - Geometry stays a hypothesis to measure, including how it changes across q bands.
+     - *Measured on c208 (2026-10-06; known problem 7):* geometry is real and large. A
+       skew far above (I/J)·q costs 15–20% of the yield at low q, and MurphyE does not see
+       it.
+       - *Done (2026-10-06):* a lattice-aware score, `cado_murphy -lattice LOGI,J` with
+         `-qband`/`-qpoints`, behind `score_polys.py --lattice LOGI,J --qband
+         QMIN,QMAX,NQ`.
+         - It keeps MurphyE's smoothness model: ρ of the log norm plus alpha over
+           log B, on both sides, with the job's bounds.
+         - It averages that over the region the siever actually covers. Each special-q
+           lattice is reduced at the poly's skew exactly as the user's siever reduces it
+           (`qlat_build`: Gauss reduction under the skewed norm, the shorter vector on
+           i). The special-q side's norm is divided by q. Every poly gets the same
+           random special-q and sample points, so ratios between polys carry no sampling
+           noise.
+         - Nothing is fitted. It reproduces all 30 test-sieve points within 0.04 in
+           yield ratio, against measured effects of up to 0.20.
+         - Its absolute relations per special-q read about 1.9× the test sieve's, so
+           compare ratios only.
+         - `regress.py` checks it against the fixture `stage23_bench/data/c208/testsieve`.
+         - Cost: about the same as job MurphyE scoring, since the skew search dominates,
+           and one pass gives both numbers.
+       - It was used to rescore the c208 comparison (M2, "Rerun with the lattice-aware
+         score").
+       - Outside this project: the siever could choose the region's aspect per
+         special-q, at fixed area, to recover what high-skew polys lose at low q.
   6. **Quadratic rotation, measured; not worth running on degree 5 at this size.** The
      proposed pilot was f_w = f + w x²·g for fixed w, searched by the linear ropt.
      `slice_size.py` measures its size cost first: the best lognorm over the whole slice,
@@ -914,6 +993,149 @@ Findings that change the design:
     - Later checks ("Review checks") struck the translation gap from this list: MurphyE
       only appeared to reward tuned translations. They added the three problems listed
       under "Current status".
+- **Breadth run, c208 (2026-10-05; the user's job, run while its CPU pipeline ran).**
+  - *The job:* 2,198,964 deduped raw polys, degree 5. The pipeline ran `--size big`:
+    CADO effort 50 on the top 2000, msieve ropt on 300 and CADO ropt on 150. The CADO
+    passes were lost when the machine crashed (see "Memory guard").
+  - *Scoring:* the user's planned parameters, lpbr 33, lpba 34, sieve area 2^32 per q,
+    qmin 80M. That is `score_polys --params job:33,34,16.5,80e6` (Bf 2^34, Bg 2^33, area
+    2^32 × 8e7) at 4,000/16,000 points.
+  - The run's files were in /tmp and were lost in the crash. The numbers below are from
+    the session log. The seeds can be regenerated from the pipeline's
+    `pipeline_work/resopt_sorted.txt`, which the GPU's effort-50 output matched exactly.
+  - *GPU sopt (M1) at this size:*
+    - Effort 0 on all 2,198,964 polys took 50:59 wall (1.04 ms each; 2 redone by CADO),
+      sharing the CPU with CADO's own sopt for 27 min. CADO's took about 111 min on 8
+      threads.
+    - **2,198,952 outputs were identical and 12 differ**, the first differences on any
+      job. Each pair has the same printed exp_E, but a different translation or constant
+      rotation. All 12 are no worse at full-precision exp_E (`sopt_compare.py --rescore`
+      passes 100%), and none is in the top 2000.
+    - Effort 50 on the top 2000 took 145 s wall and was identical 2000/2000 to the
+      pipeline's CADO re-sopt, so seed ranks join exactly.
+    - Multipliers are large: |a| has median 224 in the top 2000 (15,077 over the whole
+      job). The top 2000 yield 47 content seeds.
+  - *GPU ropt with the c168 run-3 settings* (budget 3, `-aw 1.3`, `-maxcells 2e11`, 4
+    workers). Paused after 325 seeds plus their content seeds: 343 searches in about
+    70 min.
+    - **The cell cap sets the budget at this size.** Over 325 seeds the effective budget
+      has median 1.5: 142 seeds are below 1.5, 214 below 2, and only 43 keep the full 3.
+      On c168 most seeds kept 3.
+    - The best GPU cell is 3.2979e-9 (seed 1), against msieve's best of 3.4104e-9
+      (seed 27): −3.3%.
+    - Against msieve on its 300 seeds (296 scored): better 118, tie (0.1%) 59, worse 119.
+      Every large loss (ratios 0.70–0.83) is on a seed cut to the 0.5 floor. Seeds left
+      at budget ≥ 2 have median ratio 1.000; those below 2, 0.992.
+    - Each seed's MurphyE-best cell has proxy rank median 1, 90% 11, max 29 (32 are
+      scored per seed).
+    - Scoring takes about 0.9 s per poly at this size, against 0.28 s on c168.
+  - *Depth pass:* `-maxcells 2e12` on the 26 best seeds by either method, plus one
+    content seed; 2 workers, 22 min.
+    - Budgets rose only to 1.25–2.5; seed 222 stayed at 0.5.
+    - Per-seed gains reach +8.8%, and +5–6% on seeds 27, 32 and 140.
+    - The best GPU cell is 3.3201e-9 (seed 10, proxy rank 29): −2.6% against msieve.
+    - The GPU is still behind msieve on seeds 27 (0.936), 32 (0.939), 15 (0.953),
+      151 (0.914), 103 (0.856) and 222 (0.696).
+  - *Where msieve's winners are.* Rotations from `rotation_diff.py`. The lognorm is at
+    msieve's own translation, so it bounds the re-translated value from above.
+
+    | seed | msieve u | lognorm − best line minimum | deep pass: budget, u range |
+    |---|---|---|---|
+    | 15 | 306 | +1.93 | 1.25, −7..109 |
+    | 27 | −295 | +2.13 | 1.75, −98..7 |
+    | 32 | 295 | +1.31 | 1.00, −4..61 |
+    | 103 | 2014 | +2.01 | 1.25, −7..113 |
+    | 151 | 189 | +1.49 | 1.25, −6..91 |
+    | 222 | −16152 | −0.39 | 0.50, −500..−499 |
+
+    - **Every one is a coverage loss**: the cell was never in the sieved region; it was
+      not ranked out.
+    - Five lie inside a 3-nat budget that the cap lowered.
+    - Seed 222's cell is *below* the size model's best line minimum. The line scan
+      stopped at its 1000-line limit (|u| ≤ 500) while the minima were still falling.
+  - **The 1000-line scan misses deeper minima.** 160 of the 343 searches hit the limit.
+    With `-maxlines 4000`, seed 32's best line minimum is 62.94, not 64.00. A 40-seed
+    rescan to count how often this happens was running when the machine crashed.
+  - **Covering those cells densely costs too much.**
+    - At budget 2.25, seed 27 has 4.1e13 cells (3.9e7 blocks, u −793..153), about 20 min
+      of sieving. Seed 32 has 2.8e12 (u −44..1912).
+    - One poor poly at budget 3 had 2e14 cells, almost all in a far, flat basin at
+      |u| ≈ 500 with 1.7e11 cells per line.
+    - msieve reaches these regions by sieving only good classes (mod 2520 on long lines).
+  - *The pipeline's final polys* (CADO default MurphyE; CADO's passes rerun after the
+    crash, plus the user's deep msieve and CADO runs):
+    - CADO orig: seed 10, skew 5.0e8 after skewopt, MurphyE 1.798e-15.
+    - The user's deep msieve inverted pass: also seed 10, skew 5.0e8, e 1.799e-15.
+    - msieve's original winner and CADO inv's winner: both seed 27, skew 1.33e9, about
+      1.767e-15.
+  - **Test sieve (2026-10-06):** the user's GPU siever (`testsieve.sh`), the job's
+    parameters (rlim 200M, alim 300M, lpb 33/34, mfb 64/96), 3 points at q ≈ 80M, 540M
+    and 1G, two shapes of area 2^32. The table gives the yield relative to CADO orig;
+    files are in `pipeline_results/testsieve_c208/` of the job.
+
+    | poly | skew | I17×J2^15: 80M / 540M / 1G, projected | I16×J2^16: 80M / 540M / 1G, projected |
+    |---|---|---|---|
+    | CADO orig (seed 10) | 5.0e8 | 1 / 1 / 1, 1.000 | 1 / 1 / 1, 1.000 |
+    | deep msieve (seed 10) | 5.0e8 | 0.999 / 0.996 / 0.999, 0.997 | 0.995 / 1.004 / 1.002, 1.000 |
+    | msieve (seed 27) | 1.33e9 | 0.852 / 1.015 / 0.993, 0.949 | 0.801 / 0.878 / 1.042, 0.883 |
+    | CADO inv (seed 27) | 1.33e9 | 0.854 / 1.015 / 0.994, 0.949 | 0.792 / 0.879 / 1.042, 0.883 |
+    | msieve (seed 27), declared skew 5e8 | — | 0.852 / 0.927 / 0.942, 0.902 | 0.801 / 0.965 / 1.027, 0.924 |
+
+    - **MurphyE overrates high-skew polys under a lattice siever.** It had seed 27's
+      polys within 1.5% of seed 10's. The test sieve has them 5% behind over the band on
+      the user's shape and 12% behind on the square one, nearly all of it at low q (−15%
+      and −20% at 80M).
+    - **The mechanism.** Every special-q lattice contains (q, 0). At skew s that vector
+      has skewed length q/√s, below √q once s > q. The reduced basis is then
+      unbalanced, and the fixed I×J rectangle covers a region of aspect about (I/J)·q,
+      whatever the poly's skew.
+      - The squarer shape (I/J = 1) is hurt more than I/J = 4 (−12% against +1.5% at
+        540M, where s/q ≈ 2.5), as predicted.
+      - Declaring a lower skew changes nothing at 80M: the yield is identical, because
+        the lattice forces the same region. It costs 5–7% at higher q, where the
+        poly's own skew is realizable.
+    - Each point is one 2000-wide window (90–120 special-q), so differences of 1–3% are
+      noise; the 15–20% gaps at low q are not.
+    - Both seed-10 polys tie. On CADO orig the I17×J2^15 shape projects 12% more
+      relations than I16×J2^16 over [80M, 1G].
+  - **Conclusions for c208:**
+    - GPU sopt scales: identical or no worse on all 2.2M polys, about 2× faster than
+      CADO on 8 threads, and effort 50 on 2000 seeds in under 3 minutes.
+    - The dense band search under a fixed cell budget does not scale. On MurphyE, the
+      GPU loses 5–30% on msieve's best seeds, because the cells it needs cost 1e13–1e14
+      cells per seed: they sit 1.3–2.1 nats up, or in a basin thousands of lines out.
+    - *Correction (2026-10-06, test sieve):* those msieve cells all have skew 3e8–1.6e9,
+      and MurphyE overrates exactly such polys at low q. *Superseded by the rerun below:*
+      the lattice-aware score reorders seed 27 against seed 10, but most per-seed
+      losses remain, and they are coverage losses.
+    - Selective search (Next, item 3) is still needed to reach cells far from the
+      minimum at this size. Whether those cells are worth reaching should be judged by
+      the lattice-aware score, not MurphyE.
+    - The line scan needs far more lines, or a coarse scan of u first (Next, item 1).
+  - **Rerun with the lattice-aware score (2026-10-06).** The same breadth and deep passes
+    were rerun, because the first run's files were lost in the crash. They reproduced it
+    exactly. Every output was scored by job MurphyE and by `score_polys --lattice 17,32768
+    --qband 80e6,1e9,9` (the user's siever shape). The baseline adds the user's deep
+    msieve and CADO runs.
+    - Best by the lattice score: CADO orig 1.0000 and the deep msieve 0.9998, both
+      seed 10 at skew about 5e8, as the test sieve found. Seed 27's best drops to 0.963
+      (0.989 by MurphyE). The GPU's best was 0.9668 (seed 10, deep pass), 3.3% behind
+      under either score.
+    - Per seed the lattice score barely moves the counts. GPU vs msieve on its 300:
+      better 120, tie 61, worse 117 (MurphyE 117 / 60 / 121). GPU vs CADO on its 150:
+      27 / 73 / 50 (MurphyE 19 / 72 / 59). The big losses (−25 to −30%: seeds 78, 222,
+      71) are seeds whose budget the cap cut to the floor.
+    - **On the winning seed the loss is coverage, and more cells recover it.**
+      - CADO orig's cell and the deep msieve's are the same rotation, u = 147, 1.36 nats
+        above seed 10's best line minimum. The deep pass's 2e12 cap had stopped at budget
+        1.25 (u −8..122).
+      - At budget 1.5 (5.0e12 cells, 146 s of sieving, shared with ECM) the GPU finds
+        CADO's exact cell, (147, 4704054682), at a translation within 7 of CADO's.
+      - It is the GPU's best of 200 by the lattice score, 1.0000, and proxy rank 2. Its job
+        MurphyE is 3.4489e-9, against 3.4502e-9 for the best poly.
+      - The sieve and the proxy work once the cell is in the band. The budget has to go
+        to the right seeds (Next, item 4): a broad pass, then deeper budgets on the few
+        seeds that lead.
 
 ### M3: Objectives
 
@@ -1261,6 +1483,97 @@ overflow bounds, the warp top-K against the CPU path, and `cado_murphy -selftest
 - *Duplicated helpers:* `CUDA_CHECK` and the xorshift rng.
 - *Test data:* `make test` now reads `stage23_bench/data/c168/`, so that directory must
   be committed.
+
+### Memory guard (2026-10-05)
+
+During the c208 run, nine `s23_ropt` processes held 107.5 GB of RAM and swap, 6–16 GB
+each by the kernel's OOM report. Eight were `-plan -maxlines 4000` runs started in
+parallel; the ninth was a search with the cell cap lifted. The OOM killer fired, WSL
+thrashed and was then powered off, and the user's CADO ropt passes were lost.
+- **Cause.** `s23_ropt` built the whole list of sieve blocks before sieving: 32 bytes
+  each, about 44 with the vector's growth. `-plan` built it too, only to print its length.
+  - Without `-maxcells` nothing bounds the list. c208 seeds with a far, flat basin need
+    1e8–2e8 blocks at budget 2–3.
+  - The c168 flat seeds that reached 36 GB ("Breadth run, c168") were the same mechanism.
+- **First fix (2026-10-05):** the blocks were counted first. `-plan` only counted them,
+  and a run needing more than `-maxmem` MB (default 2048) of blocks stopped with exit
+  status 3.
+- **Final fix (2026-10-06, after the code review below): the blocks are streamed.**
+  - The kept lines are cut into segments, the pieces between knots (at most 64 per
+    line). A generator splits them into blocks, in the same order as before, a launch's
+    worth at a time.
+  - Memory no longer grows with the search. Nothing else does either: the size model
+    keeps 64 knots per line, and the hits are trimmed per launch.
+  - So `-maxmem` is gone. Its refusal would have silently dropped the far, flat seeds
+    from an uncapped batch, since each such seed would just exit 3.
+  - `-plan` only counts, in window mode too.
+  - After the sieve, the number of blocks generated must equal the count from
+    `seg_blocks`; a mismatch is an internal error.
+- **Verified, first fix (2026-10-06):**
+  - `make test` passes.
+  - Against the previous binary (built from HEAD), stdout (less timings and the output
+    path) and `-out` files are byte-identical on three c168 seeds with run-3 settings,
+    one with the cap binding (seed 51, budget lowered to 2.75, lines trimmed). The same
+    holds for a window box and an uncapped search at budget 1.
+  - c208 seed 32 at budget 2, under an 8 GB `ulimit -v`:
+    - `-plan` reports 344,781,297 blocks (10.5 GB) using 7 MB, where it used to hit
+      `bad_alloc`;
+    - the search exits with status 3 and the message, using 6 MB.
+  - c208 seed 1 at budget 2: the same block count as the old binary (6,104,637).
+- **Verified, streaming:**
+  - Against the first fix's binary, stdout and `-out` are byte-identical on eight cases:
+    - the five above;
+    - the CPU path;
+    - `-seg 24`;
+    - the c208 seed-10 deep search, where `-check 2000` found 0 brute-force differences.
+  - A window of 2.1M blocks peaks at 185 MB, against 248 MB before. The difference is
+    the old list's 64 MB; the rest is CUDA and the launch buffers.
+- **Operating rule.** Try any new setting with a single `-plan` first, and keep the
+  total of concurrent runs well under the free RAM. Keep long runs' files outside /tmp,
+  which a WSL restart wipes.
+
+### Code review of the c208 changes (2026-10-06)
+
+A `/code-review` of the memory guard, the `-launch` change and the lattice-aware score
+found 15 issues. All were confirmed and all are fixed:
+- **Blocks streamed** (see "Memory guard"). This also removes `-maxmem`'s silent exit 3
+  in batches, and the count-vs-build duplication: one `seg_blocks` plus a runtime check.
+- **Launch sizing.**
+  - Launches were sized from the longest block, so a large `-seg` left most SMs idle
+    (`-seg 30`: 4 blocks per launch). Many short knot blocks also made launches carry far
+    fewer cells than intended.
+  - A launch now takes blocks until it holds about 2^LOG2 cells, at least four waves'
+    worth (sms × resident blocks per SM × 4; on the 5070, 48 × 4 × 4 = 768 blocks), and
+    at most 65,536.
+  - The kept set is now chosen by a total order (key, u, v), so results cannot depend on
+    how hits arrive in launches.
+  - With huge blocks a kernel still takes long: one block is one CUDA block.
+  - Throughput on an idle GPU (2026-10-06, old = git HEAD, interleaved, cells/s):
+    - c168 seed 51 at `-seg 20`: 3.54e10 against 3.53e10 (three runs each). No
+      difference.
+    - c208 seed 10 deep search (1.26e12 cells): 3.54e10 against 3.48e10 (−1.7%).
+      `-launch 36` (the old size) gives 3.53e10, so streaming costs nothing; the short
+      launches do.
+    - `-seg 26`: 3.73e10 against 3.63e10 (−3%).
+    - The cost is each launch's partly empty last wave and the synchronous gap between
+      launches. Two CUDA streams (double buffering) would hide both while keeping the
+      kernels short. That is about 0.5% of a whole search, where the size model
+      dominates, so it is not done.
+  - (While ECM shared the GPU, `-seg 26` had read 5% lower; that was mostly contention.)
+- **`cado_murphy -lattice`.**
+  - `-useskew` now warns when polys have no skew line. Every `s23_ropt -out` file has
+    none, and those polys get MurphyE's best skew.
+  - ρ's argument is clamped at 0, so a norm below e^-alpha counts as smooth (CADO's
+    `dickman_rho` returns 0 below 0).
+  - q is limited to 2^52, where the reduction's doubles stay exact.
+  - The band comment now says 1/ln q special-q per unit q.
+  - MurphyE is not recomputed when Keval equals K.
+  - The header documents the lattice mode and its output columns.
+- **`score_polys.py`:** one helper runs cado_murphy for both modes, and passes on its
+  warnings. The accuracy statement now gives "24 ratios within 0.04 (worst 0.038)".
+- **`regress.py`:** a missing c208 fixture fails the check instead of crashing, and
+  cado_murphy's errors appear in the detail. The bounds come from `rescore.derived`, and
+  the docstring counts 24 ratios.
 
 ### Other points accepted
 

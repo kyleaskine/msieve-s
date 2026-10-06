@@ -208,6 +208,54 @@ Details and numbers in `../GPU_STAGE23_PLAN.md` (M2, "Breadth run, c168").
 
     Open items are listed in the plan ("Code review of the fixes").
 
+## Status (2026-10-05/06, c208, memory, launches)
+
+Details are in `../GPU_STAGE23_PLAN.md`: M2, "Breadth run, c208", "Memory guard", and
+"Code review of the c208 changes".
+
+- **`s23_sopt` on the whole c208 job** (2,198,964 polys, CPU shared with the pipeline):
+  - Effort 0 took 51 min wall, against about 111 min for CADO on 8 threads.
+  - 2,198,952 outputs are identical. 12 differ, with the same printed exp_E, and all
+    are no worse at full precision. These are the first differences on any job; none is
+    in the top 2000.
+  - Effort 50 on the top 2000 took 145 s and was identical 2000/2000.
+- **`s23_ropt` at c208 size: behind msieve (−2.6% on the best poly).**
+  - Every loss checked is a coverage loss, from the cell cap or the 1000-line scan in u.
+  - The cells that win cost 1e13–1e14 per seed to cover densely, so this size needs the
+    selective search.
+- **Blocks streamed (2026-10-06).** The sieve's blocks are generated from the kept lines'
+  pieces a launch at a time, so memory no longer grows with the search.
+  - Before this the whole list was built first, 32 bytes a block. On 2026-10-05 nine runs
+    in parallel took 107 GB and crashed the machine.
+  - A first fix, `-maxmem`, refused large runs. It is gone: in an uncapped batch it would
+    have silently dropped the far, flat seeds.
+  - `-plan` only counts the blocks, in window mode too.
+  - Verified:
+    - `make test` passes;
+    - output is byte-identical to the earlier binaries on eight cases: c168 searches,
+      window, uncapped, the CPU path, `-seg 24`, and the c208 seed-10 deep search
+      (`-check` 0 differences);
+    - a window of 2.1M blocks peaks at 185 MB, against 248 MB before.
+- **The c208 comparison with msieve is on MurphyE, which overrates high-skew polys under a
+  lattice siever.** A test sieve put two skew-1.33e9 polys 15–20% behind at q = 80M,
+  though MurphyE had them within 1.5%. See the plan's known problem 7.
+  - Rescored with `score_polys.py --lattice` (2026-10-06), the GPU's best is still 3.3%
+    behind.
+  - On the winning seed that gap is coverage: at budget 1.5 (5e12 cells) `s23_ropt` finds
+    CADO's exact winning cell and ties it.
+- **`-launch LOG2` (default 32, 2026-10-06).** A GPU launch now holds about 2^LOG2 cells
+  (about 0.1 s), down from about 2^36 (seconds per kernel).
+  - It also holds at least four waves of blocks (768 on the 5070) and at most 65,536.
+  - Under WSL2 the Windows desktop shares the GPU, and the long kernels made it lag.
+  - Results don't depend on it: the kept cells are chosen by a total order.
+  - Idle-GPU throughput, against git HEAD:
+    - the same at the default `-seg 20` on c168;
+    - −1.7% on the c208 seed-10 deep search (the old launch size, `-launch 36`, recovers
+      it, so the cost is the short launches, not the streaming);
+    - −3% at `-seg 26`.
+  - A code review of these changes found 15 issues, all fixed; see the plan, "Code
+    review of the c208 changes".
+
 ## Status (2026-10-03, M2 first steps: root sieve and size model)
 
 Timings were taken while an ECM job used the GPU: retime on an idle GPU.

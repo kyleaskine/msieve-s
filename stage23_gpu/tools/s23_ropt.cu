@@ -4,7 +4,8 @@
  *   search: s23_ropt -poly FILE -search [-budget B] [-maxcells C] [-aw W] [-patience P] [-umax U]
  *           [-maxlines M] [-out FILE] [-refine N] [-plan] [common options]
  *   cell:   s23_ropt -poly FILE -cell U V
- *   common: [-top N] [-k K] [-seg LOG2] [-noproj] [-cpu] [-dev N] [-t THREADS] [-check N]
+ *   common: [-top N] [-k K] [-seg LOG2] [-noproj] [-cpu] [-dev N] [-t THREADS] [-check N] [-launch LOG2]
+ *           [-plan]
  *
  * For the seed in FILE (CADO format, degree 5), scores cells (u, v) of
  * f_{u,v} = f + (u x + v) g by the alpha sieve of include/rsieve.h (p < 200: affine roots
@@ -33,7 +34,17 @@
  *   when p | the multiplier a and f = (linear) g mod p) is written with it divided out,
  *   as CADO's ropt does, and labelled; its proxy is not right, so such lattices are
  *   searched properly as their own seeds (f + (u0 x + v0) g)/p.
- * -plan stops after the size model and prints the lines and cell counts (no sieve).
+ * -plan stops before the sieve and prints the cell and block counts (and, for a search, the
+ *   size model's lines).
+ * Memory does not grow with the search: the blocks (one per at most 2^LOG2 cells of a
+ *   line, at least one per knot interval) are generated a launch at a time from the lines'
+ *   pieces. Before 2026-10-06 the whole list was built first (32 bytes a block, up to 2e8
+ *   blocks on c208 seeds with a far, flat basin), and nine runs took 107 GB and crashed the
+ *   machine.
+ * -launch LOG2 (default 32): a GPU launch takes blocks until it holds about 2^LOG2 cells
+ *   (about 0.1 s on a 5070), and at least four waves of blocks. Results do not depend on it:
+ *   the kept cells are chosen by a total order. Long kernels made the Windows desktop lag
+ *   under WSL2, and with -seg above about 22 a single block already takes long.
  * -check N rescores N random cells of the sieve's output (as the GPU or CPU scored them)
  *   and every printed cell by brute-force root counting; -cell prints one cell's score
  *   both ways.
@@ -197,26 +208,64 @@ static bool seed_from_poly(RsSeed &S, RsizePoly<LP> &R, const cio_poly &P)
     return ok && from_mpz(R.g[0], P.g[0]) && from_mpz(R.g[1], P.g[1]);
 }
 
-/* the blocks of a v range of line u, with the lognorm L0 + dL (v - v_lo) */
-static void add_blocks(std::vector<Blk> &blks, int64_t u, int64_t v_lo, int64_t v_hi, int seg_log, double L0 = 0,
-                       double dL = 0)
+/* a piece of one line to sieve: v in [a, b], with the lognorm L0 + dL (v - a) */
+struct Seg {
+    int64_t u, a, b;
+    double L0, dL;
+};
+
+/* how many blocks a segment is split into: at most 2^seg_log cells each, in order */
+static size_t seg_blocks(const Seg &S, int seg_log)
 {
-    for (int64_t v = v_lo; v <= v_hi;) {
-        const uint64_t rest = (uint64_t)(v_hi - v) + 1;
-        const uint32_t len = (uint32_t)std::min<uint64_t>(rest, 1ull << seg_log);
-        blks.push_back({u, v, len, (float)(L0 + dL * (double)(v - v_lo)), (float)dL});
-        if (rest <= len)
-            break;
-        v += len;
-    }
+    return S.b < S.a ? 0 : (size_t)(((uint64_t)(S.b - S.a) >> seg_log) + 1);
 }
 
-/* the blocks of a line's band, split at its knots so that the lognorm is linear in each */
-static void add_band_blocks(std::vector<Blk> &blks, const RsLine &L, int seg_log)
+/* the sieve's blocks, generated in order from the segments, a launch's worth at a time,
+ * so memory does not grow with the search (before 2026-10-06 the whole list was built
+ * first: 32 bytes a block, up to 2e8 blocks on c208 seeds with a far, flat basin; nine
+ * runs took 107 GB and crashed the machine) */
+struct BlockGen {
+    const std::vector<Seg> &segs;
+    const int seg_log;
+    size_t si = 0, made = 0;
+    int64_t v = 0;
+    bool in_seg = false;
+    BlockGen(const std::vector<Seg> &s, int sl) : segs(s), seg_log(sl) {}
+    /* the next block; false at the end */
+    bool next(Blk &B)
+    {
+        for (; si < segs.size(); si++, in_seg = false) {
+            const Seg &S = segs[si];
+            if (!in_seg) {
+                v = S.a;
+                in_seg = true;
+            }
+            if (S.b < S.a || v > S.b)
+                continue;
+            const uint64_t rest = (uint64_t)(S.b - v) + 1;
+            const uint32_t len = (uint32_t)std::min<uint64_t>(rest, 1ull << seg_log);
+            B = {S.u, v, len, (float)(S.L0 + S.dL * (double)(v - S.a)), (float)S.dL};
+            made++;
+            if (rest <= len) {
+                si++;
+                in_seg = false;
+            } else
+                v += len;
+            return true;
+        }
+        return false;
+    }
+};
+
+/* calls seg(a, b, L0, dL) for each piece of a line's band between knots, where the
+ * lognorm is L0 + dL (v - a) */
+template <class F>
+static void band_segments(const RsLine &L, F seg)
 {
     const size_t n = L.kv.size();
     if (n < 2) {
-        add_blocks(blks, L.u, L.v_lo, L.v_hi, seg_log, n ? L.kL[0] : L.L_min, 0);
+        if (L.v_lo <= L.v_hi)
+            seg(L.v_lo, L.v_hi, n ? L.kL[0] : L.L_min, 0.0);
         return;
     }
     for (size_t i = 0; i + 1 < n; i++) {
@@ -224,55 +273,80 @@ static void add_band_blocks(std::vector<Blk> &blks, const RsLine &L, int seg_log
         if (b < a)
             continue;
         const double dL = L.kv[i + 1] > L.kv[i] ? (L.kL[i + 1] - L.kL[i]) / (double)(L.kv[i + 1] - L.kv[i]) : 0;
-        add_blocks(blks, L.u, a, b, seg_log, L.kL[i], dL);
+        seg(a, b, L.kL[i], dL);
     }
 }
 
-/* runs the sieve over blks; `keep` gets each launch's hits */
+/* runs the sieve over the blocks of segs; `keep` gets each launch's hits. Returns the
+ * number of blocks sieved. */
 template <class F>
-static void run_sieve(const RsSeed &S, const std::vector<float> &PT, const std::vector<Blk> &blks, int k, float aw,
-                      int use_cpu, int dev, F keep)
+static size_t run_sieve(const RsSeed &S, const std::vector<float> &PT, const std::vector<Seg> &segs, int seg_log, int k,
+                        float aw, int use_cpu, int dev, int launch_log2, F keep)
 {
+    BlockGen gen(segs, seg_log);
+    Blk B;
+    bool more = gen.next(B);
     if (use_cpu) {
         const size_t chunk = 1024;
+        std::vector<Blk> batch;
         std::vector<Hit> part(chunk * k);
-        for (size_t b0 = 0; b0 < blks.size(); b0 += chunk) {
-            const size_t nb = std::min(chunk, blks.size() - b0);
+        while (more) {
+            batch.clear();
+            while (more && batch.size() < chunk) {
+                batch.push_back(B);
+                more = gen.next(B);
+            }
+            const size_t nb = batch.size();
 #pragma omp parallel
             {
                 std::vector<float> T(S.ntab), acc(1 << 16);
 #pragma omp for schedule(dynamic, 1)
                 for (size_t b = 0; b < nb; b++)
-                    cpu_block(S, PT.data(), blks[b0 + b], k, aw, &part[b * k], T, acc);
+                    cpu_block(S, PT.data(), batch[b], k, aw, &part[b * k], T, acc);
             }
             keep(part.data(), nb * k);
         }
-        return;
+        return gen.made;
     }
 #ifdef __CUDACC__
     CUDA_CHECK(cudaSetDevice(dev));
     RsSeed *Sg;
     Blk *bg;
     Hit *out;
-    /* blocks per launch: about 2^36 cells (a few seconds), whatever -seg, to stay far
-     * from the 60 s WSL2 watchdog */
-    uint32_t maxlen = 1;
-    for (const Blk &B : blks)
-        maxlen = std::max(maxlen, B.len);
-    const size_t per_launch = std::min<size_t>(1u << 16, std::max<size_t>(1, (1ull << 36) / maxlen));
     float *PTg;
+    const size_t shmem = S.ntab * sizeof(float);
+    /* a launch takes blocks until it holds about 2^launch_log2 cells (default 2^32, about
+     * 0.1 s on a 5070), and at least four waves' worth of blocks so every SM has work and
+     * the last wave's tail stays small, whatever the block lengths; at most max_blocks. Short launches keep the Windows desktop
+     * responsive: under WSL2 it shares the GPU, and multi-second kernels (2^36 cells before
+     * 2026-10-06) made input lag. A block is one CUDA block, so with -seg above about 22 a
+     * single block already takes long. */
+    int sms = 1, per_sm = 1;
+    CUDA_CHECK(cudaDeviceGetAttribute(&sms, cudaDevAttrMultiProcessorCount, dev));
+    CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&per_sm, sieve_kernel, NT, shmem));
+    const size_t max_blocks = 1u << 16;
+    const size_t min_blocks = std::min(max_blocks, (size_t)(4 * std::max(1, sms) * std::max(1, per_sm)));
+    const double launch_cells = ldexp(1.0, launch_log2);
     CUDA_CHECK(cudaMalloc(&Sg, sizeof S));
     CUDA_CHECK(cudaMemcpy(Sg, &S, sizeof S, cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMalloc(&PTg, std::max<size_t>(1, PT.size()) * sizeof(float)));
     if (!PT.empty())
         CUDA_CHECK(cudaMemcpy(PTg, PT.data(), PT.size() * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMalloc(&bg, per_launch * sizeof(Blk)));
-    CUDA_CHECK(cudaMalloc(&out, per_launch * k * sizeof(Hit)));
-    std::vector<Hit> part(per_launch * k);
-    const size_t shmem = S.ntab * sizeof(float);
-    for (size_t b0 = 0; b0 < blks.size(); b0 += per_launch) {
-        const size_t nb = std::min(per_launch, blks.size() - b0);
-        CUDA_CHECK(cudaMemcpy(bg, blks.data() + b0, nb * sizeof(Blk), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMalloc(&bg, max_blocks * sizeof(Blk)));
+    CUDA_CHECK(cudaMalloc(&out, max_blocks * k * sizeof(Hit)));
+    std::vector<Blk> batch;
+    batch.reserve(max_blocks);
+    std::vector<Hit> part(max_blocks * k);
+    while (more) {
+        batch.clear();
+        double cells = 0;
+        while (more && batch.size() < max_blocks && (batch.size() < min_blocks || cells < launch_cells)) {
+            batch.push_back(B);
+            cells += B.len;
+            more = gen.next(B);
+        }
+        const size_t nb = batch.size();
+        CUDA_CHECK(cudaMemcpy(bg, batch.data(), nb * sizeof(Blk), cudaMemcpyHostToDevice));
         sieve_kernel<<<(unsigned)nb, NT, shmem>>>(Sg, PTg, bg, k, aw, out);
         CUDA_CHECK(cudaGetLastError());
         CUDA_CHECK(cudaMemcpy(part.data(), out, nb * k * sizeof(Hit), cudaMemcpyDeviceToHost));
@@ -284,7 +358,9 @@ static void run_sieve(const RsSeed &S, const std::vector<float> &PT, const std::
     cudaFree(Sg);
 #else
     (void)dev;
+    (void)launch_log2;
 #endif
+    return gen.made;
 }
 
 static unsigned long long rng_state = 0x2545F4914F6CDD1Dull;
@@ -343,7 +419,7 @@ int main(int argc, char **argv)
     int top = 20, k = 8, seg_log = 20, use_cpu = 0, dev = 0, threads = 8, check = 0, cell = 0, search = 0;
     int patience = 20, refine = 200, window = 0, plan = 0, noproj = 0;
     double budget = 0.5, aw = 1.0, maxcells = 0;
-    int maxlines = 1000;
+    int maxlines = 1000, launch_log2 = 32;
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-poly") && i + 1 < argc)
             path = argv[++i];
@@ -371,6 +447,8 @@ int main(int argc, char **argv)
             maxcells = atof(argv[++i]);
         else if (!strcmp(argv[i], "-maxlines") && i + 1 < argc)
             maxlines = atoi(argv[++i]);
+        else if (!strcmp(argv[i], "-launch") && i + 1 < argc)
+            launch_log2 = atoi(argv[++i]);
         else if (!strcmp(argv[i], "-patience") && i + 1 < argc)
             patience = atoi(argv[++i]);
         else if (!strcmp(argv[i], "-umax") && i + 1 < argc)
@@ -405,8 +483,9 @@ int main(int argc, char **argv)
 #endif
     omp_set_num_threads(threads > 0 ? threads : 1);
     if (!path || (window && (u1 < u0 || v1 < v0)) || (!window && !search && !cell) || k < 1 || k > K_MAX ||
-        seg_log < 12 || seg_log > 30 || budget <= 0 || aw <= 0) {
-        fprintf(stderr, "s23_ropt: need -poly and one of -u/-v, -search, -cell; 1 <= K <= %d, 12 <= LOG2 <= 30\n",
+        seg_log < 12 || seg_log > 30 || budget <= 0 || aw <= 0 || launch_log2 < 20 || launch_log2 > 40) {
+        fprintf(stderr, "s23_ropt: need -poly and one of -u/-v, -search, -cell; 1 <= K <= %d, 12 <= LOG2 <= 30, "
+                        "20 <= -launch <= 40\n",
                 K_MAX);
         return 2;
     }
@@ -462,15 +541,13 @@ int main(int argc, char **argv)
     }
 
     /* ---- the work: a box, or the size model's bands ---- */
-    std::vector<Blk> blks;
+    std::vector<Seg> segs; /* what is sieved: pieces of lines, split into blocks as it goes */
     std::map<int64_t, RsLine> lines;
+    std::vector<RsLine *> kept; /* search: the lines whose bands are sieved */
     double L_best = INFINITY, budget_used = budget;
     size_t lines_dropped = 0, lines_trimmed = 0;
     auto t0 = std::chrono::steady_clock::now();
-    if (window) {
-        for (int64_t u = u0; u <= u1; u++)
-            add_blocks(blks, u, v0, v1, seg_log);
-    } else {
+    if (!window) {
         /* line minima from u = 0 outwards, warm-started from the neighbour; a direction
          * stops after `patience` lines beyond the budget, or after maxlines / 2 lines within
          * it (a seed whose size is flat in u would otherwise run to umax) */
@@ -513,7 +590,6 @@ int main(int argc, char **argv)
                 break;
             budget_used = std::max(0.5, budget_used - 0.25);
         }
-        std::vector<RsLine *> kept;
         for (auto *L : all)
             if (band_cells(L) > 0)
                 kept.push_back(L);
@@ -546,18 +622,28 @@ int main(int argc, char **argv)
 #pragma omp parallel for schedule(dynamic, 1)
         for (size_t i = 0; i < kept.size(); i++)
             rs_line_knots(*kept[i], R, 64);
-        for (auto *L : kept)
-            if (L->v_lo <= L->v_hi)
-                add_band_blocks(blks, *L, seg_log);
     }
+    if (window)
+        for (int64_t u = u0; u <= u1; u++)
+            segs.push_back({u, v0, v1, 0.0, 0.0});
+    else
+        for (auto *L : kept)
+            band_segments(*L, [&](int64_t a, int64_t b, double L0, double dL) { segs.push_back({L->u, a, b, L0, dL}); });
+    size_t nblk = 0;
     double ncells = 0;
-    for (const Blk &B : blks)
-        ncells += B.len;
+    for (const Seg &G : segs) {
+        nblk += seg_blocks(G, seg_log);
+        ncells += G.b < G.a ? 0.0 : (double)(G.b - G.a) + 1;
+    }
     const double t_model = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
-    if (plan && !window) {
+    if (plan && window) {
+        printf("# window: %.3g cells in %zu blocks\n", ncells, nblk);
+        return 0;
+    }
+    if (plan) {
         printf("# size model %.2f s: best line minimum %.4f, budget %.2f: %.3g cells in %zu blocks (%zu lines "
                "dropped, %zu trimmed by -maxcells)\n",
-               t_model, L_best, budget_used, ncells, blks.size(), lines_dropped, lines_trimmed);
+               t_model, L_best, budget_used, ncells, nblk, lines_dropped, lines_trimmed);
         printf("#      u   L_min        v_min           band v_lo .. v_hi          cells\n");
         for (auto &kv : lines) {
             const RsLine &L = kv.second;
@@ -577,6 +663,10 @@ int main(int argc, char **argv)
     };
     std::vector<Cand> best;
     std::map<int64_t, Cand> line_best;
+    /* a total order, so the kept set does not depend on how the hits arrive in launches */
+    auto order = [](const Cand &a, const Cand &b) {
+        return a.key < b.key || (a.key == b.key && (a.h.u < b.h.u || (a.h.u == b.h.u && a.h.v < b.h.v)));
+    };
     const size_t cap = (size_t)std::max(4 * std::max(top, refine), 4096);
     std::vector<Hit> sample; /* -check: a uniform sample of the sieve's hits (reservoir) */
     size_t nhits = 0;
@@ -607,8 +697,7 @@ int main(int argc, char **argv)
             best.push_back(c);
         }
         if (best.size() > 4 * cap) {
-            std::nth_element(best.begin(), best.begin() + cap, best.end(),
-                             [](const Cand &a, const Cand &b) { return a.key < b.key; });
+            std::nth_element(best.begin(), best.begin() + cap, best.end(), order);
             best.resize(cap);
         }
     };
@@ -617,11 +706,12 @@ int main(int argc, char **argv)
         gpu_start.th.join();
     auto t1 = std::chrono::steady_clock::now();
     const double t_start = std::chrono::duration<double>(t1 - t_wait).count();
-    run_sieve(S, PT, blks, k, (float)aw, use_cpu, dev, keep);
+    const size_t made = run_sieve(S, PT, segs, seg_log, k, (float)aw, use_cpu, dev, launch_log2, keep);
     const double t_sieve = std::chrono::duration<double>(std::chrono::steady_clock::now() - t1).count();
-    auto order = [](const Cand &a, const Cand &b) {
-        return a.key < b.key || (a.key == b.key && (a.h.u < b.h.u || (a.h.u == b.h.u && a.h.v < b.h.v)));
-    };
+    if (made != nblk) { /* seg_blocks and the generator split segments the same way */
+        fprintf(stderr, "s23_ropt: internal error: sieved %zu blocks, counted %zu\n", made, nblk);
+        return 2;
+    }
     std::sort(best.begin(), best.end(), order);
 
     /* search: exact translation and lognorm for the best `refine`, then re-rank */

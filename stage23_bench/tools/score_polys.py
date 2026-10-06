@@ -3,7 +3,7 @@
 
   score_polys.py FILE [--top N] [--trans T] [--params default|job:lpbr,lpba,I,qmin]
                  [--points K] [--eval-points K | --cado] [--known POLY ...] [--show N]
-                 [--threads 8]
+                 [--threads 8] [--lattice LOGI,J --qband QMIN,QMAX,NQ [--useskew]]
 
 Reads the blocks of FILE (n:, Y0:, Y1:, c0: ...; a '# ...' line before a block is kept as
 its label) and scores each with cado_murphy (CADO's MurphyE loop in-process, alpha
@@ -23,11 +23,26 @@ re-evaluated at the configuration the search chose; it does not search again at 
 printed MurphyE. --known scores reference polys (e.g. the benchmark
 winners) the same way and says where each would rank. Default bounds are CADO's
 (Bf 1e7, Bg 5e6, area 1e16), the scale of the plan's targets.
+
+--lattice LOGI,J ranks instead by the relations a lattice siever with a 2^LOGI x J region
+can expect over the special-q band --qband QMIN,QMAX,NQ (NQ evenly spaced points,
+trapezoid rule, about one special-q per prime): MurphyE's smoothness model (rho of log
+norm + alpha over log B, with --params' bounds) averaged over the region the siever
+actually covers. Each special-q lattice is reduced at the poly's skew as the user's GPU
+siever does (Gauss reduction under the skewed norm, the shorter vector multiplying i), so
+a skew far above (I/J) q is not realized, which MurphyE's ellipse ignores. The skew is
+MurphyE's best (as skewopt would declare it), or the file's own with --useskew (a poly
+without a skew line gets the best one; cado_murphy warns). On c208 it reproduces the yield
+ratios of five test-sieved polys (each against poly A: 24 ratios at three q and two region
+shapes) within 0.04, worst 0.038, where MurphyE missed a 5-12% loss (GPU_STAGE23_PLAN.md,
+known problem 7).
+Its absolute relations per special-q read about 1.9x the test sieve's: compare ratios.
 """
 
 import argparse
 import os
 import subprocess
+import sys
 import tempfile
 
 from polyfmt import cado_murphy_binary, cado_poly_text, parse_cado_poly, read_cado_blocks
@@ -37,15 +52,16 @@ from rescore import derived
 read_blocks = read_cado_blocks  # the old name, still imported by scripts
 
 
-def murphy(polys, n, args):
-    """[(MurphyE, skew, t)] for each poly, in order"""
+def _run_cado_murphy(polys, n, args, extra, keep_skew=False):
+    """cado_murphy's output rows (tab-split) for polys, one per poly in order, with the
+    sample counts and --params bounds of args; its stderr (warnings) is passed on"""
     with tempfile.NamedTemporaryFile('w', suffix='.poly', delete=False) as fh:
         for p in polys:
-            q = {k: v for k, v in p.items() if k not in ('skew', 'n')}
+            q = {k: v for k, v in p.items() if k != 'n' and (k != 'skew' or keep_skew)}
             fh.write(cado_poly_text(q, n) + '\n')
         path = fh.name
     try:
-        argv = [cado_murphy_binary(), '-t', str(args.threads), '-trans', str(args.trans)]
+        argv = [cado_murphy_binary(), '-t', str(args.threads)] + extra
         points, eval_points = getattr(args, 'points', 0), getattr(args, 'eval_points', 0)
         if points:
             argv += ['-K', str(points)]
@@ -55,13 +71,46 @@ def murphy(polys, n, args):
             lpbr, lpba, logI, qmin = (float(x) for x in args.params.split(':', 1)[1].split(','))
             d = derived(lpbr, lpba, logI, qmin)
             argv += ['-Bf', repr(d['Bf']), '-Bg', repr(d['Bg']), '-area', repr(d['area'])]
-        out = subprocess.run(argv + [path], capture_output=True, text=True, check=True).stdout.split('\n')
+        r = subprocess.run(argv + [path], capture_output=True, text=True)
     finally:
         os.remove(path)
-    res = [line.split('\t') for line in out if line]
+    if r.stderr:
+        sys.stderr.write(r.stderr)
+    if r.returncode:
+        raise RuntimeError(f"cado_murphy failed (status {r.returncode})")
+    res = [line.split('\t') for line in r.stdout.split('\n') if line]
     if len(res) != len(polys):
         raise RuntimeError(f"cado_murphy scored {len(res)} of {len(polys)} polynomials")
+    return res
+
+
+def murphy(polys, n, args):
+    """[(MurphyE, skew, t)] for each poly, in order"""
+    res = _run_cado_murphy(polys, n, args, ['-trans', str(args.trans)])
     return [(float(r[1]), float(r[2]), int(r[3])) for r in res]
+
+
+def lattice_scores(polys, n, args):
+    """[(band relations, skew, MurphyE at that skew, [relations per special-q at each q])]"""
+    extra = ['-lattice', args.lattice, '-qband', args.qband] + (['-useskew'] if args.useskew else [])
+    res = _run_cado_murphy(polys, n, args, extra, keep_skew=args.useskew)
+    return [(float(r[1]), float(r[2]), float(r[3]), [float(x) for x in r[4:]]) for r in res]
+
+
+def main_lattice(args, blocks, known, n):
+    res = lattice_scores([p for _, p in blocks], n, args) if blocks else []
+    kres = lattice_scores([p for _, p in known], n, args) if known else []
+    best = max([r[0] for r in res + kres] or [1])
+    ranked = sorted(zip(res, range(len(blocks))), key=lambda r: -r[0][0])
+    print(f"{len(blocks)} polys, lattice-aware ({args.lattice}, q band {args.qband}, {args.params}"
+          f"{', declared skew where the file gives one' if args.useskew else ''}), best first; ratio to the best; relations per "
+          f"special-q at each q (about 1.9x a test sieve's)")
+    for i, ((b, s, e, rel), j) in enumerate(ranked[:args.show]):
+        print(f"{i + 1:4d}  {b / best:.4f}  MurphyE {e:.4e}  skew {s:12.1f}  rel/q {' '.join(f'{x:.1f}' for x in rel)}"
+              f"  (input #{j + 1})  {blocks[j][0]}")
+    for (name, _), (b, s, e, rel) in zip(known, kres):
+        better = sum(1 for (x, *_), _ in ranked if x > b)
+        print(f"known {name}: {b / best:.4f}, MurphyE {e:.4e} at skew {s:.1f}; {better} of the scored polys beat it")
 
 
 def main():
@@ -77,6 +126,9 @@ def main():
                     help='sample angles for the printed MurphyE at the chosen skew (default 16000)')
     ap.add_argument('--cado', action='store_true', help="CADO's MurphyE: 1000 points for both")
     ap.add_argument('--known', nargs='*', default=[])
+    ap.add_argument('--lattice', help='LOGI,J: rank by the lattice-aware relations over --qband')
+    ap.add_argument('--qband', help='QMIN,QMAX,NQ for --lattice')
+    ap.add_argument('--useskew', action='store_true', help="--lattice: the file's skew instead of MurphyE's best")
     ap.add_argument('--show', type=int, default=20)
     args = ap.parse_args()
     if args.cado:
@@ -86,6 +138,10 @@ def main():
         blocks = blocks[:args.top]
     known = [(os.path.basename(p), parse_cado_poly(p)) for p in args.known]
     n = blocks[0][1]['n'] if blocks else known[0][1]['n']
+    if args.lattice or args.qband or args.useskew:
+        if not (args.lattice and args.qband) or args.trans:
+            ap.error('--lattice and --qband go together (and without --trans); --useskew needs them')
+        return main_lattice(args, blocks, known, n)
     res = murphy([p for _, p in blocks], n, args) if blocks else []
     kres = murphy([p for _, p in known], n, args) if known else []
     ranked = sorted(zip(res, range(len(blocks))), key=lambda r: -r[0][0])

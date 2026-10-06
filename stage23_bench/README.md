@@ -42,12 +42,22 @@ tools/            Python 3, no dependencies beyond the standard library
                     scored the same way. Defaults to 4,000 sample points for the search
                     and 16,000 for the printed value; --cado scores as CADO does (1,000,
                     which reads high by about 0.2%, up to 1.4%, and which --trans
-                    overfits; GPU_STAGE23_PLAN.md, "Review checks")
+                    overfits; GPU_STAGE23_PLAN.md, "Review checks"). --lattice LOGI,J
+                    --qband QMIN,QMAX,NQ ranks instead by the relations a lattice siever
+                    can expect over a special-q band: MurphyE's smoothness model over the
+                    region the siever covers (each special-q lattice reduced at the
+                    poly's skew as the user's GPU siever does), so a skew far above
+                    (I/J)·q is not credited. It matches the c208 test sieves within 0.04
+                    in yield ratio, where MurphyE missed a 5-12% loss; absolute values
+                    read about 1.9x a test sieve's, so compare ratios
   cado_murphy.cpp   the scorer behind it: CADO's MurphyE loop in-process with alpha
                     computed once per poly (bit-identical to CADO's MurphyE(), -selftest),
                     built on first use (C++20, CADO's embedded fmt headers); -K N sets
                     the sample angles of the skew/translation search (CADO's 1000),
-                    -Keval N those of the printed value at the chosen skew
+                    -Keval N those of the printed value at the chosen skew; -lattice
+                    LOGI,J with -qband/-qpoints is the lattice-aware mode (common random
+                    special-q and sample points for every poly, so ratios carry no
+                    sampling noise between polys)
   content_seeds.py  derived seeds (f + (u0 x + v0) g)/d for the rotations with content d
                     (d | the sopt multiplier; solved per prime power, then CRT), which
                     CADO's ropt divides out; s23_ropt searches each as a seed of its own
@@ -57,7 +67,8 @@ tools/            Python 3, no dependencies beyond the standard library
                     upper bound, since it is the best point found). c168: w = +-1 costs
                     5.8-8.3 nats
   regress.py        regression checks for these tools (run by stage23_gpu's make test):
-                    scorer vs CADO, the c168 quadrature trap, content seeds
+                    scorer vs CADO, the c168 quadrature trap, content seeds, and the
+                    lattice-aware score vs the c208 test sieves (data/c208/testsieve)
   cado_expe.c       full-precision lognorm / exp_E / alpha from CADO's own code (built on
                     first use against the configured CADO build); M1's scorer
 data/
@@ -141,6 +152,25 @@ N in `n.txt`. The three winners of the 2026-10-02 c204 run, all from one seed (Y
 552226208798178007565897, multiplier 2): `A_msieve.poly` (5.019e-15), `B_cado_orig.poly`
 (5.160e-15, 5.194e-15 after skewopt, at u = 90 from A) and `C_cado_inv.poly`. **Target: beat
 5.194e-15.** The raw polys and other results of this run were not kept.
+
+## data/c208
+
+`testsieve/`: the 2026-10-06 test sieves of the c208 job, the first in this project.
+- `five.poly` has five polys with the skews they were sieved at:
+  - A, CADO ropt orig: seed 10, skew 5.0e8;
+  - B, CADO inv: seed 27, 1.33e9;
+  - C, msieve: seed 27, 1.33e9;
+  - D, the user's deep msieve run: seed 10, 5.0e8;
+  - E: C declared at skew 5.0e8.
+- `measured.tsv` has their yields from the user's GPU siever
+  (`~/code/cuda-sieve/bench/testsieve.sh`) at q ≈ 80M, 540M and 1G, in two region shapes
+  (logI 17 × J 2^15 and 16 × 2^16, both 2^32), with the job's parameters (rlim 200M,
+  alim 300M, lpb 33/34, mfb 64/96).
+- The seed-27 polys yield 15–20% less at 80M than seed 10's, though MurphyE puts them
+  within 1.1%: a lattice siever cannot realize a skew far above (I/J)·q
+  (`GPU_STAGE23_PLAN.md`, known problem 7).
+- `tools/regress.py` checks the lattice-aware score (`score_polys.py --lattice`) against
+  these measurements.
 
 ## M1 acceptance (GPU sopt vs CADO)
 
