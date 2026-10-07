@@ -131,11 +131,10 @@ double cio_cado_sopt(cio_poly *opt, const cio_poly *raw, unsigned effort)
     return v;
 }
 
-double cio_alpha_projective_rot(const cio_poly *p, long u, long v, unsigned long B)
+/* f + (u x + v) g of p, into f (initialized by the caller) */
+static void rotation(mpz_poly f, const cio_poly *p, long u, long v)
 {
-    mpz_poly f;
     mpz_t c, t;
-    mpz_poly_init(f, p->deg);
     mpz_init(c);
     mpz_init(t);
     for (int i = 0; i <= p->deg; i++)
@@ -152,11 +151,45 @@ double cio_alpha_projective_rot(const cio_poly *p, long u, long v, unsigned long
     mpz_mul_si(t, p->g[0], v);
     mpz_add(c, p->f[0], t);
     mpz_poly_setcoeff(f, 0, c);
-    const double a = get_alpha_projective(f, B);
     mpz_clear(t);
+    mpz_clear(c);
+}
+
+double cio_alpha_projective_rot(const cio_poly *p, long u, long v, unsigned long B)
+{
+    mpz_poly f;
+    mpz_poly_init(f, p->deg);
+    rotation(f, p, u, v);
+    const double a = get_alpha_projective(f, B);
+    mpz_poly_clear(f);
+    return a;
+}
+
+double cio_alpha_rot(const cio_poly *p, long u, long v, unsigned long B, double *log_content)
+{
+    mpz_poly f;
+    mpz_t c;
+    mpz_poly_init(f, p->deg);
+    mpz_init(c);
+    rotation(f, p, u, v);
+    /* the content, divided out as the written polynomial has it (alpha(d f) = alpha(f) - log d) */
+    mpz_set(c, mpz_poly_coeff_const(f, 0));
+    for (int i = 1; i <= p->deg; i++)
+        mpz_gcd(c, c, mpz_poly_coeff_const(f, i));
+    mpz_abs(c, c);
+    if (mpz_cmp_ui(c, 1) > 0)
+        for (int i = 0; i <= p->deg; i++)
+            mpz_divexact(mpz_poly_coeff(f, i), mpz_poly_coeff_const(f, i), c);
+    *log_content = mpz_sgn(c) ? log(mpz_get_d(c)) : 0.0;
+    const double a = get_alpha(f, B);
     mpz_clear(c);
     mpz_poly_clear(f);
     return a;
+}
+
+unsigned long cio_alpha_bound(void)
+{
+    return get_alpha_bound();
 }
 
 void cio_print_pair(FILE *out, unsigned idx, const cio_poly *raw, const cio_poly *opt, int raw_stats)

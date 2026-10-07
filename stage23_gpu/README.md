@@ -12,8 +12,9 @@ device harness then only has to show the GPU computes what the host build comput
 
 ```bash
 make test                 # host: Int<L> vs GMP, sopt LLL vs CADO's utils/lll.c, root-sieve
-                          # tables vs brute force and projective alpha vs CADO, block top K
-                          # vs an exhaustive sort, bench regressions (regress.py)
+                          # tables vs brute force and projective alpha vs CADO, the re-rank's
+                          # alpha vs the written polys', block top K vs an exhaustive sort,
+                          # bench regressions (regress.py)
 make device CUDA=120      # compile the device harness (does not touch the GPU)
 make run-device           # run it: GPU results vs the host build (needs a free GPU)
 make accept-cpu           # M1 acceptance: s23_sopt (CPU build) on 13,000 c146 polys vs CADO
@@ -81,6 +82,9 @@ include/
                 (shared by s23_ropt and the tests)
   rblock.h      M2 sieve blocks, kept cells, the order of cells in a block and the CPU
                 block choice (exact top K), shared by s23_ropt and test_rselect
+  rhost.h       host helpers shared by s23_ropt and test_rsieve: the seed's size-model
+                polynomial, the polynomial written for a cell (translated, content
+                divided out), and the exact lognorm and CADO alpha -rerank ranks it by
   norms.h       CADO's L2 lognorm and L2 skewness (polyselect_norms.c)
   dpoly.h       CADO's double polynomial root finder (double_poly.cpp)
   alpha_proj.h  CADO's projective alpha (p < 100): exact discriminant (Bareiss),
@@ -96,7 +100,7 @@ include/
 tools/
   s23_sopt.cu      the size optimization tool (GPU build with nvcc, CPU build with g++)
   s23_ropt.cu      root-sieve experiments: window, search (size model + sieve + proxy
-                   ranking, -out for CADO scoring), cell
+                   ranking, re-rank by CADO's alpha, -out for CADO scoring), cell
   cado_io.c/.h     C shim to CADO: read polys, print sopt format, CADO's skew, CADO fallback
 tests/
   test_mpint.cpp   Int<L> vs GMP on random operands (L = 2 .. 128), overflow edges
@@ -207,6 +211,55 @@ Details and numbers in `../GPU_STAGE23_PLAN.md` (M2, "Breadth run, c168").
     - the `-out` count.
 
     Open items are listed in the plan ("Code review of the fixes").
+
+## Status (2026-10-07, C181 backup job, code review)
+
+Details are in `../GPU_STAGE23_PLAN.md`: M2, "C181", known problems 9 and 10, and "Code
+review of the re-rank and budget steps".
+
+- **C181 (the user's earlier pipeline run):** a breadth pass (27 min) and pass 2 on the
+  top 16 (31 min).
+  - The GPU finds msieve's winning cell: 0.9993 by the lattice score, against msieve's
+    1.0000. CADO's best is 0.9786, the same cell as the GPU's breadth best.
+  - On the leading seeds every msieve lead is the translation of a cell the GPU also
+    wrote. The size model picks t by lognorm, and msieve's t scores 0.07–0.9% better
+    (known problem 10, not fixed).
+- **Review fixes:**
+  - content cells are re-ranked as written, content divided out (they were (aw − 1)·log d
+    too good);
+  - `-band B`;
+  - argument checks;
+  - CADO's alpha bound;
+  - the key labelled `Ea` under `-rerank`;
+  - `include/rhost.h` shared with `test_rsieve`, which now checks content cells.
+- `-k 16` wrote the same cells as K = 8 on two leading seeds, so K stays 8.
+
+## Status (2026-10-06, c208: two-pass allocation, re-rank by CADO's alpha)
+
+Details are in `../GPU_STAGE23_PLAN.md`: M2, "Progressive allocation, a first two-pass
+test" and "Re-ranking by CADO's alpha", and known problem 9.
+
+- **The GPU ties the best c208 poly.** A second pass on the 16 searches that lead the
+  breadth pass by the lattice score, at `-maxcells 6e12`, took 27 min more. It found
+  CADO orig's exact winning cell (seed 10, lattice score 1.0000).
+- **`-rerank N` (default 4096).** The best N cells by the proxy are re-ranked by the exact
+  lognorm and CADO's alpha (`get_alpha`, p ≤ 2000, via `cio_alpha_rot`), and the best
+  max(top, refine) are written.
+  - The proxy's alpha_s (p < 200, p^e ≤ 200) is off from CADO's alpha by −0.24 to
+    +0.93 nats a cell, as wide as the 200 cells kept. A seed-10 cell scoring 0.9841 fell
+    out of them at budget 1.25.
+  - Within-run rank correlation with the lattice score: 0.52 by alpha_s, 0.91 by CADO's
+    alpha.
+  - On the 16 searches, each search's best is the same poly, now at rank 7 at worst
+    (95 before). The lost cell is kept. Cost: about 0.5 s a search.
+  - `-rerank 0` restores the old ranking, byte-identical.
+  - With the re-rank, scoring the first 32 outputs is enough.
+- **Budget steps in `-plan` (2026-10-07).** `-plan` prints the cells at each budget
+  step, and `-band B` sieves exactly that step's bands (the line scan still runs to
+  `-budget`), so a later pass can give a seed its next step.
+  - c208: the re-ranked breadth pass (36 min) put seed 10 first.
+  - Pass 2 on the top 16 tied the best poly.
+  - A third pass, the next step on the three leaders (16 min), found nothing better.
 
 ## Status (2026-10-05/06, c208, memory, launches)
 

@@ -14,19 +14,24 @@
  * at a few rotations: ours, to level emax + 3, must be within 0.02 of CADO's full value,
  * and differences between rotations within 0.01. The c168 winner is the case that showed
  * projective alpha is not constant under rotation (u even -2.7025, u odd -2.4715).
+ *
+ * Then what s23_ropt -rerank ranks a cell by (rs_exact_cell: the exact lognorm and CADO's
+ * alpha) against the polynomial s23_ropt writes for that cell (rs_written_poly, translated,
+ * content divided out), at 56 cells a polynomial. The c168 seeds with a content lattice
+ * (s0051, d = 2; s0068, d = 3) supply content cells, and at least one must be checked.
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <gmp.h>
 #include <algorithm>
-#include "rseed.h"
+#include "rhost.h"
 
 using namespace s23;
 
 int main(int argc, char **argv)
 {
-    long cells = 0, bad = 0;
+    long cells = 0, bad = 0, all_content = 0;
     double worst = 0;
     unsigned long long rng = 0x9e3779b97f4a7c15ull;
     for (int a = 1; a < argc; a++) {
@@ -107,10 +112,54 @@ int main(int argc, char **argv)
                "(CADO %.4f, %.4f)%s\n",
                argv[a], worst_abs, worst_diff, ours[0], ours[1], cado[0], cado[1], pbad ? "  MISMATCH" : "");
         bad += pbad;
+        /* what -rerank ranks a cell by (rs_exact_cell) vs the polynomial s23_ropt writes for it
+           (rs_written_poly, content divided out): its CADO alpha and its lognorm. Cells: the 7
+           rotations and u, v in -3..3, which include content cells on seeds with a content
+           lattice. Checked with !(x < tol), so a NaN fails. */
+        RsizePoly<RS_LP> R;
+        bool xfail = !rs_size_poly(R, P);
+        double worst_a = 0, worst_l = 0;
+        long ncont = 0;
+        cio_poly W;
+        cio_init(&W);
+        auto check_cell = [&](int64_t u, int64_t v) {
+            int64_t t = 0;
+            const RsExact x = rs_exact_cell(P, R, u, v, t);
+            unsigned long content = 0;
+            Int<RS_LP> fw[6];
+            bool ok = rs_written_poly(W, P, R, u, v, t, content) && content > 0;
+            for (int i = 0; i <= RS_DEG && ok; i++)
+                ok = from_mpz(fw[i], W.f[i]);
+            double lc = 1;
+            const double da = ok ? fabs(x.A - cio_alpha_rot(&W, 0, 0, cio_alpha_bound(), &lc)) : NAN;
+            const double dl = ok ? fabs(x.L - rs_lognorm_at(fw, 0)) : NAN;
+            if (!(da < 1e-9) || !(dl < 1e-9) || lc != 0)
+                xfail = true;
+            worst_a = std::isnan(da) ? INFINITY : std::max(worst_a, da);
+            worst_l = std::isnan(dl) ? INFINITY : std::max(worst_l, dl);
+            ncont += content > 1;
+        };
+        for (int r = 0; r < 7 && !xfail; r++)
+            check_cell(rot[r][0], rot[r][1]);
+        for (int u = -3; u <= 3 && !xfail; u++)
+            for (int v = -3; v <= 3; v++)
+                check_cell(u, v);
+        cio_clear(&W);
+        const bool abad = xfail;
+        printf("%s: re-rank values vs the written polynomials, 56 cells (%ld with content): worst alpha %.2e, "
+               "lognorm %.2e%s\n",
+               argv[a], ncont, worst_a, worst_l, abad ? "  MISMATCH" : "");
+        all_content += ncont;
+        bad += abad;
         cells += fcells;
         bad += fbad;
         cio_clear(&P);
     }
-    printf("all: %ld cells, %ld mismatches, worst |table - brute| %.2e\n", cells, bad, worst);
+    if (all_content == 0) {
+        printf("no content cell was checked: give a seed with a content lattice (c168 s0051, s0068)\n");
+        bad++;
+    }
+    printf("all: %ld cells, %ld mismatches, worst |table - brute| %.2e; %ld content cells checked\n", cells, bad,
+           worst, all_content);
     return bad ? 1 : 0;
 }

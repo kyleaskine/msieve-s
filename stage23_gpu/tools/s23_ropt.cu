@@ -1,8 +1,8 @@
 /* s23_ropt: root-sieve experiments (M2), GPU or CPU from the same tables.
  *
  *   window: s23_ropt -poly FILE -u U0 U1 -v V0 V1 [common options]
- *   search: s23_ropt -poly FILE -search [-budget B] [-maxcells C] [-aw W] [-patience P] [-umax U]
- *           [-maxlines M] [-out FILE] [-refine N] [-plan] [common options]
+ *   search: s23_ropt -poly FILE -search [-budget B] [-band B] [-maxcells C] [-aw W] [-patience P]
+ *           [-umax U] [-maxlines M] [-out FILE] [-refine N] [-rerank N] [-plan] [common options]
  *   cell:   s23_ropt -poly FILE -cell U V
  *   common: [-top N] [-k K] [-seg LOG2] [-noproj] [-cpu] [-dev N] [-t THREADS] [-check N] [-launch LOG2]
  *           [-plan]
@@ -34,8 +34,25 @@
  *   when p | the multiplier a and f = (linear) g mod p) is written with it divided out,
  *   as CADO's ropt does, and labelled; its proxy is not right, so such lattices are
  *   searched properly as their own seeds (f + (u0 x + v0) g)/p.
+ * -rerank N (search, default 4096): the best N by the proxy get the exact lognorm and CADO's
+ *   alpha (get_alpha, affine and projective, primes up to the bound CADO's MurphyE uses,
+ *   2000), both of the polynomial as written, content divided out. They are re-ranked by
+ *   Ea = lognorm + W alpha (labelled "Ea", not "E"), and -out writes the best max(-top,
+ *   -refine) of them; -rerank 0 ranks the best max(-top, -refine) by E, as before
+ *   2026-10-06. alpha_s stops at p < 200 and p^e <= 200, and is off from CADO's alpha by
+ *   -0.24 to +0.93 nats per cell (c208), as wide as the 200 cells kept: a cell scoring within
+ *   2% of the best sat at rank 57 and fell out of the 200 as the budget grew. Ranked by
+ *   CADO's alpha, the accurately best cell of 16 c208 searches is at rank 7 at worst (95 by
+ *   alpha_s), and the lost cell is kept. About 0.5 s a search on 4 threads.
+ *   The re-rank fixes only the cut to the written cells. Each block's best K are still chosen
+ *   by E, so a cell that alpha_s misjudges can be lost inside its block first.
+ * -band B (search): the bands at budget B (at most -budget) instead of -budget; the line scan
+ *   still runs to -budget, so B = -budget - 0.25 k gives the same lines and cells as
+ *   "# step B" of -plan with the same options. -maxcells then lowers it from B.
  * -plan stops before the sieve and prints the cell and block counts (and, for a search, the
- *   size model's lines).
+ *   size model's lines, and the cells at each budget from -budget down in steps of 0.25,
+ *   as "# step B: N cells, L lines", so a later pass can give a seed its next step with
+ *   -band B).
  * Memory does not grow with the search: the blocks (one per at most 2^LOG2 cells of a
  *   line, at least one per knot interval) are generated a launch at a time from the lines'
  *   pieces. Before 2026-10-06 the whole list was built first (32 bytes a block, up to 2e8
@@ -74,10 +91,11 @@
 #include "rseed.h"
 #include "rsize.h"
 #include "rblock.h"
+#include "rhost.h"
 
 using namespace s23;
 
-static const int LP = 16;
+static const int LP = RS_LP;
 
 static const int CPT = 32; /* cells per thread per chunk: a warp does 32 x CPT */
 static const int NT = 256; /* threads per block */
@@ -197,16 +215,6 @@ __global__ void __launch_bounds__(NT) sieve_kernel(const RsSeed *Sg, const float
     }
 }
 #endif
-
-static bool seed_from_poly(RsSeed &S, RsizePoly<LP> &R, const cio_poly &P)
-{
-    if (!rs_seed_from_poly(S, P))
-        return false;
-    bool ok = true;
-    for (int i = 0; i <= RS_DEG; i++)
-        ok = ok && from_mpz(R.f[i], P.f[i]);
-    return ok && from_mpz(R.g[0], P.g[0]) && from_mpz(R.g[1], P.g[1]);
-}
 
 /* a piece of one line to sieve: v in [a, b], with the lognorm L0 + dL (v - a) */
 struct Seg {
@@ -381,44 +389,13 @@ static int check_hits(const RsSeed &S, const std::vector<Hit> &sample)
     return bad;
 }
 
-/* f_{u,v}(x + t), g(x + t) into a cio_poly (n from the seed), with f's content divided out
- * as CADO's ropt does (content is set to it; content seeds search those cells properly) */
-static bool translated_poly(cio_poly &out, const cio_poly &seed, const RsizePoly<LP> &R, int64_t u, int64_t v, int64_t t,
-                            unsigned long &content)
-{
-    Int<LP> fr[6], g[2], k;
-    if (!rs_rotate(fr, R, u, v))
-        return false;
-    set_si(k, t);
-    g[0] = R.g[0];
-    g[1] = R.g[1];
-    if (!translate<LP, 5>(fr, k) || !translate<LP, 1>(g, k))
-        return false;
-    mpz_set(out.n, seed.n);
-    out.deg = 5;
-    for (int i = 0; i <= 5; i++)
-        to_mpz(out.f[i], fr[i]);
-    to_mpz(out.g[0], g[0]);
-    to_mpz(out.g[1], g[1]);
-    mpz_t c;
-    mpz_init_set(c, out.f[5]);
-    for (int i = 0; i < 5; i++)
-        mpz_gcd(c, c, out.f[i]);
-    content = mpz_fits_ulong_p(c) ? mpz_get_ui(c) : 0;
-    if (mpz_cmp_ui(c, 1) > 0)
-        for (int i = 0; i <= 5; i++)
-            mpz_divexact(out.f[i], out.f[i], c);
-    mpz_clear(c);
-    return true;
-}
-
 int main(int argc, char **argv)
 {
     const char *path = NULL, *out_path = NULL;
     int64_t u0 = 0, u1 = 0, v0 = 0, v1 = 0, cell_u = 0, cell_v = 0, umax = 5000;
     int top = 20, k = 8, seg_log = 20, use_cpu = 0, dev = 0, threads = 8, check = 0, cell = 0, search = 0;
-    int patience = 20, refine = 200, window = 0, plan = 0, noproj = 0;
-    double budget = 0.5, aw = 1.0, maxcells = 0;
+    int patience = 20, refine = 200, rerank = 4096, window = 0, plan = 0, noproj = 0;
+    double budget = 0.5, aw = 1.0, maxcells = 0, band = 0;
     int maxlines = 1000, launch_log2 = 32;
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-poly") && i + 1 < argc)
@@ -457,6 +434,12 @@ int main(int argc, char **argv)
             out_path = argv[++i];
         else if (!strcmp(argv[i], "-refine") && i + 1 < argc)
             refine = atoi(argv[++i]);
+        else if (!strcmp(argv[i], "-rerank") && i + 1 < argc) {
+            char *end;
+            const long x = strtol(argv[++i], &end, 10);
+            rerank = *end || x < 0 || x > (1 << 24) ? -1 : (int)x;
+        } else if (!strcmp(argv[i], "-band") && i + 1 < argc)
+            band = atof(argv[++i]);
         else if (!strcmp(argv[i], "-top") && i + 1 < argc)
             top = atoi(argv[++i]);
         else if (!strcmp(argv[i], "-k") && i + 1 < argc)
@@ -489,6 +472,11 @@ int main(int argc, char **argv)
                 K_MAX);
         return 2;
     }
+    if (top < 1 || refine < 0 || rerank < 0 || band < 0 || band > budget) {
+        fprintf(stderr, "s23_ropt: need -top >= 1, -refine >= 0, -rerank an integer from 0 to 2^24, and "
+                        "0 < -band <= -budget\n");
+        return 2;
+    }
     FILE *fh = fopen(path, "r");
     if (!fh) {
         perror(path);
@@ -503,7 +491,7 @@ int main(int argc, char **argv)
     fclose(fh);
     static RsSeed S;
     static RsizePoly<LP> R;
-    if (!seed_from_poly(S, R, P)) {
+    if (!rs_seed_and_size(S, R, P)) {
         fprintf(stderr, "s23_ropt: only degree 5 (and coefficients up to 512 bits)\n");
         return 2;
     }
@@ -544,7 +532,25 @@ int main(int argc, char **argv)
     std::vector<Seg> segs; /* what is sieved: pieces of lines, split into blocks as it goes */
     std::map<int64_t, RsLine> lines;
     std::vector<RsLine *> kept; /* search: the lines whose bands are sieved */
-    double L_best = INFINITY, budget_used = budget;
+    double L_best = INFINITY, budget_used = band > 0 ? band : budget;
+    /* every line's band at L_best + b (the -maxcells loop and -plan's step table): the cells, and
+     * in *nl the lines with a band */
+    std::vector<RsLine *> all;
+    auto band_cells = [](const RsLine *L) { return L->v_lo <= L->v_hi ? (double)(L->v_hi - L->v_lo) + 1 : 0.0; };
+    auto bands_at = [&](double b, size_t *nl) {
+#pragma omp parallel for schedule(dynamic, 1)
+        for (size_t i = 0; i < all.size(); i++)
+            rs_line_band(*all[i], R, L_best + b, 1, 0);
+        double c = 0;
+        size_t n = 0;
+        for (auto *L : all) {
+            c += band_cells(L);
+            n += band_cells(L) > 0;
+        }
+        if (nl)
+            *nl = n;
+        return c;
+    };
     size_t lines_dropped = 0, lines_trimmed = 0;
     auto t0 = std::chrono::steady_clock::now();
     if (!window) {
@@ -571,21 +577,14 @@ int main(int argc, char **argv)
                     break;
             }
         }
-        /* the band edges; with -maxcells, the budget is lowered in steps of 0.25 (not below
-         * 0.5) until the bands hold at most that many cells, and if they still hold more,
-         * only the lines nearest the best line are kept. Knots last, for the kept lines. */
-        std::vector<RsLine *> all;
+        /* the band edges at -budget (or -band); with -maxcells, the budget is lowered in steps
+         * of 0.25 (not below 0.5) until the bands hold at most that many cells, and if they
+         * still hold more, only the lines nearest the best line are kept. Knots last, for the
+         * kept lines. */
         for (auto &kv : lines)
             all.push_back(&kv.second);
-        auto band_cells = [](const RsLine *L) { return L->v_lo <= L->v_hi ? (double)(L->v_hi - L->v_lo) + 1 : 0.0; };
         for (;;) {
-            const double limit = L_best + budget_used;
-#pragma omp parallel for schedule(dynamic, 1)
-            for (size_t i = 0; i < all.size(); i++)
-                rs_line_band(*all[i], R, limit, 1, 0);
-            double c = 0;
-            for (auto *L : all)
-                c += band_cells(L);
+            const double c = bands_at(budget_used, nullptr);
             if (maxcells <= 0 || c <= maxcells || budget_used <= 0.5)
                 break;
             budget_used = std::max(0.5, budget_used - 0.25);
@@ -651,6 +650,15 @@ int main(int argc, char **argv)
             printf("%8lld %8.4f %16lld %16lld %16lld %10.3g\n", (long long)L.u, L.L_min, (long long)L.v_min,
                    (long long)L.v_lo, (long long)L.v_hi, c);
         }
+        /* the cells at each budget from -budget down in steps of 0.25, which -band B sieves
+           exactly (last: it rewrites the lines' bands, and is not in the size model's time) */
+        for (double b = budget;; b = std::max(0.5, b - 0.25)) {
+            size_t nl = 0;
+            const double c = bands_at(b, &nl);
+            printf("# step %.2f: %.0f cells, %zu lines\n", b, c, nl);
+            if (b <= 0.5)
+                break;
+        }
         return 0;
     }
 
@@ -660,6 +668,7 @@ int main(int argc, char **argv)
         Hit h;
         double L;
         int64_t t;
+        double A; /* CADO's alpha, with -rerank */
     };
     std::vector<Cand> best;
     std::map<int64_t, Cand> line_best;
@@ -667,7 +676,7 @@ int main(int argc, char **argv)
     auto order = [](const Cand &a, const Cand &b) {
         return a.key < b.key || (a.key == b.key && (a.h.u < b.h.u || (a.h.u == b.h.u && a.h.v < b.h.v)));
     };
-    const size_t cap = (size_t)std::max(4 * std::max(top, refine), 4096);
+    const size_t cap = (size_t)std::max<int64_t>({4 * (int64_t)std::max(top, refine), rerank, 4096});
     std::vector<Hit> sample; /* -check: a uniform sample of the sieve's hits (reservoir) */
     size_t nhits = 0;
     auto keep = [&](const Hit *h, size_t n) {
@@ -684,6 +693,7 @@ int main(int argc, char **argv)
             Cand c;
             c.h = h[i];
             c.t = 0;
+            c.A = NAN;
             if (window) {
                 c.L = 0;
                 c.key = -h[i].score;
@@ -714,23 +724,36 @@ int main(int argc, char **argv)
     }
     std::sort(best.begin(), best.end(), order);
 
-    /* search: exact translation and lognorm for the best `refine`, then re-rank */
+    /* search: exact translation and lognorm for the best max(top, refine), then re-rank; with -rerank N, for
+       the best N, re-ranked by CADO's alpha instead of alpha_s, and the best max(top, refine) of them kept */
+    double t_refine = 0;
     if (!window) {
-        const size_t nref = std::min(best.size(), (size_t)std::max(refine, top));
+        const auto t2 = std::chrono::steady_clock::now();
+        const size_t nout = (size_t)std::max(refine, top);
+        const size_t nref = std::min(best.size(), std::max(nout, (size_t)rerank));
 #pragma omp parallel for schedule(dynamic, 1)
         for (size_t i = 0; i < nref; i++) {
             Cand &c = best[i];
-            c.L = rs_size(R, c.h.u, c.h.v, c.t, 1 << 10);
-            c.key = c.L + aw * (S.alpha0 - c.h.score);
+            if (rerank) { /* of the polynomial written, content divided out */
+                const RsExact x = rs_exact_cell(P, R, c.h.u, c.h.v, c.t);
+                c.L = x.L;
+                c.A = x.A;
+                c.key = c.L + aw * c.A;
+            } else {
+                c.L = rs_size(R, c.h.u, c.h.v, c.t, 1 << 10);
+                c.key = c.L + aw * (S.alpha0 - c.h.score);
+            }
         }
         best.resize(nref);
         std::sort(best.begin(), best.end(), order);
+        best.resize(std::min(nref, nout));
+        t_refine = std::chrono::duration<double>(std::chrono::steady_clock::now() - t2).count();
     }
 
     printf("# s23_ropt: %s, %s: %.3g cells, sieve %.2f s (%.3g cells/s, %s)", path, window ? "window" : "search",
            ncells, t_sieve, ncells / t_sieve, use_cpu ? "CPU" : "GPU");
     if (!window)
-        printf(", size model %.2f s", t_model);
+        printf(", size model %.2f s, refine %.2f s", t_model, t_refine);
     if (!use_cpu)
         printf(", waited %.2f s for the GPU context", t_start);
     printf("\n");
@@ -750,7 +773,12 @@ int main(int argc, char **argv)
         if (lines_dropped || lines_trimmed)
             printf("; -maxcells dropped %zu lines and trimmed %zu", lines_dropped, lines_trimmed);
         printf("\n");
-        printf("# best %d by E = lognorm + %.2f alpha_s (%s; exact translation):\n", top, aw, alpha_what);
+        if (rerank)
+            printf("# best %d by Ea = lognorm + %.2f alpha (CADO's, p <= %lu; content divided out), of the best %d by "
+                   "the proxy E = lognorm + %.2f alpha_s (%s; exact translation):\n",
+                   top, aw, cio_alpha_bound(), std::max({rerank, refine, top}), aw, alpha_what);
+        else
+            printf("# best %d by E = lognorm + %.2f alpha_s (%s; exact translation):\n", top, aw, alpha_what);
     } else
         printf("# best %d by score (alpha_s = %.4f - score, %s):\n", top, S.alpha0, alpha_what);
     int bad = 0;
@@ -761,10 +789,13 @@ int main(int argc, char **argv)
         if (window)
             printf("u %6lld  v %16lld  score %.6f  alpha_s %.4f%s\n", (long long)c.h.u, (long long)c.h.v,
                    c.h.score, S.alpha0 - c.h.score, differs ? "  BRUTE FORCE DIFFERS" : "");
-        else
-            printf("u %6lld  v %16lld  t %14lld  E %.4f  lognorm %.4f  alpha_s %.4f%s\n", (long long)c.h.u,
-                   (long long)c.h.v, (long long)c.t, c.key, c.L, S.alpha0 - c.h.score,
-                   differs ? "  BRUTE FORCE DIFFERS" : "");
+        else {
+            printf("u %6lld  v %16lld  t %14lld  %s %.4f  lognorm %.4f", (long long)c.h.u, (long long)c.h.v,
+                   (long long)c.t, rerank ? "Ea" : "E", c.key, c.L);
+            if (rerank)
+                printf("  alpha %.4f", c.A);
+            printf("  alpha_s %.4f%s\n", S.alpha0 - c.h.score, differs ? "  BRUTE FORCE DIFFERS" : "");
+        }
     }
     if (!window) {
         std::vector<Cand> lb;
@@ -792,14 +823,16 @@ int main(int argc, char **argv)
         size_t nwritten = 0, nskipped = 0;
         for (const Cand &c : best) {
             unsigned long content;
-            if (!translated_poly(q, P, R, c.h.u, c.h.v, c.t, content)) {
+            if (!rs_written_poly(q, P, R, c.h.u, c.h.v, c.t, content)) {
                 nskipped++;
                 continue;
             }
             nwritten++;
-            fprintf(o, "# u %lld v %lld t %lld E %.6f lognorm %.6f alpha_s %.6f%s\n", (long long)c.h.u,
-                    (long long)c.h.v, (long long)c.t, c.key, c.L, S.alpha0 - c.h.score,
-                    content != 1 ? " content divided" : "");
+            fprintf(o, "# u %lld v %lld t %lld %s %.6f lognorm %.6f alpha_s %.6f", (long long)c.h.u,
+                    (long long)c.h.v, (long long)c.t, rerank ? "Ea" : "E", c.key, c.L, S.alpha0 - c.h.score);
+            if (rerank)
+                fprintf(o, " alpha %.6f", c.A);
+            fprintf(o, "%s\n", content != 1 ? " content divided" : "");
             gmp_fprintf(o, "n: %Zd\nY0: %Zd\nY1: %Zd\n", q.n, q.g[0], q.g[1]);
             for (int i = 0; i <= 5; i++)
                 gmp_fprintf(o, "c%d: %Zd\n", i, q.f[i]);

@@ -55,10 +55,11 @@ $(BUILD)/test_lll: tests/test_lll.cpp $(HEADERS) $(CADO_LIB_FILES) | $(BUILD)
 $(CASES): tests/gen_cases.py | $(BUILD)
 	python3 tests/gen_cases.py $@
 
-# root-sieve tables vs brute-force root counting, on the benchmark winners
+# root-sieve tables vs brute-force root counting, on the benchmark winners, and two c168 seeds
+# with a content lattice (d = 2, 3) for the re-rank's content cells
 RSIEVE_POLYS := $(addprefix ../stage23_bench/data/,c146/winners/sopt.poly c146/winners/msieve_best.poly \
 	c161/winners/sopt.poly c161/winners/cado_orig_best.poly c204/A_msieve.poly c204/B_cado_orig.poly \
-	c168/winners/cado_best.poly)
+	c168/winners/cado_best.poly c168/content/s0051.poly c168/content/s0068.poly)
 
 $(BUILD)/test_rsieve: tests/test_rsieve.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO_LIB_FILES) | $(BUILD)
 	$(CXX) $(CXXFLAGS) -Itools -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -fopenmp

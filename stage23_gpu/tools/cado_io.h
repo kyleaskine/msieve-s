@@ -44,6 +44,15 @@ void cio_print_pair(FILE *out, unsigned idx, const cio_poly *raw, const cio_poly
  * f + (u x + v) g of p: a reference for the root sieve's projective tables */
 double cio_alpha_projective_rot(const cio_poly *p, long u, long v, unsigned long B);
 
+/* CADO's alpha (get_alpha, affine and projective, primes <= B) of the rotation
+ * f + (u x + v) g of p with its content divided out, as CADO's ropt writes it; log_content
+ * gets the log of that content (0 when there is none). Thread-safe. */
+double cio_alpha_rot(const cio_poly *p, long u, long v, unsigned long B, double *log_content);
+
+/* the alpha bound CADO's MurphyE uses (get_alpha_bound(): ALPHA_BOUND, 2000 unless CADO was
+ * built or set otherwise) */
+unsigned long cio_alpha_bound(void);
+
 #ifdef __cplusplus
 }
 #endif
