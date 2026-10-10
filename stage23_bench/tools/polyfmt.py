@@ -355,14 +355,14 @@ def cado_compile_args(build=None):
     return incs, libs, ['-lgmp', '-lm', '-lpthread', '-lstdc++']
 
 
-def _cado_tool(name, src_name, cmd):
+def _cado_tool(name, src_name, cmd, headers=()):
     """Path of a helper built from src_name against the configured CADO build, built on
     first use and rebuilt when its source or CADO's libs change. cmd(incs, libs, ldflags,
     binary, src) gives the compiler command."""
     here = os.path.dirname(os.path.abspath(__file__))
     binary, src = os.path.join(here, name), os.path.join(here, src_name)
     incs, libs, ldflags = cado_compile_args()
-    newest = max(os.path.getmtime(f) for f in [src] + libs)
+    newest = max(os.path.getmtime(f) for f in [src, __file__] + libs + [os.path.join(here, h) for h in headers])
     if os.path.exists(binary) and os.path.getmtime(binary) >= newest:
         return binary
     import subprocess
@@ -379,10 +379,13 @@ def cado_expe_binary():
 def cado_murphy_binary():
     """Path of cado_murphy (MurphyE at the best skew, optionally best translation, with
     CADO's own code in-process); C++20, since CADO's C++ headers need it, with CADO's
-    embedded fmt headers."""
+    embedded fmt headers. Use the compiler's portable CPU baseline so a copied
+    cached binary does not need CPU-specific invalidation. Implicit contraction
+    is disabled to preserve CADO's scalar evaluation order and explicit FMAs."""
     fmt = f'-I{cado_src_dir()}/utils/embedded'
     return _cado_tool('cado_murphy', 'cado_murphy.cpp', lambda incs, libs, ldflags, binary, src:
-                      ['g++', '-O2', '-std=c++20', '-fopenmp'] + incs + [fmt, '-o', binary, src] + libs + ldflags)
+                      ['g++', '-O2', '-ffp-contract=off', '-std=c++20', '-fopenmp'] + incs + [fmt, '-o', binary, src] + libs + ldflags,
+                      headers=('murphy_search.h',))
 
 
 def cado_expe(polys, n):

@@ -50,6 +50,10 @@ tools/            Python 3, no dependencies beyond the standard library
                     (I/J)·q is not credited. It matches the c208 test sieves within 0.04
                     in yield ratio, where MurphyE missed a 5-12% loss; absolute values
                     read about 1.9x a test sieve's, so compare ratios
+  refine_polys.py   bounded joint translation/skew refinement of a supplied finalist set,
+                    using accurate MurphyE or the lattice band score; keeps controls and
+                    proposals, validates at higher accuracy (independent samples for the
+                    lattice score), writes exact polynomials and a JSON record
   cado_murphy.cpp   the scorer behind it: CADO's MurphyE loop in-process with alpha
                     computed once per poly (bit-identical to CADO's MurphyE(), -selftest),
                     built on first use (C++20, CADO's embedded fmt headers); -K N sets
@@ -171,6 +175,169 @@ N in `n.txt`. The three winners of the 2026-10-02 c204 run, all from one seed (Y
   (`GPU_STAGE23_PLAN.md`, known problem 7).
 - `tools/regress.py` checks the lattice-aware score (`score_polys.py --lattice`) against
   these measurements.
+
+## data/c205 (2026-10-08)
+
+The completed C205 CPU pipeline in `~/msieve-s-backup`: top 2000 re-sopt at effort
+50, msieve on 300 seeds and CADO on 150 at effort 5, both signs. `winners/` holds
+the best msieve polynomial and the CADO winner at the pipeline's final skewopt
+skew (224,841,000). Both come from seed rank 2 (one-based).
+
+`refinement/` preserves the fresh test of finalist refinement:
+
+- `finalists.poly`: 12 inputs across six seed families, selected after job/lattice
+  rescoring of 1307 candidates from all 300 seeds. The initial pool keeps three
+  distinct cells per seed and msieve pass (from its native top 64), plus all CADO
+  results. Thus this is not an exhaustive rescore of every root-optimization output.
+- `variants.poly`: 49 fixed configurations: original declared skews, job-skew
+  controls, MurphyE/lattice proposals, and the final skewopt baseline.
+- `scores.tsv`, `settings.json`: independent 256k MurphyE and lattice-stream 2/3
+  checks (256 lattices x 4096 samples per q), with parameters and provenance.
+
+The user authorized the same job settings as C208: LPB 33/34, region
+`17,32768`, q 80M–1G, rlim 200M, alim 300M, mfb 64/96. The CADO/skewopt winner
+remains the practical choice: its lattice-refined variant gains only 0.017–0.021%
+over that baseline in the independent streams; no actual sieve improvement is
+established. Msieve's best is about 0.9% behind, and the next seed family about
+6.6% behind by the lattice model. See `GPU_STAGE23_PLAN.md`, "C205 CPU finalists".
+
+All eight prepared test-sieve jobs completed on the RTX 5070 on 2026-10-09:
+three 2000-wide windows near q = 80M, 540M and 1G, geometry `17,32768`.
+All 221,999 emitted relations (2,460 special-q/root pairs) passed host-side norm
+reconstruction and LPB checks; no within-window duplicate coordinates were found.
+`testsieve/` preserves the eight configurations, measurements and provenance.
+
+Relative to the original CADO/skewopt winner, the three-window trapezoid yield
+estimate changes by 0% for the job-skew control, -0.016% for the MurphyE proposal,
+and +0.003% for the lattice proposal. The job-skew control emits exactly the same
+relation sets as the baseline. These refinements provide no demonstrated useful
+improvement. Msieve's control is -0.29% in the combined estimate but ranges from
+-3.16% to +2.10% across windows, so this screen does not resolve its small overall
+gap. The seed-3 runner-up is about 5.4% lower, losing at all three windows.
+Keep the original CADO/skewopt winner pending stronger evidence.
+
+The local jobs, runner, raw relation files and per-file verification logs are in
+`pipeline_results/c205_refinement/testsieve/`. For a future GPU session:
+
+```bash
+bash pipeline_results/c205_refinement/testsieve/run.sh
+```
+
+The runner uses an isolated local factor-base cache, three q bands, and 2000-wide
+intervals. This is a first comparison; it cannot establish a 0.02% improvement.
+`C205_TEST_WIDTH=10000` requests wider samples. Individual case names can be passed
+to the runner. Logs stay in `testsieve/logs/`; `compare.py` reports yield ratios
+against the actual CADO-plus-skewopt baseline, not CADO's earlier declared skew.
+Existing runner log names are reused; archive a completed run before repeating it.
+`analyze.py` archives completed samples, checks every emitted relation and computes
+ratios from exact counts. Timing was sequential and unreplicated; sub-percent
+throughput differences are not evidence of a speedup.
+
+The separate GPU sopt/ropt comparison also completed on 2026-10-09, at 19:19 EDT.
+GPU effort-50 sopt matched the CPU on all 2000 inputs. Root optimization completed
+313 breadth searches and 16 deeper searches; all 65,800 retained candidates were
+scored and their exact resultants verified. The GPU recovers the CPU winner's
+rotation (one-unit translation difference), and depth does not improve the
+overall winner. The full raw effort-0 sopt sweep was not repeated.
+
+`gpu_ropt/` preserves 19 independently audited configurations in `verified.poly`
+and `scores.tsv`, per-search leaders in `searches.tsv`, and the final summary and
+provenance JSON. The audit holds configurations fixed at 256k MurphyE angles and
+lattice streams 2/3 (256 lattices, 4096 points). The best refinement changes
+MurphyE by +0.0063% and the lattice model by +0.0140% against the CPU/skewopt
+baseline; no useful new sieve gain is established. The proxy ranks a roughly
+1%-worse cell ahead of the winner, supporting accurate MurphyE translation/skew
+selection inside ropt's final ranking. Full records and verification scripts are
+under `pipeline_results/gpu_ropt_c205/`; no rerun is needed to complete this batch.
+
+## Finalist translation and skew refinement
+
+The same MurphyE integral and bounded search now also run inside
+`stage23_gpu/build/s23_ropt -search -murphy`, before its output cut. That mode
+refines the whole retained proxy pool; this standalone tool refines supplied
+polynomials. Both use `tools/murphy_search.h`. See `stage23_gpu/README.md` for
+the explicit job bounds, validation behavior and current CPU cost.
+
+The shared integral now caches each worker's angle grid and converts coefficients
+once per evaluation. It preserves the scalar CADO result bit for bit in the
+regressions; search settings and validation are unchanged. The C205 200-candidate
+replay uses about 12.2× less CPU time than the initial implementation. Cache memory
+is bounded at 8 MiB per worker, with a streaming fallback above 262144 angles.
+
+Supply a small, diverse shortlist in CADO format. Each input is refined independently;
+the tool does not discard seed families or rerun root optimization. Default one CPU
+thread. For example, on the C181 translation fixture:
+
+```bash
+nice -n 15 python3 stage23_bench/tools/refine_polys.py \
+  stage23_bench/data/c181/translation/gpu.poly \
+  --out pipeline_results/c181_refined --params job:31,32,15,45e6 \
+  --lattice 15,16384 --qband 45e6,2e8,7
+```
+
+Omit `--lattice` and `--qband` to optimize MurphyE. A declared input skew is the
+control; otherwise it is chosen by MurphyE at 16,000 points. The search covers
+translation within +/- four initial steps (default step: half the control skew) and
+skew within a factor of four of the control, with a limit of 384 objective evaluations.
+The two local searches start at distinct coarse-grid coordinates and share the budget;
+the second may be cut short if the first exhausts it. It is a bounded local search;
+it does not guarantee a global optimum.
+
+The three outputs are:
+
+- `PREFIX.poly`: the control and proposal for every successful input, with exact translated
+  coefficients and the chosen skews. Keep this set for test sieving.
+- `PREFIX.selected.poly`: a proposal only when both search and validation scores
+  improve; otherwise its control. `--min-gain` sets a fractional validation margin.
+- `PREFIX.json`: settings, labels, translations, scores, selection decisions,
+  original inputs, content divisors, per-input errors, evaluation counts and whether
+  an evaluation was refused because the search budget was exhausted.
+
+Common coefficient content is divided out on both sides before refinement, matching
+CADO's reader. Exact translation and resultant checks use that primitive control;
+the original coefficients remain in JSON. Failed inputs are omitted from both `.poly`
+exports; the JSON retains their input indices and reasons, and the CLI exits 1 after
+writing valid results. Exit 0 means every input succeeded; usage errors exit 2.
+Existing output files are refused before scoring; use a fresh `--out` or explicitly
+request replacement with `--force`. Inputs are never overwritten.
+
+The proposal is evaluated at 64,000 MurphyE points after searching at 16,000. In
+lattice mode the search uses 32 lattices x 2048 region samples per q; validation
+uses 128 x 4096 and an independent random stream. Refinement enforces floors of
+32 lattices and 2048 samples per lattice, and validation counts at least as large
+as the search's. These floors prevent tiny searches; they are not an error bound.
+Validation does not guide the
+search. Shared samples reduce comparison noise but do not remove it, and these
+model checks do not establish a sieve speed improvement. Test-sieve close finalists
+over the real job's q range.
+
+For an additional independent check, use `score_polys.py --useskew` on `PREFIX.poly`:
+`--points 16000 --eval-points 256000` for MurphyE, or add the same lattice/job
+parameters with `--nlat 256 --npts 4096 --latseed 2`. This evaluates the exported
+configuration without choosing a new skew. If a file has no valid skew line,
+both scoring modes warn before falling back to a skew search. Give all comparison
+polynomials explicit skews when a fixed-configuration comparison is intended.
+Do not tune again on that check.
+
+Elapsed time is recorded with `time.time_ns()` and identified as `CLOCK_REALTIME`
+in JSON. Wall-clock adjustments can affect it; historical `time.monotonic()` values
+on this WSL2 host have not been independently calibrated.
+
+`data/c181/translation/` contains five GPU/msieve pairs from the archived C181 run,
+seeds 0, 5, 6, 10 and 11. Each pair is exactly the same rotation cell at different
+translations. `gpu.poly` was extracted from `gpu_ropt_c181/pass2/out/`; `msieve.poly`
+from that run's audit references, ultimately from
+`~/msieve-s-backup/backup_20261006_205527/pipeline_results/`. The C181 bounds above
+match the old comparison. The region shape and q range are assumptions for that
+job, not test-sieve validated parameters. The fixture and regression check do not
+depend on either local results directory.
+Include both C181 fixture files and `tools/refine_polys.py` with this change when
+committing. A missing fixture is reported as `FAIL`, not a Python traceback.
+
+This tool refines surviving finalists only. Choosing translation with accurate
+MurphyE inside ropt's final ranking remains a separate task; post-processing cannot
+recover candidates already discarded because their lognorm-selected translation
+scored poorly.
 
 ## M1 acceptance (GPU sopt vs CADO)
 

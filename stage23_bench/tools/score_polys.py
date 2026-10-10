@@ -13,9 +13,10 @@ around the best two grid points. At CADO's 1,000 sample points MurphyE has many 
 peaks in skew (sampling noise; at 64,000 points the curve has one), and a grid relative
 to each poly's own start (as in rescore.py) can give one polynomial different scores.
 The 1,000-point value reads high by about 0.2% (up to 1.4%). --trans T also searches the
-translation (pattern search on MurphyE from step T); its apparent 1-2% gains were that
-noise (worth at most 0.1% when integrated accurately; GPU_STAGE23_PLAN.md, "Review
-checks"). By default the skew (and translation) search uses 4,000 sample angles and
+translation (pattern search on MurphyE from step T); its apparent 1-2% gains on c168
+were that noise (GPU_STAGE23_PLAN.md, "Review checks"). C181 does show translation
+sensitivity. For finalist refinement with controls, independent validation and exported
+polynomials, use refine_polys.py. By default the skew (and translation) search uses 4,000 sample angles and
 the printed value 16,000 (--points, --eval-points): on the c168 winners 16,000 is within
 0.02% of 256,000, measured evidence rather than a guarantee. The printed value is
 re-evaluated at the configuration the search chose; it does not search again at 16,000.
@@ -37,9 +38,13 @@ ratios of five test-sieved polys (each against poly A: 24 ratios at three q and 
 shapes) within 0.04, worst 0.038, where MurphyE missed a 5-12% loss (GPU_STAGE23_PLAN.md,
 known problem 7).
 Its absolute relations per special-q read about 1.9x the test sieve's: compare ratios.
+--nlat, --npts and --latseed change the lattice sample counts and random stream for
+independent checks. Common samples reduce comparison noise; they do not eliminate it.
+--useskew also evaluates a fixed declared skew in MurphyE mode, without re-optimizing it.
 """
 
 import argparse
+import math
 import os
 import subprocess
 import sys
@@ -52,9 +57,27 @@ from rescore import derived
 read_blocks = read_cado_blocks  # the old name, still imported by scripts
 
 
+def score_bounds(params):
+    """Parse the shared --params syntax, rejecting invalid or overflowing bounds."""
+    if params == 'default':
+        return None
+    try:
+        kind, values = params.split(':', 1)
+        lpbr, lpba, logi, qmin = (float(x) for x in values.split(','))
+        if kind != 'job' or not all(math.isfinite(x) for x in (lpbr, lpba, logi, qmin)):
+            raise ValueError()
+        d = derived(lpbr, lpba, logi, qmin)
+        if not all(math.isfinite(v) for v in d.values()) or min(d['Bf'], d['Bg']) <= 1 or d['area'] <= 0:
+            raise ValueError()
+        return d
+    except (ValueError, OverflowError):
+        raise ValueError('--params needs default or job:lpbr,lpba,I,qmin with finite Bf/Bg > 1 and area > 0') from None
+
+
 def _run_cado_murphy(polys, n, args, extra, keep_skew=False):
     """cado_murphy's output rows (tab-split) for polys, one per poly in order, with the
     sample counts and --params bounds of args; its stderr (warnings) is passed on"""
+    d = score_bounds(args.params)
     with tempfile.NamedTemporaryFile('w', suffix='.poly', delete=False) as fh:
         for p in polys:
             q = {k: v for k, v in p.items() if k != 'n' and (k != 'skew' or keep_skew)}
@@ -67,9 +90,7 @@ def _run_cado_murphy(polys, n, args, extra, keep_skew=False):
             argv += ['-K', str(points)]
         if eval_points:
             argv += ['-Keval', str(eval_points)]
-        if args.params != 'default':
-            lpbr, lpba, logI, qmin = (float(x) for x in args.params.split(':', 1)[1].split(','))
-            d = derived(lpbr, lpba, logI, qmin)
+        if d is not None:
             argv += ['-Bf', repr(d['Bf']), '-Bg', repr(d['Bg']), '-area', repr(d['area'])]
         r = subprocess.run(argv + [path], capture_output=True, text=True)
     finally:
@@ -86,13 +107,18 @@ def _run_cado_murphy(polys, n, args, extra, keep_skew=False):
 
 def murphy(polys, n, args):
     """[(MurphyE, skew, t)] for each poly, in order"""
-    res = _run_cado_murphy(polys, n, args, ['-trans', str(args.trans)])
+    useskew = getattr(args, 'useskew', False)
+    res = _run_cado_murphy(polys, n, args, ['-trans', str(args.trans)] + (['-useskew'] if useskew else []),
+                           keep_skew=useskew)
     return [(float(r[1]), float(r[2]), int(r[3])) for r in res]
 
 
 def lattice_scores(polys, n, args):
     """[(band relations, skew, MurphyE at that skew, [relations per special-q at each q])]"""
     extra = ['-lattice', args.lattice, '-qband', args.qband] + (['-useskew'] if args.useskew else [])
+    for name in ('nlat', 'npts', 'latseed'):
+        if getattr(args, name, None) is not None:
+            extra += ['-' + name, str(getattr(args, name))]
     res = _run_cado_murphy(polys, n, args, extra, keep_skew=args.useskew)
     return [(float(r[1]), float(r[2]), float(r[3]), [float(x) for x in r[4:]]) for r in res]
 
@@ -128,9 +154,20 @@ def main():
     ap.add_argument('--known', nargs='*', default=[])
     ap.add_argument('--lattice', help='LOGI,J: rank by the lattice-aware relations over --qband')
     ap.add_argument('--qband', help='QMIN,QMAX,NQ for --lattice')
-    ap.add_argument('--useskew', action='store_true', help="--lattice: the file's skew instead of MurphyE's best")
+    ap.add_argument('--useskew', action='store_true', help="evaluate the file's skew instead of searching it")
+    ap.add_argument('--nlat', type=int, help='lattice samples per q (default 32)')
+    ap.add_argument('--npts', type=int, help='region samples per lattice (default 2048)')
+    ap.add_argument('--latseed', type=int, help='independent lattice sample stream (default 0)')
     ap.add_argument('--show', type=int, default=20)
     args = ap.parse_args()
+    try:
+        score_bounds(args.params)
+    except ValueError as e:
+        ap.error(str(e))
+    if args.useskew and args.trans:
+        ap.error('--useskew evaluates a fixed configuration; it cannot be combined with --trans')
+    if not args.lattice and any(x is not None for x in (args.nlat, args.npts, args.latseed)):
+        ap.error('--nlat, --npts and --latseed need --lattice')
     if args.cado:
         args.points = args.eval_points = 1000
     blocks = read_blocks(args.file)
@@ -138,9 +175,9 @@ def main():
         blocks = blocks[:args.top]
     known = [(os.path.basename(p), parse_cado_poly(p)) for p in args.known]
     n = blocks[0][1]['n'] if blocks else known[0][1]['n']
-    if args.lattice or args.qband or args.useskew:
+    if args.lattice or args.qband:
         if not (args.lattice and args.qband) or args.trans:
-            ap.error('--lattice and --qband go together (and without --trans); --useskew needs them')
+            ap.error('--lattice and --qband go together (and without --trans)')
         return main_lattice(args, blocks, known, n)
     res = murphy([p for _, p in blocks], n, args) if blocks else []
     kres = murphy([p for _, p in known], n, args) if known else []

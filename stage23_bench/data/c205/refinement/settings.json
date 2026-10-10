@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-08",
+  "pipeline": {
+    "top_n": 2000,
+    "sopt_effort": 50,
+    "msieve_seeds": 300,
+    "cado_seeds": 150,
+    "cado_ropt_effort": 5
+  },
+  "seed_numbering": "one-based rank in resopt_msieve_sorted.ms",
+  "pool": {
+    "count": 1307,
+    "seeds": 300,
+    "selection": "top three distinct rotation cells per seed and msieve pass, from native top 64, plus all CADO outputs; sign-deduplicated"
+  },
+  "finalists": {
+    "count": 12,
+    "seed_families": [
+      2,
+      3,
+      6,
+      10,
+      53,
+      78
+    ]
+  },
+  "audit": {
+    "threads": 4,
+    "params": "job:33,34,16.5,80e6",
+    "points": 16000,
+    "eval_points": 256000,
+    "trans": 0,
+    "useskew": true,
+    "lattice": "17,32768",
+    "qband": "80e6,1e9,9",
+    "nlat": 256,
+    "npts": 4096,
+    "latseed": 3
+  },
+  "audit_lattice_seeds": [
+    2,
+    3
+  ],
+  "test_sieve": "Not run: GPU occupied; user requested only preparing jobs."
+}

@@ -3,6 +3,7 @@
  *   window: s23_ropt -poly FILE -u U0 U1 -v V0 V1 [common options]
  *   search: s23_ropt -poly FILE -search [-budget B] [-band B] [-maxcells C] [-aw W] [-patience P]
  *           [-umax U] [-maxlines M] [-out FILE] [-refine N] [-rerank N] [-plan] [common options]
+ *           [-murphy -Bf BF -Bg BG -area A [-murphy-points 16000] [-murphy-eval-points 64000] [-maxeval 384]]
  *   cell:   s23_ropt -poly FILE -cell U V
  *   common: [-top N] [-k K] [-seg LOG2] [-noproj] [-cpu] [-dev N] [-t THREADS] [-check N] [-launch LOG2]
  *           [-plan]
@@ -46,6 +47,18 @@
  *   alpha_s), and the lost cell is kept. About 0.5 s a search on 4 threads.
  *   The re-rank fixes only the cut to the written cells. Each block's best K are still chosen
  *   by E, so a cell that alpha_s misjudges can be lost inside its block first.
+ * -murphy (search, opt-in, requires -rerank > 0 and explicit Bf/Bg/area): optimize
+ *   translation and skew for ALL max(-rerank, -refine, -top) retained proxy cells
+ *   on the host, before the output cut. Search at K >= 16000, validate control and
+ *   proposal at Keval >= 4*K, retain the better validation score, and sort by it.
+ *   The shared bench search uses two starts, at most maxeval joint evaluations
+ *   (in addition to the initial skew grid), and exact GMP translations. Output
+ *   includes the chosen skew and MurphyE, control/proposal scores and search status.
+ *   A scoring failure is reported and excluded; valid outputs are saved with
+ *   exit 1. Cells invalid before scoring are skipped without causing exit 1.
+ *   This does not recover cells outside the retained proxy pool or change the
+ *   per-block proxy selection. Full-pool CPU refinement is expensive; measure it
+ *   before enabling it for a breadth run. Without -murphy, output is unchanged.
  * -band B (search): the bands at budget B (at most -budget) instead of -budget; the line scan
  *   still runs to -budget, so B = -budget - 0.25 k gives the same lines and cells as
  *   "# step B" of -plan with the same options. -maxcells then lowers it from B.
@@ -85,6 +98,8 @@
 #include <chrono>
 #include <omp.h>
 #include <thread>
+#include <errno.h>
+#include <limits.h>
 #include <gmp.h>
 #include "cado_io.h"
 #include "gmp_bridge.h"
@@ -92,6 +107,8 @@
 #include "rsize.h"
 #include "rblock.h"
 #include "rhost.h"
+#include "murphy_cell.h"
+#include <memory>
 
 using namespace s23;
 
@@ -389,6 +406,22 @@ static int check_hits(const RsSeed &S, const std::vector<Hit> &sample)
     return bad;
 }
 
+static int parse_count(const char *s)
+{
+    char *end;
+    errno = 0;
+    const long n = strtol(s, &end, 10);
+    return !*s || *end || errno || n < 0 || n > INT_MAX ? -1 : (int)n;
+}
+
+static double parse_bound(const char *s)
+{
+    char *end;
+    errno = 0;
+    const double n = strtod(s, &end);
+    return !*s || *end || errno ? NAN : n;
+}
+
 int main(int argc, char **argv)
 {
     const char *path = NULL, *out_path = NULL;
@@ -397,6 +430,8 @@ int main(int argc, char **argv)
     int patience = 20, refine = 200, rerank = 4096, window = 0, plan = 0, noproj = 0;
     double budget = 0.5, aw = 1.0, maxcells = 0, band = 0;
     int maxlines = 1000, launch_log2 = 32;
+    bool murphy = false, murphy_options = false;
+    MurphyConfig mc;
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-poly") && i + 1 < argc)
             path = argv[++i];
@@ -434,10 +469,29 @@ int main(int argc, char **argv)
             out_path = argv[++i];
         else if (!strcmp(argv[i], "-refine") && i + 1 < argc)
             refine = atoi(argv[++i]);
-        else if (!strcmp(argv[i], "-rerank") && i + 1 < argc) {
-            char *end;
-            const long x = strtol(argv[++i], &end, 10);
-            rerank = *end || x < 0 || x > (1 << 24) ? -1 : (int)x;
+        else if (!strcmp(argv[i], "-murphy"))
+            murphy = true;
+        else if (!strcmp(argv[i], "-Bf") && i + 1 < argc) {
+            mc.Bf = parse_bound(argv[++i]);
+            murphy_options = true;
+        } else if (!strcmp(argv[i], "-Bg") && i + 1 < argc) {
+            mc.Bg = parse_bound(argv[++i]);
+            murphy_options = true;
+        } else if (!strcmp(argv[i], "-area") && i + 1 < argc) {
+            mc.area = parse_bound(argv[++i]);
+            murphy_options = true;
+        } else if ((!strcmp(argv[i], "-murphy-points") || !strcmp(argv[i], "-K")) && i + 1 < argc) {
+            mc.K = parse_count(argv[++i]);
+            murphy_options = true;
+        } else if ((!strcmp(argv[i], "-murphy-eval-points") || !strcmp(argv[i], "-Keval")) && i + 1 < argc) {
+            mc.Keval = parse_count(argv[++i]);
+            murphy_options = true;
+        } else if (!strcmp(argv[i], "-maxeval") && i + 1 < argc) {
+            mc.maxeval = parse_count(argv[++i]);
+            murphy_options = true;
+        } else if (!strcmp(argv[i], "-rerank") && i + 1 < argc) {
+            rerank = parse_count(argv[++i]);
+            if (rerank > (1 << 24)) rerank = -1;
         } else if (!strcmp(argv[i], "-band") && i + 1 < argc)
             band = atof(argv[++i]);
         else if (!strcmp(argv[i], "-top") && i + 1 < argc)
@@ -467,7 +521,7 @@ int main(int argc, char **argv)
     omp_set_num_threads(threads > 0 ? threads : 1);
     if (!path || (window && (u1 < u0 || v1 < v0)) || (!window && !search && !cell) || k < 1 || k > K_MAX ||
         seg_log < 12 || seg_log > 30 || budget <= 0 || aw <= 0 || launch_log2 < 20 || launch_log2 > 40) {
-        fprintf(stderr, "s23_ropt: need -poly and one of -u/-v, -search, -cell; 1 <= K <= %d, 12 <= LOG2 <= 30, "
+        fprintf(stderr, "s23_ropt: need -poly and one of -u/-v, -search, -cell; 1 <= -k <= %d, 12 <= LOG2 <= 30, "
                         "20 <= -launch <= 40\n",
                 K_MAX);
         return 2;
@@ -475,6 +529,13 @@ int main(int argc, char **argv)
     if (top < 1 || refine < 0 || rerank < 0 || band < 0 || band > budget) {
         fprintf(stderr, "s23_ropt: need -top >= 1, -refine >= 0, -rerank an integer from 0 to 2^24, and "
                         "0 < -band <= -budget\n");
+        return 2;
+    }
+    if ((murphy_options && !murphy) || (murphy &&
+        (!search || window || cell || plan || !rerank || !murphy_config_valid(mc)))) {
+        fprintf(stderr, "s23_ropt: -murphy requires -search, -rerank > 0, explicit finite -Bf/-Bg > 1 and "
+                        "-area > 0, -murphy-points >= 16000, -murphy-eval-points >= 4*points, -maxeval >= 32; "
+                        "Murphy options require -murphy and cannot be used with window/-cell/-plan\n");
         return 2;
     }
     FILE *fh = fopen(path, "r");
@@ -727,6 +788,8 @@ int main(int argc, char **argv)
     /* search: exact translation and lognorm for the best max(top, refine), then re-rank; with -rerank N, for
        the best N, re-ranked by CADO's alpha instead of alpha_s, and the best max(top, refine) of them kept */
     double t_refine = 0;
+    std::vector<std::unique_ptr<MurphyCell>> murphy_cells;
+    size_t murphy_skipped = 0, murphy_failed = 0, murphy_accepted = 0, murphy_limited = 0, murphy_count = 0;
     if (!window) {
         const auto t2 = std::chrono::steady_clock::now();
         const size_t nout = (size_t)std::max(refine, top);
@@ -745,8 +808,54 @@ int main(int argc, char **argv)
             }
         }
         best.resize(nref);
-        std::sort(best.begin(), best.end(), order);
-        best.resize(std::min(nref, nout));
+        // Optimize every member of the larger proxy pool BEFORE the output cut.
+        // Keval validates each proposal and ranks its retained configuration.
+        if (murphy) {
+            fprintf(stderr, "s23_ropt: MurphyE refining %zu cells before the %zu-output cut "
+                            "(K=%d, Keval=%d, maxeval=%d)\n", nref, nout, mc.K, mc.Keval, mc.maxeval);
+            murphy_cells.resize(nref);
+            size_t completed = 0;
+#pragma omp parallel for schedule(dynamic, 1)
+            for (size_t i = 0; i < nref; i++) {
+                Cand &c = best[i];
+                auto m = std::make_unique<MurphyCell>();
+                m->refine(P, R, c.h.u, c.h.v, c.t, c.L, c.A, mc);
+                c.key = m->result.valid ? -m->result.score : INFINITY;
+                murphy_cells[i] = std::move(m);
+#pragma omp critical
+                {
+                    completed++;
+                    if (completed % 64 == 0 || completed == nref)
+                        fprintf(stderr, "s23_ropt: MurphyE %zu/%zu cells\n", completed, nref);
+                }
+            }
+            std::vector<size_t> ranked;
+            for (size_t i = 0; i < nref; i++) {
+                const auto &m = *murphy_cells[i];
+                murphy_count += m.attempted;
+                murphy_skipped += !m.attempted;
+                murphy_failed += m.failed();
+                murphy_accepted += m.result.valid && m.result.accepted;
+                murphy_limited += m.result.limited;
+                if (m.failed())
+                    fprintf(stderr, "s23_ropt: MurphyE failed for u %lld v %lld; valid cells retained\n",
+                            (long long)best[i].h.u, (long long)best[i].h.v);
+                if (m.result.valid) ranked.push_back(i);
+            }
+            std::sort(ranked.begin(), ranked.end(), [&](size_t a, size_t b) { return order(best[a], best[b]); });
+            ranked.resize(std::min(ranked.size(), nout));
+            std::vector<Cand> chosen;
+            std::vector<std::unique_ptr<MurphyCell>> selected;
+            for (size_t i : ranked) {
+                chosen.push_back(best[i]);
+                selected.push_back(std::move(murphy_cells[i]));
+            }
+            best = std::move(chosen);
+            murphy_cells = std::move(selected);
+        } else {
+            std::sort(best.begin(), best.end(), order);
+            best.resize(std::min(best.size(), nout));
+        }
         t_refine = std::chrono::duration<double>(std::chrono::steady_clock::now() - t2).count();
     }
 
@@ -773,7 +882,11 @@ int main(int argc, char **argv)
         if (lines_dropped || lines_trimmed)
             printf("; -maxcells dropped %zu lines and trimmed %zu", lines_dropped, lines_trimmed);
         printf("\n");
-        if (rerank)
+        if (murphy)
+            printf("# best %d by validated MurphyE: %zu optimized, %zu accepted, %zu limited, %zu failed, %zu skipped before MurphyE; "
+                   "Bf %.17g Bg %.17g area %.17g K %d Keval %d maxeval %d\n", top, murphy_count,
+                   murphy_accepted, murphy_limited, murphy_failed, murphy_skipped, mc.Bf, mc.Bg, mc.area, mc.K, mc.Keval, mc.maxeval);
+        else if (rerank)
             printf("# best %d by Ea = lognorm + %.2f alpha (CADO's, p <= %lu; content divided out), of the best %d by "
                    "the proxy E = lognorm + %.2f alpha_s (%s; exact translation):\n",
                    top, aw, cio_alpha_bound(), std::max({rerank, refine, top}), aw, alpha_what);
@@ -789,7 +902,12 @@ int main(int argc, char **argv)
         if (window)
             printf("u %6lld  v %16lld  score %.6f  alpha_s %.4f%s\n", (long long)c.h.u, (long long)c.h.v,
                    c.h.score, S.alpha0 - c.h.score, differs ? "  BRUTE FORCE DIFFERS" : "");
-        else {
+        else if (murphy) {
+            const auto &m = murphy_cells[i]->result;
+            printf("u %6lld  v %16lld  t %14lld  MurphyE %.17g  skew %.17g  lognorm %.6f  lognorm_at_murphy_skew %.6f  alpha %.6f%s\n",
+                   (long long)c.h.u, (long long)c.h.v, (long long)(c.t + m.translation), m.score,
+                   m.skew, c.L, m.lognorm, c.A, differs ? "  BRUTE FORCE DIFFERS" : "");
+        } else {
             printf("u %6lld  v %16lld  t %14lld  %s %.4f  lognorm %.4f", (long long)c.h.u, (long long)c.h.v,
                    (long long)c.t, rerank ? "Ea" : "E", c.key, c.L);
             if (rerank)
@@ -821,19 +939,33 @@ int main(int argc, char **argv)
         cio_poly q;
         cio_init(&q);
         size_t nwritten = 0, nskipped = 0;
-        for (const Cand &c : best) {
+        for (size_t j = 0; j < best.size(); j++) {
+            const Cand &c = best[j];
             unsigned long content;
-            if (!rs_written_poly(q, P, R, c.h.u, c.h.v, c.t, content)) {
+            if (murphy) {
+                cio_set(&q, &murphy_cells[j]->poly);
+                content = murphy_cells[j]->content;
+            } else if (!rs_written_poly(q, P, R, c.h.u, c.h.v, c.t, content)) {
                 nskipped++;
                 continue;
             }
             nwritten++;
-            fprintf(o, "# u %lld v %lld t %lld %s %.6f lognorm %.6f alpha_s %.6f", (long long)c.h.u,
-                    (long long)c.h.v, (long long)c.t, rerank ? "Ea" : "E", c.key, c.L, S.alpha0 - c.h.score);
+            if (murphy) {
+                const auto &m = murphy_cells[j]->result;
+                fprintf(o, "# u %lld v %lld t %lld MurphyE %.17g lognorm %.6f lognorm_at_murphy_skew %.6f alpha_s %.6f "
+                           "control %.17g proposal %.17g accepted %d calls %d limited %d",
+                        (long long)c.h.u, (long long)c.h.v, (long long)(c.t + m.translation),
+                        m.score, c.L, m.lognorm, S.alpha0 - c.h.score, m.control, m.proposal,
+                        m.accepted, m.calls, m.limited);
+            } else
+                fprintf(o, "# u %lld v %lld t %lld %s %.6f lognorm %.6f alpha_s %.6f", (long long)c.h.u,
+                        (long long)c.h.v, (long long)c.t, rerank ? "Ea" : "E", c.key, c.L, S.alpha0 - c.h.score);
             if (rerank)
                 fprintf(o, " alpha %.6f", c.A);
             fprintf(o, "%s\n", content != 1 ? " content divided" : "");
             gmp_fprintf(o, "n: %Zd\nY0: %Zd\nY1: %Zd\n", q.n, q.g[0], q.g[1]);
+            if (murphy)
+                fprintf(o, "skew: %.17g\n", murphy_cells[j]->result.skew);
             for (int i = 0; i <= 5; i++)
                 gmp_fprintf(o, "c%d: %Zd\n", i, q.f[i]);
             fprintf(o, "\n");
@@ -846,5 +978,5 @@ int main(int argc, char **argv)
         printf("\n");
     }
     cio_clear(&P);
-    return bad ? 1 : 0;
+    return bad || murphy_failed ? 1 : 0;
 }

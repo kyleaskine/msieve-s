@@ -1,0 +1,152 @@
+{
+  "experiment": "pipeline_results/gpu_ropt_c205",
+  "manifest": {
+    "n": 4785242557810697119834185127659489385158262431250454474820774271319222962690941051195014451008983249793748965372767122586857941432814601795241645770713586951585273221601193746927482503741268088287241801217,
+    "seed_numbering": "one-based CPU re-sopt rank",
+    "effort50_inputs": 2000,
+    "parent_seeds": 300,
+    "searches": 313,
+    "params": "job:33,34,16.5,80e6",
+    "lattice": "17,32768",
+    "qband": "80e6,1e9,9",
+    "raw_effort0_repeated": false,
+    "source_files": {
+      "/home/kylea/msieve-s/pipeline_results/c205_refinement/cpu_run/resopt_output.txt": "5db000d569845f04a46cb17bf8fb49035b353d5da4d004260f326ab68f97a1d3",
+      "/home/kylea/msieve-s/pipeline_results/c205_refinement/cpu_run/best300_msieve.ms": "6007ab42f0c9695b490cbc485d3a56229156463f3ba6d41e492503c7601bca65",
+      "/home/kylea/msieve-s/pipeline_results/gpu_ropt_c205/sopt/input.poly": "00d6aff8fca6326a18f55afe54dd2beaa67bae8de06328c604b32ae98a04d093"
+    },
+    "binaries": {
+      "s23_sopt": {
+        "source": "/home/kylea/msieve-s/stage23_gpu/build/s23_sopt",
+        "sha256": "e1c5df461defdcc6355b7aa40af014145ab320156e02be514cdd2795f2101052"
+      },
+      "s23_ropt": {
+        "source": "/home/kylea/msieve-s/stage23_gpu/build/s23_ropt",
+        "sha256": "a9a64745b0d213dbc9689098d23268ccc760606a9bab9f7894cdd948c256df80"
+      }
+    }
+  },
+  "scorer_sha256": "60e413df4d0fc236ccfb590dcc88a057f895165acaf1e21fe2786b212c751e78",
+  "audit_settings": {
+    "threads": 8,
+    "params": "job:33,34,16.5,80e6",
+    "points": 16000,
+    "eval_points": 256000,
+    "trans": 0,
+    "lattice": "17,32768",
+    "qband": "80e6,1e9,9",
+    "useskew": true,
+    "nlat": 256,
+    "npts": 4096,
+    "latseed": 3
+  },
+  "audit_streams": [
+    2,
+    3
+  ],
+  "source_sha256": {
+    "manifest.json": "62b741c2fc653cbaa1cb43eb4b999479cb08b44eb0bee2514a63896447267863",
+    "completed.json": "07e219287b12ec74a23bcd6a8d4b9453cf25685e5efb6815597a40a6e61fdbbb",
+    "sopt/result.json": "305c0ef47c20cb9c22ae7f9a13c9080a9835e4ea8e673ba2568b0f0d6621309b",
+    "breadth/result.json": "ba73607083a3987293b1418f5beccf2656abf1adbe7fe6930e6f5bae262e88e4",
+    "depth/result.json": "aaab4d582bcad257e7c41873f4142105fe851a2e689fa44a486bad09dc9cf41c",
+    "audit/verified.json": "f14308b134bfcab66b80083c1fe954938ff589bdd544b36b278d9257532a8932",
+    "audit/verified.poly": "b6e9325012ce73abbf62fc39900cc817e2e1a451d6013e464ee9e8f0be89f020",
+    "summary.json": "012da824fee47e04cd47d005d840229c3f7053034405f5d69d90056a59810286",
+    "artifact_verification.json": "fbdc1b320775e3b872b5d016353464adfd6c0f5e22d081380d0d894ef8fe3cbf",
+    "prepare.py": "90c4bc0ba37fa102e3d6b66a91cc706c6a4997b13b0b4a415a41ced908dbda55",
+    "run_sopt.py": "15d0ec6071bb36b3d3a386c42800833e25636e83adaff1b0d9c45a0e022f96bd",
+    "run_ropt.py": "b8234dd908ad18cb65ae6b9b47870f6df039e31634c841858d3869982e722699",
+    "analyze.py": "4fcfda41d2aee4665c9eb3f13f76fec45429829a5013060c92ccd057e42d4c4a",
+    "finish_comparison.py": "cb778970538b297e46af35691fa702ac61a35d881c8cfefb5a5dbd12c7831903",
+    "save_fixture.py": "90629a63588efd0a78d7d66806a3c181c9394b7078cd97281ba6e66d794bdcd0"
+  },
+  "stats": {
+    "finished": "2026-10-09T19:19:12.002284-04:00",
+    "validated_polynomials": {
+      "breadth": 62600,
+      "depth": 3200
+    },
+    "audited_configurations": 19,
+    "winning_control_translation_from_cpu": -1,
+    "breadth_winners_beyond_rank32": 0,
+    "breadth_max_winning_rank": 19,
+    "family_comparison_to_1307_cpu_candidates": {
+      "more_than_1pct_better": 48,
+      "within_1pct": 177,
+      "more_than_1pct_worse": 75
+    },
+    "depth_changes": [
+      {
+        "search": "s0002",
+        "band_gain": -1.3511001195620764e-07
+      },
+      {
+        "search": "s0003",
+        "band_gain": 0.0
+      },
+      {
+        "search": "s0006",
+        "band_gain": 0.06545056789819159
+      },
+      {
+        "search": "s0053",
+        "band_gain": 0.0
+      },
+      {
+        "search": "s0010",
+        "band_gain": 0.0
+      },
+      {
+        "search": "s0013",
+        "band_gain": 0.0
+      },
+      {
+        "search": "s0014",
+        "band_gain": 0.013677501424463667
+      },
+      {
+        "search": "s0009",
+        "band_gain": 0.0
+      },
+      {
+        "search": "s0008",
+        "band_gain": 0.0
+      },
+      {
+        "search": "s0041",
+        "band_gain": 0.03878414676384412
+      },
+      {
+        "search": "s0027",
+        "band_gain": 0.0
+      },
+      {
+        "search": "s0004",
+        "band_gain": -1.574446605312474e-07
+      },
+      {
+        "search": "s0001",
+        "band_gain": 0.0
+      },
+      {
+        "search": "s0055",
+        "band_gain": 0.0
+      },
+      {
+        "search": "s0078",
+        "band_gain": 0.00907676411695335
+      },
+      {
+        "search": "s0018",
+        "band_gain": 0.0
+      }
+    ]
+  },
+  "limitations": [
+    "The CPU-selected effort-0 top 2000 were used; the full raw effort-0 sweep was not repeated.",
+    "The lattice score is a yield model, not a new test-sieve measurement.",
+    "All 200 retained outputs per GPU search were scored; pruning inside ropt still uses size/alpha proxies.",
+    "Runtime includes CPU contention and is not a controlled speed comparison."
+  ]
+}

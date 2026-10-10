@@ -41,7 +41,7 @@ void cio_set(cio_poly *dst, const cio_poly *src)
     mpz_set(dst->g[1], src->g[1]);
 }
 
-static void to_cado(cado_poly cpoly, const cio_poly *p)
+void cio_to_cado(cado_poly cpoly, const cio_poly *p)
 {
     while (cpoly->nb_polys < 2) /* side 0 = rational (g), side 1 = algebraic (f) */
         cado_poly_provision_new_poly(cpoly);
@@ -70,6 +70,15 @@ static int from_mpz_polys(cio_poly *p, mpz_poly_srcptr f, mpz_poly_srcptr g)
     return 1;
 }
 
+int cio_from_cado(cio_poly *p, cado_poly_srcptr cpoly)
+{
+    if (cpoly->nb_polys != 2 ||
+        !from_mpz_polys(p, cpoly->pols[ALG_SIDE], cpoly->pols[RAT_SIDE]))
+        return 0;
+    mpz_set(p->n, cpoly->n);
+    return 1;
+}
+
 /* CADO's cado_poly_set_plist (utils/cado_poly.c; exported, not declared in a header) */
 int cado_poly_set_plist(cado_poly_ptr cpoly, param_list_ptr pl);
 
@@ -93,8 +102,7 @@ int cio_read_next(FILE *in, cio_poly *p)
         cado_poly_init(cpoly);
         ok = ok && cado_poly_set_plist(cpoly, pl) && cpoly->nb_polys == 2;
         if (ok) {
-            mpz_set(p->n, cpoly->n);
-            ok = from_mpz_polys(p, cpoly->pols[ALG_SIDE], cpoly->pols[RAT_SIDE]);
+            ok = cio_from_cado(p, cpoly);
             if (!ok)
                 fprintf(stderr, "cio_read_next: unsupported polynomial pair (degree of f above %d, "
                                 "or g not linear)\n", CIO_MAXDEG);
@@ -200,7 +208,7 @@ void cio_print_pair(FILE *out, unsigned idx, const cio_poly *raw, const cio_poly
     cado_poly_stats_init(stats, 2);
 
     fprintf(out, "\n### Input raw polynomial (%u) ###\n", idx);
-    to_cado(cpoly, raw);
+    cio_to_cado(cpoly, raw);
     cado_poly_set_skewness_if_undefined(cpoly);
     cado_poly_fprintf(out, "# ", cpoly);
     if (raw_stats) {
@@ -209,7 +217,7 @@ void cio_print_pair(FILE *out, unsigned idx, const cio_poly *raw, const cio_poly
     }
 
     fprintf(out, "### Size-optimized polynomial (%u) ###\n", idx);
-    to_cado(cpoly, opt);
+    cio_to_cado(cpoly, opt);
     cado_poly_set_skewness_if_undefined(cpoly);
     cado_poly_compute_expected_stats(stats, cpoly);
     cado_poly_fprintf(out, NULL, cpoly);

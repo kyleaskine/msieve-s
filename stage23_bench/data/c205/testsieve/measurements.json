@@ -1,0 +1,601 @@
+{
+  "reference": "A_leader_skewopt",
+  "complete": true,
+  "geometry": "17,32768",
+  "width": 2000,
+  "q_band": [
+    80000000,
+    1000000000
+  ],
+  "results": {
+    "A_leader_skewopt": {
+      "rows": [
+        {
+          "q0": 80000000,
+          "width": 2000,
+          "pairs": 78,
+          "relations": 10473,
+          "unique_relations": 10473,
+          "duplicates": 0,
+          "baseline_overlap": {
+            "translation": 0,
+            "shared": 10473,
+            "gained": 0,
+            "lost": 0
+          },
+          "rel_per_pair": 134.26923076923077,
+          "normalized_yield": 14756.857408545,
+          "ms_per_pair": 520.89,
+          "rel_per_second": 257.76887782301594,
+          "board_watts": 210.6,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "1a8228e7ced91ae12104979b2a5c20a4f0da32194690a96416455a69e38f9fb8",
+          "verified": true
+        },
+        {
+          "q0": 539999000,
+          "width": 2000,
+          "pairs": 122,
+          "relations": 9791,
+          "unique_relations": 9791,
+          "duplicates": 0,
+          "baseline_overlap": {
+            "translation": 0,
+            "shared": 9791,
+            "gained": 0,
+            "lost": 0
+          },
+          "rel_per_pair": 80.25409836065573,
+          "normalized_yield": 7982.671472866,
+          "ms_per_pair": 501.39,
+          "rel_per_second": 160.06322096702314,
+          "board_watts": 217.9,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "6d155c863b7d1b6bcf6097819e661b4882e190c249960eb8be8426e52979d861",
+          "verified": true
+        },
+        {
+          "q0": 999998000,
+          "width": 2000,
+          "pairs": 101,
+          "relations": 6786,
+          "unique_relations": 6786,
+          "duplicates": 0,
+          "baseline_overlap": {
+            "translation": 0,
+            "shared": 6786,
+            "gained": 0,
+            "lost": 0
+          },
+          "rel_per_pair": 67.18811881188118,
+          "normalized_yield": 6484.318236793,
+          "ms_per_pair": 491.17,
+          "rel_per_second": 136.79198406230262,
+          "board_watts": 220.3,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "90a5d4e852f420243e0bc2fabf707c8af636f1cd5d70f693bec4e541bd964d16",
+          "verified": true
+        }
+      ],
+      "projected_relations": 4278746820.6615505,
+      "projected_seconds": 23505438.822513137,
+      "projected_rel_per_second": 182.0322033964086,
+      "model_ratio": 1.0,
+      "yield_ratios": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "band_yield_ratio": 1.0,
+      "throughput_ratio": 1.0
+    },
+    "B_leader_control": {
+      "rows": [
+        {
+          "q0": 80000000,
+          "width": 2000,
+          "pairs": 78,
+          "relations": 10473,
+          "unique_relations": 10473,
+          "duplicates": 0,
+          "baseline_overlap": {
+            "translation": 0,
+            "shared": 10473,
+            "gained": 0,
+            "lost": 0
+          },
+          "rel_per_pair": 134.26923076923077,
+          "normalized_yield": 14756.857408545,
+          "ms_per_pair": 517.71,
+          "rel_per_second": 259.3522063881918,
+          "board_watts": 211.2,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "1a8228e7ced91ae12104979b2a5c20a4f0da32194690a96416455a69e38f9fb8",
+          "verified": true
+        },
+        {
+          "q0": 539999000,
+          "width": 2000,
+          "pairs": 122,
+          "relations": 9791,
+          "unique_relations": 9791,
+          "duplicates": 0,
+          "baseline_overlap": {
+            "translation": 0,
+            "shared": 9791,
+            "gained": 0,
+            "lost": 0
+          },
+          "rel_per_pair": 80.25409836065573,
+          "normalized_yield": 7982.671472866,
+          "ms_per_pair": 496.67,
+          "rel_per_second": 161.58434848220293,
+          "board_watts": 218.9,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "6d155c863b7d1b6bcf6097819e661b4882e190c249960eb8be8426e52979d861",
+          "verified": true
+        },
+        {
+          "q0": 999998000,
+          "width": 2000,
+          "pairs": 101,
+          "relations": 6786,
+          "unique_relations": 6786,
+          "duplicates": 0,
+          "baseline_overlap": {
+            "translation": 0,
+            "shared": 6786,
+            "gained": 0,
+            "lost": 0
+          },
+          "rel_per_pair": 67.18811881188118,
+          "normalized_yield": 6484.318236793,
+          "ms_per_pair": 497.11,
+          "rel_per_second": 135.1574476713025,
+          "board_watts": 219.7,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "90a5d4e852f420243e0bc2fabf707c8af636f1cd5d70f693bec4e541bd964d16",
+          "verified": true
+        }
+      ],
+      "projected_relations": 4278746820.6615505,
+      "projected_seconds": 23423191.35466843,
+      "projected_rel_per_second": 182.67138563117967,
+      "model_ratio": 1.0000729688364287,
+      "yield_ratios": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "band_yield_ratio": 1.0,
+      "throughput_ratio": 1.0035113689932058
+    },
+    "C_leader_murphy": {
+      "rows": [
+        {
+          "q0": 80000000,
+          "width": 2000,
+          "pairs": 78,
+          "relations": 10468,
+          "unique_relations": 10468,
+          "duplicates": 0,
+          "baseline_overlap": {
+            "translation": 5095504,
+            "shared": 10411,
+            "gained": 57,
+            "lost": 62
+          },
+          "rel_per_pair": 134.2051282051282,
+          "normalized_yield": 14749.812217383,
+          "ms_per_pair": 520.34,
+          "rel_per_second": 257.9181462219476,
+          "board_watts": 213.6,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "70141e3997766feac7cc0d39a1054414fcbb85deae6ee84b60097e22b4f3b5f1",
+          "verified": true
+        },
+        {
+          "q0": 539999000,
+          "width": 2000,
+          "pairs": 122,
+          "relations": 9797,
+          "unique_relations": 9797,
+          "duplicates": 0,
+          "baseline_overlap": {
+            "translation": 5095504,
+            "shared": 9788,
+            "gained": 9,
+            "lost": 3
+          },
+          "rel_per_pair": 80.30327868852459,
+          "normalized_yield": 7987.563315255,
+          "ms_per_pair": 500.73,
+          "rel_per_second": 160.37241365311561,
+          "board_watts": 219.7,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "2c38559abd2277fda836809347d01d0f79b8704a7ec507852282c6b749030b5e",
+          "verified": true
+        },
+        {
+          "q0": 999998000,
+          "width": 2000,
+          "pairs": 101,
+          "relations": 6777,
+          "unique_relations": 6777,
+          "duplicates": 0,
+          "baseline_overlap": {
+            "translation": 5095504,
+            "shared": 6752,
+            "gained": 25,
+            "lost": 34
+          },
+          "rel_per_pair": 67.0990099009901,
+          "normalized_yield": 6475.718345232,
+          "ms_per_pair": 492.02,
+          "rel_per_second": 136.37455774356755,
+          "board_watts": 221.8,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "a8cf7caf5790fc95428446368e26f0015eecc8c27fc0f7542f95cef0050319f9",
+          "verified": true
+        }
+      ],
+      "projected_relations": 4278072752.7634826,
+      "projected_seconds": 23492822.12329087,
+      "projected_rel_per_second": 182.10127035023967,
+      "model_ratio": 1.000140262318913,
+      "yield_ratios": [
+        0.999522581877208,
+        1.000612807680523,
+        0.9986737400530504
+      ],
+      "band_yield_ratio": 0.9998424613733131,
+      "throughput_ratio": 1.0003794216217923
+    },
+    "D_leader_lattice": {
+      "rows": [
+        {
+          "q0": 80000000,
+          "width": 2000,
+          "pairs": 78,
+          "relations": 10473,
+          "unique_relations": 10473,
+          "duplicates": 0,
+          "baseline_overlap": {
+            "translation": 1609109,
+            "shared": 10432,
+            "gained": 41,
+            "lost": 41
+          },
+          "rel_per_pair": 134.26923076923077,
+          "normalized_yield": 14756.857408545,
+          "ms_per_pair": 525.7,
+          "rel_per_second": 255.41036859279203,
+          "board_watts": 213.1,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "4e7bdf6ee29394905a31e9d381d3cb4beadf4eded4e23508eb48124afdb92cdc",
+          "verified": true
+        },
+        {
+          "q0": 539999000,
+          "width": 2000,
+          "pairs": 122,
+          "relations": 9797,
+          "unique_relations": 9797,
+          "duplicates": 0,
+          "baseline_overlap": {
+            "translation": 1609109,
+            "shared": 9788,
+            "gained": 9,
+            "lost": 3
+          },
+          "rel_per_pair": 80.30327868852459,
+          "normalized_yield": 7987.563315255,
+          "ms_per_pair": 502.01,
+          "rel_per_second": 159.96350409060494,
+          "board_watts": 220.0,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "a7077f647ee8f4af36b01d5e8238cd79e4f1d338da8170104ed395a5930a236e",
+          "verified": true
+        },
+        {
+          "q0": 999998000,
+          "width": 2000,
+          "pairs": 101,
+          "relations": 6777,
+          "unique_relations": 6777,
+          "duplicates": 0,
+          "baseline_overlap": {
+            "translation": 1609109,
+            "shared": 6752,
+            "gained": 25,
+            "lost": 34
+          },
+          "rel_per_pair": 67.0990099009901,
+          "normalized_yield": 6475.718345232,
+          "ms_per_pair": 493.07,
+          "rel_per_second": 136.08414606646136,
+          "board_watts": 221.5,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "77e80f9555458e1c7b8553a7af44a1fdef7dcf73eea4b223a561fe2b224c46ee",
+          "verified": true
+        }
+      ],
+      "projected_relations": 4278882947.985849,
+      "projected_seconds": 23601504.209859215,
+      "projected_rel_per_second": 181.29704403325286,
+      "model_ratio": 1.0001913405044134,
+      "yield_ratios": [
+        1.0,
+        1.000612807680523,
+        0.9986737400530504
+      ],
+      "band_yield_ratio": 1.000031814764931,
+      "throughput_ratio": 0.9959613774407005
+    },
+    "E_msieve_control": {
+      "rows": [
+        {
+          "q0": 80000000,
+          "width": 2000,
+          "pairs": 100,
+          "relations": 13002,
+          "unique_relations": 13002,
+          "duplicates": 0,
+          "baseline_overlap": null,
+          "rel_per_pair": 130.02,
+          "normalized_yield": 14289.845776779,
+          "ms_per_pair": 518.18,
+          "rel_per_second": 250.91666988305226,
+          "board_watts": 217.5,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "ef6073a5272f6e509f5216176f625d4f3a8b4532059846a3ba26c896027d4a0b",
+          "verified": true
+        },
+        {
+          "q0": 539999000,
+          "width": 2000,
+          "pairs": 126,
+          "relations": 10253,
+          "unique_relations": 10253,
+          "duplicates": 0,
+          "baseline_overlap": null,
+          "rel_per_pair": 81.37301587301587,
+          "normalized_yield": 8093.967357922,
+          "ms_per_pair": 493.57,
+          "rel_per_second": 164.86621122235118,
+          "board_watts": 222.9,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "fa385305354440290bd454c89e81f31b2979a9dfe151c973a5cd012937aa4ffe",
+          "verified": true
+        },
+        {
+          "q0": 999998000,
+          "width": 2000,
+          "pairs": 98,
+          "relations": 6723,
+          "unique_relations": 6723,
+          "duplicates": 0,
+          "baseline_overlap": null,
+          "rel_per_pair": 68.60204081632654,
+          "normalized_yield": 6620.775699823,
+          "ms_per_pair": 496.13,
+          "rel_per_second": 138.27432490743664,
+          "board_watts": 221.1,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "62c1984bfbfc365b4a395835602b6a43b4182703986aa44562585be11732279a",
+          "verified": true
+        }
+      ],
+      "projected_relations": 4266331308.267782,
+      "projected_seconds": 23347334.82385314,
+      "projected_rel_per_second": 182.73311881016173,
+      "model_ratio": 0.990872341763869,
+      "yield_ratios": [
+        0.9683529074763678,
+        1.0139421853240667,
+        1.0210442267092514
+      ],
+      "band_yield_ratio": 0.997098329741359,
+      "throughput_ratio": 1.003850502277483
+    },
+    "F_msieve_lattice": {
+      "rows": [
+        {
+          "q0": 80000000,
+          "width": 2000,
+          "pairs": 100,
+          "relations": 13007,
+          "unique_relations": 13007,
+          "duplicates": 0,
+          "baseline_overlap": null,
+          "rel_per_pair": 130.07,
+          "normalized_yield": 14295.341025886,
+          "ms_per_pair": 519.18,
+          "rel_per_second": 250.5296814207019,
+          "board_watts": 216.8,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "304b61d34546b31ff211706f0eea93dafb0bd332b2cadccc6588019807a35698",
+          "verified": true
+        },
+        {
+          "q0": 539999000,
+          "width": 2000,
+          "pairs": 126,
+          "relations": 10267,
+          "unique_relations": 10267,
+          "duplicates": 0,
+          "baseline_overlap": null,
+          "rel_per_pair": 81.48412698412699,
+          "normalized_yield": 8105.019298135,
+          "ms_per_pair": 497.54,
+          "rel_per_second": 163.77402215726772,
+          "board_watts": 222.6,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "07a636f5da497c7fffcaa6e998d17149e9fe05a2bd47480b4efce3894a85921a",
+          "verified": true
+        },
+        {
+          "q0": 999998000,
+          "width": 2000,
+          "pairs": 98,
+          "relations": 6713,
+          "unique_relations": 6713,
+          "duplicates": 0,
+          "baseline_overlap": null,
+          "rel_per_pair": 68.5,
+          "normalized_yield": 6610.927751437,
+          "ms_per_pair": 485.95,
+          "rel_per_second": 140.961004218541,
+          "board_watts": 223.9,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "f4db53e40668d7ecbc3352bb5a87eed221b507a709c7961426b2b0354870eacb",
+          "verified": true
+        }
+      ],
+      "projected_relations": 4268372679.8140683,
+      "projected_seconds": 23337812.541389786,
+      "projected_rel_per_second": 182.89514804543387,
+      "model_ratio": 0.9909062587600608,
+      "yield_ratios": [
+        0.9687252936121454,
+        1.0153266767504334,
+        1.0195254936634248
+      ],
+      "band_yield_ratio": 0.9975754254032076,
+      "throughput_ratio": 1.0047406153028102
+    },
+    "G_runnerup_control": {
+      "rows": [
+        {
+          "q0": 80000000,
+          "width": 2000,
+          "pairs": 98,
+          "relations": 12168,
+          "unique_relations": 12168,
+          "duplicates": 0,
+          "baseline_overlap": null,
+          "rel_per_pair": 124.16326530612245,
+          "normalized_yield": 13646.161454898,
+          "ms_per_pair": 517.6,
+          "rel_per_second": 239.88266094691355,
+          "board_watts": 217.0,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "2fa9a99924120ac593d609637a7cf12e550147a5ac027482251ec96f320eadbd",
+          "verified": true
+        },
+        {
+          "q0": 539999000,
+          "width": 2000,
+          "pairs": 117,
+          "relations": 9004,
+          "unique_relations": 9004,
+          "duplicates": 0,
+          "baseline_overlap": null,
+          "rel_per_pair": 76.95726495726495,
+          "normalized_yield": 7654.743821847,
+          "ms_per_pair": 497.95,
+          "rel_per_second": 154.5481774420423,
+          "board_watts": 222.0,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "d5066d245cd32d97a9947559398ebcab547b1ae0096fe31d374b2a801952f15c",
+          "verified": true
+        },
+        {
+          "q0": 999998000,
+          "width": 2000,
+          "pairs": 89,
+          "relations": 5755,
+          "unique_relations": 5755,
+          "duplicates": 0,
+          "baseline_overlap": null,
+          "rel_per_pair": 64.66292134831461,
+          "normalized_yield": 6240.611696796,
+          "ms_per_pair": 483.84,
+          "rel_per_second": 133.64525741632485,
+          "board_watts": 223.6,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "6c5577b3379f5f69525c58ee48fa681c0305c428027e74135caf3a6b6be62a9a",
+          "verified": true
+        }
+      ],
+      "projected_relations": 4047567433.01608,
+      "projected_seconds": 23303804.332267366,
+      "projected_rel_per_second": 173.68698154625588,
+      "model_ratio": 0.934200689569017,
+      "yield_ratios": [
+        0.9247335714578011,
+        0.9589200617696175,
+        0.9624160118154695
+      ],
+      "band_yield_ratio": 0.9459703045459167,
+      "throughput_ratio": 0.9541552445422008
+    },
+    "H_runnerup_lattice": {
+      "rows": [
+        {
+          "q0": 80000000,
+          "width": 2000,
+          "pairs": 98,
+          "relations": 12158,
+          "unique_relations": 12158,
+          "duplicates": 0,
+          "baseline_overlap": null,
+          "rel_per_pair": 124.06122448979592,
+          "normalized_yield": 13634.946660803,
+          "ms_per_pair": 515.71,
+          "rel_per_second": 240.56393028988367,
+          "board_watts": 217.3,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "b075e6dc22510b1d3783093e7ce36621fcf4cdd22e8ffbe5d104a6ce9e956660",
+          "verified": true
+        },
+        {
+          "q0": 539999000,
+          "width": 2000,
+          "pairs": 117,
+          "relations": 9012,
+          "unique_relations": 9012,
+          "duplicates": 0,
+          "baseline_overlap": null,
+          "rel_per_pair": 77.02564102564102,
+          "normalized_yield": 7661.545015825,
+          "ms_per_pair": 492.58,
+          "rel_per_second": 156.37184015924524,
+          "board_watts": 222.7,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "43929878b5d7fca010e1d9e5dbcebb8ef8a49dcdf73e4e46d32933bd5aa17bb9",
+          "verified": true
+        },
+        {
+          "q0": 999998000,
+          "width": 2000,
+          "pairs": 89,
+          "relations": 5748,
+          "unique_relations": 5748,
+          "duplicates": 0,
+          "baseline_overlap": null,
+          "rel_per_pair": 64.58426966292134,
+          "normalized_yield": 6233.021030962,
+          "ms_per_pair": 485.02,
+          "rel_per_second": 133.1579515544129,
+          "board_watts": 223.3,
+          "compiled_commit": "8d36ed4b-dirty",
+          "relation_sha256": "fd424c971e9a4d999f8e0c23dd83f2fdb4236f8b6839d03304445e491437e81d",
+          "verified": true
+        }
+      ],
+      "projected_relations": 4046969073.449139,
+      "projected_seconds": 23170161.019231655,
+      "projected_rel_per_second": 174.6629671710128,
+      "model_ratio": 0.934245214071986,
+      "yield_ratios": [
+        0.9239735997521322,
+        0.9597720564935355,
+        0.9612453928610457
+      ],
+      "band_yield_ratio": 0.9458304599624393,
+      "throughput_ratio": 0.9595168542274473
+    }
+  },
+  "caution": "Three short windows screen candidates; timing is sequential and unreplicated. The band estimate is a three-point trapezoid, not measured full-band yield."
+}

@@ -64,7 +64,93 @@ The Makefile gets CADO's include flags and libraries from
 `../nfs_config.ini`), the same code the bench tools use, and relinks when CADO's
 libraries change.
 
-## Layout
+## Accurate MurphyE final ranking (2026-10-09)
+
+`s23_ropt -search -murphy` optimizes translation and skew **before** cutting the
+retained proxy pool to the output count. It evaluates every one of the best
+`max(-rerank, -refine, -top)` proxy cells (normally 4096), instead of refining only
+the 200 exported polynomials. This host stage is shared by the CPU and CUDA builds;
+the root sieve itself still runs on the selected device.
+
+For the C205/C208 job, for example, from `stage23_gpu/`:
+
+```bash
+build/s23_ropt -poly seed.poly -search -budget 3 -maxcells 2e11 -aw 1.3 \
+  -rerank 4096 -murphy -Bf 17179869184 -Bg 8589934592 -area 3.4359738368e17 \
+  -K 16000 -Keval 64000 -maxeval 384 -t 4 -out ranked.poly
+```
+
+The bounds must be supplied explicitly: algebraic `Bf = 2^lpba`, rational
+`Bg = 2^lpbr`, and `area = 2^(2I-1) * qmin` (here `I = 16.5`). The defaults are
+16,000 angles for the search, 64,000 for validation, and 384 joint evaluations,
+plus the starting skew grid. The same search/integral implementation is used by
+`stage23_bench/tools/cado_murphy.cpp`. It validates the proposal and the unchanged
+control at the higher resolution, retains the control on a tie or loss, and ranks
+by the retained validation score. Exported polynomials include the exact chosen
+integer translation and `skew:`; use `score_polys.py --useskew` for readback.
+
+This mode is opt-in because full-pool CPU refinement is expensive. Earlier
+per-block and global proxy cuts can still lose candidates, and MurphyE still has
+the documented lattice-geometry limitations. Invalid cells are reported, valid
+outputs are retained, and the run exits 1 if any cell fails. Progress and scoring
+parameters are logged; the export labels retain control/proposal scores, acceptance,
+evaluation counts and limit status. `-murphy` rejects low search accuracy, missing
+bounds, `-rerank 0`, and window/cell mode. Omitting it preserves the old behavior.
+
+`make test` now checks the C205 proxy ranking reversal, the C181 translation gain
+at 256,000 angles, exact polynomial export and resultant preservation, a real
+eight-candidate search with a one-output cut, fixed-skew readback, and invalid
+option rejection. Both CPU and CUDA builds compile. GPU execution of the new
+mode awaits an idle device; development checks used the CPU while the GPU was busy.
+
+The initial implementation's full saved 200-output C205 seed-2 replay took
+104.60 s on four workers, with 200 exact translations/resultants verified, 86
+proposals accepted, 114 controls retained, no evaluation limits reached. The old
+proxy rank 2 becomes first. This is a saved-output replay, not a new 4096-candidate
+search; its roughly 36-minute full-pool extrapolation is superseded by the speed
+work below.
+An independent fixed-skew evaluation of all 200 at 256k angles confirms the same
+winner, 1.01994% above the old proxy leader; the largest 64k-to-256k change is 0.00771%.
+The GPU stayed at 99–100% utilization. These initial artifacts were moved by the
+next pipeline run to `../backup_20261009_224853/pipeline_results/ropt_murphy_integration/`.
+
+### CPU scoring speed (2026-10-10)
+
+The shared integral now converts GMP coefficients to double once per evaluation
+and caches the unit-angle grid per worker. This preserves CADO's polynomial
+evaluator, explicit fused multiply-add operations, angle order and serial sum.
+Native compilation enables hardware FMA; implicit contraction and fast-math remain
+disabled. Search bounds, candidate counts, K/Keval and acceptance rules are unchanged.
+The cache keeps two grids, at most 8 MiB per thread; orders above 262144 stream
+without allocating a larger cache. Coefficients are never cached across calls.
+
+Two alternating 200-candidate replays against a frozen pre-optimization binary
+were **byte-identical**, including all scores, skews, translations, search counts
+and acceptance decisions. Aggregate child CPU time fell from 414.77/472.38 s to
+33.84/38.85 s: **12.2× less CPU time**. Wall times (old 110/684 s, new 7/127 s)
+were affected by shared-host scheduling and are not an idle-machine speedup claim.
+The new integral test makes 252 exact comparisons against CADO's own scalar
+`MurphyE`, with four workers, translated/modified polynomials, changing K, cache
+eviction, and the uncached large-K path; every value matches bit for bit.
+
+A real 4096-candidate CPU ranking run completed in **191.00 s wall** on four
+workers (748.82 s aggregate CPU). It refined all 4096 before retaining 200, accepted
+1112 proposals, and reported no failures or evaluation limits. All 200 exported
+rotations/translations and resultants were checked exactly. This used a bounded
+5.16-million-cell search on C205 seed 2 with `u = 0`, budget 3, cap 1e7 and segment
+log 12; it measures the complete ranking stage, not breadth coverage or GPU speed.
+Fixed-skew readback of every selected output also matches the frozen pre-optimization
+scorer. Both binaries build, and the full `make test` suite passes after this change.
+
+The optimization also benefits `cado_murphy` and its Python callers. Build caches
+now notice changes to the shared header and compiler recipe. The original timing
+artifacts are in `../backup_20261009_224853/pipeline_results/murphy_speed_20261009/`;
+resumed measurements live under `build/murphy_speed_20261010/`, away from the
+pipeline output directory that gets archived between jobs.
+The compact record is `../stage23_bench/data/c205/murphy_speed/summary.json`, with
+source/binary hashes, both timing rounds, the integrated run and validation status.
+
+## Source layout
 
 ```
 include/
@@ -102,6 +188,7 @@ tools/
   s23_ropt.cu      root-sieve experiments: window, search (size model + sieve + proxy
                    ranking, re-rank by CADO's alpha, -out for CADO scoring), cell
   cado_io.c/.h     C shim to CADO: read polys, print sopt format, CADO's skew, CADO fallback
+  murphy_rank.cpp/.h  host translation/skew refinement and validated final ranking
 tests/
   test_mpint.cpp   Int<L> vs GMP on random operands (L = 2 .. 128), overflow edges
   test_lll.cpp     sopt_best_norm vs CADO's LLL on the same matrices
@@ -212,6 +299,64 @@ Details and numbers in `../GPU_STAGE23_PLAN.md` (M2, "Breadth run, c168").
 
     Open items are listed in the plan ("Code review of the fixes").
 
+## Status (2026-10-09, C205 GPU comparison completed)
+
+GPU effort-50 sopt on the CPU-selected C205 top 2000 passed: 2000/2000 outputs
+identical, all exact resultants valid, 142.48 s. The full effort-0 sweep was not
+repeated. All 313 breadth searches (cap 2e11, rerank 4096) and 16 depth searches
+(cap 6e12) completed; all 65,800 retained outputs were scored and their exact
+resultants checked. Seed 2 recovers the CPU winner's rotation, translated by one.
+Depth improves some weaker seeds but leaves the overall winner unchanged.
+
+After screening 39 candidates, refining nine and independently auditing 19 fixed
+configurations, the best refinement is +0.0063% in MurphyE and +0.0140% in the
+lattice model against the CPU/skewopt baseline. No useful new sieve gain is
+established. Keep the original winner. The current proxy ranks a roughly 1%-worse
+cell first, so accurate MurphyE translation/skew selection inside the final
+ranking remains the next implementation step. Recovering the overall winner
+does not establish equal coverage of every seed family.
+
+The comparison finished at 19:19 EDT with no failures. Breadth including scoring
+took 99.02 min, depth including scoring 28.32 min under CPU contention; these are
+not controlled speed comparisons. Compact results are in
+`../stage23_bench/data/c205/gpu_ropt/`; full checkpoints, log and summary are under
+`../pipeline_results/gpu_ropt_c205/`. See the plan's "C205 GPU sopt/ropt comparison".
+
+## Status (2026-10-09, C205 finalist test sieves)
+
+All eight CPU-finalist configurations completed three test-sieve windows on the
+5070. All 221,999 emitted relations passed exact host-side norm and LPB checks.
+The leading MurphyE/lattice proposals change the sampled-band yield estimate by
+-0.016%/+0.003% relative to the pipeline CADO/skewopt winner, giving no useful new
+winner. Msieve's control is about 0.29% behind in the combined estimate but varies
+across q; the seed-3 runner-up is about 5.4% behind and loses at every sampled q.
+Keep the original winner. The samples cannot resolve tiny gains; this was a GPU
+sieving comparison of CPU finalists, not a C205 GPU root-search run. See
+`../stage23_bench/data/c205/testsieve/` and the plan's "C205 GPU test sieves" section.
+
+## Status (2026-10-08, finalist refinement)
+
+`../stage23_bench/tools/refine_polys.py` adds an optional CPU step for a small
+finalist set: joint translation/skew search using accurate MurphyE or the lattice
+band score, with preserved controls, higher-accuracy validation, independent
+lattice samples and exact polynomial exports. Default one thread. See
+`../stage23_bench/README.md` for usage and `GPU_STAGE23_PLAN.md`, "Finalist
+refinement", for the measurements.
+
+On C181's saved translation pairs, MurphyE gains on seeds 0, 6, 10 and 11 survive
+256,000-point evaluation (+0.057%, +0.848%, +0.282%, +0.637%), closing the gap to
+msieve to within 0.01%. The overall winning cell, seed 5, already ties msieve after
+more accurate skew/scoring; its small lattice-refinement gain is not an established
+sieve improvement. Both objective variants are kept for later test sieving. This
+does not change the GPU root search or the running CPU pipeline.
+
+Review fixes (2026-10-09) make the two refinement starts distinct, normalize content
+before exact translation, preserve valid results in partial batches, and reject
+tiny lattice searches and accidental output replacement. The CPU regressions cover
+these paths. The measurements above are from the original October 8 runs.
+Known problem 10 remains open inside ropt: accurate MurphyE must guide translation
+before final candidate ranking. A later finalist tool cannot recover discarded cells.
+
 ## Status (2026-10-07, C181 backup job, code review)
 
 Details are in `../GPU_STAGE23_PLAN.md`: M2, "C181", known problems 9 and 10, and "Code
@@ -223,7 +368,7 @@ review of the re-rank and budget steps".
     1.0000. CADO's best is 0.9786, the same cell as the GPU's breadth best.
   - On the leading seeds every msieve lead is the translation of a cell the GPU also
     wrote. The size model picks t by lognorm, and msieve's t scores 0.07–0.9% better
-    (known problem 10, not fixed).
+    (known problem 10; superseded by the 2026-10-08 refinement checks above).
 - **Review fixes:**
   - content cells are re-ranked as written, content divided out (they were (aw − 1)·log d
     too good);

@@ -24,6 +24,13 @@ void cio_init(cio_poly *p);
 void cio_clear(cio_poly *p);
 void cio_set(cio_poly *dst, const cio_poly *src);
 
+/* Bridge to CADO without exposing its C++20 headers to CUDA callers. Both
+ * destinations must be initialized. Import clears coefficients from prior uses;
+ * export returns 0 for a pair this interface cannot represent. */
+struct cado_poly_s;
+void cio_to_cado(struct cado_poly_s *dst, const cio_poly *src);
+int cio_from_cado(cio_poly *dst, const struct cado_poly_s *src);
+
 /* next polynomial from a CADO-format stream (# lines and blank lines between blocks
  * skipped): 1 if one was read, 0 at the end of the input, -1 for a malformed block, a
  * read error, or a pair this interface cannot hold (f of degree > CIO_MAXDEG, g not

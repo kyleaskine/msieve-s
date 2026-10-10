@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-10",
+  "base_head": "8865f8c85c9e1afed43d10c325b6cd88c9021dcd",
+  "uncommitted": true,
+  "params": "job:33,34,16.5,80e6",
+  "K": 16000,
+  "Keval": 64000,
+  "maxeval": 384,
+  "sample_counts_unchanged": true,
+  "gpu_used": false,
+  "two_round_replay": [
+    {
+      "binary": "optimized_probe",
+      "repeat": 0,
+      "wall_seconds": 7.194398628,
+      "cpu_seconds": 33.844831,
+      "count": 200,
+      "workers": 4,
+      "byte_identical": true,
+      "output_sha256": [
+        "e1a9b14adf59b99a7f16b437fe1e1bdccb4654c54322eee453c16e547e8da0c2",
+        "4aeabc6da4548c00fe642cea9466a2cef5b15304f37e8b33604af090577a3a70",
+        "94a8f3b531e0d6661ced03653b54f11a3a0dd7a66e34110af7ea6c2b000aa21b",
+        "4b4516d596b3a89e04d846349af30964c7916e769743a148c6a3e4850f8dc7b5"
+      ]
+    },
+    {
+      "binary": "reference_probe",
+      "repeat": 0,
+      "wall_seconds": 110.180188674,
+      "cpu_seconds": 414.77071899999993,
+      "count": 200,
+      "workers": 4,
+      "byte_identical": true,
+      "output_sha256": [
+        "e1a9b14adf59b99a7f16b437fe1e1bdccb4654c54322eee453c16e547e8da0c2",
+        "4aeabc6da4548c00fe642cea9466a2cef5b15304f37e8b33604af090577a3a70",
+        "94a8f3b531e0d6661ced03653b54f11a3a0dd7a66e34110af7ea6c2b000aa21b",
+        "4b4516d596b3a89e04d846349af30964c7916e769743a148c6a3e4850f8dc7b5"
+      ]
+    },
+    {
+      "binary": "reference_probe",
+      "repeat": 1,
+      "wall_seconds": 684.265259123,
+      "cpu_seconds": 472.37516099999993,
+      "count": 200,
+      "workers": 4,
+      "byte_identical": true,
+      "output_sha256": [
+        "e1a9b14adf59b99a7f16b437fe1e1bdccb4654c54322eee453c16e547e8da0c2",
+        "4aeabc6da4548c00fe642cea9466a2cef5b15304f37e8b33604af090577a3a70",
+        "94a8f3b531e0d6661ced03653b54f11a3a0dd7a66e34110af7ea6c2b000aa21b",
+        "4b4516d596b3a89e04d846349af30964c7916e769743a148c6a3e4850f8dc7b5"
+      ]
+    },
+    {
+      "binary": "optimized_probe",
+      "repeat": 1,
+      "wall_seconds": 126.858288486,
+      "cpu_seconds": 38.84906400000007,
+      "count": 200,
+      "workers": 4,
+      "byte_identical": true,
+      "output_sha256": [
+        "e1a9b14adf59b99a7f16b437fe1e1bdccb4654c54322eee453c16e547e8da0c2",
+        "4aeabc6da4548c00fe642cea9466a2cef5b15304f37e8b33604af090577a3a70",
+        "94a8f3b531e0d6661ced03653b54f11a3a0dd7a66e34110af7ea6c2b000aa21b",
+        "4b4516d596b3a89e04d846349af30964c7916e769743a148c6a3e4850f8dc7b5"
+      ]
+    }
+  ],
+  "cpu_speedup_ratios": [
+    12.255068403207567,
+    12.159241751615923
+  ],
+  "direct_cado_comparisons": 252,
+  "direct_cado_mismatches": 0,
+  "full_pool": {
+    "wall_seconds": 191.004642618,
+    "monotonic_seconds": 196.93394655,
+    "cpu_seconds": 748.818873,
+    "scored": 4096,
+    "retained": 200,
+    "workers": 4,
+    "gpu_used": false,
+    "exact_exports_verified": 200,
+    "binary_sha256": "ecda3ba97642c5b0a8367b76582f05bc4d8fa4b3af7b8ab26e6bd70b730b8973",
+    "frozen_scorer_readbacks_verified": 200,
+    "readback_byte_identical": true
+  },
+  "scope": "The 4096-candidate integrated benchmark used a narrow u=0 CPU search, not a breadth rerun or GPU benchmark. Replay wall times were affected by changing host load.",
+  "source_sha256": {
+    "stage23_bench/tools/murphy_search.h": "898f6cd2b0bdd6993f79ed1c19b9c23f12580c9b14e2f0e7bae40e7ac2e877dd",
+    "stage23_bench/tools/polyfmt.py": "ef252726892c8a1485d67c8dc2b1b1dfe35435f5099a3dd85fe9b40295375e99",
+    "stage23_gpu/Makefile": "1917a7c4f2531fc423ec13d9207c1c1cd77a05c284338ada5f6d0ff873194cb5",
+    "stage23_gpu/tools/murphy_rank.cpp": "872ad09c0f95df84f7af3fe7120fbd29c164987f8645f67d85e95f7fae34ec96",
+    "stage23_gpu/tests/test_murphy_integral.cpp": "206a3681fc30cba0bfd3a0aef0036074e8f8c4e4937f571766ca4f51f1923db4"
+  },
+  "binary_sha256": {
+    "stage23_gpu/build/murphy_rank_probe": "7b270fc82650922d6da5440fd08e7eebd2cf2dd68bca0cffceef5fe9df95f200",
+    "stage23_gpu/build/s23_ropt_cpu": "ecda3ba97642c5b0a8367b76582f05bc4d8fa4b3af7b8ab26e6bd70b730b8973",
+    "stage23_gpu/build/s23_ropt": "1024a06b2dc1289ce24e63de5df1c739743cc0f445f299edae18e24e884a4623",
+    "stage23_bench/tools/cado_murphy": "d71d50c36a00171c11fa0f89f3c2b0721bb69881dd3a960fc674b50a0e07cea2"
+  },
+  "reference_binary_sha256": {
+    "reference_probe": "9e6d93e3740eccf6b35b55466facaecb570dde56da9ac4ee0913404e96d23ae9",
+    "reference_cado_murphy": "a1dc3eecb8001182779a22e77b27e7567c1df0ed5fd20ae3807f983b67077124"
+  },
+  "artifacts": {
+    "initial_archive": "backup_20261009_224853/pipeline_results/murphy_speed_20261009",
+    "resumed": "stage23_gpu/build/murphy_speed_20261010"
+  },
+  "make_test": {
+    "passed": true,
+    "log_sha256": "ab4d9e25473d71b5d0b0758f68ee24d6f31b06454e1cc4907d277f4471db3269",
+    "lll_comparisons": 24343,
+    "root_sieve_cells": 486081,
+    "selection_blocks": 216,
+    "ranking_tests": 3,
+    "integral_comparisons": 252
+  }
+}

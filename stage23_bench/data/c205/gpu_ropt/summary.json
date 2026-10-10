@@ -1,0 +1,2228 @@
+{
+  "sopt": {
+    "count": 2000,
+    "identical": 2000,
+    "acceptance": "passed",
+    "elapsed_seconds": 142.482365522,
+    "elapsed_clock": "CLOCK_REALTIME",
+    "command": [
+      "/home/kylea/msieve-s/pipeline_results/gpu_ropt_c205/bin/s23_sopt",
+      "-sopteffort",
+      "50",
+      "-t",
+      "4",
+      "-inputpolys",
+      "/home/kylea/msieve-s/pipeline_results/gpu_ropt_c205/sopt/input.poly"
+    ],
+    "scope": "GPU effort 50 on the CPU-selected effort-0 top 2000; full raw effort-0 sweep not repeated"
+  },
+  "breadth": {
+    "config": {
+      "phase": "breadth",
+      "workers": 4,
+      "root_threads": 2,
+      "cap": "2e11",
+      "scoring": {
+        "threads": 4,
+        "params": "job:33,34,16.5,80e6",
+        "points": 4000,
+        "eval_points": 16000,
+        "trans": 0,
+        "lattice": "17,32768",
+        "qband": "80e6,1e9,9",
+        "useskew": false,
+        "nlat": 32,
+        "npts": 2048,
+        "latseed": 0
+      },
+      "seeds": [
+        {
+          "search": "s0001",
+          "seed_rank": 1,
+          "content": 1,
+          "exp_E": 54.9
+        },
+        {
+          "search": "s0002",
+          "seed_rank": 2,
+          "content": 1,
+          "exp_E": 54.9
+        },
+        {
+          "search": "s0003",
+          "seed_rank": 3,
+          "content": 1,
+          "exp_E": 55.24
+        },
+        {
+          "search": "s0004",
+          "seed_rank": 4,
+          "content": 1,
+          "exp_E": 55.48
+        },
+        {
+          "search": "s0005",
+          "seed_rank": 5,
+          "content": 1,
+          "exp_E": 55.68
+        },
+        {
+          "search": "s0006",
+          "seed_rank": 6,
+          "content": 1,
+          "exp_E": 55.72
+        },
+        {
+          "search": "s0007",
+          "seed_rank": 7,
+          "content": 1,
+          "exp_E": 55.78
+        },
+        {
+          "search": "s0008",
+          "seed_rank": 8,
+          "content": 1,
+          "exp_E": 55.78
+        },
+        {
+          "search": "s0009",
+          "seed_rank": 9,
+          "content": 1,
+          "exp_E": 55.79
+        },
+        {
+          "search": "s0010",
+          "seed_rank": 10,
+          "content": 1,
+          "exp_E": 55.93
+        },
+        {
+          "search": "s0011",
+          "seed_rank": 11,
+          "content": 1,
+          "exp_E": 55.96
+        },
+        {
+          "search": "s0012",
+          "seed_rank": 12,
+          "content": 1,
+          "exp_E": 55.99
+        },
+        {
+          "search": "s0013",
+          "seed_rank": 13,
+          "content": 1,
+          "exp_E": 56.05
+        },
+        {
+          "search": "s0014",
+          "seed_rank": 14,
+          "content": 1,
+          "exp_E": 56.13
+        },
+        {
+          "search": "s0015",
+          "seed_rank": 15,
+          "content": 1,
+          "exp_E": 56.16
+        },
+        {
+          "search": "s0016",
+          "seed_rank": 16,
+          "content": 1,
+          "exp_E": 56.16
+        },
+        {
+          "search": "s0017",
+          "seed_rank": 17,
+          "content": 1,
+          "exp_E": 56.18
+        },
+        {
+          "search": "s0018",
+          "seed_rank": 18,
+          "content": 1,
+          "exp_E": 56.18
+        },
+        {
+          "search": "s0019",
+          "seed_rank": 19,
+          "content": 1,
+          "exp_E": 56.18
+        },
+        {
+          "search": "s0020",
+          "seed_rank": 20,
+          "content": 1,
+          "exp_E": 56.18
+        },
+        {
+          "search": "s0021",
+          "seed_rank": 21,
+          "content": 1,
+          "exp_E": 56.22
+        },
+        {
+          "search": "s0022",
+          "seed_rank": 22,
+          "content": 1,
+          "exp_E": 56.24
+        },
+        {
+          "search": "s0023",
+          "seed_rank": 23,
+          "content": 1,
+          "exp_E": 56.25
+        },
+        {
+          "search": "s0024",
+          "seed_rank": 24,
+          "content": 1,
+          "exp_E": 56.27
+        },
+        {
+          "search": "s0024_d2",
+          "seed_rank": 24,
+          "content": 2,
+          "u": 1,
+          "v": 1,
+          "exp_E": 56.27
+        },
+        {
+          "search": "s0025",
+          "seed_rank": 25,
+          "content": 1,
+          "exp_E": 56.28
+        },
+        {
+          "search": "s0025_d2",
+          "seed_rank": 25,
+          "content": 2,
+          "u": 1,
+          "v": 1,
+          "exp_E": 56.28
+        },
+        {
+          "search": "s0026",
+          "seed_rank": 26,
+          "content": 1,
+          "exp_E": 56.31
+        },
+        {
+          "search": "s0027",
+          "seed_rank": 27,
+          "content": 1,
+          "exp_E": 56.33
+        },
+        {
+          "search": "s0028",
+          "seed_rank": 28,
+          "content": 1,
+          "exp_E": 56.34
+        },
+        {
+          "search": "s0029",
+          "seed_rank": 29,
+          "content": 1,
+          "exp_E": 56.36
+        },
+        {
+          "search": "s0030",
+          "seed_rank": 30,
+          "content": 1,
+          "exp_E": 56.36
+        },
+        {
+          "search": "s0031",
+          "seed_rank": 31,
+          "content": 1,
+          "exp_E": 56.36
+        },
+        {
+          "search": "s0032",
+          "seed_rank": 32,
+          "content": 1,
+          "exp_E": 56.37
+        },
+        {
+          "search": "s0033",
+          "seed_rank": 33,
+          "content": 1,
+          "exp_E": 56.38
+        },
+        {
+          "search": "s0034",
+          "seed_rank": 34,
+          "content": 1,
+          "exp_E": 56.38
+        },
+        {
+          "search": "s0035",
+          "seed_rank": 35,
+          "content": 1,
+          "exp_E": 56.39
+        },
+        {
+          "search": "s0036",
+          "seed_rank": 36,
+          "content": 1,
+          "exp_E": 56.39
+        },
+        {
+          "search": "s0037",
+          "seed_rank": 37,
+          "content": 1,
+          "exp_E": 56.41
+        },
+        {
+          "search": "s0038",
+          "seed_rank": 38,
+          "content": 1,
+          "exp_E": 56.42
+        },
+        {
+          "search": "s0039",
+          "seed_rank": 39,
+          "content": 1,
+          "exp_E": 56.45
+        },
+        {
+          "search": "s0040",
+          "seed_rank": 40,
+          "content": 1,
+          "exp_E": 56.45
+        },
+        {
+          "search": "s0041",
+          "seed_rank": 41,
+          "content": 1,
+          "exp_E": 56.47
+        },
+        {
+          "search": "s0042",
+          "seed_rank": 42,
+          "content": 1,
+          "exp_E": 56.47
+        },
+        {
+          "search": "s0043",
+          "seed_rank": 43,
+          "content": 1,
+          "exp_E": 56.49
+        },
+        {
+          "search": "s0044",
+          "seed_rank": 44,
+          "content": 1,
+          "exp_E": 56.51
+        },
+        {
+          "search": "s0045",
+          "seed_rank": 45,
+          "content": 1,
+          "exp_E": 56.51
+        },
+        {
+          "search": "s0046",
+          "seed_rank": 46,
+          "content": 1,
+          "exp_E": 56.54
+        },
+        {
+          "search": "s0046_d2",
+          "seed_rank": 46,
+          "content": 2,
+          "u": 1,
+          "v": 0,
+          "exp_E": 56.54
+        },
+        {
+          "search": "s0047",
+          "seed_rank": 47,
+          "content": 1,
+          "exp_E": 56.54
+        },
+        {
+          "search": "s0048",
+          "seed_rank": 48,
+          "content": 1,
+          "exp_E": 56.54
+        },
+        {
+          "search": "s0049",
+          "seed_rank": 49,
+          "content": 1,
+          "exp_E": 56.54
+        },
+        {
+          "search": "s0050",
+          "seed_rank": 50,
+          "content": 1,
+          "exp_E": 56.54
+        },
+        {
+          "search": "s0051",
+          "seed_rank": 51,
+          "content": 1,
+          "exp_E": 56.55
+        },
+        {
+          "search": "s0052",
+          "seed_rank": 52,
+          "content": 1,
+          "exp_E": 56.55
+        },
+        {
+          "search": "s0053",
+          "seed_rank": 53,
+          "content": 1,
+          "exp_E": 56.55
+        },
+        {
+          "search": "s0054",
+          "seed_rank": 54,
+          "content": 1,
+          "exp_E": 56.55
+        },
+        {
+          "search": "s0055",
+          "seed_rank": 55,
+          "content": 1,
+          "exp_E": 56.56
+        },
+        {
+          "search": "s0056",
+          "seed_rank": 56,
+          "content": 1,
+          "exp_E": 56.56
+        },
+        {
+          "search": "s0057",
+          "seed_rank": 57,
+          "content": 1,
+          "exp_E": 56.57
+        },
+        {
+          "search": "s0058",
+          "seed_rank": 58,
+          "content": 1,
+          "exp_E": 56.58
+        },
+        {
+          "search": "s0059",
+          "seed_rank": 59,
+          "content": 1,
+          "exp_E": 56.59
+        },
+        {
+          "search": "s0060",
+          "seed_rank": 60,
+          "content": 1,
+          "exp_E": 56.59
+        },
+        {
+          "search": "s0061",
+          "seed_rank": 61,
+          "content": 1,
+          "exp_E": 56.6
+        },
+        {
+          "search": "s0062",
+          "seed_rank": 62,
+          "content": 1,
+          "exp_E": 56.6
+        },
+        {
+          "search": "s0063",
+          "seed_rank": 63,
+          "content": 1,
+          "exp_E": 56.6
+        },
+        {
+          "search": "s0064",
+          "seed_rank": 64,
+          "content": 1,
+          "exp_E": 56.6
+        },
+        {
+          "search": "s0065",
+          "seed_rank": 65,
+          "content": 1,
+          "exp_E": 56.61
+        },
+        {
+          "search": "s0066",
+          "seed_rank": 66,
+          "content": 1,
+          "exp_E": 56.62
+        },
+        {
+          "search": "s0067",
+          "seed_rank": 67,
+          "content": 1,
+          "exp_E": 56.62
+        },
+        {
+          "search": "s0068",
+          "seed_rank": 68,
+          "content": 1,
+          "exp_E": 56.63
+        },
+        {
+          "search": "s0069",
+          "seed_rank": 69,
+          "content": 1,
+          "exp_E": 56.63
+        },
+        {
+          "search": "s0070",
+          "seed_rank": 70,
+          "content": 1,
+          "exp_E": 56.64
+        },
+        {
+          "search": "s0071",
+          "seed_rank": 71,
+          "content": 1,
+          "exp_E": 56.64
+        },
+        {
+          "search": "s0072",
+          "seed_rank": 72,
+          "content": 1,
+          "exp_E": 56.64
+        },
+        {
+          "search": "s0073",
+          "seed_rank": 73,
+          "content": 1,
+          "exp_E": 56.64
+        },
+        {
+          "search": "s0074",
+          "seed_rank": 74,
+          "content": 1,
+          "exp_E": 56.65
+        },
+        {
+          "search": "s0075",
+          "seed_rank": 75,
+          "content": 1,
+          "exp_E": 56.65
+        },
+        {
+          "search": "s0076",
+          "seed_rank": 76,
+          "content": 1,
+          "exp_E": 56.65
+        },
+        {
+          "search": "s0077",
+          "seed_rank": 77,
+          "content": 1,
+          "exp_E": 56.67
+        },
+        {
+          "search": "s0077_d2",
+          "seed_rank": 77,
+          "content": 2,
+          "u": 1,
+          "v": 1,
+          "exp_E": 56.67
+        },
+        {
+          "search": "s0078",
+          "seed_rank": 78,
+          "content": 1,
+          "exp_E": 56.67
+        },
+        {
+          "search": "s0079",
+          "seed_rank": 79,
+          "content": 1,
+          "exp_E": 56.67
+        },
+        {
+          "search": "s0080",
+          "seed_rank": 80,
+          "content": 1,
+          "exp_E": 56.68
+        },
+        {
+          "search": "s0081",
+          "seed_rank": 81,
+          "content": 1,
+          "exp_E": 56.68
+        },
+        {
+          "search": "s0082",
+          "seed_rank": 82,
+          "content": 1,
+          "exp_E": 56.68
+        },
+        {
+          "search": "s0083",
+          "seed_rank": 83,
+          "content": 1,
+          "exp_E": 56.68
+        },
+        {
+          "search": "s0084",
+          "seed_rank": 84,
+          "content": 1,
+          "exp_E": 56.69
+        },
+        {
+          "search": "s0085",
+          "seed_rank": 85,
+          "content": 1,
+          "exp_E": 56.69
+        },
+        {
+          "search": "s0086",
+          "seed_rank": 86,
+          "content": 1,
+          "exp_E": 56.69
+        },
+        {
+          "search": "s0087",
+          "seed_rank": 87,
+          "content": 1,
+          "exp_E": 56.69
+        },
+        {
+          "search": "s0088",
+          "seed_rank": 88,
+          "content": 1,
+          "exp_E": 56.69
+        },
+        {
+          "search": "s0089",
+          "seed_rank": 89,
+          "content": 1,
+          "exp_E": 56.7
+        },
+        {
+          "search": "s0090",
+          "seed_rank": 90,
+          "content": 1,
+          "exp_E": 56.7
+        },
+        {
+          "search": "s0091",
+          "seed_rank": 91,
+          "content": 1,
+          "exp_E": 56.7
+        },
+        {
+          "search": "s0092",
+          "seed_rank": 92,
+          "content": 1,
+          "exp_E": 56.71
+        },
+        {
+          "search": "s0093",
+          "seed_rank": 93,
+          "content": 1,
+          "exp_E": 56.72
+        },
+        {
+          "search": "s0094",
+          "seed_rank": 94,
+          "content": 1,
+          "exp_E": 56.72
+        },
+        {
+          "search": "s0095",
+          "seed_rank": 95,
+          "content": 1,
+          "exp_E": 56.72
+        },
+        {
+          "search": "s0096",
+          "seed_rank": 96,
+          "content": 1,
+          "exp_E": 56.74
+        },
+        {
+          "search": "s0097",
+          "seed_rank": 97,
+          "content": 1,
+          "exp_E": 56.74
+        },
+        {
+          "search": "s0098",
+          "seed_rank": 98,
+          "content": 1,
+          "exp_E": 56.74
+        },
+        {
+          "search": "s0099",
+          "seed_rank": 99,
+          "content": 1,
+          "exp_E": 56.75
+        },
+        {
+          "search": "s0100",
+          "seed_rank": 100,
+          "content": 1,
+          "exp_E": 56.75
+        },
+        {
+          "search": "s0101",
+          "seed_rank": 101,
+          "content": 1,
+          "exp_E": 56.75
+        },
+        {
+          "search": "s0102",
+          "seed_rank": 102,
+          "content": 1,
+          "exp_E": 56.75
+        },
+        {
+          "search": "s0103",
+          "seed_rank": 103,
+          "content": 1,
+          "exp_E": 56.75
+        },
+        {
+          "search": "s0104",
+          "seed_rank": 104,
+          "content": 1,
+          "exp_E": 56.76
+        },
+        {
+          "search": "s0105",
+          "seed_rank": 105,
+          "content": 1,
+          "exp_E": 56.76
+        },
+        {
+          "search": "s0106",
+          "seed_rank": 106,
+          "content": 1,
+          "exp_E": 56.76
+        },
+        {
+          "search": "s0107",
+          "seed_rank": 107,
+          "content": 1,
+          "exp_E": 56.77
+        },
+        {
+          "search": "s0108",
+          "seed_rank": 108,
+          "content": 1,
+          "exp_E": 56.77
+        },
+        {
+          "search": "s0109",
+          "seed_rank": 109,
+          "content": 1,
+          "exp_E": 56.77
+        },
+        {
+          "search": "s0110",
+          "seed_rank": 110,
+          "content": 1,
+          "exp_E": 56.77
+        },
+        {
+          "search": "s0111",
+          "seed_rank": 111,
+          "content": 1,
+          "exp_E": 56.78
+        },
+        {
+          "search": "s0112",
+          "seed_rank": 112,
+          "content": 1,
+          "exp_E": 56.79
+        },
+        {
+          "search": "s0113",
+          "seed_rank": 113,
+          "content": 1,
+          "exp_E": 56.79
+        },
+        {
+          "search": "s0114",
+          "seed_rank": 114,
+          "content": 1,
+          "exp_E": 56.79
+        },
+        {
+          "search": "s0115",
+          "seed_rank": 115,
+          "content": 1,
+          "exp_E": 56.79
+        },
+        {
+          "search": "s0116",
+          "seed_rank": 116,
+          "content": 1,
+          "exp_E": 56.8
+        },
+        {
+          "search": "s0117",
+          "seed_rank": 117,
+          "content": 1,
+          "exp_E": 56.8
+        },
+        {
+          "search": "s0118",
+          "seed_rank": 118,
+          "content": 1,
+          "exp_E": 56.8
+        },
+        {
+          "search": "s0119",
+          "seed_rank": 119,
+          "content": 1,
+          "exp_E": 56.8
+        },
+        {
+          "search": "s0120",
+          "seed_rank": 120,
+          "content": 1,
+          "exp_E": 56.8
+        },
+        {
+          "search": "s0121",
+          "seed_rank": 121,
+          "content": 1,
+          "exp_E": 56.81
+        },
+        {
+          "search": "s0122",
+          "seed_rank": 122,
+          "content": 1,
+          "exp_E": 56.81
+        },
+        {
+          "search": "s0122_d2",
+          "seed_rank": 122,
+          "content": 2,
+          "u": 1,
+          "v": 1,
+          "exp_E": 56.81
+        },
+        {
+          "search": "s0123",
+          "seed_rank": 123,
+          "content": 1,
+          "exp_E": 56.82
+        },
+        {
+          "search": "s0124",
+          "seed_rank": 124,
+          "content": 1,
+          "exp_E": 56.82
+        },
+        {
+          "search": "s0125",
+          "seed_rank": 125,
+          "content": 1,
+          "exp_E": 56.82
+        },
+        {
+          "search": "s0126",
+          "seed_rank": 126,
+          "content": 1,
+          "exp_E": 56.82
+        },
+        {
+          "search": "s0127",
+          "seed_rank": 127,
+          "content": 1,
+          "exp_E": 56.82
+        },
+        {
+          "search": "s0128",
+          "seed_rank": 128,
+          "content": 1,
+          "exp_E": 56.83
+        },
+        {
+          "search": "s0129",
+          "seed_rank": 129,
+          "content": 1,
+          "exp_E": 56.84
+        },
+        {
+          "search": "s0129_d3",
+          "seed_rank": 129,
+          "content": 3,
+          "u": -1,
+          "v": 1,
+          "exp_E": 56.84
+        },
+        {
+          "search": "s0130",
+          "seed_rank": 130,
+          "content": 1,
+          "exp_E": 56.84
+        },
+        {
+          "search": "s0131",
+          "seed_rank": 131,
+          "content": 1,
+          "exp_E": 56.84
+        },
+        {
+          "search": "s0131_d2",
+          "seed_rank": 131,
+          "content": 2,
+          "u": 1,
+          "v": 1,
+          "exp_E": 56.84
+        },
+        {
+          "search": "s0132",
+          "seed_rank": 132,
+          "content": 1,
+          "exp_E": 56.84
+        },
+        {
+          "search": "s0133",
+          "seed_rank": 133,
+          "content": 1,
+          "exp_E": 56.84
+        },
+        {
+          "search": "s0134",
+          "seed_rank": 134,
+          "content": 1,
+          "exp_E": 56.84
+        },
+        {
+          "search": "s0134_d2",
+          "seed_rank": 134,
+          "content": 2,
+          "u": 1,
+          "v": 1,
+          "exp_E": 56.84
+        },
+        {
+          "search": "s0135",
+          "seed_rank": 135,
+          "content": 1,
+          "exp_E": 56.84
+        },
+        {
+          "search": "s0136",
+          "seed_rank": 136,
+          "content": 1,
+          "exp_E": 56.84
+        },
+        {
+          "search": "s0137",
+          "seed_rank": 137,
+          "content": 1,
+          "exp_E": 56.84
+        },
+        {
+          "search": "s0138",
+          "seed_rank": 138,
+          "content": 1,
+          "exp_E": 56.85
+        },
+        {
+          "search": "s0139",
+          "seed_rank": 139,
+          "content": 1,
+          "exp_E": 56.85
+        },
+        {
+          "search": "s0140",
+          "seed_rank": 140,
+          "content": 1,
+          "exp_E": 56.86
+        },
+        {
+          "search": "s0141",
+          "seed_rank": 141,
+          "content": 1,
+          "exp_E": 56.87
+        },
+        {
+          "search": "s0142",
+          "seed_rank": 142,
+          "content": 1,
+          "exp_E": 56.87
+        },
+        {
+          "search": "s0143",
+          "seed_rank": 143,
+          "content": 1,
+          "exp_E": 56.88
+        },
+        {
+          "search": "s0144",
+          "seed_rank": 144,
+          "content": 1,
+          "exp_E": 56.89
+        },
+        {
+          "search": "s0145",
+          "seed_rank": 145,
+          "content": 1,
+          "exp_E": 56.89
+        },
+        {
+          "search": "s0146",
+          "seed_rank": 146,
+          "content": 1,
+          "exp_E": 56.89
+        },
+        {
+          "search": "s0147",
+          "seed_rank": 147,
+          "content": 1,
+          "exp_E": 56.89
+        },
+        {
+          "search": "s0148",
+          "seed_rank": 148,
+          "content": 1,
+          "exp_E": 56.89
+        },
+        {
+          "search": "s0149",
+          "seed_rank": 149,
+          "content": 1,
+          "exp_E": 56.9
+        },
+        {
+          "search": "s0150",
+          "seed_rank": 150,
+          "content": 1,
+          "exp_E": 56.9
+        },
+        {
+          "search": "s0151",
+          "seed_rank": 151,
+          "content": 1,
+          "exp_E": 56.9
+        },
+        {
+          "search": "s0152",
+          "seed_rank": 152,
+          "content": 1,
+          "exp_E": 56.9
+        },
+        {
+          "search": "s0153",
+          "seed_rank": 153,
+          "content": 1,
+          "exp_E": 56.9
+        },
+        {
+          "search": "s0154",
+          "seed_rank": 154,
+          "content": 1,
+          "exp_E": 56.91
+        },
+        {
+          "search": "s0155",
+          "seed_rank": 155,
+          "content": 1,
+          "exp_E": 56.91
+        },
+        {
+          "search": "s0156",
+          "seed_rank": 156,
+          "content": 1,
+          "exp_E": 56.91
+        },
+        {
+          "search": "s0157",
+          "seed_rank": 157,
+          "content": 1,
+          "exp_E": 56.91
+        },
+        {
+          "search": "s0158",
+          "seed_rank": 158,
+          "content": 1,
+          "exp_E": 56.91
+        },
+        {
+          "search": "s0159",
+          "seed_rank": 159,
+          "content": 1,
+          "exp_E": 56.91
+        },
+        {
+          "search": "s0160",
+          "seed_rank": 160,
+          "content": 1,
+          "exp_E": 56.92
+        },
+        {
+          "search": "s0161",
+          "seed_rank": 161,
+          "content": 1,
+          "exp_E": 56.92
+        },
+        {
+          "search": "s0162",
+          "seed_rank": 162,
+          "content": 1,
+          "exp_E": 56.94
+        },
+        {
+          "search": "s0163",
+          "seed_rank": 163,
+          "content": 1,
+          "exp_E": 56.94
+        },
+        {
+          "search": "s0164",
+          "seed_rank": 164,
+          "content": 1,
+          "exp_E": 56.94
+        },
+        {
+          "search": "s0165",
+          "seed_rank": 165,
+          "content": 1,
+          "exp_E": 56.94
+        },
+        {
+          "search": "s0166",
+          "seed_rank": 166,
+          "content": 1,
+          "exp_E": 56.95
+        },
+        {
+          "search": "s0167",
+          "seed_rank": 167,
+          "content": 1,
+          "exp_E": 56.95
+        },
+        {
+          "search": "s0168",
+          "seed_rank": 168,
+          "content": 1,
+          "exp_E": 56.95
+        },
+        {
+          "search": "s0169",
+          "seed_rank": 169,
+          "content": 1,
+          "exp_E": 56.95
+        },
+        {
+          "search": "s0170",
+          "seed_rank": 170,
+          "content": 1,
+          "exp_E": 56.95
+        },
+        {
+          "search": "s0171",
+          "seed_rank": 171,
+          "content": 1,
+          "exp_E": 56.96
+        },
+        {
+          "search": "s0172",
+          "seed_rank": 172,
+          "content": 1,
+          "exp_E": 56.97
+        },
+        {
+          "search": "s0173",
+          "seed_rank": 173,
+          "content": 1,
+          "exp_E": 56.97
+        },
+        {
+          "search": "s0174",
+          "seed_rank": 174,
+          "content": 1,
+          "exp_E": 56.97
+        },
+        {
+          "search": "s0175",
+          "seed_rank": 175,
+          "content": 1,
+          "exp_E": 56.97
+        },
+        {
+          "search": "s0176",
+          "seed_rank": 176,
+          "content": 1,
+          "exp_E": 56.97
+        },
+        {
+          "search": "s0177",
+          "seed_rank": 177,
+          "content": 1,
+          "exp_E": 56.97
+        },
+        {
+          "search": "s0178",
+          "seed_rank": 178,
+          "content": 1,
+          "exp_E": 56.98
+        },
+        {
+          "search": "s0179",
+          "seed_rank": 179,
+          "content": 1,
+          "exp_E": 56.98
+        },
+        {
+          "search": "s0180",
+          "seed_rank": 180,
+          "content": 1,
+          "exp_E": 56.98
+        },
+        {
+          "search": "s0181",
+          "seed_rank": 181,
+          "content": 1,
+          "exp_E": 56.98
+        },
+        {
+          "search": "s0182",
+          "seed_rank": 182,
+          "content": 1,
+          "exp_E": 56.99
+        },
+        {
+          "search": "s0183",
+          "seed_rank": 183,
+          "content": 1,
+          "exp_E": 56.99
+        },
+        {
+          "search": "s0184",
+          "seed_rank": 184,
+          "content": 1,
+          "exp_E": 56.99
+        },
+        {
+          "search": "s0185",
+          "seed_rank": 185,
+          "content": 1,
+          "exp_E": 56.99
+        },
+        {
+          "search": "s0186",
+          "seed_rank": 186,
+          "content": 1,
+          "exp_E": 57.0
+        },
+        {
+          "search": "s0187",
+          "seed_rank": 187,
+          "content": 1,
+          "exp_E": 57.0
+        },
+        {
+          "search": "s0188",
+          "seed_rank": 188,
+          "content": 1,
+          "exp_E": 57.0
+        },
+        {
+          "search": "s0189",
+          "seed_rank": 189,
+          "content": 1,
+          "exp_E": 57.0
+        },
+        {
+          "search": "s0190",
+          "seed_rank": 190,
+          "content": 1,
+          "exp_E": 57.01
+        },
+        {
+          "search": "s0191",
+          "seed_rank": 191,
+          "content": 1,
+          "exp_E": 57.01
+        },
+        {
+          "search": "s0192",
+          "seed_rank": 192,
+          "content": 1,
+          "exp_E": 57.01
+        },
+        {
+          "search": "s0193",
+          "seed_rank": 193,
+          "content": 1,
+          "exp_E": 57.01
+        },
+        {
+          "search": "s0194",
+          "seed_rank": 194,
+          "content": 1,
+          "exp_E": 57.01
+        },
+        {
+          "search": "s0195",
+          "seed_rank": 195,
+          "content": 1,
+          "exp_E": 57.02
+        },
+        {
+          "search": "s0196",
+          "seed_rank": 196,
+          "content": 1,
+          "exp_E": 57.02
+        },
+        {
+          "search": "s0197",
+          "seed_rank": 197,
+          "content": 1,
+          "exp_E": 57.02
+        },
+        {
+          "search": "s0198",
+          "seed_rank": 198,
+          "content": 1,
+          "exp_E": 57.02
+        },
+        {
+          "search": "s0199",
+          "seed_rank": 199,
+          "content": 1,
+          "exp_E": 57.02
+        },
+        {
+          "search": "s0200",
+          "seed_rank": 200,
+          "content": 1,
+          "exp_E": 57.03
+        },
+        {
+          "search": "s0201",
+          "seed_rank": 201,
+          "content": 1,
+          "exp_E": 57.03
+        },
+        {
+          "search": "s0202",
+          "seed_rank": 202,
+          "content": 1,
+          "exp_E": 57.04
+        },
+        {
+          "search": "s0203",
+          "seed_rank": 203,
+          "content": 1,
+          "exp_E": 57.04
+        },
+        {
+          "search": "s0204",
+          "seed_rank": 204,
+          "content": 1,
+          "exp_E": 57.04
+        },
+        {
+          "search": "s0204_d2",
+          "seed_rank": 204,
+          "content": 2,
+          "u": 1,
+          "v": 1,
+          "exp_E": 57.04
+        },
+        {
+          "search": "s0205",
+          "seed_rank": 205,
+          "content": 1,
+          "exp_E": 57.04
+        },
+        {
+          "search": "s0206",
+          "seed_rank": 206,
+          "content": 1,
+          "exp_E": 57.04
+        },
+        {
+          "search": "s0207",
+          "seed_rank": 207,
+          "content": 1,
+          "exp_E": 57.05
+        },
+        {
+          "search": "s0208",
+          "seed_rank": 208,
+          "content": 1,
+          "exp_E": 57.05
+        },
+        {
+          "search": "s0209",
+          "seed_rank": 209,
+          "content": 1,
+          "exp_E": 57.05
+        },
+        {
+          "search": "s0210",
+          "seed_rank": 210,
+          "content": 1,
+          "exp_E": 57.05
+        },
+        {
+          "search": "s0211",
+          "seed_rank": 211,
+          "content": 1,
+          "exp_E": 57.05
+        },
+        {
+          "search": "s0212",
+          "seed_rank": 212,
+          "content": 1,
+          "exp_E": 57.05
+        },
+        {
+          "search": "s0213",
+          "seed_rank": 213,
+          "content": 1,
+          "exp_E": 57.05
+        },
+        {
+          "search": "s0214",
+          "seed_rank": 214,
+          "content": 1,
+          "exp_E": 57.05
+        },
+        {
+          "search": "s0215",
+          "seed_rank": 215,
+          "content": 1,
+          "exp_E": 57.05
+        },
+        {
+          "search": "s0216",
+          "seed_rank": 216,
+          "content": 1,
+          "exp_E": 57.05
+        },
+        {
+          "search": "s0217",
+          "seed_rank": 217,
+          "content": 1,
+          "exp_E": 57.05
+        },
+        {
+          "search": "s0218",
+          "seed_rank": 218,
+          "content": 1,
+          "exp_E": 57.06
+        },
+        {
+          "search": "s0219",
+          "seed_rank": 219,
+          "content": 1,
+          "exp_E": 57.06
+        },
+        {
+          "search": "s0220",
+          "seed_rank": 220,
+          "content": 1,
+          "exp_E": 57.06
+        },
+        {
+          "search": "s0221",
+          "seed_rank": 221,
+          "content": 1,
+          "exp_E": 57.06
+        },
+        {
+          "search": "s0222",
+          "seed_rank": 222,
+          "content": 1,
+          "exp_E": 57.06
+        },
+        {
+          "search": "s0223",
+          "seed_rank": 223,
+          "content": 1,
+          "exp_E": 57.06
+        },
+        {
+          "search": "s0224",
+          "seed_rank": 224,
+          "content": 1,
+          "exp_E": 57.06
+        },
+        {
+          "search": "s0225",
+          "seed_rank": 225,
+          "content": 1,
+          "exp_E": 57.06
+        },
+        {
+          "search": "s0226",
+          "seed_rank": 226,
+          "content": 1,
+          "exp_E": 57.06
+        },
+        {
+          "search": "s0227",
+          "seed_rank": 227,
+          "content": 1,
+          "exp_E": 57.07
+        },
+        {
+          "search": "s0228",
+          "seed_rank": 228,
+          "content": 1,
+          "exp_E": 57.07
+        },
+        {
+          "search": "s0229",
+          "seed_rank": 229,
+          "content": 1,
+          "exp_E": 57.07
+        },
+        {
+          "search": "s0230",
+          "seed_rank": 230,
+          "content": 1,
+          "exp_E": 57.07
+        },
+        {
+          "search": "s0231",
+          "seed_rank": 231,
+          "content": 1,
+          "exp_E": 57.07
+        },
+        {
+          "search": "s0232",
+          "seed_rank": 232,
+          "content": 1,
+          "exp_E": 57.07
+        },
+        {
+          "search": "s0233",
+          "seed_rank": 233,
+          "content": 1,
+          "exp_E": 57.07
+        },
+        {
+          "search": "s0234",
+          "seed_rank": 234,
+          "content": 1,
+          "exp_E": 57.07
+        },
+        {
+          "search": "s0235",
+          "seed_rank": 235,
+          "content": 1,
+          "exp_E": 57.08
+        },
+        {
+          "search": "s0236",
+          "seed_rank": 236,
+          "content": 1,
+          "exp_E": 57.08
+        },
+        {
+          "search": "s0237",
+          "seed_rank": 237,
+          "content": 1,
+          "exp_E": 57.08
+        },
+        {
+          "search": "s0238",
+          "seed_rank": 238,
+          "content": 1,
+          "exp_E": 57.08
+        },
+        {
+          "search": "s0239",
+          "seed_rank": 239,
+          "content": 1,
+          "exp_E": 57.08
+        },
+        {
+          "search": "s0240",
+          "seed_rank": 240,
+          "content": 1,
+          "exp_E": 57.08
+        },
+        {
+          "search": "s0241",
+          "seed_rank": 241,
+          "content": 1,
+          "exp_E": 57.08
+        },
+        {
+          "search": "s0242",
+          "seed_rank": 242,
+          "content": 1,
+          "exp_E": 57.09
+        },
+        {
+          "search": "s0243",
+          "seed_rank": 243,
+          "content": 1,
+          "exp_E": 57.09
+        },
+        {
+          "search": "s0244",
+          "seed_rank": 244,
+          "content": 1,
+          "exp_E": 57.09
+        },
+        {
+          "search": "s0245",
+          "seed_rank": 245,
+          "content": 1,
+          "exp_E": 57.09
+        },
+        {
+          "search": "s0246",
+          "seed_rank": 246,
+          "content": 1,
+          "exp_E": 57.09
+        },
+        {
+          "search": "s0247",
+          "seed_rank": 247,
+          "content": 1,
+          "exp_E": 57.09
+        },
+        {
+          "search": "s0248",
+          "seed_rank": 248,
+          "content": 1,
+          "exp_E": 57.1
+        },
+        {
+          "search": "s0249",
+          "seed_rank": 249,
+          "content": 1,
+          "exp_E": 57.1
+        },
+        {
+          "search": "s0250",
+          "seed_rank": 250,
+          "content": 1,
+          "exp_E": 57.1
+        },
+        {
+          "search": "s0250_d2",
+          "seed_rank": 250,
+          "content": 2,
+          "u": 1,
+          "v": 0,
+          "exp_E": 57.1
+        },
+        {
+          "search": "s0251",
+          "seed_rank": 251,
+          "content": 1,
+          "exp_E": 57.1
+        },
+        {
+          "search": "s0252",
+          "seed_rank": 252,
+          "content": 1,
+          "exp_E": 57.1
+        },
+        {
+          "search": "s0253",
+          "seed_rank": 253,
+          "content": 1,
+          "exp_E": 57.1
+        },
+        {
+          "search": "s0254",
+          "seed_rank": 254,
+          "content": 1,
+          "exp_E": 57.1
+        },
+        {
+          "search": "s0255",
+          "seed_rank": 255,
+          "content": 1,
+          "exp_E": 57.1
+        },
+        {
+          "search": "s0256",
+          "seed_rank": 256,
+          "content": 1,
+          "exp_E": 57.1
+        },
+        {
+          "search": "s0256_d2",
+          "seed_rank": 256,
+          "content": 2,
+          "u": 1,
+          "v": 1,
+          "exp_E": 57.1
+        },
+        {
+          "search": "s0257",
+          "seed_rank": 257,
+          "content": 1,
+          "exp_E": 57.11
+        },
+        {
+          "search": "s0258",
+          "seed_rank": 258,
+          "content": 1,
+          "exp_E": 57.11
+        },
+        {
+          "search": "s0259",
+          "seed_rank": 259,
+          "content": 1,
+          "exp_E": 57.11
+        },
+        {
+          "search": "s0260",
+          "seed_rank": 260,
+          "content": 1,
+          "exp_E": 57.11
+        },
+        {
+          "search": "s0261",
+          "seed_rank": 261,
+          "content": 1,
+          "exp_E": 57.11
+        },
+        {
+          "search": "s0262",
+          "seed_rank": 262,
+          "content": 1,
+          "exp_E": 57.12
+        },
+        {
+          "search": "s0263",
+          "seed_rank": 263,
+          "content": 1,
+          "exp_E": 57.12
+        },
+        {
+          "search": "s0264",
+          "seed_rank": 264,
+          "content": 1,
+          "exp_E": 57.12
+        },
+        {
+          "search": "s0265",
+          "seed_rank": 265,
+          "content": 1,
+          "exp_E": 57.12
+        },
+        {
+          "search": "s0266",
+          "seed_rank": 266,
+          "content": 1,
+          "exp_E": 57.12
+        },
+        {
+          "search": "s0267",
+          "seed_rank": 267,
+          "content": 1,
+          "exp_E": 57.12
+        },
+        {
+          "search": "s0268",
+          "seed_rank": 268,
+          "content": 1,
+          "exp_E": 57.13
+        },
+        {
+          "search": "s0269",
+          "seed_rank": 269,
+          "content": 1,
+          "exp_E": 57.13
+        },
+        {
+          "search": "s0270",
+          "seed_rank": 270,
+          "content": 1,
+          "exp_E": 57.13
+        },
+        {
+          "search": "s0271",
+          "seed_rank": 271,
+          "content": 1,
+          "exp_E": 57.13
+        },
+        {
+          "search": "s0272",
+          "seed_rank": 272,
+          "content": 1,
+          "exp_E": 57.13
+        },
+        {
+          "search": "s0273",
+          "seed_rank": 273,
+          "content": 1,
+          "exp_E": 57.14
+        },
+        {
+          "search": "s0274",
+          "seed_rank": 274,
+          "content": 1,
+          "exp_E": 57.14
+        },
+        {
+          "search": "s0275",
+          "seed_rank": 275,
+          "content": 1,
+          "exp_E": 57.14
+        },
+        {
+          "search": "s0276",
+          "seed_rank": 276,
+          "content": 1,
+          "exp_E": 57.14
+        },
+        {
+          "search": "s0277",
+          "seed_rank": 277,
+          "content": 1,
+          "exp_E": 57.14
+        },
+        {
+          "search": "s0278",
+          "seed_rank": 278,
+          "content": 1,
+          "exp_E": 57.15
+        },
+        {
+          "search": "s0279",
+          "seed_rank": 279,
+          "content": 1,
+          "exp_E": 57.15
+        },
+        {
+          "search": "s0280",
+          "seed_rank": 280,
+          "content": 1,
+          "exp_E": 57.15
+        },
+        {
+          "search": "s0281",
+          "seed_rank": 281,
+          "content": 1,
+          "exp_E": 57.15
+        },
+        {
+          "search": "s0281_d2",
+          "seed_rank": 281,
+          "content": 2,
+          "u": 1,
+          "v": 0,
+          "exp_E": 57.15
+        },
+        {
+          "search": "s0282",
+          "seed_rank": 282,
+          "content": 1,
+          "exp_E": 57.15
+        },
+        {
+          "search": "s0283",
+          "seed_rank": 283,
+          "content": 1,
+          "exp_E": 57.15
+        },
+        {
+          "search": "s0283_d3",
+          "seed_rank": 283,
+          "content": 3,
+          "u": 1,
+          "v": 1,
+          "exp_E": 57.15
+        },
+        {
+          "search": "s0284",
+          "seed_rank": 284,
+          "content": 1,
+          "exp_E": 57.15
+        },
+        {
+          "search": "s0285",
+          "seed_rank": 285,
+          "content": 1,
+          "exp_E": 57.15
+        },
+        {
+          "search": "s0286",
+          "seed_rank": 286,
+          "content": 1,
+          "exp_E": 57.15
+        },
+        {
+          "search": "s0287",
+          "seed_rank": 287,
+          "content": 1,
+          "exp_E": 57.15
+        },
+        {
+          "search": "s0288",
+          "seed_rank": 288,
+          "content": 1,
+          "exp_E": 57.15
+        },
+        {
+          "search": "s0289",
+          "seed_rank": 289,
+          "content": 1,
+          "exp_E": 57.15
+        },
+        {
+          "search": "s0290",
+          "seed_rank": 290,
+          "content": 1,
+          "exp_E": 57.16
+        },
+        {
+          "search": "s0291",
+          "seed_rank": 291,
+          "content": 1,
+          "exp_E": 57.16
+        },
+        {
+          "search": "s0292",
+          "seed_rank": 292,
+          "content": 1,
+          "exp_E": 57.16
+        },
+        {
+          "search": "s0293",
+          "seed_rank": 293,
+          "content": 1,
+          "exp_E": 57.16
+        },
+        {
+          "search": "s0294",
+          "seed_rank": 294,
+          "content": 1,
+          "exp_E": 57.16
+        },
+        {
+          "search": "s0295",
+          "seed_rank": 295,
+          "content": 1,
+          "exp_E": 57.17
+        },
+        {
+          "search": "s0296",
+          "seed_rank": 296,
+          "content": 1,
+          "exp_E": 57.17
+        },
+        {
+          "search": "s0297",
+          "seed_rank": 297,
+          "content": 1,
+          "exp_E": 57.17
+        },
+        {
+          "search": "s0298",
+          "seed_rank": 298,
+          "content": 1,
+          "exp_E": 57.17
+        },
+        {
+          "search": "s0299",
+          "seed_rank": 299,
+          "content": 1,
+          "exp_E": 57.17
+        },
+        {
+          "search": "s0300",
+          "seed_rank": 300,
+          "content": 1,
+          "exp_E": 57.17
+        }
+      ]
+    },
+    "finished": 313,
+    "scored": 313,
+    "failures": [],
+    "complete": true,
+    "stopped": false,
+    "elapsed_seconds": 5940.982426279,
+    "elapsed_clock": "CLOCK_REALTIME",
+    "finished_ns": 1791586239148956183
+  },
+  "depth": {
+    "config": {
+      "phase": "depth",
+      "workers": 1,
+      "root_threads": 6,
+      "cap": "6e12",
+      "scoring": {
+        "threads": 4,
+        "params": "job:33,34,16.5,80e6",
+        "points": 4000,
+        "eval_points": 16000,
+        "trans": 0,
+        "lattice": "17,32768",
+        "qband": "80e6,1e9,9",
+        "useskew": false,
+        "nlat": 32,
+        "npts": 2048,
+        "latseed": 0
+      },
+      "seeds": [
+        {
+          "search": "s0001",
+          "seed_rank": 1,
+          "content": 1,
+          "exp_E": 54.9
+        },
+        {
+          "search": "s0002",
+          "seed_rank": 2,
+          "content": 1,
+          "exp_E": 54.9
+        },
+        {
+          "search": "s0003",
+          "seed_rank": 3,
+          "content": 1,
+          "exp_E": 55.24
+        },
+        {
+          "search": "s0004",
+          "seed_rank": 4,
+          "content": 1,
+          "exp_E": 55.48
+        },
+        {
+          "search": "s0006",
+          "seed_rank": 6,
+          "content": 1,
+          "exp_E": 55.72
+        },
+        {
+          "search": "s0008",
+          "seed_rank": 8,
+          "content": 1,
+          "exp_E": 55.78
+        },
+        {
+          "search": "s0009",
+          "seed_rank": 9,
+          "content": 1,
+          "exp_E": 55.79
+        },
+        {
+          "search": "s0010",
+          "seed_rank": 10,
+          "content": 1,
+          "exp_E": 55.93
+        },
+        {
+          "search": "s0013",
+          "seed_rank": 13,
+          "content": 1,
+          "exp_E": 56.05
+        },
+        {
+          "search": "s0014",
+          "seed_rank": 14,
+          "content": 1,
+          "exp_E": 56.13
+        },
+        {
+          "search": "s0018",
+          "seed_rank": 18,
+          "content": 1,
+          "exp_E": 56.18
+        },
+        {
+          "search": "s0027",
+          "seed_rank": 27,
+          "content": 1,
+          "exp_E": 56.33
+        },
+        {
+          "search": "s0041",
+          "seed_rank": 41,
+          "content": 1,
+          "exp_E": 56.47
+        },
+        {
+          "search": "s0053",
+          "seed_rank": 53,
+          "content": 1,
+          "exp_E": 56.55
+        },
+        {
+          "search": "s0055",
+          "seed_rank": 55,
+          "content": 1,
+          "exp_E": 56.56
+        },
+        {
+          "search": "s0078",
+          "seed_rank": 78,
+          "content": 1,
+          "exp_E": 56.67
+        }
+      ]
+    },
+    "finished": 16,
+    "scored": 16,
+    "failures": [],
+    "complete": true,
+    "stopped": false,
+    "elapsed_seconds": 1699.121641316,
+    "elapsed_clock": "CLOCK_REALTIME",
+    "finished_ns": 1791587942306319097
+  },
+  "baseline": {
+    "seed": 2,
+    "label": "CPU pipeline CADO/skewopt winner",
+    "variant": "baseline",
+    "poly": {
+      "n": 4785242557810697119834185127659489385158262431250454474820774271319222962690941051195014451008983249793748965372767122586857941432814601795241645770713586951585273221601193746927482503741268088287241801217,
+      "Y0": -4666628423364268588624348737450540354504,
+      "Y1": 1317870791199369553870063,
+      "c0": -571199168875326239398645239421818413352436793283,
+      "c1": 22837560191905515691871010047262283328066,
+      "c2": -62718756628148613515583219286899,
+      "c3": -2171231743959890767321400,
+      "c4": 970656592414848,
+      "c5": 6486480,
+      "skew": 224841000.0
+    },
+    "murphy": 4.730998e-09,
+    "band2": 7400651000.0,
+    "rel2": [
+      239.1991,
+      191.3396,
+      170.5289,
+      159.9441,
+      151.7371,
+      144.1922,
+      138.1358,
+      133.2993,
+      129.0755
+    ],
+    "band3": 7400188000.0,
+    "rel3": [
+      238.859,
+      191.2902,
+      170.4545,
+      160.1256,
+      151.4329,
+      144.2764,
+      138.1731,
+      133.5037,
+      129.1511
+    ],
+    "band_mean": 7400419500.0,
+    "band_ratio": 1.0,
+    "murphy_ratio": 1.0
+  },
+  "best_gpu_band": {
+    "seed": 2,
+    "search": "s0002",
+    "phase": "breadth",
+    "rank": 2,
+    "label": "breadth s0002 rank 2 u -5 v 169867163 t 9532351 Ea 52.727089 lognorm 62.628247 alpha_s -7.043472 alpha -7.616276 proposal",
+    "variant": "proposal",
+    "poly": {
+      "n": 4785242557810697119834185127659489385158262431250454474820774271319222962690941051195014451008983249793748965372767122586857941432814601795241645770713586951585273221601193746927482503741268088287241801217,
+      "Y0": -4666628416649054018455587577596972727815,
+      "Y1": 1317870791199369553870063,
+      "c0": -456745329870651225284521848373196859970523253648,
+      "c1": 22029805938319277482525288451078361319856,
+      "c2": -95749514938768832862429558304107,
+      "c3": -2149763650195107912224024,
+      "c4": 1135915983912048,
+      "c5": 6486480,
+      "skew": 219102582.7339984
+    },
+    "murphy": 4.731297e-09,
+    "band2": 7401034000.0,
+    "rel2": [
+      239.165,
+      191.3205,
+      170.6156,
+      159.9918,
+      151.7234,
+      144.1469,
+      138.1566,
+      133.3079,
+      129.0719
+    ],
+    "band3": 7401881000.0,
+    "rel3": [
+      238.8385,
+      191.3058,
+      170.5963,
+      160.1538,
+      151.4588,
+      144.3072,
+      138.2124,
+      133.5321,
+      129.1378
+    ],
+    "band_mean": 7401457500.0,
+    "band_ratio": 1.000140262318913,
+    "murphy_ratio": 1.000063200195815
+  },
+  "best_gpu_murphy": {
+    "seed": 2,
+    "search": "s0002",
+    "phase": "breadth",
+    "rank": 2,
+    "label": "breadth s0002 rank 2 u -5 v 169867163 t 9532351 Ea 52.727089 lognorm 62.628247 alpha_s -7.043472 alpha -7.616276 proposal",
+    "variant": "proposal",
+    "poly": {
+      "n": 4785242557810697119834185127659489385158262431250454474820774271319222962690941051195014451008983249793748965372767122586857941432814601795241645770713586951585273221601193746927482503741268088287241801217,
+      "Y0": -4666628416649054018455587577596972727815,
+      "Y1": 1317870791199369553870063,
+      "c0": -456745329870651225284521848373196859970523253648,
+      "c1": 22029805938319277482525288451078361319856,
+      "c2": -95749514938768832862429558304107,
+      "c3": -2149763650195107912224024,
+      "c4": 1135915983912048,
+      "c5": 6486480,
+      "skew": 219102582.7339984
+    },
+    "murphy": 4.731297e-09,
+    "band2": 7401034000.0,
+    "rel2": [
+      239.165,
+      191.3205,
+      170.6156,
+      159.9918,
+      151.7234,
+      144.1469,
+      138.1566,
+      133.3079,
+      129.0719
+    ],
+    "band3": 7401881000.0,
+    "rel3": [
+      238.8385,
+      191.3058,
+      170.5963,
+      160.1538,
+      151.4588,
+      144.3072,
+      138.2124,
+      133.5321,
+      129.1378
+    ],
+    "band_mean": 7401457500.0,
+    "band_ratio": 1.000140262318913,
+    "murphy_ratio": 1.000063200195815
+  },
+  "limitations": [
+    "The CPU-selected effort-0 top 2000 were used; the full raw effort-0 sweep was not repeated.",
+    "The lattice score is a yield model, not a new test-sieve measurement.",
+    "All 200 retained outputs per GPU search were scored; pruning inside ropt still uses size/alpha proxies.",
+    "Runtime includes CPU contention and is not a controlled speed comparison."
+  ]
+}

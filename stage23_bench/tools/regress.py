@@ -20,22 +20,35 @@ checks" and "Fixes"):
               shapes) within 0.05 of the measured ratio (worst 0.038 on 2026-10-06), and
               one value pinned (the model is deterministic); a missing fixture fails the
               check rather than crashing.
+  refinement  C181 translation pairs, exact exports with retained controls, the seed-6
+              gain at 64k and an independent 256k points; fixed-skew evaluation,
+              rejection of K=1000, lattice validation/export agreement and independent
+              lattice sample streams.
 
 Exits 1 if any check fails.
 """
 
 import os
+import json
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
+from contextlib import redirect_stdout
+from io import StringIO
+from unittest.mock import patch
 
 from content_seeds import content_seeds
 from polyfmt import cado_murphy_binary, cado_poly_text, parse_cado_poly, resultant
 from rescore import derived
+from refine_polys import parser as refine_parser, refine, translated_pair, write_outputs
+from score_polys import murphy as score_murphy, lattice_scores
+from polyfmt import read_cado_blocks, rotation_between
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 C168 = os.path.join(HERE, '..', 'data', 'c168')
 C208 = os.path.join(HERE, '..', 'data', 'c208')
+C181 = os.path.join(HERE, '..', 'data', 'c181', 'translation')
 JOB = ['-Bf', '2147483648', '-Bg', '1073741824', '-area', '3355443200000000']  # lpb 31/30, I 14, qmin 25M
 failures = []
 
@@ -44,6 +57,19 @@ def check(name, ok, detail):
     print(f'{"ok  " if ok else "FAIL"} {name}: {detail}')
     if not ok:
         failures.append(name)
+
+
+def run_check(name, function, fixtures=()):
+    missing = [f for f in fixtures if not os.path.isfile(f)]
+    if missing:
+        check(name, False, 'fixture missing: ' + ', '.join(missing))
+        return
+    try:
+        function()
+    except Exception as e:
+        # A test error is a failed check, not a reason to skip all later checks.
+        detail = e.stderr.strip() if isinstance(e, subprocess.CalledProcessError) and e.stderr else str(e)
+        check(name, False, f'{type(e).__name__}: {detail}')
 
 
 def murphy(paths, *opts):
@@ -92,6 +118,170 @@ def lattice_check(ts):
           f'poly A, 17,32768, q 80M: {pin} relations per special-q (pinned 164.4257)')
 
 
+def refinement_check():
+    """C181 seed 6: close the real translation gap; recheck at 256k angles without
+    changing the exported skew. Also check the exact fixture pairing and export CLI."""
+    gpu = read_cado_blocks(os.path.join(C181, 'gpu.poly'))
+    refs = read_cado_blocks(os.path.join(C181, 'msieve.poly'))
+    pairs = [rotation_between(p, r) for (_, p), (_, r) in zip(gpu, refs)]
+    check('refinement: C181 pairs are translations', len(pairs) == 5 and
+          all(p and not any(p['rotation']) for p in pairs), f'{len(pairs)} cells')
+    p, ref = gpu[2][1], refs[2][1]  # seed 6, the largest measured translation gap
+    args = refine_parser().parse_args(['unused', '--out', 'unused', '--params', 'job:31,32,15,45e6'])
+    with tempfile.TemporaryDirectory() as tmp:
+        src, prefix = os.path.join(tmp, 'input.poly'), os.path.join(tmp, 'result')
+        original = cado_poly_text(p)
+        with open(src, 'w') as fh:
+            fh.write(original)
+        process = subprocess.run([sys.executable, os.path.join(HERE, 'refine_polys.py'), src, '--out', prefix,
+                                  '--params', args.params], capture_output=True, text=True)
+        if process.returncode:
+            check('refinement: export CLI', False, f'status {process.returncode}: {process.stderr.strip()}')
+            return
+        with open(prefix + '.json') as fh:
+            r = json.load(fh)['results'][0]
+        exported = [x for _, x in read_cado_blocks(prefix + '.poly')]
+        selected = read_cado_blocks(prefix + '.selected.poly')
+        check('refinement: preserves controls and input', exported == [r['control'], r['proposal']] and
+              open(src).read() == original and len(selected) == 1 and
+              selected[0][1] == r['proposal' if r['accepted'] else 'control'], 'input, both alternatives and selection')
+    relation = rotation_between(p, r['proposal'])
+    check('refinement: exact exported pair', resultant(p) == resultant(r['proposal']) and
+          relation is not None and relation['rotation'] == [0], f'dt = {r["translation"]}')
+    check('refinement: C181 held-out gain', r['accepted'] and r['validation_gain'] > 0.005,
+          f'{100*r["validation_gain"]:+.4f}% at 64k points')
+    # A separate 256k check, never used by the optimizer or acceptance decision.
+    # Choose the reference skew explicitly before evaluating every configuration
+    # at fixed skew; -useskew must never hide a reference-only optimization.
+    args.useskew = False
+    ref = dict(ref, skew=score_murphy([ref], p['n'], args)[0][1])
+    args.useskew = True
+    args.eval_points = 256000
+    values = score_murphy([r['control'], r['proposal'], ref], p['n'], args)
+    gain = values[1][0] / values[0][0] - 1
+    ratio = values[1][0] / values[2][0]
+    check('refinement: independent 256k check', gain > 0.005 and ratio >= 0.9995 and
+          abs(gain - r['validation_gain']) < 0.0005,
+          f'gain {100*gain:+.4f}%, refined / msieve {ratio:.6f}')
+    # Direct fixed-skew evaluation must not silently optimize the declared skew.
+    args.eval_points = args.points = 1000
+    odd = translated_pair(p, -1234567, 1e5)
+    fixed = score_murphy([odd], p['n'], args)[0]
+    check('refinement: fixed-skew evaluation', fixed[1] == odd['skew'] and fixed[2] == 0,
+          f'skew {fixed[1]}, dt {fixed[2]}')
+    # Reject the old noisy search accuracy before running an expensive search.
+    with tempfile.TemporaryDirectory() as tmp:
+        out = subprocess.run([sys.executable, os.path.join(HERE, 'refine_polys.py'),
+                              os.path.join(C181, 'gpu.poly'), '--out', os.path.join(tmp, 'result'),
+                              '--points', '1000'], capture_output=True, text=True)
+        check('refinement: rejects noisy search', out.returncode == 2 and not os.listdir(tmp) and
+              'need --points >= 16000 and --eval-points >= 4 * --points' in out.stderr,
+              'K=1000 rejected without writing outputs')
+
+
+def refinement_lattice_check():
+    """Cheap lattice refinement: independent validation agrees with rescoring the
+    exact export via the regular lattice path, and the control survives rejection."""
+    p = read_cado_blocks(os.path.join(C181, 'gpu.poly'))[2][1]
+    p['skew'] = 78307994.0
+    args = refine_parser().parse_args(['unused', '--out', 'unused', '--params', 'job:31,32,15,45e6',
+                                      '--lattice', '15,16384', '--qband', '45e6,2e8,7', '--max-evals', '32',
+                                      '--min-gain', '100'])  # force the control to be retained
+    r = refine([p], args)[0]
+    args.useskew, args.nlat, args.npts, args.latseed = True, args.eval_nlat, args.eval_npts, args.eval_seed
+    scores = lattice_scores([r['control'], r['proposal']], p['n'], args)
+    expected = [r['validation_control'], r['validation_proposal']]
+    check('refinement: lattice export validation', all(abs(s[0]/v-1) < 1e-6 for s, v in zip(scores, expected))
+          and not r['accepted'] and r['evaluations'] <= 32, 'fixed exports agree, rejected proposal keeps control')
+    args.latseed = 2
+    independent = lattice_scores([r['control']], p['n'], args)[0][0]
+    check('refinement: lattice sample streams', abs(independent/expected[0]-1) > 1e-6,
+          'changing the random stream changes the sampled estimate')
+
+
+def refinement_failure_check():
+    """Exercise the actual CLI/protocol failure paths and safe output handling."""
+    binary = cado_murphy_binary()
+    r = subprocess.run([binary, '-search-selftest'], capture_output=True, text=True)
+    check('refinement: distinct starts and exact budget', r.returncode == 0 and ': ok ' in r.stdout,
+          r.stdout.strip() or r.stderr.strip())
+    p = dict(read_cado_blocks(os.path.join(C181, 'gpu.poly'))[2][1], skew=78307994.0)
+    content = {k: v * (2 if k.startswith('c') else 3 if k in ('Y0', 'Y1') else 1) for k, v in p.items()}
+    bad = dict(p, c0=p['c0'] + 1)
+    failed_score = dict(p, skew=1e100)  # finite, but exceeds the C++ search's integer bounds
+    with tempfile.TemporaryDirectory() as tmp:
+        src, prefix = Path(tmp) / 'input.poly', Path(tmp) / 'result'
+        src.write_text('\n'.join(cado_poly_text(q) for q in (p, content, bad, failed_score)))
+        cmd = [sys.executable, os.path.join(HERE, 'refine_polys.py'), str(src), '--out', str(prefix),
+               '--params', 'job:31,32,15,45e6', '--max-evals', '32']
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        report = json.loads(prefix.with_suffix('.json').read_text())
+        rows = report['results']
+        check('refinement: partial batch survives', r.returncode == 1 and report['failed'] == 2 and
+              [x['status'] for x in rows] == ['ok', 'ok', 'error', 'error'] and
+              len(read_cado_blocks(str(prefix) + '.poly')) == 4 and
+              len(read_cado_blocks(str(prefix) + '.selected.poly')) == 2 and
+              'primitive resultant' in rows[2]['error'] and 'invalid refinement score' in rows[3]['error'],
+              'valid results exported; bad resultant and failed C++ score reported in input order')
+        check('refinement: primitive content on both sides', rows[1]['original'] == content and
+              rows[1]['content'] == {'algebraic': 2, 'rational': 3} and
+              rows[0]['proposal'] == rows[1]['proposal'] and rows[0]['control'] == rows[1]['control'],
+              'content 2/3 normalized exactly; original retained')
+        outputs = [Path(str(prefix) + suffix) for suffix in ('.poly', '.selected.poly', '.json')]
+        before = [f.read_bytes() for f in outputs]
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        check('refinement: refuses existing outputs', r.returncode == 2 and 'outputs already exist' in r.stderr and
+              before == [f.read_bytes() for f in outputs], 'all previous files preserved')
+        # Test publication's race guard independently of the preflight check.
+        race = [Path(tmp) / name for name in ('a', 'b', 'c')]
+        race[1].write_text('existing')
+        try:
+            write_outputs(race, ['new'] * 3)
+            refused = False
+        except FileExistsError:
+            refused = True
+        check('refinement: publication cannot clobber', refused and not race[0].exists() and
+              race[1].read_text() == 'existing' and not race[2].exists(), 'race refused; own partial files removed')
+        write_outputs(race, ['replacement'] * 3, force=True)
+        check('refinement: explicit replacement', all(f.read_text() == 'replacement' for f in race),
+              'force replaces only the requested output files')
+        # Reject tiny lattice searches for their sample counts, through both interfaces.
+        cli = cmd + ['--out', str(Path(tmp) / 'tiny'), '--lattice', '15,16384', '--qband', '45e6,2e8,7',
+                     '--nlat', '1', '--npts', '1']
+        direct = [binary, '-refine', '-K', '16000', '-Keval', '64000', '-lattice', '15,16384',
+                  '-qband', '45e6,2e8,7', '-nlat', '1', '-npts', '1', str(src)]
+        for label, command, reason in [('CLI', cli, '--nlat >= 32 and --npts >= 2048'),
+                                       ('C++', direct, 'nlat >= 32, npts >= 2048')]:
+            r = subprocess.run(command, capture_output=True, text=True)
+            check(f'refinement: lattice sample guard {label}', r.returncode == 2 and reason in r.stderr,
+                  '1 x 1 search rejected for insufficient samples')
+        for script in ('refine_polys.py', 'score_polys.py'):
+            command = [sys.executable, os.path.join(HERE, script), str(src), '--params', 'wrong:31,32,15,45e6']
+            if script == 'refine_polys.py':
+                command += ['--out', str(Path(tmp) / 'badparams')]
+            r = subprocess.run(command, capture_output=True, text=True)
+            check(f'params validation: {script}', r.returncode == 2 and '--params needs default or job:' in r.stderr,
+                  'unknown bounds prefix rejected')
+        missing = dict(p)
+        del missing['skew']
+        src.write_text(cado_poly_text(missing) + '\n' + cado_poly_text(p))
+        for mode in ([], ['-lattice', '15,16384', '-qband', '45e6,2e8,7', '-nlat', '1', '-npts', '1']):
+            r = subprocess.run([binary, '-t', '1', '-K', '1000', '-Keval', '1000', '-useskew', *mode, str(src)],
+                               capture_output=True, text=True)
+            check('fixed skew fallback warning: ' + ('lattice' if mode else 'MurphyE'),
+                  r.returncode == 0 and '1 of 2 polynomials have no' in r.stderr and 'best skew' in r.stderr,
+                  'missing skew warned; explicitly declared skew still used')
+        local_failures = []
+        with patch.object(sys.modules[__name__], 'failures', local_failures), redirect_stdout(StringIO()) as captured:
+            run_check('missing fixture', lambda: None, [str(Path(tmp) / 'absent.poly')])
+            def failed_process():
+                raise subprocess.CalledProcessError(1, 'refine', stderr='refinement failed')
+            run_check('failed subprocess', failed_process)
+        check('regression runner: failures do not crash', len(local_failures) == 2 and
+              'fixture missing' in captured.getvalue() and 'refinement failed' in captured.getvalue(),
+              'missing fixture and subprocess failure recorded as FAIL')
+
+
 def main():
     winners = [os.path.join(C168, 'winners', f) for f in ('msieve_best.poly', 'gpu_tuned_best.poly', 'cado_best.poly')]
 
@@ -137,6 +327,11 @@ def main():
         check('lattice vs c208 test sieves', False, f'fixture missing: {", ".join(f for f in fixture if not os.path.exists(f))}')
     else:
         lattice_check(ts)
+
+    fixtures = [os.path.join(C181, f) for f in ('gpu.poly', 'msieve.poly')]
+    run_check('refinement', refinement_check, fixtures)
+    run_check('refinement lattice', refinement_lattice_check, fixtures[:1])
+    run_check('refinement failures', refinement_failure_check, fixtures[:1])
 
     print(f'{"all checks passed" if not failures else "FAILED: " + ", ".join(failures)}')
     return 1 if failures else 0

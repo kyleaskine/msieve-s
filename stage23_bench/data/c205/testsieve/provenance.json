@@ -1,0 +1,79 @@
+{
+  "started_utc": "2026-10-09T15:30:26Z",
+  "scope": "Eight completed and verified C205 test-sieve cases",
+  "initial_width": 2000,
+  "points": 3,
+  "engine_commit": "ba9ab1ce299366c5b38994a1b6e7df25d700f62e",
+  "files": {
+    "jobs/A_leader_skewopt.job": {
+      "resolved": "/home/kylea/msieve-s/pipeline_results/c205_refinement/testsieve/jobs/A_leader_skewopt.job",
+      "sha256": "22268ed6960d5150116b2419e57b417069562a92b5585f1ade32ef5ba2d43df9",
+      "mtime_ns": 1791503804577689298
+    },
+    "jobs/B_leader_control.job": {
+      "resolved": "/home/kylea/msieve-s/pipeline_results/c205_refinement/testsieve/jobs/B_leader_control.job",
+      "sha256": "6306d98673c03ed154e4f5691cf2db750cccf2366a381fe2095e9db35b04aa19",
+      "mtime_ns": 1791503804578251692
+    },
+    "jobs/C_leader_murphy.job": {
+      "resolved": "/home/kylea/msieve-s/pipeline_results/c205_refinement/testsieve/jobs/C_leader_murphy.job",
+      "sha256": "f5bd814527b89da28736d947af3c7fee05f1444ba36d5aa17bac69efb8a5f9de",
+      "mtime_ns": 1791503804579995531
+    },
+    "jobs/D_leader_lattice.job": {
+      "resolved": "/home/kylea/msieve-s/pipeline_results/c205_refinement/testsieve/jobs/D_leader_lattice.job",
+      "sha256": "6922e90c1e5031e01665c7932487a36301edc8fa4e11ec0ae373ebaba4282079",
+      "mtime_ns": 1791503804582012313
+    },
+    "jobs/E_msieve_control.job": {
+      "resolved": "/home/kylea/msieve-s/pipeline_results/c205_refinement/testsieve/jobs/E_msieve_control.job",
+      "sha256": "77204e818fb73bf6ef721351058cabcd34e8923153a0890515ca727093581557",
+      "mtime_ns": 1791503804582113624
+    },
+    "jobs/F_msieve_lattice.job": {
+      "resolved": "/home/kylea/msieve-s/pipeline_results/c205_refinement/testsieve/jobs/F_msieve_lattice.job",
+      "sha256": "1f38dcd4bdfd3bd7734721fac83cc69809f7738632090fc0b568620c68ca8d7b",
+      "mtime_ns": 1791503804582192075
+    },
+    "jobs/G_runnerup_control.job": {
+      "resolved": "/home/kylea/msieve-s/pipeline_results/c205_refinement/testsieve/jobs/G_runnerup_control.job",
+      "sha256": "ffc34fb5523e93b20bc18882a4f18358a03f081eb6c800654903611f13f1d551",
+      "mtime_ns": 1791503804582266642
+    },
+    "jobs/H_runnerup_lattice.job": {
+      "resolved": "/home/kylea/msieve-s/pipeline_results/c205_refinement/testsieve/jobs/H_runnerup_lattice.job",
+      "sha256": "fe16bc916476ac7f94ca52b2ec74a64f8b86e070ce8645b730e1e146d18139be",
+      "mtime_ns": 1791503804582343617
+    },
+    "work/bench": {
+      "resolved": "/home/kylea/code/cuda-sieve/bench/bench",
+      "sha256": "cbd9112b2a05df19141d761e9a16c2f751073e05b43e02bbd8422913376fd594",
+      "mtime_ns": 1790341124157933401
+    },
+    "work/fbgen_gpu": {
+      "resolved": "/home/kylea/code/cuda-sieve/bench/fbgen_gpu",
+      "sha256": "d6cf9e8a3dde2ee3cbef4b2e51e340b7404c198ba68fb83ec77252a74c091d19",
+      "mtime_ns": 1790341232163858046
+    },
+    "work/normscan": {
+      "resolved": "/home/kylea/code/cuda-sieve/bench/normscan",
+      "sha256": "08fd97299879b59d48f540522e9f7a1f809f9dc56b74ca39e50af69c390637af",
+      "mtime_ns": 1790341232485080192
+    },
+    "work/testsieve.sh": {
+      "resolved": "/home/kylea/msieve-s/pipeline_results/c205_refinement/testsieve/work/testsieve.sh",
+      "sha256": "de6f27ff2353d3b23127794fcf552db199f16a22c7ce55ac2f2ac1de9dd86b2f",
+      "mtime_ns": 1790972818403191136
+    }
+  },
+  "bench_compiled_commits": [
+    "8d36ed4b-dirty"
+  ],
+  "limits": "Three short windows screen candidates; timing is sequential and unreplicated. The band estimate is a three-point trapezoid, not measured full-band yield.",
+  "raw_artifacts": "pipeline_results/c205_refinement/testsieve/raw",
+  "completed_utc": "2026-10-09T15:57:35.712325+00:00",
+  "verified_relations": 221999,
+  "observed_special_q_root_pairs": 2460,
+  "verification": "All emitted relations rebuilt both polynomial norms exactly and obeyed LPB bounds; no duplicate (a,b) within a window.",
+  "timing_use": "Unreplicated sequential measurements; small timing differences are not speedup evidence."
+}
