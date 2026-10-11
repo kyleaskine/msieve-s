@@ -6,7 +6,7 @@
  *           [-murphy -Bf BF -Bg BG -area A [-murphy-points 16000] [-murphy-eval-points 64000] [-maxeval 384]]
  *   cell:   s23_ropt -poly FILE -cell U V
  *   common: [-top N] [-k K] [-seg LOG2] [-noproj] [-cpu] [-dev N] [-t THREADS] [-check N] [-launch LOG2]
- *           [-plan]
+ *           [-plan] [-exactskew] [-oldsearch]
  *
  * For the seed in FILE (CADO format, degree 5), scores cells (u, v) of
  * f_{u,v} = f + (u x + v) g by the alpha sieve of include/rsieve.h (p < 200: affine roots
@@ -75,6 +75,11 @@
  *   (about 0.1 s on a 5070), and at least four waves of blocks. Results do not depend on it:
  *   the kept cells are chosen by a total order. Long kernels made the Windows desktop lag
  *   under WSL2, and with -seg above about 22 a single block already takes long.
+ * -exactskew: the size model's line scan, band edges and knots find every skewness by CADO's
+ *   root isolation, as before 2026-10-10, instead of by Newton from the previous evaluation's
+ *   (include/rsize.h, rs_skewness). The lognorms agree to about an ulp either way.
+ * -oldsearch: the size model's line minima, band edges and knots search as before 2026-10-10
+ *   (include/rsize.h, rs_fast_search). With both, the size model is the old one exactly.
  * -check N rescores N random cells of the sieve's output (as the GPU or CPU scored them)
  *   and every printed cell by brute-force root counting; -cell prints one cell's score
  *   both ways.
@@ -510,6 +515,10 @@ int main(int argc, char **argv)
             use_cpu = 1;
         else if (!strcmp(argv[i], "-noproj"))
             noproj = 1;
+        else if (!strcmp(argv[i], "-exactskew"))
+            rs_warm_skew = false;
+        else if (!strcmp(argv[i], "-oldsearch"))
+            rs_fast_search = false;
         else {
             fprintf(stderr, "usage: see the comment at the top of %s\n", __FILE__);
             return 2;
@@ -614,6 +623,11 @@ int main(int argc, char **argv)
     };
     size_t lines_dropped = 0, lines_trimmed = 0;
     auto t0 = std::chrono::steady_clock::now();
+    auto secs = [](std::chrono::steady_clock::time_point a) {
+        return std::chrono::duration<double>(std::chrono::steady_clock::now() - a).count();
+    };
+    double t_scan = 0, t_bands = 0, t_knots = 0; /* the size model's phases */
+    int n_bands = 0;
     if (!window) {
         /* line minima from u = 0 outwards, warm-started from the neighbour; a direction
          * stops after `patience` lines beyond the budget, or after maxlines / 2 lines within
@@ -642,14 +656,18 @@ int main(int argc, char **argv)
          * of 0.25 (not below 0.5) until the bands hold at most that many cells, and if they
          * still hold more, only the lines nearest the best line are kept. Knots last, for the
          * kept lines. */
+        t_scan = secs(t0);
+        auto tb = std::chrono::steady_clock::now();
         for (auto &kv : lines)
             all.push_back(&kv.second);
         for (;;) {
             const double c = bands_at(budget_used, nullptr);
+            n_bands++;
             if (maxcells <= 0 || c <= maxcells || budget_used <= 0.5)
                 break;
             budget_used = std::max(0.5, budget_used - 0.25);
         }
+        t_bands = secs(tb);
         for (auto *L : all)
             if (band_cells(L) > 0)
                 kept.push_back(L);
@@ -679,9 +697,11 @@ int main(int argc, char **argv)
         }
         lines_dropped = kept.size() - nkeep;
         kept.resize(nkeep);
+        auto tk = std::chrono::steady_clock::now();
 #pragma omp parallel for schedule(dynamic, 1)
         for (size_t i = 0; i < kept.size(); i++)
             rs_line_knots(*kept[i], R, 64);
+        t_knots = secs(tk);
     }
     if (window)
         for (int64_t u = u0; u <= u1; u++)
@@ -704,6 +724,8 @@ int main(int argc, char **argv)
         printf("# size model %.2f s: best line minimum %.4f, budget %.2f: %.3g cells in %zu blocks (%zu lines "
                "dropped, %zu trimmed by -maxcells)\n",
                t_model, L_best, budget_used, ncells, nblk, lines_dropped, lines_trimmed);
+        printf("# size model phases: line scan %.2f s, bands %.2f s at %d budgets, knots %.2f s\n", t_scan, t_bands,
+               n_bands, t_knots);
         printf("#      u   L_min        v_min           band v_lo .. v_hi          cells\n");
         for (auto &kv : lines) {
             const RsLine &L = kv.second;
@@ -881,7 +903,7 @@ int main(int argc, char **argv)
                L_best, nl, budget_used, (long long)ulo, (long long)uhi, lines.size());
         if (lines_dropped || lines_trimmed)
             printf("; -maxcells dropped %zu lines and trimmed %zu", lines_dropped, lines_trimmed);
-        printf("\n");
+        printf("; line scan %.2f s, bands %.2f s at %d budgets, knots %.2f s\n", t_scan, t_bands, n_bands, t_knots);
         if (murphy)
             printf("# best %d by validated MurphyE: %zu optimized, %zu accepted, %zu limited, %zu failed, %zu skipped before MurphyE; "
                    "Bf %.17g Bg %.17g area %.17g K %d Keval %d maxeval %d\n", top, murphy_count,

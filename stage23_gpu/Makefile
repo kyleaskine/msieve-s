@@ -18,6 +18,7 @@ CUDA ?= 120
 NVCC ?= nvcc
 CXX ?= g++
 BUILD := build
+comma := ,
 
 # CADO's include flags and libraries, from the same code the stage23_bench tools use
 # (polyfmt.cado_compile_args: CADO_BUILD_DIR, else cado_build_dir in ../nfs_config.ini),
@@ -124,12 +125,22 @@ $(BUILD)/test_murphy_integral: tests/test_murphy_integral.cpp $(MURPHY_HEADERS) 
 	$(CXX) $(MURPHY_FLAGS) $(CADO_INC) $(addsuffix /embedded,$(filter %/utils,$(CADO_INC))) \
 		-Itools -I../stage23_bench/tools -fopenmp -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS)
 
+# -mfma (x86-64 only): the explicit fma() of the CADO-matched root finding (include/dpoly.h)
+# becomes one instruction instead of a libm call; same results, the size model's skewness about
+# 1.7x faster. The binary then needs FMA3 (Haswell, Zen or later). With it the host compiler could
+# fuse other multiply-adds, so contraction stays off explicitly. Elsewhere fma() stays a call.
+ROPT_HOST_FLAGS := -ffp-contract=off
+ifneq ($(findstring x86_64,$(shell $(CXX) -dumpmachine)),)
+ROPT_HOST_FLAGS += -mfma
+endif
+
 $(BUILD)/s23_ropt_cpu: $(ROPT_SRC) $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIB_FILES)
-	$(CXX) -O3 -ffp-contract=off -std=c++17 -fopenmp -Iinclude -Itools -x c++ tools/s23_ropt.cu \
+	$(CXX) -O3 $(ROPT_HOST_FLAGS) -std=c++17 -fopenmp -Iinclude -Itools -x c++ tools/s23_ropt.cu \
 		-x none $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o -o $@ $(CADO_LIBS)
 
 $(BUILD)/s23_ropt: $(ROPT_SRC) $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIB_FILES)
-	$(NVCC) -O3 -std=c++17 -arch=sm_$(CUDA) --fmad=false -Iinclude -Itools -Xcompiler -fopenmp \
+	$(NVCC) -O3 -std=c++17 -arch=sm_$(CUDA) --fmad=false -Iinclude -Itools \
+		-Xcompiler -fopenmp,$(subst $(eval) ,$(comma),$(ROPT_HOST_FLAGS)) \
 		-o $@ tools/s23_ropt.cu $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIBS) -lgomp
 
 s23_ropt_cpu: $(BUILD)/s23_ropt_cpu

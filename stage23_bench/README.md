@@ -250,6 +250,41 @@ baseline; no useful new sieve gain is established. The proxy ranks a roughly
 selection inside ropt's final ranking. Full records and verification scripts are
 under `pipeline_results/gpu_ropt_c205/`; no rerun is needed to complete this batch.
 
+## data/c185 and data/c168b (2026-10-10)
+
+These are two completed CPU pipelines (top 1000 re-sopt at effort 50, msieve on 300
+seeds, CADO effort 5 on 150, both signs), compared with a GPU ropt breadth pass. The
+C185 is the top level of `~/msieve-s-backup`. The C168 is `~/msieve-s/pipeline_results`
+as of 2026-10-10; it is a different number from `data/c168`, hence `c168b`.
+
+- **GPU breadth pass:** `s23_ropt -search -budget 3 -aw 1.3 -maxcells 2e11 -rerank
+  4096`, 4 workers. The seeds are the pipeline's `best300_msieve.ms` (one-based
+  re-sopt rank) plus content seeds. It ran 319 and 314 searches with no failures,
+  taking 35.1 and 24.7 min while ECM shared the CPU.
+- **Scoring:** the job parameters are assumed. C185: `job:31,32,15,50e6`, lattice
+  `15,16384`, q 50M–250M. C168: `job:30,31,14,25e6`, lattice `14,8192`, q 25M–100M.
+- **`winners/`:** every polynomial is written at the skew of the independent 256k
+  rescoring (16k-point skew grid, lattice stream 2, 256 lattices × 4096 points). Its
+  band and MurphyE ratios are in the header, and `gpu_ropt/summary.json` holds the
+  full record.
+  - C185: `cado_orig_best` is CADO's single-run winner (seed 4); the GPU's proxy #1
+    for seed 4 is the identical polynomial. `msieve_best` is 0.952.
+    `gpu_seed1_best` (0.965) beats msieve's seed-1 result by 1%.
+    `gpu_murphy_best` comes from `s23_ropt -murphy` on seed 4: +0.01%, a tie.
+  - C168: `msieve_best` (seed 1) is first. `cado_best` is 0.9987; the GPU's proxy
+    #1 is the identical polynomial. msieve's is the same cell (u = −5),
+    translated by 2,783,074. `gpu_murphy_best` (`-murphy` on seed 1) recovers it:
+    band 0.99992, MurphyE 0.99998.
+- **`gpu_ropt/families.tsv`:** the per-parent-seed best of each side, as ratios to
+  the job's best band (the breadth scoring is 4000/16000 points). On C185, 55
+  families are more than 1% better, 168 within 1% and 76 more than 1% worse. On
+  C168 the counts are 63, 216 and 20. Only the first 32 outputs of each search were
+  scored.
+- **Scripts:** `runs/20261010_c185_c168b/` (`prepare.py`, `run_breadth.sh`, `score.py`,
+  `analyze.py`, `save_fixtures.py`; see `runs/README.md`). The full outputs were made in
+  `stage23_gpu/build/runs_20261010/{c185,c168}`, which `make clean` deletes; the fixtures
+  here keep what the comparison needs.
+
 ## Finalist translation and skew refinement
 
 The same MurphyE integral and bounded search now also run inside

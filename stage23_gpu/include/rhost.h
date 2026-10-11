@@ -39,13 +39,13 @@ template <int L>
 bool rs_written_poly(cio_poly &out, const cio_poly &seed, const RsizePoly<L> &R, int64_t u, int64_t v, int64_t t,
                      unsigned long &content)
 {
-    Int<L> fr[6], g[2], k;
+    Int<L> fr[6], g[2];
     if (!rs_rotate(fr, R, u, v))
         return false;
-    set_si(k, t);
     g[0] = R.g[0];
     g[1] = R.g[1];
-    if (!translate<L, 5>(fr, k) || !translate<L, 1>(g, k))
+    /* the size model's own exact translation (rs_translate), so a cell it scores is written */
+    if (!rs_translate(fr, t) || !addmul_si(g[0], g[0], g[1], t))
         return false;
     mpz_set(out.n, seed.n);
     out.deg = 5;

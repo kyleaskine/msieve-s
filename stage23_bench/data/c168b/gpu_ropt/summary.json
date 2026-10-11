@@ -1,0 +1,103 @@
+{
+  "date": "2026-10-10",
+  "source": "/home/kylea/msieve-s/pipeline_results",
+  "n_digits": 168,
+  "seeds": {
+    "parents": 300,
+    "content": 14,
+    "numbering": "one-based CPU re-sopt rank (best300_msieve.ms)"
+  },
+  "breadth": {
+    "command": "s23_ropt -poly SEED -search -budget 3.0 -aw 1.3 -maxcells 2e11 -rerank 4096 -top 3 -t 4",
+    "workers": 4,
+    "searches": 314,
+    "failed": 0,
+    "total_seconds": 1480.698276782,
+    "clock": "date +%s.%N",
+    "note": "about nine ECM processes shared the CPU: elapsed record, not a speed measurement"
+  },
+  "scoring": {
+    "params": "job:30,31,14,25e6",
+    "lattice": "14,8192",
+    "qband": "25e6,1e8,7",
+    "points": 4000,
+    "eval_points": 16000,
+    "scored": "CPU pipeline: msieve best 3 per seed and pass + all CADO; GPU: first 32 of each search",
+    "note": "job parameters assumed (user: reasonable); siever region and q range not test-sieve validated"
+  },
+  "families": {
+    "compared": 299,
+    "better_1pct": 63,
+    "within_1pct": 216,
+    "worse_1pct": 20,
+    "worst": 0.9275
+  },
+  "murphy_run": {
+    "seed": "s0001",
+    "bounds": {
+      "Bf": 2147483648,
+      "Bg": 1073741824,
+      "area": 3355443200000000.0
+    },
+    "K": 16000,
+    "Keval": 64000,
+    "maxeval": 384,
+    "device": "GPU",
+    "summary": "4096 optimized, 3487 accepted, 0 limited, 0 failed, 0 skipped before MurphyE",
+    "timing": "1.9e+11 cells, sieve 5.44 s (3.5e+10 cells/s, GPU), size model 2.47 s, refine 272.88 s, waited 0.00 s for the GPU context"
+  },
+  "rescore": {
+    "settings": {
+      "points": 16000,
+      "eval_points": 256000,
+      "nlat": 256,
+      "npts": 4096,
+      "latseed": 2
+    },
+    "rows": [
+      {
+        "poly": "winners/msieve_best.poly",
+        "label": "msieve_orig seed 1 e 7.466e-13 j 0",
+        "band_ratio": 1.0,
+        "murphy": 5.145528e-08,
+        "murphy_ratio": 1.0,
+        "skew": 19002521.1
+      },
+      {
+        "poly": "winners/cado_best.poly",
+        "label": "cado_orig seed 1 E 7.418e-13",
+        "band_ratio": 0.998656,
+        "murphy": 5.138946e-08,
+        "murphy_ratio": 0.998721,
+        "skew": 18696307.1
+      },
+      {
+        "poly": "winners/gpu_murphy_best.poly",
+        "label": "s23_ropt -murphy #1: u -5 v 39036669 t 4720679 MurphyE 5.1451605709417436e-08 lognorm 50.385709 lognorm_at_murphy_skew 50.602519 alpha_s -7.187494 control 5.1388891480343874e-08 proposal 5.1451605709417436e-08 accepted 1 calls 127 limited 0 alpha -7.628577",
+        "band_ratio": 0.99992,
+        "murphy": 5.145436e-08,
+        "murphy_ratio": 0.999982,
+        "skew": 18951139.3
+      }
+    ]
+  },
+  "sha256": {
+    "s23_ropt": "280ab356fa87680a4f4218e0b3229b194d63a73a9422e465447c3f1f1e27cbdc",
+    "source/best150_cado.txt": "ae3037f56e3ab4605668318c4c7da74aadabdebdf8020c5ddadd56c5c3bf5247",
+    "source/best150_cado_inv.txt": "8015748463f7ed428699083dd8548fcf7896a65bb344b1ab2047faccee40b659",
+    "source/best300_msieve.ms": "b56164a5034d5f1245499bbf63d35fcda1867369ca6cd61a6c70a8b2f676b8f3",
+    "source/best300_msieve_inv.ms": "4b8cc919aea7bb8199ecb2f0802aefb6829758b3b0138f6e6992f1c4e2b866a2",
+    "source/cado_ropt_inv.txt": "04f669656d5890ba193f70bf741a002cf0050ad43cfb0ed2376fc0e3d5ce270d",
+    "source/cado_ropt_orig.txt": "8c526844e98d177a14796a80ed9b1093827cbbb10049dbde49ab34d1d62c5345",
+    "source/msieve_ropt_inv.p": "b572ec6e2ec82fe26dbaced0086536f08e2ecb98053555eb1b89525006801931",
+    "source/msieve_ropt_orig.p": "6d2d5ad2bb91c9ae39e44bf4cad80ea9dc9362b1a88553f356a0c1c19b724b57",
+    "source/pipeline_report.txt": "7e59a9de54953e9e563a61b2598fdd1aa66ee8fe2f9dc07576493176f9bc5693",
+    "source/pipeline_settings.txt": "e661ed1df2e810831c439cfcbbd14d4c6b2dafa0986bd420b165987cd2a7e353",
+    "source/skewopt_results.txt": "3192859b12a37b84b6a74eb118d5a2185eafff64aa1fa07beaf3cb4d0413f2a1",
+    "breadth_log": "25b02840dd71afd107d83ac1ed95252bacbe5a5887c8b5d053486e1c19f0ae25",
+    "baseline.tsv": "3fc31ff3422b7b0f3e09b2e64f3c43b517ebaac96e0b260c6b3bd56f3d35d669",
+    "gpu.tsv": "656258a5610ac9937b4d5f8c4f10f29a1495415fe4cba721d4403f14cd2bc4b5",
+    "murphy_output": "51d1ce937fbd871dde0ff4191c0ad4ff282795274b570802bd87e3c3cab5712a"
+  },
+  "full_outputs": "/home/kylea/msieve-s/stage23_gpu/build/runs_20261010/c168"
+}

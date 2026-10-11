@@ -87,6 +87,31 @@ template <int L> static void run(long iters)
         else CHECK(!fits<L>(zr) || mpz_sizeinbase(zr, 2) == (size_t)maxbits + 1, "mul spurious overflow");
         if (fits<L>(zr) && mpz_sizeinbase(zr, 2) <= (size_t)maxbits) CHECK(ok, "mul missed result");
 
+        /* addmul_si: r = b + a k for a 64-bit k (edges included); exact overflow flag */
+        {
+            const int pick = (int)gmp_urandomm_ui(rs, 6);
+            int64_t k = pick == 0 ? INT64_MIN : pick == 1 ? INT64_MAX : pick == 2 ? -1
+                      : (int64_t)((uint64_t)gmp_urandomb_ui(rs, 32) << 32 | gmp_urandomb_ui(rs, 32)) >>
+                            (int)gmp_urandomm_ui(rs, 64);
+            mpz_t zk;
+            mpz_init(zk);
+            mpz_set_si(zk, (long)k);
+            mpz_set(zr, zb);
+            mpz_addmul(zr, za, zk);
+            ok = addmul_si(r, b, a, k);
+            CHECK(ok == fits<L>(zr), "addmul_si overflow flag");
+            if (ok) { to_mpz(t, r); CHECK(mpz_cmp(t, zr) == 0, "addmul_si value"); }
+            q = b; /* r aliasing c, as rs_translate uses it */
+            ok = addmul_si(q, q, a, k);
+            CHECK(ok == fits<L>(zr), "addmul_si in place overflow flag");
+            if (ok) { to_mpz(t, q); CHECK(mpz_cmp(t, zr) == 0, "addmul_si in place"); }
+            q = a; /* r aliasing a */
+            ok = addmul_si(q, b, q, k);
+            CHECK(ok == fits<L>(zr), "addmul_si r = a overflow flag");
+            if (ok) { to_mpz(t, q); CHECK(mpz_cmp(t, zr) == 0, "addmul_si r = a"); }
+            mpz_clear(zk);
+        }
+
         /* floor division */
         if (mpz_sgn(zb) != 0) {
             mpz_fdiv_qr(zq, zrem, za, zb);

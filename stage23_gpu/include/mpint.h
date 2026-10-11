@@ -219,6 +219,23 @@ template <int L> S23_HD_CALL bool mul(Int<L> &r, const Int<L> &a, const Int<L> &
     return from_magnitude(r, p, negative);
 }
 
+/* r = c + a k for a 64-bit k, in one pass over the two's-complement limbs (the size model's
+ * rotations and translations); false if the result does not fit. r may alias a or c. */
+template <int L> S23_HD bool addmul_si(Int<L> &r, const Int<L> &c, const Int<L> &a, int64_t k)
+{
+    __int128 acc = 0;
+    for (int i = 0; i < L; i++) {
+        /* limbs below the top are unsigned, the top limb carries the sign */
+        const int64_t ai = i < L - 1 ? (int64_t)a.w[i] : (int64_t)(int32_t)a.w[i];
+        const int64_t ci = i < L - 1 ? (int64_t)c.w[i] : (int64_t)(int32_t)c.w[i];
+        acc += (__int128)ai * k + ci;
+        r.w[i] = (uint32_t)acc;
+        acc >>= 32; /* arithmetic: floor */
+    }
+    /* the value is r's limbs (unsigned) + acc 2^(32L); it fits iff acc is r's sign extension */
+    return acc == (is_neg(r) ? -1 : 0);
+}
+
 /* ---- division ----------------------------------------------------------- */
 
 /* Unsigned long division: u (m limbs) / v (n limbs, v[n-1] != 0, m >= n).

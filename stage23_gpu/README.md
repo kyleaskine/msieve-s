@@ -100,8 +100,10 @@ bounds, `-rerank 0`, and window/cell mode. Omitting it preserves the old behavio
 `make test` now checks the C205 proxy ranking reversal, the C181 translation gain
 at 256,000 angles, exact polynomial export and resultant preservation, a real
 eight-candidate search with a one-output cut, fixed-skew readback, and invalid
-option rejection. Both CPU and CUDA builds compile. GPU execution of the new
-mode awaits an idle device; development checks used the CPU while the GPU was busy.
+option rejection. Both CPU and CUDA builds compile. GPU execution was checked on
+2026-10-10, on a C185 search with cap 1e10 and all 4096 cells refined. The GPU and
+`-cpu` paths wrote byte-identical outputs (see the plan, "GPU execution check of
+`-murphy`").
 
 The initial implementation's full saved 200-output C205 seed-2 replay took
 104.60 s on four workers, with 200 exact translations/resultants verified, 86
@@ -163,7 +165,8 @@ include/
                 g's root; projective roots to p^(e+3), tabulated once per seed), and a
                 brute-force reference
   rsize.h       M2 size model (host): lognorm after re-translation, per-line minimum,
-                band and knots
+                band and knots; warm-started skewness (Newton + Sturm), t guesses,
+                false-position band edges (2026-10-10)
   rseed.h       host helper: a CADO-format poly to the root sieve's per-prime residues
                 (shared by s23_ropt and the tests)
   rblock.h      M2 sieve blocks, kept cells, the order of cells in a block and the CPU
@@ -177,8 +180,8 @@ include/
                 special_val0 recursion, both valuation code paths; expected_alpha
   hd.h          host/device macros (S23_HD inlined; S23_HD_CALL real calls on the device)
   mpint.h       Int<L>: L x 32-bit two's-complement integers; add/sub/neg/mul with
-                overflow reporting, floor and exact division (Knuth D), mpz_get_d-style
-                truncating conversion
+                overflow reporting, one-pass multiply-add by a 64-bit scalar (addmul_si),
+                floor and exact division (Knuth D), mpz_get_d-style truncating conversion
   lll_exact.h   exact-integer LLL, a port of CADO utils/lll.c (NTL LLL_ZZ) for
                 independent rows, delta = 1
   sopt_lll.h    CADO's best_norm: translate by k, build the skew-scaled rotation lattice,
@@ -198,6 +201,34 @@ tests/
                    the benchmark winners; projective alpha vs CADO's get_alpha_projective
   test_rselect.cpp the CPU block choice vs an exhaustive sort (ties, short blocks, slopes)
 ```
+
+## Status (2026-10-10/11, size model 14x faster; the C184 job)
+
+Details in `../GPU_STAGE23_PLAN.md`: "Size model speedup, implemented" and "C184".
+
+- **The size model is about 14x faster** (`include/rsize.h`, `include/mpint.h`, Makefile):
+  `-mfma` turns the CADO-matched `fma()` calls into instructions (same results);
+  `addmul_si` does the rotations and translations in one pass; each skewness is Newton
+  from the previous evaluation's, certified by a Sturm count, else CADO's isolation; each
+  t search starts from a linear guess with a first step of 1; band edges keep their
+  doubling points across the `-maxcells` budgets and shrink by false position.
+  - `-plan` on 14 seeds (C168 to C208): 87.2 s -> 6.1 s. Same lines, line minima and
+    final band edges; cells per budget step within 1.2e-12.
+  - C184 breadth (320 searches): same best cell in all 320, same 200 written cells;
+    1,932 s -> 1,017 s, now bound by the GPU sieve (3.4e10 cells/s).
+  - `-exactskew -oldsearch` reproduce the old binary byte for byte. `test_mpint` checks
+    `addmul_si` against GMP; `test_rsieve` checks the warm skewness and the fast searches
+    against the old paths on the fixture seeds.
+- **Run at most 2 `s23_ropt` searches at once, with `-launch 30`.** Four concurrent processes
+  starve the Windows compositor under WSL2 (windows stop repainting) even with short
+  kernels; two at `-launch 30` (about 25 ms kernels) leave the desktop normal. `s23_sopt`'s
+  10 s slices are fine.
+- **C184:** GPU sopt on all 1,324,678 raw polys in 1,600 s (CADO: 1,837 s on 8 workers);
+  9 outputs differ from CADO's, all no worse at full precision; the 300 seeds are the CPU
+  pipeline's exactly. The breadth pass's #1 is CADO's winning polynomial (translated by
+  one, an exact tie; msieve 0.9977). Pass 2 on the 16 leading families (cap 6e12, `-murphy`
+  on 4; 34.5 min) found nothing better. Run files in `../pipeline_results/gpu_c184/`, scripts
+  in `../stage23_bench/runs/20261011_c184/`.
 
 ## Status (2026-10-03, M1 steps 3-4)
 

@@ -29,6 +29,15 @@
 
 using namespace s23;
 
+/* |a - b| for agreement checks: 0 when equal (also both infinite), infinite when undefined */
+static double adiff(double a, double b)
+{
+    if (a == b)
+        return 0;
+    const double d = fabs(a - b);
+    return std::isnan(d) ? INFINITY : d;
+}
+
 int main(int argc, char **argv)
 {
     long cells = 0, bad = 0, all_content = 0;
@@ -145,6 +154,83 @@ int main(int argc, char **argv)
             for (int v = -3; v <= 3; v++)
                 check_cell(u, v);
         cio_clear(&W);
+        /* the size model's warm-started skewness (rs_skewness) against CADO's root isolation
+           (L2_skewness_d), along t-chains as rs_size runs them (each evaluation warm-starts
+           from the last) at line minima and far along the lines: the lognorms must agree to a
+           few ulps, and the line minima found both ways too */
+        double worst_w = 0;
+        long nw = 0;
+        for (int64_t u : {0, 1, -2, 5}) {
+            if (xfail)
+                break;
+            RsLine Lw, Lc;
+            rs_line_min(Lw, R, u, 0, 0, 1 << 20);
+            rs_warm_skew = false;
+            rs_line_min(Lc, R, u, 0, 0, 1 << 20);
+            rs_warm_skew = true;
+            worst_w = std::max(worst_w, adiff(Lw.L_min, Lc.L_min));
+            for (int64_t dv : {0LL, 1000LL, -1000000LL, 1000000000LL}) {
+                Int<RS_LP> fr[6];
+                if (!rs_rotate(fr, R, u, Lw.v_min + dv))
+                    continue;
+                double xh = 0;
+                for (int64_t step = 1 << 20; step >= 1; step /= 4)
+                    for (int dir = -1; dir <= 1; dir += 2) {
+                        const double w = rs_lognorm_at(fr, Lw.t_min + dir * step, &xh);
+                        const double c = rs_lognorm_at(fr, Lw.t_min + dir * step);
+                        worst_w = std::max(worst_w, adiff(w, c));
+                        nw++;
+                    }
+            }
+        }
+        const bool wbad = !(worst_w < 1e-13);
+        printf("%s: warm-started skewness vs CADO's, %ld evaluations and 4 line minima: worst lognorm "
+               "difference %.2e%s\n",
+               argv[a], nw, worst_w, wbad ? "  MISMATCH" : "");
+        bad += wbad;
+        /* the size model's fast searches (rs_fast_search: t guesses, false-position band edges,
+           kept doubling points) against the old ones (-oldsearch -exactskew), on 7 lines: line
+           minima; band edges at three falling budgets (the -maxcells loop's order) then two
+           rising ones (as -plan's step table follows it); and 16 knots across the last band.
+           Edges may move by an ulp-level tie only (within 1e-9 of the band's width); knot
+           lognorms are compared where both bands are the same. */
+        double worst_s = 0, worst_e = 0, worst_k = 0;
+        for (int64_t u : {0, 1, -1, 3, -4, 9, 20}) {
+            if (xfail)
+                break;
+            RsLine Ln[2];
+            for (int fast = 0; fast < 2; fast++) {
+                rs_fast_search = fast;
+                rs_warm_skew = fast;
+                rs_line_min(Ln[fast], R, u, 0, 0, 1 << 20);
+            }
+            worst_s = std::max(worst_s, adiff(Ln[0].L_min, Ln[1].L_min));
+            for (double b : {2.0, 1.5, 1.0, 3.0, 2.5}) {
+                for (int fast = 0; fast < 2; fast++) {
+                    rs_fast_search = fast;
+                    rs_warm_skew = fast;
+                    rs_line_band(Ln[fast], R, Ln[0].L_min + b, 1, 0);
+                }
+                const double w = std::max(1.0, (double)(Ln[0].v_hi - Ln[0].v_lo));
+                worst_e = std::max({worst_e, fabs((double)(Ln[0].v_lo - Ln[1].v_lo)) / w,
+                                    fabs((double)(Ln[0].v_hi - Ln[1].v_hi)) / w});
+            }
+            for (int fast = 0; fast < 2; fast++) {
+                rs_fast_search = fast;
+                rs_warm_skew = fast;
+                rs_line_knots(Ln[fast], R, 16);
+            }
+            if (Ln[0].v_lo == Ln[1].v_lo && Ln[0].v_hi == Ln[1].v_hi)
+                for (size_t i = 0; i < Ln[0].kL.size(); i++)
+                    worst_k = std::max(worst_k, adiff(Ln[0].kL[i], Ln[1].kL[i]));
+        }
+        rs_fast_search = true;
+        rs_warm_skew = true;
+        const bool sbad = !(worst_s < 1e-12) || !(worst_e < 1e-9) || !(worst_k < 1e-12);
+        printf("%s: fast vs old size-model searches, 7 lines: worst line minimum difference %.2e, band edge "
+               "%.2e of the band, knot lognorm %.2e%s\n",
+               argv[a], worst_s, worst_e, worst_k, sbad ? "  MISMATCH" : "");
+        bad += sbad;
         const bool abad = xfail;
         printf("%s: re-rank values vs the written polynomials, 56 cells (%ld with content): worst alpha %.2e, "
                "lognorm %.2e%s\n",
