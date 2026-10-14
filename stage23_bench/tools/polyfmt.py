@@ -34,19 +34,25 @@ def parse_sopt(path):
     return list(iter_sopt(path))
 
 
-def iter_sopt(path):
+def iter_sopt(path, header_counts=None):
     """Yield (raw, opt) pairs from CADO sopt output, in file order.
 
     raw has the input coefficients (and 'exp_E' of the input as printed by sopt);
     opt has the output coefficients plus skew, lognorm, exp_E, alpha, proj, rroots.
     """
     raw, opt, mode = {}, {}, None
+    if header_counts is not None:
+        header_counts.update(raw=0, opt=0)
     with open(path) as fh:
         for line in fh:
             if line.startswith('### Input raw polynomial'):
+                if header_counts is not None:
+                    header_counts['raw'] += 1
                 raw, mode = {}, 'in'
                 continue
             if line.startswith('### Size-optimized polynomial'):
+                if header_counts is not None:
+                    header_counts['opt'] += 1
                 opt, mode = {}, 'out'
                 continue
             if mode == 'in':

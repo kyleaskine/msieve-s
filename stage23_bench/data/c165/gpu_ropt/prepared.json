@@ -1,0 +1,21 @@
+{
+  "backup": "backup_20261012_213413",
+  "n": 473599948998910486217901980906518758547596581606923073954285632393249606360399476652270268990082587496694743456850777623715703057113166733573319093817025753943440563,
+  "raw_polynomials": 757156,
+  "sha256": {
+    "input.ms": "2ddbd01a16f72e0e524c59a57004b2173149514465f8c07910f4147e541e840b",
+    "bin/s23_ropt": "33bd62b900fcdd33702c838962b888bd3beb739ac290283f36eb43cf50505797",
+    "bin/s23_sopt": "39ac39c8b2837c6ee3d2921f80b3cef6ae24616de5a225b653daf11b57415c26",
+    "cpu_reference/best150_cado.txt": "9e98ed1544049b6e4bf3892dba893ca6672e5281b3c10f137b9125e9bbcd07ed",
+    "cpu_reference/best150_cado_inv.txt": "9f5ba17fce5affc72a789649d416b9bd21bfcf8d086c57dccf4b0ef0d2098b3b",
+    "cpu_reference/best300_msieve.ms": "3c2d43b0fcbbd77c82195a7e293eb73a795fc997b2010a7d25da0d4d61d78dd1",
+    "cpu_reference/best300_msieve_inv.ms": "906db4c2705fc8500a1573912ea373e4f57b7eabad9aa30596b0fc4eba4b446c",
+    "cpu_reference/cado_ropt_inv.txt": "6d0cc8be822e177822173590b42646205a2e7e27c4e94139d0a67b069857f6dd",
+    "cpu_reference/cado_ropt_orig.txt": "da13981589373f0fb5b9e0d7a6f8f8c8926812506700b0e52ba3b17a9a456590",
+    "cpu_reference/msieve_ropt_inv.p": "d7d645e5a254df5d1176ee620436bd9e2976645bd4bcf3381c01f158f27f3f41",
+    "cpu_reference/msieve_ropt_orig.p": "ca97837d5cb0364e508162e31f98a9e3a2f9348b45ab1487ad7c4976f64a7e2c",
+    "cpu_reference/pipeline_report.txt": "4f34d65b450d7ab5a3d65e1eb3a452c1f6885f2e17fad5c49f3b0c02253d567f",
+    "cpu_reference/pipeline_settings.txt": "b00e520e70594a96e57ad8e41dc3e34feed52760aa7574233a78d02773fdcc89",
+    "cpu_reference/skewopt_results.txt": "cd2ecbe10efc55307732ec8db1a8447e05b9ab96c6c96cb2483ed8f12a372e01"
+  }
+}

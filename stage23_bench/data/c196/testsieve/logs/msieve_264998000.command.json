@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/bin/bench",
+    "--pipeline",
+    "--cofactor",
+    "--poly",
+    "/home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/jobs/msieve.job",
+    "--fb1",
+    "/home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/fb/msieve.m17",
+    "--sq-side",
+    "1",
+    "--logI",
+    "17",
+    "--J",
+    "32768",
+    "--qrange",
+    "264998000:265001999",
+    "--relations",
+    "/home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/raw/msieve_264998000.dat",
+    "--log",
+    "/home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/raw/msieve_264998000.log",
+    "--log-every",
+    "1"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 121.50916337966919
+}

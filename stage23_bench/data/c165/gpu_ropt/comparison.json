@@ -1,0 +1,403 @@
+{
+  "scoring": {
+    "params": "job:30,31,14,30e6",
+    "lattice": "14,8192",
+    "qband": "30e6,90e6,7",
+    "source": "User-provided sieve parameters, 2026-10-13",
+    "note": "Model comparison; no test sieving performed."
+  },
+  "validation": {
+    "points": 16000,
+    "eval_points": 256000,
+    "nlat": 256,
+    "npts": 4096,
+    "latseed": 2
+  },
+  "note": "Model comparison; no test sieving performed.",
+  "rows": [
+    {
+      "label": "msieve_orig seed 8 e 1.013e-12 j 0",
+      "band": 255089100.0,
+      "ratio": 1.0,
+      "murphy": 5.782562e-08,
+      "skew": 4060215.9,
+      "relations_per_q": [
+        89.956,
+        83.2854,
+        78.8368,
+        73.977,
+        71.4416,
+        68.8017,
+        66.8536
+      ]
+    },
+    {
+      "label": "msieve_inv seed 8 e 1.013e-12 j 0",
+      "band": 255089100.0,
+      "ratio": 1.0,
+      "murphy": 5.782562e-08,
+      "skew": 4060215.9,
+      "relations_per_q": [
+        89.956,
+        83.2854,
+        78.8368,
+        73.977,
+        71.4416,
+        68.8017,
+        66.8536
+      ]
+    },
+    {
+      "label": "gpu_murphy seed s0008 rank 0 u -4 v -5893033 t -2052446 MurphyE 5.7823342262917999e-08 lognorm 49.760476 lognorm_at_murphy_skew 50.203408 alpha_s -6.868534 control 5.7728576065568428e-08 proposal 5.7823342262917999e-08 accepted 1 calls 135 limited 0 alpha -7.404406",
+      "band": 254993000.0,
+      "ratio": 0.9996232688891842,
+      "murphy": 5.782501e-08,
+      "skew": 4016479.3,
+      "relations_per_q": [
+        89.9396,
+        83.2443,
+        78.8163,
+        73.9313,
+        71.431,
+        68.7565,
+        66.8537
+      ]
+    },
+    {
+      "label": "cado_orig seed 8 E 9.972e-13",
+      "band": 254338000.0,
+      "ratio": 0.9970555386333638,
+      "murphy": 5.77299e-08,
+      "skew": 3867078.2,
+      "relations_per_q": [
+        89.8083,
+        82.9459,
+        78.565,
+        73.6634,
+        71.3391,
+        68.6764,
+        66.6333
+      ]
+    },
+    {
+      "label": "cado_inv seed 8 E 9.972e-13",
+      "band": 254338000.0,
+      "ratio": 0.9970555386333638,
+      "murphy": 5.77299e-08,
+      "skew": 3867078.2,
+      "relations_per_q": [
+        89.8083,
+        82.9459,
+        78.565,
+        73.6634,
+        71.3391,
+        68.6764,
+        66.6333
+      ]
+    },
+    {
+      "label": "gpu seed s0008 rank 0 u -4 v -5893033 t -2600030 Ea 40.134749 lognorm 49.760476 alpha_s -6.868534 alpha -7.404406",
+      "band": 254338000.0,
+      "ratio": 0.9970555386333638,
+      "murphy": 5.77299e-08,
+      "skew": 3867078.2,
+      "relations_per_q": [
+        89.8083,
+        82.9459,
+        78.565,
+        73.6634,
+        71.3391,
+        68.6764,
+        66.6333
+      ]
+    },
+    {
+      "label": "gpu_murphy seed s0001 rank 0 u -7 v 6017885 t 638107 MurphyE 5.4804024965698809e-08 lognorm 49.811095 lognorm_at_murphy_skew 50.215391 alpha_s -7.125014 control 5.4802609251543906e-08 proposal 5.4804024965698809e-08 accepted 1 calls 126 limited 0 alpha -7.139499 content divided",
+      "band": 248557300.0,
+      "ratio": 0.9743940450611178,
+      "murphy": 5.480422e-08,
+      "skew": 9683057.6,
+      "relations_per_q": [
+        88.7838,
+        81.816,
+        76.5261,
+        72.1191,
+        69.2266,
+        66.6102,
+        64.727
+      ]
+    },
+    {
+      "label": "gpu seed s0001 rank 0 u -7 v 6017885 t 356719 Ea 40.529746 lognorm 49.811095 alpha_s -7.125014 alpha -7.139499 content divided",
+      "band": 248508000.0,
+      "ratio": 0.9742007792571301,
+      "murphy": 5.480257e-08,
+      "skew": 9604722.5,
+      "relations_per_q": [
+        88.7507,
+        81.8042,
+        76.497,
+        72.1013,
+        69.218,
+        66.6213,
+        64.6982
+      ]
+    },
+    {
+      "label": "gpu seed s0001_d2 rank 0 u -4 v 3008942 t 356719 Ea 40.529746 lognorm 49.811095 alpha_s -6.496851 alpha -7.139499",
+      "band": 248508000.0,
+      "ratio": 0.9742007792571301,
+      "murphy": 5.480257e-08,
+      "skew": 9604722.5,
+      "relations_per_q": [
+        88.7507,
+        81.8042,
+        76.497,
+        72.1013,
+        69.218,
+        66.6213,
+        64.6982
+      ]
+    },
+    {
+      "label": "gpu_murphy seed s0001 rank 1 u 5 v -232039 t 2356842 MurphyE 5.4743689128290499e-08 lognorm 49.393332 lognorm_at_murphy_skew 49.668556 alpha_s -6.805175 control 5.4664309982720189e-08 proposal 5.4743689128290499e-08 accepted 1 calls 130 limited 0 alpha -6.731097 content divided",
+      "band": 247073000.0,
+      "ratio": 0.9685752938875083,
+      "murphy": 5.474331e-08,
+      "skew": 8076576.7,
+      "relations_per_q": [
+        87.9612,
+        81.214,
+        76.131,
+        71.6199,
+        68.8542,
+        66.3675,
+        64.5056
+      ]
+    },
+    {
+      "label": "gpu seed s0034 rank 1 u 10 v -18102014 t 1945678 Ea 40.874281 lognorm 50.777185 alpha_s -7.399597 alpha -7.617619",
+      "band": 247006900.0,
+      "ratio": 0.968316168742608,
+      "murphy": 5.448657e-08,
+      "skew": 9098438.3,
+      "relations_per_q": [
+        88.2676,
+        81.1707,
+        76.0027,
+        71.5939,
+        68.8339,
+        66.3966,
+        64.3292
+      ]
+    },
+    {
+      "label": "gpu seed s0001 rank 1 u 5 v -232039 t 1325163 Ea 40.642907 lognorm 49.393332 alpha_s -6.805175 alpha -6.731097 content divided",
+      "band": 246714800.0,
+      "ratio": 0.9671710786544779,
+      "murphy": 5.466369e-08,
+      "skew": 8253430.7,
+      "relations_per_q": [
+        87.9123,
+        81.0685,
+        75.9567,
+        71.4711,
+        68.7922,
+        66.3409,
+        64.3937
+      ]
+    },
+    {
+      "label": "gpu seed s0001_d2 rank 1 u 2 v -116020 t 1325163 Ea 40.642907 lognorm 49.393332 alpha_s -6.148130 alpha -6.731097",
+      "band": 246714800.0,
+      "ratio": 0.9671710786544779,
+      "murphy": 5.466369e-08,
+      "skew": 8253430.7,
+      "relations_per_q": [
+        87.9123,
+        81.0685,
+        75.9567,
+        71.4711,
+        68.7922,
+        66.3409,
+        64.3937
+      ]
+    },
+    {
+      "label": "gpu seed s0229 rank 0 u 20 v 12935212 t 883420 Ea 40.713101 lognorm 52.075786 alpha_s -8.445033 alpha -8.740527",
+      "band": 245781200.0,
+      "ratio": 0.9635111809951895,
+      "murphy": 5.344986e-08,
+      "skew": 12557372.1,
+      "relations_per_q": [
+        88.2322,
+        80.7552,
+        75.6139,
+        71.3478,
+        68.4812,
+        65.8956,
+        63.7771
+      ]
+    },
+    {
+      "label": "gpu seed s0034 rank 4 u 10 v 48728386 t 6847079 Ea 40.901697 lognorm 50.759349 alpha_s -7.381438 alpha -7.582809",
+      "band": 244939100.0,
+      "ratio": 0.9602099815319431,
+      "murphy": 5.369397e-08,
+      "skew": 10645571.0,
+      "relations_per_q": [
+        87.4121,
+        80.5571,
+        75.5246,
+        71.1034,
+        68.2822,
+        65.5237,
+        63.8154
+      ]
+    },
+    {
+      "label": "gpu seed s0034 rank 0 u 10 v 4174786 t 2598150 Ea 40.821846 lognorm 50.679713 alpha_s -7.023140 alpha -7.582975",
+      "band": 244866000.0,
+      "ratio": 0.9599234149949959,
+      "murphy": 5.382235e-08,
+      "skew": 9868333.2,
+      "relations_per_q": [
+        87.3729,
+        80.5162,
+        75.3512,
+        71.0561,
+        68.2779,
+        65.6983,
+        63.7875
+      ]
+    },
+    {
+      "label": "gpu seed s0060 rank 0 u -118 v -624585361 t -9164045 Ea 40.928548 lognorm 51.474427 alpha_s -7.562221 alpha -8.112215",
+      "band": 243771000.0,
+      "ratio": 0.9556307972390824,
+      "murphy": 5.189194e-08,
+      "skew": 19471271.3,
+      "relations_per_q": [
+        87.0322,
+        80.5154,
+        75.4099,
+        70.795,
+        67.6433,
+        65.0593,
+        63.1264
+      ]
+    },
+    {
+      "label": "gpu seed s0034 rank 2 u 10 v -6406694 t 2023827 Ea 40.877743 lognorm 50.657694 alpha_s -7.383321 alpha -7.523039",
+      "band": 243055600.0,
+      "ratio": 0.9528262869718855,
+      "murphy": 5.344156e-08,
+      "skew": 9449948.3,
+      "relations_per_q": [
+        86.8254,
+        79.8988,
+        74.7949,
+        70.4913,
+        67.7427,
+        65.2834,
+        63.2557
+      ]
+    },
+    {
+      "label": "gpu seed s0034 rank 20 u 10 v 85485106 t 7972332 Ea 41.187457 lognorm 50.930610 alpha_s -7.374594 alpha -7.494732",
+      "band": 243045700.0,
+      "ratio": 0.9527874770031334,
+      "murphy": 5.332771e-08,
+      "skew": 10389290.2,
+      "relations_per_q": [
+        86.6267,
+        79.9551,
+        74.9267,
+        70.6105,
+        67.719,
+        64.9926,
+        63.4303
+      ]
+    },
+    {
+      "label": "gpu_murphy seed s0008 rank 1 u -4 v -6183193 t -2038911 MurphyE 5.4471187836922387e-08 lognorm 49.886376 lognorm_at_murphy_skew 50.226846 alpha_s -6.774145 control 5.4407473932112643e-08 proposal 5.4471187836922387e-08 accepted 1 calls 131 limited 0 alpha -6.933101",
+      "band": 240909400.0,
+      "ratio": 0.944412756170295,
+      "murphy": 5.447269e-08,
+      "skew": 3930414.4,
+      "relations_per_q": [
+        84.9145,
+        78.6702,
+        74.4696,
+        69.8348,
+        67.517,
+        64.9429,
+        63.1559
+      ]
+    },
+    {
+      "label": "gpu_murphy seed s0001 rank 2 u 5 v -12113839 t 3114222 MurphyE 5.269231368531249e-08 lognorm 49.240900 lognorm_at_murphy_skew 49.440517 alpha_s -6.719327 control 5.269231368531249e-08 proposal 5.269231368531249e-08 accepted 0 calls 120 limited 0 alpha -6.380599 content divided",
+      "band": 237336400.0,
+      "ratio": 0.9304058856297662,
+      "murphy": 5.269325e-08,
+      "skew": 7092252.6,
+      "relations_per_q": [
+        84.4972,
+        78.0014,
+        73.0739,
+        68.7804,
+        66.2184,
+        63.7332,
+        62.0197
+      ]
+    },
+    {
+      "label": "gpu_murphy seed s0008 rank 2 u -4 v -5644633 t -1882002 MurphyE 5.2593941064584461e-08 lognorm 49.748600 lognorm_at_murphy_skew 50.259486 alpha_s -6.546292 control 5.2500802766461563e-08 proposal 5.2593941064584461e-08 accepted 1 calls 135 limited 0 alpha -6.748405",
+      "band": 233873800.0,
+      "ratio": 0.9168318050438062,
+      "murphy": 5.259261e-08,
+      "skew": 4060215.9,
+      "relations_per_q": [
+        82.5078,
+        76.3868,
+        72.282,
+        67.8651,
+        65.4538,
+        63.0444,
+        61.2767
+      ]
+    },
+    {
+      "label": "gpu_murphy seed s0001 rank 3 u 5 v 6114041 t 2225341 MurphyE 5.1326060371290267e-08 lognorm 49.570191 lognorm_at_murphy_skew 49.853352 alpha_s -6.581483 control 5.1167734768383317e-08 proposal 5.1326060371290267e-08 accepted 1 calls 130 limited 0 alpha -6.298458 content divided",
+      "band": 233084700.0,
+      "ratio": 0.9137383761203438,
+      "murphy": 5.132564e-08,
+      "skew": 8689135.7,
+      "relations_per_q": [
+        82.9012,
+        76.703,
+        71.8302,
+        67.5745,
+        64.9486,
+        62.5672,
+        60.819
+      ]
+    },
+    {
+      "label": "gpu_murphy seed s0008 rank 3 u -4 v -5773333 t -1900412 MurphyE 5.2022539702542637e-08 lognorm 49.740786 lognorm_at_murphy_skew 50.183666 alpha_s -6.506814 control 5.1936767476514973e-08 proposal 5.2022539702542637e-08 accepted 1 calls 132 limited 0 alpha -6.665959",
+      "band": 231493900.0,
+      "ratio": 0.9075021237677345,
+      "murphy": 5.202857e-08,
+      "skew": 4137904.0,
+      "relations_per_q": [
+        81.6915,
+        75.6127,
+        71.5328,
+        67.1589,
+        64.7899,
+        62.414,
+        60.6549
+      ]
+    }
+  ]
+}

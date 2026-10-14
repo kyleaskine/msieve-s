@@ -6,7 +6,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/nfs_config.ini"
+CONFIG_FILE="${NFS_CONFIG_FILE:-$SCRIPT_DIR/nfs_config.ini}"
 
 # ============================================================================
 # CONFIG PARSER
@@ -169,7 +169,33 @@ show_config() {
 cmd_preprocess() {
     echo "Running preprocessing (dedupe + CADO sopt)..."
     cd "$SCRIPT_DIR"
-    ./scripts/dedupe_and_sopt.sh -t "$SOPT_THREADS" -i "$INPUT_FILE"
+    ./scripts/dedupe_and_sopt.sh -t "$SOPT_THREADS" -i "$INPUT_FILE" "$@"
+}
+
+cmd_all() {
+    # Validate and split every option before preprocessing can overwrite outputs.
+    local preprocess_args=() pipeline_args=()
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -i|--input)
+                [ $# -ge 2 ] || { echo "Error: $1 requires a value" >&2; return 1; }
+                preprocess_args+=("$1" "$2"); shift 2 ;;
+            -t|--threads)
+                [ $# -ge 2 ] || { echo "Error: $1 requires a value" >&2; return 1; }
+                [[ "$2" =~ ^[1-9][0-9]*$ ]] || { echo "Error: $1 requires a positive integer" >&2; return 1; }
+                preprocess_args+=("$1" "$2"); pipeline_args+=("$1" "$2"); shift 2 ;;
+            -n|--extract|--msieve-ropt|--cado-ropt|--resopt-effort|--ropt-effort)
+                [ $# -ge 2 ] || { echo "Error: $1 requires a value" >&2; return 1; }
+                [[ "$2" =~ ^[0-9]+$ ]] || { echo "Error: $1 requires a nonnegative integer" >&2; return 1; }
+                pipeline_args+=("$1" "$2"); shift 2 ;;
+            *)
+                echo "Error: unsupported CPU all option: $1 (use preprocess/pipeline for imported outputs)" >&2
+                return 1 ;;
+        esac
+    done
+    check_dependencies
+    cmd_preprocess ${preprocess_args[@]+"${preprocess_args[@]}"}
+    cmd_pipeline ${pipeline_args[@]+"${pipeline_args[@]}"}
 }
 
 cmd_batch() {
@@ -190,7 +216,7 @@ cmd_pipeline() {
         fi
     done
     if [ "$report_only" -eq 1 ]; then
-        cmd_report "${rest[@]}"
+        cmd_report ${rest[@]+"${rest[@]}"}
         return
     fi
 
@@ -234,9 +260,10 @@ show_help() {
     cat << EOF
 NFS Polynomial Optimization - Unified Interface
 
-Usage: $0 [--size SIZE] <command> [options]
+Usage: $0 [--gpu] [--size SIZE] <command> [options]
 
 Global Options:
+  --gpu                Use the GPU stage-2/3 workflow (degree 5)
   --size SIZE          Select ropt count preset based on composite size
                          Reads from [size_small], [size_medium], [size_big]
                          sections in nfs_config.ini
@@ -246,6 +273,7 @@ Commands:
   batch [-c N]         Start batch processing (Phase 1: sopt, Phase 2: ropt)
                          -c N  Stop after N cycles (default: unlimited)
   pipeline             Run full optimization pipeline (extract top N, re-sopt, ropt)
+  all                  Run preprocess followed by pipeline from raw polynomials
   report               Re-print the final pipeline report from existing results
                          (no recomputation; use if you lost the pipeline output)
 
@@ -268,6 +296,13 @@ Examples:
   $0 --size small pipeline   # Pipeline with small ropt counts
   $0 --size big pipeline     # Pipeline with big ropt counts
   $0 pipeline                # Pipeline using config file values
+
+  # GPU workflow; all starts from raw stage-1 output
+  $0 --gpu all --input raw.ms --run-dir stage23_gpu/runs/my-job \\
+      --params job:32,33,16.5,80e6 --lattice 17,32768 --qband 80e6,450e6,7
+  $0 --gpu preprocess --input raw.ms --run-dir stage23_gpu/runs/my-job
+  $0 --gpu pipeline --run-dir stage23_gpu/runs/my-job --params job:32,33,16.5,80e6
+  $0 --gpu pipeline --help    # GPU options, including resume and CPU sopt import
 
   # Monitoring
   $0 watch                  # Watch results in real-time
@@ -312,6 +347,23 @@ apply_size_preset() {
 # ENTRY POINT
 # ============================================================================
 
+# Help must work on a clean checkout, without local configuration or binaries.
+HELP_REQUESTED=0
+GPU_HELP=0
+[ "${1:-}" != help ] || HELP_REQUESTED=1
+for arg in "$@"; do
+    case "$arg" in
+        --gpu) GPU_HELP=1 ;;
+        -h|--help) HELP_REQUESTED=1 ;;
+    esac
+done
+if [ "$HELP_REQUESTED" -eq 1 ]; then
+    if [ "$GPU_HELP" -eq 1 ]; then
+        exec python3 "$SCRIPT_DIR/scripts/gpu_pipeline.py" pipeline --help
+    fi
+    show_help
+fi
+
 # Load configuration
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "Error: Configuration file not found: $CONFIG_FILE"
@@ -327,8 +379,13 @@ load_config
 
 # Parse global options
 SIZE_PRESET=""
+GPU_MODE=0
 while [ $# -gt 0 ]; do
     case "$1" in
+        --gpu)
+            GPU_MODE=1
+            shift
+            ;;
         --size)
             if [ $# -lt 2 ]; then
                 echo "Error: --size requires an argument (small, medium, big)"
@@ -359,6 +416,36 @@ fi
 COMMAND=$1
 shift
 
+# GPU runs own their inputs and checkpoints; bypass CPU dependency checks and
+# CPU output rotation. Paths are interpreted relative to this repository, as in
+# the existing workflows. Explicit command arguments override size presets.
+if [ "$GPU_MODE" -eq 1 ]; then
+    case "$COMMAND" in
+        preprocess|pipeline|all|report)
+            gpu_args=()
+            if [ -n "$SIZE_PRESET" ]; then
+                gpu_args+=(--extract "$EXTRACT_TOP_N" --seeds "$MSIEVE_ROPT_COUNT")
+            fi
+            rest=()
+            for arg in "$@"; do
+                if [ "$COMMAND" = pipeline ] && [ "$arg" = --report-only ]; then
+                    COMMAND=report
+                else
+                    rest+=("$arg")
+                fi
+            done
+            export CADO_BUILD_DIR
+            exec python3 "$SCRIPT_DIR/scripts/gpu_pipeline.py" "$COMMAND" \
+                --config "$CONFIG_FILE" ${gpu_args[@]+"${gpu_args[@]}"} ${rest[@]+"${rest[@]}"}
+            ;;
+        config) ;;
+        *)
+            echo "Error: --gpu supports preprocess, pipeline, all, report, and config" >&2
+            exit 1
+            ;;
+    esac
+fi
+
 # Catch --help after the command (e.g. "pipeline --help")
 for arg in "$@"; do
     if [ "$arg" = "--help" ] || [ "$arg" = "-h" ]; then
@@ -377,6 +464,9 @@ case "$COMMAND" in
         ;;
     pipeline)
         cmd_pipeline "$@"
+        ;;
+    all)
+        cmd_all "$@"
         ;;
     report)
         cmd_report "$@"

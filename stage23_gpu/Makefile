@@ -68,14 +68,30 @@ $(BUILD)/test_rsieve: tests/test_rsieve.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO
 $(BUILD)/test_rselect: tests/test_rselect.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO_LIB_FILES) | $(BUILD)
 	$(CXX) $(CXXFLAGS) -Itools -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -fopenmp
 
-test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_rselect $(CASES) $(BUILD)/murphy_rank_probe $(BUILD)/s23_ropt_cpu $(BUILD)/test_murphy_integral $(BUILD)/test_murphy_cell
+$(BUILD)/test_rscan: tests/test_rscan.cpp $(HEADERS) | $(BUILD)
+	$(CXX) $(CXXFLAGS) -o $@ $<
+
+$(BUILD)/test_rclass: tests/test_rclass.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO_LIB_FILES) | $(BUILD)
+	$(CXX) $(CXXFLAGS) -ffp-contract=off -Itools -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -fopenmp
+
+$(BUILD)/test_rclass_rank: tests/test_rclass_rank.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO_LIB_FILES) | $(BUILD)
+	$(CXX) $(CXXFLAGS) -ffp-contract=off -Itools -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -fopenmp
+
+test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_rselect $(BUILD)/test_rscan $(BUILD)/test_rclass $(BUILD)/test_rclass_rank $(CASES) $(BUILD)/murphy_rank_probe $(BUILD)/s23_ropt_cpu $(BUILD)/test_murphy_integral $(BUILD)/test_murphy_cell
 	./$(BUILD)/test_mpint
 	./$(BUILD)/test_lll $(CASES)
 	./$(BUILD)/test_rsieve $(RSIEVE_POLYS)
 	./$(BUILD)/test_rselect $(RSIEVE_POLYS)
+	./$(BUILD)/test_rscan
+	./$(BUILD)/test_rclass $(RSIEVE_POLYS) ../stage23_bench/data/c208/ropt_coverage/s0222.poly
+	./$(BUILD)/test_rclass_rank ../stage23_bench/data/c161/winners/sopt.poly ../stage23_bench/data/c168/content/s0051.poly
 	python3 ../stage23_bench/tools/regress.py
 	python3 tests/test_murphy_rank.py
 	python3 tests/test_refine_failures.py
+	python3 tests/test_pipeline.py
+	python3 tests/test_ropt_scan.py
+	python3 tests/test_ropt_class.py
+	python3 tests/test_ropt_classes.py
 	./$(BUILD)/test_murphy_cell ../stage23_bench/data/c181/translation/gpu.poly
 	./$(BUILD)/test_murphy_integral ../stage23_bench/data/c146/winners/msieve_best.poly \
 		../stage23_bench/data/c181/translation/gpu.poly ../stage23_bench/data/c205/gpu_ropt/verified.poly

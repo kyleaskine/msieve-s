@@ -1,0 +1,28 @@
+{
+  "n": 4871625288700920481337981295877564327842899731910392387008220997117526670696844767805709783428745874017203355923366866874884514288387873724614593638088059593041027678792336490123364876179,
+  "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261013_backups/c187/cpu",
+  "seed_source": "/home/kylea/msieve-s/stage23_gpu/runs/20261013_backups/c187/sopt/best300_msieve.ms",
+  "searches": 315,
+  "seed_numbering": "one-based GPU effort-50 rank",
+  "settings": {
+    "n": 4871625288700920481337981295877564327842899731910392387008220997117526670696844767805709783428745874017203355923366866874884514288387873724614593638088059593041027678792336490123364876179,
+    "raw_polynomials": 1624941,
+    "top_n": 1000,
+    "effort": 50,
+    "input_source": "/home/kylea/msieve-s/backup_20261013_052537/msieve.dat.deduped.ms",
+    "input_sha256": "ba4528a73835c7e35f65b4e5503c8ab6b733c8b943b24b946d5e3bc3ebe8358a",
+    "cpu_source": "/home/kylea/msieve-s/stage23_gpu/runs/20261013_backups/c187/cpu_reference",
+    "backup": "backup_20261013_052537",
+    "breadth": {
+      "workers": 2,
+      "threads": 8,
+      "launch": 30,
+      "budget": 3,
+      "maxcells": 200000000000.0,
+      "rerank": 4096
+    }
+  },
+  "s23_ropt_sha256": "33bd62b900fcdd33702c838962b888bd3beb739ac290283f36eb43cf50505797",
+  "s23_sopt_sha256": "39ac39c8b2837c6ee3d2921f80b3cef6ae24616de5a225b653daf11b57415c26",
+  "same_top300_as_cpu": true
+}

@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/bin/bench",
+    "--pipeline",
+    "--cofactor",
+    "--poly",
+    "/home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/jobs/cado.job",
+    "--fb1",
+    "/home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/fb/cado.m17",
+    "--sq-side",
+    "1",
+    "--logI",
+    "17",
+    "--J",
+    "32768",
+    "--qrange",
+    "449996000:449999999",
+    "--relations",
+    "/home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/raw/cado_449996000.dat",
+    "--log",
+    "/home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/raw/cado_449996000.log",
+    "--log-every",
+    "1"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 112.77076983451843
+}

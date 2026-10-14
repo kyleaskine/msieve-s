@@ -21,7 +21,27 @@ poly by poly; the ropt of M2 is our own design.)
 Speed alone is not the motivation. The CPU pipeline takes about 2 h, while stage 1 takes
 about 24 h on a rented 5090.
 
-## Current status (updated 2026-10-10)
+## Current status (updated 2026-10-14)
+
+The next root-search implementation is tracked in
+[`ROPT_OPTIMIZATION_PLAN.md`](ROPT_OPTIMIZATION_PLAN.md): a reproducible loss
+corpus, opt-in coarse basin discovery, then selective residue-class sieving and
+equal-time validation. The basin scan is implemented and remains off by default:
+it recovers lower C208 size minima, with bounded CPU/CUDA export agreement.
+Explicit single-class sieving is also implemented and tested on CPU/CUDA; the
+known C208 seed-222 class now retains its historical winning rotation. Automatic
+class selection with exploration and a shared cell/candidate budget is now
+implemented as an opt-in mode. Five of six historical C208 losses are recovered
+as the first exact-alpha finalist without supplying their classes; seed 103's
+reference is excluded at class selection. Equal-time MurphyE and test-sieve
+comparisons remain pending.
+
+The pipeline review fixes now preserve valid partial MurphyE exports, save and
+replay full candidate pools without a second sieve, freeze consumed input bytes,
+and allow execution-setting changes on resume. Unique finalists are selected
+before the quota, and explicit parent classes are mapped into content seeds.
+Full host regressions plus real CUDA all/split/replay/resume checks passed; see
+the root optimization plan's 2026-10-14 review record.
 
 This section supersedes the conclusions written along the way in the milestones below.
 Where an older claim turned out wrong or weaker than first written, it is marked in place.
@@ -41,6 +61,18 @@ Where an older claim turned out wrong or weaker than first written, it is marked
     and was identical 2000/2000, with exact resultants checked. The full raw
     effort-0 sweep was not repeated.
 - **M2 (GPU ropt) is competitive with CADO's ropt at c168 size, but not at c208 size.**
+  - **C196, full GPU path (2026-10-12):** all 1,770,850 raw polys processed; the same
+    top 2000 and 300 seeds as the CPU pipeline. All 318 breadth searches succeed in
+    17.7 min; size optimization plus breadth takes 54.5 min. MurphyE refinement of
+    seeds 1 and 7 recovers msieve's winning family at another translation: +0.014%
+    by the lattice model, +0.010% MurphyE at 256k, an effective tie. No test-sieve
+    gain established. Compact results: `stage23_bench/data/c196/`; details below.
+    **Actual CADO/msieve test sieves (2026-10-13):** msieve beats the lower-skew CADO
+    polynomial in all three q windows with the user's corrected mfbr/mfba 62/95:
+    +7.7%, +3.5%, +6.1% unique relations per special-q near 80M, 265M, 450M.
+    Three-point band estimate: +5.4% yield, +3.2% throughput. All 135,029 emitted
+    relations verify. This compares the CPU winners; the tiny GPU/msieve
+    translation difference remains untested. See the C196 test-sieve subsection.
   - **Accurate final ranking implemented (2026-10-09, opt-in):** `s23_ropt
     -search -murphy` now searches translation/skew for the entire retained proxy
     pool before the output cut, with 16k-angle search and 64k validation. It fixes
@@ -1779,6 +1811,36 @@ Compact reproducibility record: `stage23_bench/data/c205/murphy_speed/summary.js
 plus the integrated command and its top three exported polynomials. It records
 source/binary hashes, both timing rounds, the 4096-cell measurement and validation.
 
+### Review fixes independently rechecked (2026-10-12)
+
+The review fixes are present in commits `6c5f259` and `c7d340c`; no further production
+code changes were needed in this recheck. `make -C stage23_gpu test` passes, including
+batch failure isolation, degree-11 rejection, output umask checks, pre-invalid cell
+skipping, shared refinement, option validation and exact export checks. The corrected
+integral fixture reader visits all 25 blocks (1 C146, 5 C181, 19 C205), giving **2,100
+bit-exact CADO comparisons**, rather than the 252 comparisons of the initial reader
+described above. The second search start is spatially separated from the first start
+and its endpoint; this does not guarantee distinct basins.
+
+The initial 12.2× timing above used native compilation and the earlier search policy.
+The current MurphyE scorer uses the compiler's portable baseline; ropt's size model
+separately requires FMA3 on x86-64 through explicit `-mfma`. The historical speedup and
+byte-identical search results have not been remeasured for the revised build.
+
+Logs: `stage23_gpu/build/runs_20261012/c196/preflight_test.log`. A bounded C196 GPU/CPU
+root-search smoke test also exported byte-identical polynomials, with zero brute-force
+check differences. The completed C196 GPU run is separate from the CPU pipeline and has a
+frozen input of 1,770,850 deduplicated polynomials. It uses top 2000 at effort 50, then
+300 parent seeds plus content seeds, and the desktop-friendly two-worker `-launch 30`
+breadth settings. Run script: `stage23_bench/runs/20261012_c196/run.py`; progress and
+outputs: `stage23_gpu/build/runs_20261012/c196/`. The user supplied lpbr/lpba 32/33,
+limr/lima 200M/300M, I=17, J=32768, and a provisional q range 80M–450M. The explicit
+rectangle gives MurphyE area 2^32 * 80M (equivalent I=16.5); `scoring.json` also
+preserves the user's A=30 label. `compare.py` snapshots the completed CPU results,
+compares breadth, refines the two leading GPU searches in-process, and validates
+finalists at 256k angles. It records scores across seven q values; this is a model
+comparison, not test sieving. Results are recorded under "C196" below.
+
 ### GPU execution check of `-murphy` (2026-10-10)
 
 The test seed was C185 seed 4 (re-sopt rank 4), the seed of the CPU pipeline's
@@ -2078,6 +2140,93 @@ include its skewopt.
   `-launch 30` took 1,092 s against 1,017 s for 4 × `-t 4` at `-launch 32` (+7%), with
   byte-identical outputs; the user confirmed the desktop stayed normal throughout.
 
+### C196: full GPU path after the review fixes (2026-10-12)
+
+Run scripts: `stage23_bench/runs/20261012_c196/`. Compact fixtures, winning
+polynomials, exact-output checks and provenance: `stage23_bench/data/c196/`.
+Full output: `stage23_gpu/build/runs_20261012/c196/`.
+
+- **Size optimization:** all 1,770,850 deduplicated raw inputs. Effort 0 takes
+  2,045.89 s wall; two flagged inputs fall back to CADO. Comparing every output
+  with CADO: 1,770,831 are coefficient-identical; the other 19 pass the existing
+  full-precision exp_E tolerance of 1e-6 (largest absolute difference about 7e-8).
+  The same top 2000 inputs are selected, effort 50 takes 138.32 s and matches
+  CADO's coefficients on all 2000 outputs, and the top 300 seeds are byte-identical
+  to the CPU pipeline's.
+- **Breadth:** 300 parent seeds plus 18 content seeds, budget 3, cap 2e11, aw 1.3,
+  rerank 4096, two workers × eight host threads, `-launch 30`. All 318 searches
+  succeed in 1,061.48 s, and every exported polynomial's resultant is checked.
+  Size optimization, sorting and breadth total **3,271.49 s (54.5 min)**. These
+  are wall times with shared-host load, not a matched CPU/GPU speedup experiment.
+- **Scoring:** the user's lpbr/lpba 32/33, explicit I=17 and J=32768, q 80M–450M
+  (upper limit provisional), seven q values. limr/lima 200M/300M retained for
+  future test sieving. Initial comparison: 2,100 CPU outputs and the first 32
+  of each GPU search (10,176), using the same 4k/16k skew search/evaluation.
+- **MurphyE before the output cut:** seeds 1 and 7, at the same breadth cap,
+  16k/64k points. All 8,192 candidates refined, 5,071 proposals accepted, no
+  failures or evaluation limits. All 400 exports pass independent exact
+  coefficient/translation/resultant reconstruction and fixed-skew readback
+  (maximum relative score difference 1.62e-7, within the scorer's printed precision).
+- **Finalists:** independent 16k skew search, 256k MurphyE evaluation, 256 lattices
+  × 4096 samples and stream 2. Ratios below are to msieve's best:
+
+| Method | Lattice band ratio | MurphyE ratio |
+|---|---:|---:|
+| GPU with MurphyE refinement | 1.000140 | 1.000096 |
+| msieve original / inverted | 1.000000 | 1.000000 |
+| GPU breadth | 0.999768 | 0.999772 |
+| CADO original / inverted | 0.992572 | 0.993413 |
+
+The refined GPU winner is msieve's polynomial translated by +3,059,435, with no
+rotation. Its per-q model difference ranges from -0.026% to +0.101%. This is an
+effective tie, not an established sieve gain. The scoring/refinement commands
+add 287.14 s; no test sieving was run.
+
+Coverage still matters: in the initial breadth comparison, GPU is >1% better on
+52 families, within 1% on 164, and >1% worse on 84. Seed 30 reaches only 0.698 of
+the CPU family's band score, seed 31 0.932, and seed 34 0.926. Matching the overall
+winner here does not eliminate the known search-coverage losses.
+
+#### C196 CADO versus msieve: actual GPU test sieves (2026-10-13)
+
+At the user's request, compare the lower-skew CADO winner (68,392,924.7) with
+msieve's winner (189,812,531.2), using the saved independently scored skews.
+Parameters: lpbr/lpba **32/33**, mfbr/mfba **62/95** (user corrected 64/96 before
+the runs), limr/lima 200M/300M, I=17, J=32768, algebraic special-q.
+
+Three matching 4,000-wide windows start at 80,000,000, 264,998,000 and 449,996,000.
+Polynomial order alternates by window: CADO/msieve, msieve/CADO, CADO/msieve.
+Both use the same frozen `cuda-sieve` binary, compiled commit `8d36ed4b-dirty`,
+whose SHA256 is recorded. The 400,000-lattice norm survey passes for both.
+
+| q, approximately | CADO unique rel/(q,rho) | msieve unique rel/(q,rho) | msieve yield advantage | CADO rel/s | msieve rel/s |
+|---|---:|---:|---:|---:|---:|
+| 80M | 137.253 | 147.801 | +7.68% | 248.91 | 258.31 |
+| 265M | 101.820 | 105.395 | +3.51% | 189.51 | 193.16 |
+| 450M | 88.005 | 93.347 | +6.07% | 158.89 | 165.66 |
+
+All 135,029 relations over 1,207 (q,rho) pairs rebuild both norms exactly and pass
+the siever's relation verifier. One repeated msieve (a,b) at q=80M is removed
+from yield/rate calculations, leaving 135,028 unique relations within windows.
+This ordinary duplicate initially stopped the analysis guard; `--resume` reuses
+completed successful commands and counts unique coordinates instead of requiring
+zero duplicates. No failed sieve window was used.
+
+The trapezoid over normalized yields/times estimates msieve **5.42% ahead in yield
+and 3.16% in throughput** over 80M–450M. This is a three-window screening estimate,
+not measured full-band production. Timings alternate order but are unreplicated
+under CPU contention; the yield advantage is more persuasive than the small speed
+difference. The lower CADO skew does not give an advantage in these settings.
+
+The earlier lattice model predicts only +0.75% for msieve, with CADO/msieve band
+ratio 0.99257 against measured 0.94862. Thus it gets the winner but understates
+the margin here; do not interpret sub-percent model comparisons as sieve results.
+
+Compact jobs, per-window logs, hashes and measurements:
+`stage23_bench/data/c196/testsieve/`. Raw relation files and factor bases:
+`stage23_gpu/build/runs_20261013/c196_testsieve/`. Reproducible runner and archiver:
+`stage23_bench/runs/20261012_c196/{testsieve,save_testsieve}.py`.
+
 ### M3: Objectives
 
 - E′ (David–Zimmermann) and the exact-distribution E′ (ranking plan, workstream 4).
@@ -2102,9 +2251,30 @@ include its skewopt.
 
 ### M4: Integration
 
-- inline GPU sopt in `-nps`
-- a pipeline mode that runs entirely on one device
-- keep the CPU hybrid as the reference
+- **Stage-2/3 orchestration implemented (2026-10-13):**
+  `nfs_optimize.sh --gpu all` runs from raw stage-1 polynomials to a validated
+  winner. Separate `--gpu preprocess` and `--gpu pipeline` entry points are
+  supported; `pipeline --input` preprocesses raw inputs first, and
+  `--initial-unsorted` imports an existing CPU sopt pass. See the GPU workflow
+  in `README_NFS_OPTIMIZE.md` for commands and scoring parameters.
+  - `scripts/gpu_pipeline.py` owns frozen inputs/executables, disk-backed
+    deduplication and sopt indexing, parent/content seeds, breadth/depth,
+    full-retained-pool MurphyE on leading families, and 256k final validation.
+  - Per-command checkpoints verify output hashes; failures can be resumed, and
+    changed inputs/settings require a separate run. Run directories are outside
+    disposable build and CPU pipeline output directories.
+  - One-command and separate-stage checks on three real c146 raw polynomials
+    (plus a duplicate) produced byte-identical final exports on the 5070. The
+    bounded check exercised content seeds, breadth, depth, and MurphyE over the
+    entire eight-cell retained pool. Resume launched no numerical commands.
+    This checks integration, not production-size search quality or speed.
+  - Driver regressions cover raw-pair identity when rational coefficients
+    coincide, importing CPU preprocessing, resume after failures, output
+    corruption, changed inputs/settings, missing bounds and concurrent writers.
+- Still pending: inline GPU sopt in `-nps`, and moving the remaining size model,
+  exact-alpha, scoring and content-seed work off the CPU. The new mode uses one
+  GPU but still requires host computation.
+- The CPU hybrid remains the reference.
 
 ## Review checks (2026-10-04)
 

@@ -3,10 +3,14 @@
  *   window: s23_ropt -poly FILE -u U0 U1 -v V0 V1 [common options]
  *   search: s23_ropt -poly FILE -search [-budget B] [-band B] [-maxcells C] [-aw W] [-patience P]
  *           [-umax U] [-maxlines M] [-out FILE] [-refine N] [-rerank N] [-plan] [common options]
+ *           [-u-scan STEP [-u-basins N] [-u-radius R]]
  *           [-murphy -Bf BF -Bg BG -area A [-murphy-points 16000] [-murphy-eval-points 64000] [-maxeval 384]]
  *   cell:   s23_ropt -poly FILE -cell U V
  *   common: [-top N] [-k K] [-seg LOG2] [-noproj] [-cpu] [-dev N] [-t THREADS] [-check N] [-launch LOG2]
  *           [-plan] [-exactskew] [-oldsearch]
+ *           [-residue M U V]  (window/search: (u,v) = (U,V) mod M)
+ *           [-classes M K [-class-explore E]]  (search: automatic classes, shared cap)
+ *           [-pool-out FILE | -pool-in FILE] (save/replay cells before exact refinement)
  *
  * For the seed in FILE (CADO format, degree 5), scores cells (u, v) of
  * f_{u,v} = f + (u x + v) g by the alpha sieve of include/rsieve.h (p < 200: affine roots
@@ -35,6 +39,16 @@
  *   when p | the multiplier a and f = (linear) g mod p) is written with it divided out,
  *   as CADO's ropt does, and labelled; its proxy is not right, so such lattices are
  *   searched properly as their own seeds (f + (u0 x + v0) g)/p.
+ * -u-scan STEP (search, experimental; default 0 disables): also sample the complete
+ *   [-umax,umax] range at this spacing, with endpoints. Refine at most -u-basins N
+ *   coarse local minima (default 4), then add dense neighborhoods of -u-radius R
+ *   lines on either side (default 128). Newly probed lines use nearby and independent
+ *   v/t starts. These are local minima, not certified bounds. Limit: 4097 samples,
+ *   16 basins, radius 4096, 16384 total neighborhood lines, and 128 refinement
+ *   probes per basin; umax <= 1e9.
+ *   The ordinary scan and -maxlines are unchanged. -maxcells still applies to the
+ *   merged lines: a lower new minimum can change which old cells survive the cap.
+ *   Report discovery and the center lines retained after the cap separately.
  * -rerank N (search, default 4096): the best N by the proxy get the exact lognorm and CADO's
  *   alpha (get_alpha, affine and projective, primes up to the bound CADO's MurphyE uses,
  *   2000), both of the polynomial as written, content divided out. They are re-ranked by
@@ -110,7 +124,11 @@
 #include "gmp_bridge.h"
 #include "rseed.h"
 #include "rsize.h"
+#include "rscan.h"
 #include "rblock.h"
+#include "rsegment.h"
+#include "rclass_rank.h"
+#include "rpool.h"
 #include "rhost.h"
 #include "murphy_cell.h"
 #include <memory>
@@ -132,6 +150,7 @@ static const int NT = 256; /* threads per block */
         }                                                                                 \
     } while (0)
 
+template <bool Strided>
 __global__ void __launch_bounds__(NT) sieve_kernel(const RsSeed *Sg, const float *PT, const Blk *blks, int k, float aw,
                                                    Hit *out)
 {
@@ -161,9 +180,11 @@ __global__ void __launch_bounds__(NT) sieve_kernel(const RsSeed *Sg, const float
             acc[j] = 0.0f;
         const uint32_t o = c0 + lane; /* offset of this lane's first cell */
         for (int i = 0; i < RS_NPRIMES; i++) {
-            const uint32_t q = S.pr[i].qmax, step = 32 % q;
+            const uint32_t q = S.pr[i].qmax;
+            const uint32_t stride = Strided ? B.step % q : 1;
+            const uint32_t step = (32 * stride) % q;
             const float *Ti = T + S.pr[i].off;
-            uint32_t idx = (rmod[i] + o % q) % q;
+            uint32_t idx = (rmod[i] + (o % q) * stride) % q;
 #pragma unroll
             for (int j = 0; j < CPT; j++) {
                 acc[j] += Ti[idx];
@@ -229,63 +250,15 @@ __global__ void __launch_bounds__(NT) sieve_kernel(const RsSeed *Sg, const float
             a = 0.0f;
             for (int i = 0; i < RS_NPRIMES; i++) {
                 const uint32_t q = S.pr[i].qmax;
-                a += T[S.pr[i].off + (rmod[i] + off % q) % q];
+                const uint32_t stride = Strided ? B.step % q : 1;
+                a += T[S.pr[i].off + (rmod[i] + (off % q) * stride) % q];
             }
-            v = B.v0 + (int64_t)off;
+            v = B.v0 + (int64_t)off * (Strided ? B.step : 1);
         }
         out[(size_t)blockIdx.x * k + threadIdx.x] = {a, key, B.u, v};
     }
 }
 #endif
-
-/* a piece of one line to sieve: v in [a, b], with the lognorm L0 + dL (v - a) */
-struct Seg {
-    int64_t u, a, b;
-    double L0, dL;
-};
-
-/* how many blocks a segment is split into: at most 2^seg_log cells each, in order */
-static size_t seg_blocks(const Seg &S, int seg_log)
-{
-    return S.b < S.a ? 0 : (size_t)(((uint64_t)(S.b - S.a) >> seg_log) + 1);
-}
-
-/* the sieve's blocks, generated in order from the segments, a launch's worth at a time,
- * so memory does not grow with the search (before 2026-10-06 the whole list was built
- * first: 32 bytes a block, up to 2e8 blocks on c208 seeds with a far, flat basin; nine
- * runs took 107 GB and crashed the machine) */
-struct BlockGen {
-    const std::vector<Seg> &segs;
-    const int seg_log;
-    size_t si = 0, made = 0;
-    int64_t v = 0;
-    bool in_seg = false;
-    BlockGen(const std::vector<Seg> &s, int sl) : segs(s), seg_log(sl) {}
-    /* the next block; false at the end */
-    bool next(Blk &B)
-    {
-        for (; si < segs.size(); si++, in_seg = false) {
-            const Seg &S = segs[si];
-            if (!in_seg) {
-                v = S.a;
-                in_seg = true;
-            }
-            if (S.b < S.a || v > S.b)
-                continue;
-            const uint64_t rest = (uint64_t)(S.b - v) + 1;
-            const uint32_t len = (uint32_t)std::min<uint64_t>(rest, 1ull << seg_log);
-            B = {S.u, v, len, (float)(S.L0 + S.dL * (double)(v - S.a)), (float)S.dL};
-            made++;
-            if (rest <= len) {
-                si++;
-                in_seg = false;
-            } else
-                v += len;
-            return true;
-        }
-        return false;
-    }
-};
 
 /* calls seg(a, b, L0, dL) for each piece of a line's band between knots, where the
  * lognorm is L0 + dL (v - a) */
@@ -353,7 +326,9 @@ static size_t run_sieve(const RsSeed &S, const std::vector<float> &PT, const std
      * single block already takes long. */
     int sms = 1, per_sm = 1;
     CUDA_CHECK(cudaDeviceGetAttribute(&sms, cudaDevAttrMultiProcessorCount, dev));
-    CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&per_sm, sieve_kernel, NT, shmem));
+    const bool strided = std::any_of(segs.begin(), segs.end(), [](const Seg &s) { return s.step != 1; });
+    CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(
+        &per_sm, strided ? sieve_kernel<true> : sieve_kernel<false>, NT, shmem));
     const size_t max_blocks = 1u << 16;
     const size_t min_blocks = std::min(max_blocks, (size_t)(4 * std::max(1, sms) * std::max(1, per_sm)));
     const double launch_cells = ldexp(1.0, launch_log2);
@@ -377,7 +352,10 @@ static size_t run_sieve(const RsSeed &S, const std::vector<float> &PT, const std
         }
         const size_t nb = batch.size();
         CUDA_CHECK(cudaMemcpy(bg, batch.data(), nb * sizeof(Blk), cudaMemcpyHostToDevice));
-        sieve_kernel<<<(unsigned)nb, NT, shmem>>>(Sg, PTg, bg, k, aw, out);
+        if (strided)
+            sieve_kernel<true><<<(unsigned)nb, NT, shmem>>>(Sg, PTg, bg, k, aw, out);
+        else
+            sieve_kernel<false><<<(unsigned)nb, NT, shmem>>>(Sg, PTg, bg, k, aw, out);
         CUDA_CHECK(cudaGetLastError());
         CUDA_CHECK(cudaMemcpy(part.data(), out, nb * k * sizeof(Hit), cudaMemcpyDeviceToHost));
         keep(part.data(), nb * k);
@@ -419,6 +397,15 @@ static int parse_count(const char *s)
     return !*s || *end || errno || n < 0 || n > INT_MAX ? -1 : (int)n;
 }
 
+static int64_t parse_coordinate(const char *s, bool &valid)
+{
+    char *end;
+    errno = 0;
+    const long long n = strtoll(s, &end, 10);
+    valid &= *s && !*end && !errno;
+    return n;
+}
+
 static double parse_bound(const char *s)
 {
     char *end;
@@ -429,17 +416,36 @@ static double parse_bound(const char *s)
 
 int main(int argc, char **argv)
 {
+    if (argc == 2 && !strcmp(argv[1], "-capabilities")) {
+        printf("ropt-pool-v1 partial-murphy-exit-3\n");
+        return 0;
+    }
     const char *path = NULL, *out_path = NULL;
+    const char *pool_in = nullptr, *pool_out = nullptr;
     int64_t u0 = 0, u1 = 0, v0 = 0, v1 = 0, cell_u = 0, cell_v = 0, umax = 5000;
     int top = 20, k = 8, seg_log = 20, use_cpu = 0, dev = 0, threads = 8, check = 0, cell = 0, search = 0;
     int patience = 20, refine = 200, rerank = 4096, window = 0, plan = 0, noproj = 0;
     double budget = 0.5, aw = 1.0, maxcells = 0, band = 0;
     int maxlines = 1000, launch_log2 = 32;
+    RsScanConfig scan;
+    bool scan_options = false;
+    int residue_mod = 0;
+    int64_t residue_u = 0, residue_v = 0;
+    bool residue_valid = true;
+    RsClass residue;
+    int class_mod = 0, class_count = 0, class_explore = -1;
+    bool class_valid = true, class_options = false;
+    RsClassRows class_rows;
+    std::vector<RsClassProposal> selected_classes;
     bool murphy = false, murphy_options = false;
     MurphyConfig mc;
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-poly") && i + 1 < argc)
             path = argv[++i];
+        else if (!strcmp(argv[i], "-pool-in") && i + 1 < argc)
+            pool_in = argv[++i];
+        else if (!strcmp(argv[i], "-pool-out") && i + 1 < argc)
+            pool_out = argv[++i];
         else if (!strcmp(argv[i], "-u") && i + 2 < argc) {
             window = 1;
             u0 = atoll(argv[++i]);
@@ -470,7 +476,28 @@ int main(int argc, char **argv)
             patience = atoi(argv[++i]);
         else if (!strcmp(argv[i], "-umax") && i + 1 < argc)
             umax = atoll(argv[++i]);
-        else if (!strcmp(argv[i], "-out") && i + 1 < argc)
+        else if (!strcmp(argv[i], "-u-scan") && i + 1 < argc)
+            scan.step = parse_count(argv[++i]);
+        else if (!strcmp(argv[i], "-u-basins") && i + 1 < argc) {
+            scan.basins = parse_count(argv[++i]);
+            scan_options = true;
+        } else if (!strcmp(argv[i], "-u-radius") && i + 1 < argc) {
+            scan.radius = parse_count(argv[++i]);
+            scan_options = true;
+        } else if (!strcmp(argv[i], "-residue") && i + 3 < argc) {
+            residue_mod = parse_count(argv[++i]);
+            residue_valid &= residue_mod >= 1 && residue_mod <= 65536;
+            residue_u = parse_coordinate(argv[++i], residue_valid);
+            residue_v = parse_coordinate(argv[++i], residue_valid);
+        } else if (!strcmp(argv[i], "-classes") && i + 2 < argc) {
+            class_mod = parse_count(argv[++i]);
+            class_count = parse_count(argv[++i]);
+            class_valid &= class_mod >= 2 && class_mod <= 4096 && class_count >= 1 &&
+                           class_count <= 64 && class_count <= (int64_t)class_mod * class_mod;
+        } else if (!strcmp(argv[i], "-class-explore") && i + 1 < argc) {
+            class_explore = parse_count(argv[++i]);
+            class_options = true;
+        } else if (!strcmp(argv[i], "-out") && i + 1 < argc)
             out_path = argv[++i];
         else if (!strcmp(argv[i], "-refine") && i + 1 < argc)
             refine = atoi(argv[++i]);
@@ -528,6 +555,47 @@ int main(int argc, char **argv)
     use_cpu = 1;
 #endif
     omp_set_num_threads(threads > 0 ? threads : 1);
+    if ((pool_in || pool_out) && (!search || window || cell || plan || !rerank ||
+            (pool_in && (pool_out || class_mod || residue_mod || scan.step)))) {
+        fprintf(stderr, "s23_ropt: pools require search and rerank; pool replay cannot use search selection options\n");
+        return 2;
+    }
+    scan.umax = umax;
+    if (!class_valid || (class_options && (!class_mod || class_explore < 0 || class_explore > class_count)) ||
+        (class_mod && (!search || window || cell || residue_mod || scan.step || umax < 0 || umax > 1000000000 ||
+                       maxlines < 1 || patience < 1))) {
+        fprintf(stderr, "s23_ropt: -classes needs search mode, M in [2,4096], K in [1,min(64,M*M)], "
+                        "0 <= -class-explore <= K, positive maxlines/patience, umax in [0,1e9]; "
+                        "cannot combine with -residue/-u-scan/-cell/window\n");
+        return 2;
+    }
+    if (class_mod && class_explore < 0)
+        class_explore = class_count / 4;
+    if (!residue_valid || (residue_mod && (cell || scan.step || (!search && !window) ||
+        (!window && (umax < 0 || umax > 1000000000)) ||
+        (window && ((__int128)v1 - v0 > INT64_MAX || (__int128)u1 - u0 > INT64_MAX))))) {
+        fprintf(stderr, "s23_ropt: -residue needs M in [1,65536], integer U/V, window or search mode, "
+                        "no -u-scan/-cell; search umax in [0,1e9], window spans <= INT64_MAX\n");
+        return 2;
+    }
+    if (residue_mod) {
+        residue = {(uint32_t)residue_mod, rs_residue(residue_u, residue_mod), rs_residue(residue_v, residue_mod)};
+        class_rows.modulus = residue.modulus;
+        class_rows.rows[residue.u] = {residue.v};
+        if (window && rs_progression(u0, u1, residue.modulus, residue.u).count > 1000000) {
+            fprintf(stderr, "s23_ropt: -residue window permits at most 1000000 selected u lines\n");
+            return 2;
+        }
+        printf("# residue class: u = %u, v = %u (mod %u); counts are selected cells\n",
+               residue.u, residue.v, residue.modulus);
+    }
+    if ((scan_options && scan.step <= 0) || scan.step < 0 ||
+        (scan.step && (!search || window || cell || !rs_scan_valid(scan)))) {
+        fprintf(stderr, "s23_ropt: -u-scan needs search mode, 0 <= umax <= 1e9, at most 4097 samples; "
+                        "1 <= -u-basins <= 16, 0 <= -u-radius <= 4096, and at most 16384 neighborhood lines; "
+                        "-u-basins/-u-radius need -u-scan > 0\n");
+        return 2;
+    }
     if (!path || (window && (u1 < u0 || v1 < v0)) || (!window && !search && !cell) || k < 1 || k > K_MAX ||
         seg_log < 12 || seg_log > 30 || budget <= 0 || aw <= 0 || launch_log2 < 20 || launch_log2 > 40) {
         fprintf(stderr, "s23_ropt: need -poly and one of -u/-v, -search, -cell; 1 <= -k <= %d, 12 <= LOG2 <= 30, "
@@ -576,7 +644,7 @@ int main(int argc, char **argv)
         }
     } gpu_start;
 #ifdef __CUDACC__
-    if (!use_cpu && !cell && !plan)
+    if (!use_cpu && !cell && !plan && !pool_in)
         gpu_start.th = std::thread([dev] {
             if (cudaSetDevice(dev) == cudaSuccess)
                 cudaFree(0);
@@ -606,11 +674,22 @@ int main(int argc, char **argv)
     /* every line's band at L_best + b (the -maxcells loop and -plan's step table): the cells, and
      * in *nl the lines with a band */
     std::vector<RsLine *> all;
-    auto band_cells = [](const RsLine *L) { return L->v_lo <= L->v_hi ? (double)(L->v_hi - L->v_lo) + 1 : 0.0; };
+    const bool sparse = class_mod || residue.modulus > 1;
+    auto band_cells = [&](const RsLine *L) {
+        if (sparse)
+            return (double)class_rows.count(L->u, L->v_lo, L->v_hi);
+        return L->v_lo <= L->v_hi ? (double)(L->v_hi - L->v_lo) + 1 : 0.0;
+    };
     auto bands_at = [&](double b, size_t *nl) {
 #pragma omp parallel for schedule(dynamic, 1)
-        for (size_t i = 0; i < all.size(); i++)
+        for (size_t i = 0; i < all.size(); i++) {
             rs_line_band(*all[i], R, L_best + b, 1, 0);
+            if (sparse) {
+                const auto p = class_rows.clip(all[i]->u, all[i]->v_lo, all[i]->v_hi);
+                all[i]->v_lo = p.first;
+                all[i]->v_hi = p.last;
+            }
+        }
         double c = 0;
         size_t n = 0;
         for (auto *L : all) {
@@ -628,29 +707,124 @@ int main(int argc, char **argv)
     };
     double t_scan = 0, t_bands = 0, t_knots = 0; /* the size model's phases */
     int n_bands = 0;
-    if (!window) {
+    RsScanStats scan_stats;
+    if (!window && !pool_in) {
         /* line minima from u = 0 outwards, warm-started from the neighbour; a direction
          * stops after `patience` lines beyond the budget, or after maxlines / 2 lines within
          * it (a seed whose size is flat in u would otherwise run to umax) */
         int64_t u_best = 0;
-        for (int dir = 1; dir >= -1; dir -= 2) {
-            int64_t v = dir > 0 ? 0 : lines[0].v_min, t = dir > 0 ? 0 : lines[0].t_min;
-            int beyond = 0, within = 0;
-            for (int64_t u = dir > 0 ? 0 : -1; u <= umax && u >= -umax; u += dir) {
-                RsLine L;
-                rs_line_min(L, R, u, v, t, 1 << 20);
-                v = L.v_min;
-                t = L.t_min;
-                lines[u] = L;
-                if (L.L_min < L_best) {
-                    L_best = L.L_min;
-                    u_best = u;
+        const auto scan_u = [&](uint32_t ur, uint32_t stride) {
+            double class_best = INFINITY;
+            for (int dir = 1; dir >= -1; dir -= 2) {
+                const auto anchor = lines.find(ur);
+                int64_t v = dir > 0 || anchor == lines.end() ? 0 : anchor->second.v_min;
+                int64_t t = dir > 0 || anchor == lines.end() ? 0 : anchor->second.t_min;
+                int beyond = 0, within = 0;
+                const int64_t start_u = dir > 0 ? (int64_t)ur : (int64_t)ur - stride;
+                for (int64_t u = start_u; u <= umax && u >= -umax; u += dir * (int64_t)stride) {
+                    RsLine L;
+                    rs_line_min(L, R, u, v, t, 1 << 20);
+                    if (stride > 1 && (v || t)) {
+                        RsLine independent;
+                        rs_line_min(independent, R, u, 0, 0, 1 << 20);
+                        if (independent.L_min < L.L_min)
+                            L = std::move(independent);
+                    }
+                    v = L.v_min;
+                    t = L.t_min;
+                    lines[u] = L;
+                    if (L.L_min < L_best) {
+                        L_best = L.L_min;
+                        u_best = u;
+                    }
+                    class_best = std::min(class_best, L.L_min);
+                    const double reference = class_mod ? class_best : L_best;
+                    beyond = L.L_min > reference + budget + 0.3 ? beyond + 1 : 0;
+                    within += L.L_min <= reference + budget;
+                    if (beyond >= patience || (maxlines > 0 && 2 * within >= maxlines))
+                        break;
                 }
-                beyond = L.L_min > L_best + budget + 0.3 ? beyond + 1 : 0;
-                within += L.L_min <= L_best + budget;
-                if (beyond >= patience || (maxlines > 0 && 2 * within >= maxlines))
-                    break;
             }
+        };
+        if (!class_mod)
+            scan_u(residue.u, residue.modulus);
+        else {
+            auto pool = rs_class_pool(S, PT.data(), class_mod, class_count);
+            std::set<uint32_t> urows;
+            for (const auto &c : pool)
+                urows.insert(c.cell.u);
+            uint64_t possible_lines = 0;
+            for (uint32_t u : urows)
+                possible_lines += rs_progression(-umax, umax, class_mod, u).count;
+            if (possible_lines > 65536) {
+                fprintf(stderr, "s23_ropt: -classes candidate pool exceeds 65536 possible u lines; reduce -umax\n");
+                return 2;
+            }
+            for (uint32_t u : urows)
+                scan_u(u, class_mod);
+            std::map<uint32_t, const RsLine *> minima;
+            for (const auto &entry : lines) {
+                const RsLine &line = entry.second;
+                auto &best = minima[rs_residue(line.u, class_mod)];
+                if (std::isfinite(line.L_min) && (!best || line.L_min < best->L_min))
+                    best = &line;
+            }
+            for (auto &c : pool) {
+                auto it = minima.find(c.cell.u);
+                if (it == minima.end() || !it->second)
+                    continue;
+                const RsLine &line = *it->second;
+                const int64_t delta = (c.cell.v + class_mod - rs_residue(line.v_min, class_mod)) % class_mod;
+                for (int64_t offset : {delta, delta - class_mod}) {
+                    const __int128 v = (__int128)line.v_min + offset;
+                    if (v < INT64_MIN || v > INT64_MAX)
+                        continue;
+                    int64_t t = line.t_min;
+                    c.size = std::min(c.size, rs_size(R, line.u, (int64_t)v, t, 1 << 10));
+                }
+            }
+            selected_classes = rs_choose_classes(pool, class_count, class_explore, aw);
+            class_rows.modulus = class_mod;
+            printf("# automatic classes: mod %d, %zu proposals, %zu sampled lines, %zu selected, exploration requested %d\n",
+                   class_mod, pool.size(), lines.size(), selected_classes.size(), class_explore);
+            for (const auto &c : selected_classes) {
+                class_rows.rows[c.cell.u].push_back(c.cell.v);
+                printf("# class u %u v %u: root mean %.6f, guaranteed log content %.6f, size estimate %.6f, key %.6f, %s\n",
+                       c.cell.u, c.cell.v, c.roots, c.content, c.size, c.key(aw),
+                       c.selected_exploration ? "exploration" : "ranked");
+            }
+            for (auto it = lines.begin(); it != lines.end();)
+                if (class_rows.at(it->first).empty())
+                    it = lines.erase(it);
+                else
+                    ++it;
+            L_best = INFINITY;
+            for (const auto &entry : lines)
+                if (entry.second.L_min < L_best) {
+                    L_best = entry.second.L_min;
+                    u_best = entry.first;
+                }
+        }
+        if (scan.step) {
+            scan_stats = rs_scan_basins(lines, scan, [&](int64_t u, int64_t v, int64_t t) {
+                RsLine line;
+                rs_line_min(line, R, u, v, t, 1 << 20);
+                return line;
+            });
+            for (const auto &entry : lines)
+                if (entry.second.L_min < L_best) {
+                    L_best = entry.second.L_min;
+                    u_best = entry.first;
+                }
+            printf("# u scan: step %d, %zu samples, %zu lines added, %zu model evaluations, %zu nonfinite; centers",
+                   scan.step, scan_stats.samples, scan_stats.added, scan_stats.evaluations, scan_stats.nonfinite);
+            for (int64_t u : scan_stats.centers)
+                printf(" %lld", (long long)u);
+            printf("\n");
+        }
+        if (!std::isfinite(L_best)) {
+            fprintf(stderr, "s23_ropt: no finite line minimum found\n");
+            return 1;
         }
         /* the band edges at -budget (or -band); with -maxcells, the budget is lowered in steps
          * of 0.25 (not below 0.5) until the bands hold at most that many cells, and if they
@@ -682,9 +856,15 @@ int main(int argc, char **argv)
             if (room < 1)
                 break;
             if (band_cells(L) > room) { /* the last line, trimmed around its minimum */
-                const int64_t half = (int64_t)((room - 1) / 2); /* 2 half + 1 <= room cells */
-                L->v_lo = std::max(L->v_lo, L->v_min - half);
-                L->v_hi = std::min(L->v_hi, L->v_min + half);
+                if (sparse) {
+                    const auto p = class_rows.trim(L->u, L->v_lo, L->v_hi, L->v_min, (uint64_t)room);
+                    L->v_lo = p.first;
+                    L->v_hi = p.last;
+                } else {
+                    const int64_t half = (int64_t)((room - 1) / 2); /* 2 half + 1 <= room cells */
+                    L->v_lo = std::max(L->v_lo, L->v_min - half);
+                    L->v_hi = std::min(L->v_hi, L->v_min + half);
+                }
                 lines_trimmed++;
             }
             c += band_cells(L);
@@ -703,17 +883,47 @@ int main(int argc, char **argv)
             rs_line_knots(*kept[i], R, 64);
         t_knots = secs(tk);
     }
-    if (window)
-        for (int64_t u = u0; u <= u1; u++)
-            segs.push_back({u, v0, v1, 0.0, 0.0});
-    else
+    auto add_segment = [&](Seg s) {
+        if (sparse)
+            for (uint32_t v : class_rows.at(s.u))
+                class_segment(segs, s, {class_rows.modulus, rs_residue(s.u, class_rows.modulus), v});
+        else
+            segs.push_back(s);
+    };
+    if (window) {
+        const auto us = rs_progression(u0, u1, residue.modulus, residue.u);
+        int64_t u = us.first;
+        for (uint64_t i = 0; i < us.count; i++) {
+            add_segment({u, v0, v1, 0.0, 0.0});
+            if (i + 1 < us.count)
+                u += residue.modulus;
+        }
+    } else
         for (auto *L : kept)
-            band_segments(*L, [&](int64_t a, int64_t b, double L0, double dL) { segs.push_back({L->u, a, b, L0, dL}); });
+            band_segments(*L, [&](int64_t a, int64_t b, double L0, double dL) { add_segment({L->u, a, b, L0, dL}); });
     size_t nblk = 0;
     double ncells = 0;
     for (const Seg &G : segs) {
         nblk += seg_blocks(G, seg_log);
-        ncells += G.b < G.a ? 0.0 : (double)(G.b - G.a) + 1;
+        ncells += (double)seg_cells(G);
+    }
+    if (class_mod) {
+        std::map<std::pair<uint32_t, uint32_t>, double> admitted;
+        for (const auto &s : segs)
+            admitted[{rs_residue(s.u, class_mod), rs_residue(s.a, class_mod)}] += seg_cells(s);
+        for (const auto &c : selected_classes)
+            printf("# class cells u %u v %u: %.0f selected (%s)\n", c.cell.u, c.cell.v,
+                   admitted[{c.cell.u, c.cell.v}], c.selected_exploration ? "exploration" : "ranked");
+    }
+    if (scan.step) {
+        printf("# u scan retained center lines:");
+        size_t retained = 0;
+        for (int64_t u : scan_stats.centers)
+            if (band_cells(&lines.at(u)) > 0) {
+                printf(" %lld", (long long)u);
+                retained++;
+            }
+        printf(" (%zu/%zu after -maxcells)\n", retained, scan_stats.centers.size());
     }
     const double t_model = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
     if (plan && window) {
@@ -729,7 +939,7 @@ int main(int argc, char **argv)
         printf("#      u   L_min        v_min           band v_lo .. v_hi          cells\n");
         for (auto &kv : lines) {
             const RsLine &L = kv.second;
-            const double c = L.v_lo <= L.v_hi ? (double)(L.v_hi - L.v_lo) + 1 : 0;
+            const double c = band_cells(&L);
             printf("%8lld %8.4f %16lld %16lld %16lld %10.3g\n", (long long)L.u, L.L_min, (long long)L.v_min,
                    (long long)L.v_lo, (long long)L.v_hi, c);
         }
@@ -746,14 +956,17 @@ int main(int argc, char **argv)
     }
 
     /* ---- sieve; keep hits by the proxy (search) or the score (window) ---- */
-    struct Cand {
-        double key; /* lower is better */
-        Hit h;
-        double L;
-        int64_t t;
-        double A; /* CADO's alpha, with -rerank */
-    };
+    using Cand = RsCandidate;
     std::vector<Cand> best;
+    const auto class_survivors = [&](const char *stage, size_t n) {
+        if (!class_mod)
+            return;
+        std::map<std::pair<uint32_t, uint32_t>, size_t> counts;
+        for (size_t i = 0; i < std::min(n, best.size()); i++)
+            counts[{rs_residue(best[i].h.u, class_mod), rs_residue(best[i].h.v, class_mod)}]++;
+        for (const auto &c : selected_classes)
+            printf("# class %s u %u v %u: %zu cells\n", stage, c.cell.u, c.cell.v, counts[{c.cell.u, c.cell.v}]);
+    };
     std::map<int64_t, Cand> line_best;
     /* a total order, so the kept set does not depend on how the hits arrive in launches */
     auto order = [](const Cand &a, const Cand &b) {
@@ -799,7 +1012,15 @@ int main(int argc, char **argv)
         gpu_start.th.join();
     auto t1 = std::chrono::steady_clock::now();
     const double t_start = std::chrono::duration<double>(t1 - t_wait).count();
-    const size_t made = run_sieve(S, PT, segs, seg_log, k, (float)aw, use_cpu, dev, launch_log2, keep);
+    size_t made = 0;
+    if (pool_in) {
+        if (!rs_pool_read(pool_in, P, aw, !noproj, best)) {
+            fprintf(stderr, "s23_ropt: invalid, truncated or incompatible candidate pool %s\n", pool_in);
+            return 2;
+        }
+        printf("# replaying %zu saved candidates; no size model or sieve\n", best.size());
+    } else
+        made = run_sieve(S, PT, segs, seg_log, k, (float)aw, use_cpu, dev, launch_log2, keep);
     const double t_sieve = std::chrono::duration<double>(std::chrono::steady_clock::now() - t1).count();
     if (made != nblk) { /* seg_blocks and the generator split segments the same way */
         fprintf(stderr, "s23_ropt: internal error: sieved %zu blocks, counted %zu\n", made, nblk);
@@ -816,6 +1037,11 @@ int main(int argc, char **argv)
         const auto t2 = std::chrono::steady_clock::now();
         const size_t nout = (size_t)std::max(refine, top);
         const size_t nref = std::min(best.size(), std::max(nout, (size_t)rerank));
+        if (pool_out && !rs_pool_write(pool_out, P, aw, !noproj, best, nref)) {
+            fprintf(stderr, "s23_ropt: cannot write candidate pool %s\n", pool_out);
+            return 2;
+        }
+        class_survivors("proxy pool", nref);
 #pragma omp parallel for schedule(dynamic, 1)
         for (size_t i = 0; i < nref; i++) {
             Cand &c = best[i];
@@ -879,10 +1105,14 @@ int main(int argc, char **argv)
             best.resize(std::min(best.size(), nout));
         }
         t_refine = std::chrono::duration<double>(std::chrono::steady_clock::now() - t2).count();
+        class_survivors("finalists", best.size());
     }
 
-    printf("# s23_ropt: %s, %s: %.3g cells, sieve %.2f s (%.3g cells/s, %s)", path, window ? "window" : "search",
-           ncells, t_sieve, ncells / t_sieve, use_cpu ? "CPU" : "GPU");
+    if (pool_in)
+        printf("# s23_ropt: %s, saved-pool replay", path);
+    else
+        printf("# s23_ropt: %s, %s: %.3g cells, sieve %.2f s (%.3g cells/s, %s)", path, window ? "window" : "search",
+               ncells, t_sieve, ncells / t_sieve, use_cpu ? "CPU" : "GPU");
     if (!window)
         printf(", size model %.2f s, refine %.2f s", t_model, t_refine);
     if (!use_cpu)
@@ -899,11 +1129,13 @@ int main(int argc, char **argv)
             }
         if (!nl)
             ulo = uhi = 0;
-        printf("# size model: best line minimum %.4f; %zu lines within %.2f (u %lld..%lld), %zu lines scanned",
-               L_best, nl, budget_used, (long long)ulo, (long long)uhi, lines.size());
-        if (lines_dropped || lines_trimmed)
-            printf("; -maxcells dropped %zu lines and trimmed %zu", lines_dropped, lines_trimmed);
-        printf("; line scan %.2f s, bands %.2f s at %d budgets, knots %.2f s\n", t_scan, t_bands, n_bands, t_knots);
+        if (!pool_in) {
+            printf("# size model: best line minimum %.4f; %zu lines within %.2f (u %lld..%lld), %zu lines scanned",
+                   L_best, nl, budget_used, (long long)ulo, (long long)uhi, lines.size());
+            if (lines_dropped || lines_trimmed)
+                printf("; -maxcells dropped %zu lines and trimmed %zu", lines_dropped, lines_trimmed);
+            printf("; line scan %.2f s, bands %.2f s at %d budgets, knots %.2f s\n", t_scan, t_bands, n_bands, t_knots);
+        }
         if (murphy)
             printf("# best %d by validated MurphyE: %zu optimized, %zu accepted, %zu limited, %zu failed, %zu skipped before MurphyE; "
                    "Bf %.17g Bg %.17g area %.17g K %d Keval %d maxeval %d\n", top, murphy_count,
@@ -1000,5 +1232,6 @@ int main(int argc, char **argv)
         printf("\n");
     }
     cio_clear(&P);
-    return bad || murphy_failed ? 1 : 0;
+    // Status 3 means a completed partial export; 1 remains a failed result.
+    return bad || (murphy && best.empty()) ? 1 : murphy_failed ? 3 : 0;
 }

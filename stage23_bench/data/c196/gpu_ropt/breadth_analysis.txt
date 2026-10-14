@@ -1,0 +1,38 @@
+c196: 2100 CPU-pipeline polys, 10176 GPU polys; ratios to the best band 3.12032e+09
+
+best per method (band ratio, MurphyE ratio to the best MurphyE):
+  msieve_orig  band 1.0000 (seed 1)   MurphyE 3.7474e-09 = 1.0000 (seed 1)
+  msieve_inv   band 1.0000 (seed 1)   MurphyE 3.7474e-09 = 1.0000 (seed 1)
+  gpu          band 0.9998 (seed 1)   MurphyE 3.7462e-09 = 0.9997 (seed 1)
+  cado_orig    band 0.9925 (seed 1)   MurphyE 3.7224e-09 = 0.9933 (seed 1)
+  cado_inv     band 0.9925 (seed 1)   MurphyE 3.7224e-09 = 0.9933 (seed 1)
+
+top 12 overall by band:
+  1.0000  E 3.7474e-09  skew    194494788  msieve_orig seed 1 e 1.082e-14 j 0
+  1.0000  E 3.7474e-09  skew    194494788  msieve_orig seed 1 e 1.082e-14 j 1
+  1.0000  E 3.7474e-09  skew    194494788  msieve_orig seed 1 e 1.082e-14 j 2
+  1.0000  E 3.7474e-09  skew    194494788  msieve_inv seed 1 e 1.082e-14 j 0
+  1.0000  E 3.7474e-09  skew    194494788  msieve_inv seed 1 e 1.082e-14 j 1
+  1.0000  E 3.7474e-09  skew    194494788  msieve_inv seed 1 e 1.082e-14 j 2
+  0.9998  E 3.7462e-09  skew    192399692  gpu seed s0001 rank 2 u 24 v -315802413 t -36867627 Ea 50.302508 lognorm 60.685483 alpha_s -7.630338 alpha -7.
+  0.9928  E 3.7167e-09  skew    134217728  gpu seed s0001 rank 4 u -4 v -234096341 t -15136181 Ea 50.333406 lognorm 60.046477 alpha_s -7.192813 alpha -7.
+  0.9925  E 3.7224e-09  skew     63399527  cado_orig seed 1 E 1.065e-14
+  0.9925  E 3.7224e-09  skew     63399527  cado_inv seed 1 E 1.065e-14
+  0.9925  E 3.7224e-09  skew     63399527  gpu seed s0001 rank 1 u 0 v -11858061 t -7356242 Ea 50.275271 lognorm 58.888565 alpha_s -5.880874 alpha -6.625
+  0.9924  E 3.7259e-09  skew     54627535  gpu seed s0001 rank 0 u 0 v -5883421 t -6292754 Ea 50.255781 lognorm 58.639287 alpha_s -5.954897 alpha -6.4488
+
+per seed family, GPU best / CPU best (band), 300 seeds with both:
+  >1% better 52, within 1% 164, >1% worse 84
+  the 10 best families (seed: CPU best ratio [method], GPU best ratio [proxy rank of its best], GPU/CPU):
+    seed   1: CPU 1.0000 [msieve_orig]  GPU 0.9998 [rank 2]  0.9998
+    seed   7: CPU 0.9872 [cado_orig]  GPU 0.9872 [rank 0]  1.0000
+    seed   5: CPU 0.9718 [cado_orig]  GPU 0.9718 [rank 0]  1.0000
+    seed  31: CPU 0.9581 [msieve_inv]  GPU 0.8932 [rank 4]  0.9322
+    seed  34: CPU 0.9507 [msieve_orig]  GPU 0.8799 [rank 0]  0.9255
+    seed  50: CPU 0.9412 [msieve_orig]  GPU 0.9098 [rank 2]  0.9666
+    seed 276: CPU 0.9401 [msieve_orig]  GPU 0.9402 [rank 0]  1.0000
+    seed   8: CPU 0.9119 [cado_inv]  GPU 0.9397 [rank 0]  1.0304
+    seed  30: CPU 0.9357 [cado_inv]  GPU 0.6530 [rank 0]  0.6979
+    seed  56: CPU 0.9326 [msieve_orig]  GPU 0.9019 [rank 0]  0.9671
+  largest GPU losses: seed 30 0.698, seed 188 0.741, seed 241 0.769, seed 141 0.787, seed 183 0.803
+  GPU winning rank: max proxy rank of a family best = 16

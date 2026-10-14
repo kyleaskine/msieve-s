@@ -1,0 +1,177 @@
+{
+  "settings": {
+    "lpbr": 32,
+    "lpba": 33,
+    "mfbr": 62,
+    "mfba": 95,
+    "rlim": 200000000,
+    "alim": 300000000,
+    "logI": 17,
+    "J": 32768,
+    "sq_side": 1,
+    "width": 4000,
+    "q0s": [
+      80000000,
+      264998000,
+      449996000
+    ],
+    "q_band": [
+      80000000,
+      450000000
+    ]
+  },
+  "rows": [
+    {
+      "poly": "cado",
+      "q0": 80000000,
+      "width": 4000,
+      "pairs": 221,
+      "relations": 30333,
+      "unique_relations": 30333,
+      "duplicates": 0,
+      "rel_per_pair": 137.25339366515837,
+      "ms_per_pair": 551.41,
+      "rel_per_second": 248.91350114281275,
+      "verified": true,
+      "relation_sha256": "58d75adf6b2678e2d0018e8ff59a928ed8d110618014d2c554f173373a467618"
+    },
+    {
+      "poly": "msieve",
+      "q0": 80000000,
+      "width": 4000,
+      "pairs": 171,
+      "relations": 25275,
+      "unique_relations": 25274,
+      "duplicates": 1,
+      "rel_per_pair": 147.80116959064327,
+      "ms_per_pair": 572.18,
+      "rel_per_second": 258.3123660223064,
+      "verified": true,
+      "relation_sha256": "fc89ba7d71a51af7fee264cebfc2ac71cabc1b8bf29df145a018fc8aadfd15fe"
+    },
+    {
+      "poly": "msieve",
+      "q0": 264998000,
+      "width": 4000,
+      "pairs": 210,
+      "relations": 22133,
+      "unique_relations": 22133,
+      "duplicates": 0,
+      "rel_per_pair": 105.3952380952381,
+      "ms_per_pair": 545.64,
+      "rel_per_second": 193.15892913869604,
+      "verified": true,
+      "relation_sha256": "ffd938db7699478d347c5c87ea9c523095f710c81ae2d6f073c825bb9252a82a"
+    },
+    {
+      "poly": "cado",
+      "q0": 264998000,
+      "width": 4000,
+      "pairs": 217,
+      "relations": 22095,
+      "unique_relations": 22095,
+      "duplicates": 0,
+      "rel_per_pair": 101.82027649769586,
+      "ms_per_pair": 537.29,
+      "rel_per_second": 189.5071125420087,
+      "verified": true,
+      "relation_sha256": "60ecd79cde12085d63b737b106ffac85f57181a07ee51d652e2f2203a68580e7"
+    },
+    {
+      "poly": "cado",
+      "q0": 449996000,
+      "width": 4000,
+      "pairs": 192,
+      "relations": 16897,
+      "unique_relations": 16897,
+      "duplicates": 0,
+      "rel_per_pair": 88.00520833333333,
+      "ms_per_pair": 553.86,
+      "rel_per_second": 158.8943204660624,
+      "verified": true,
+      "relation_sha256": "66c56b88e76b4e32590bbbc4a2d90b82e81d061c19310629e61abadb8baeac1b"
+    },
+    {
+      "poly": "msieve",
+      "q0": 449996000,
+      "width": 4000,
+      "pairs": 196,
+      "relations": 18296,
+      "unique_relations": 18296,
+      "duplicates": 0,
+      "rel_per_pair": 93.34693877551021,
+      "ms_per_pair": 563.5,
+      "rel_per_second": 165.65561450844757,
+      "verified": true,
+      "relation_sha256": "a643a60e67a0073687ca8ff6d58767dd8960416b7946899266d1b8dbd187b5a3"
+    }
+  ],
+  "projections": {
+    "cado": {
+      "relations": 2077435202.7775369,
+      "seconds": 10499050.969559321
+    },
+    "msieve": {
+      "relations": 2189948833.4621644,
+      "seconds": 10729025.764601279
+    }
+  },
+  "cado_over_msieve_per_q": [
+    0.9286353690251674,
+    0.9660804258128645,
+    0.9427755155953942
+  ],
+  "cado_over_msieve_band": 0.9486227125650462,
+  "cado_over_msieve_throughput": 0.969401668160825,
+  "caveat": "Three short q windows; normalized by observed (q,rho) pairs. Whole-band estimates use a trapezoid. Alternating order, but unreplicated timing under shared-host load.",
+  "model_cado_over_msieve_band": 0.992572346803251,
+  "model_cado_over_msieve_per_q": [
+    0.9666616824526072,
+    1.0039144859133822,
+    0.9752718871503973
+  ],
+  "model_note": "Prior lattice model at 80M, 265M, 450M; test-window starts differ by up to 4000.",
+  "verified_relations": 135029,
+  "duplicates_removed": 1,
+  "unique_relations_within_windows": 135028,
+  "skews": {
+    "cado": 68392924.7,
+    "msieve": 189812531.2
+  },
+  "engine_compiled_commits": [
+    "8d36ed4b-dirty"
+  ],
+  "manifest": {
+    "settings": {
+      "lpbr": 32,
+      "lpba": 33,
+      "mfbr": 62,
+      "mfba": 95,
+      "rlim": 200000000,
+      "alim": 300000000,
+      "logI": 17,
+      "J": 32768,
+      "sq_side": 1,
+      "width": 4000,
+      "q0s": [
+        80000000,
+        264998000,
+        449996000
+      ],
+      "q_band": [
+        80000000,
+        450000000
+      ]
+    },
+    "created": 1791884092.344865,
+    "source": "/home/kylea/code/cuda-sieve/bench",
+    "sha256": {
+      "jobs/msieve.job": "0eb99ddbcde3c4d905282b89d67f0a17678d77db8176970b8fbd805d0aeb24ef",
+      "jobs/cado.job": "e73808e2c08dde2f92bf298dc0b0806d33c66a890e5c39dff51435c252bc92dc",
+      "bin/bench": "cbd9112b2a05df19141d761e9a16c2f751073e05b43e02bbd8422913376fd594",
+      "bin/fbgen_gpu": "d6cf9e8a3dde2ee3cbef4b2e51e340b7404c198ba68fb83ec77252a74c091d19",
+      "bin/normscan": "08fd97299879b59d48f540522e9f7a1f809f9dc56b74ca39e50af69c390637af"
+    }
+  },
+  "raw_artifacts": "/home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve"
+}

@@ -1,0 +1,5 @@
+{
+  "stage": "comparison complete",
+  "updated": 1791893198.5056758,
+  "winner": "gpu_murphy seed s0005 rank 1 u 58 v 1299267421 t -27131464 MurphyE 2.2313678796253313e-08 lognorm 58.134817 lognorm_at_murphy_skew 58.236341 alpha_s -7.492357 control 2.2310808837203724e-08 proposal 2.2313678796253313e-08 accepted 1 calls 127 limited 0 alpha -7.990272"
+}

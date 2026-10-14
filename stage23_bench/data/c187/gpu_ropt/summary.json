@@ -1,0 +1,109 @@
+{
+  "run": "/home/kylea/msieve-s/stage23_gpu/runs/20261013_backups/c187",
+  "best": {
+    "gpu_murphy": {
+      "label": "gpu_murphy seed s0005 rank 1 u 58 v 1299267421 t -27131464 MurphyE 2.2313678796253313e-08 lognorm 58.134817 lognorm_at_murphy_skew 58.236341 alpha_s -7.492357 control 2.2310808837203724e-08 proposal 2.2313678796253313e-08 accepted 1 calls 127 limited 0 alpha -7.990272",
+      "band": 1049312000.0,
+      "ratio": 1.0,
+      "murphy": 2.231393e-08,
+      "skew": 67108864.0,
+      "relations_per_q": [
+        135.9001,
+        122.0207,
+        113.142,
+        105.8161,
+        100.4265,
+        95.7082,
+        91.6615
+      ]
+    },
+    "gpu": {
+      "label": "gpu seed s0005 rank 1 u 58 v 1299267421 t -30433573 Ea 47.747463 lognorm 58.134817 alpha_s -7.492357 alpha -7.990272",
+      "band": 1048653000.0,
+      "ratio": 0.9993719694428349,
+      "murphy": 2.231111e-08,
+      "skew": 70080027.2,
+      "relations_per_q": [
+        135.7568,
+        121.6371,
+        113.1447,
+        105.8542,
+        100.376,
+        95.6753,
+        91.8672
+      ]
+    },
+    "msieve_orig": {
+      "label": "msieve_orig seed 5 e 3.889e-14 j 0",
+      "band": 1042017000.0,
+      "ratio": 0.9930478256228843,
+      "murphy": 2.244973e-08,
+      "skew": 45195866.6,
+      "relations_per_q": [
+        136.7949,
+        122.8788,
+        112.7664,
+        104.3312,
+        98.5775,
+        93.9537,
+        90.6311
+      ]
+    },
+    "msieve_inv": {
+      "label": "msieve_inv seed 5 e 3.889e-14 j 0",
+      "band": 1042017000.0,
+      "ratio": 0.9930478256228843,
+      "murphy": 2.244973e-08,
+      "skew": 45195866.6,
+      "relations_per_q": [
+        136.7949,
+        122.8788,
+        112.7664,
+        104.3312,
+        98.5775,
+        93.9537,
+        90.6311
+      ]
+    },
+    "cado_orig": {
+      "label": "cado_orig seed 5 E 3.865e-14",
+      "band": 1041883000.0,
+      "ratio": 0.9929201228995761,
+      "murphy": 2.244905e-08,
+      "skew": 45073659.5,
+      "relations_per_q": [
+        136.7791,
+        122.885,
+        112.7674,
+        104.2951,
+        98.5756,
+        93.9181,
+        90.6115
+      ]
+    },
+    "cado_inv": {
+      "label": "cado_inv seed 5 E 3.865e-14",
+      "band": 1041883000.0,
+      "ratio": 0.9929201228995761,
+      "murphy": 2.244905e-08,
+      "skew": 45073659.5,
+      "relations_per_q": [
+        136.7791,
+        122.885,
+        112.7674,
+        104.2951,
+        98.5756,
+        93.9181,
+        90.6115
+      ]
+    }
+  },
+  "scoring": {
+    "params": "job:32,33,15,50e6",
+    "lattice": "15,16384",
+    "qband": "50e6,230e6,7",
+    "source": "User-provided sieve parameters, 2026-10-13",
+    "note": "Model comparison; no test sieving performed."
+  },
+  "note": "Model comparison with user-provided parameters; no test sieving performed."
+}

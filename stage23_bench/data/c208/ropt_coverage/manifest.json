@@ -1,0 +1,98 @@
+[
+  {
+    "seed": 10,
+    "file": "s0010.poly",
+    "sha256": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+    "source": "backup_20261009_224853/pipeline_results/gpu_ropt_c208/seeds/s0010.poly",
+    "historical_loss": "proxy_cut",
+    "reference_rotation": {
+      "u": 7,
+      "v": -174864538
+    },
+    "note": "Previously fixed by exact-alpha reranking; retained as a control."
+  },
+  {
+    "seed": 15,
+    "file": "s0015.poly",
+    "sha256": "b70e9f413a8c9668876333d3b89ce895545f91bfb7aca8e83833f2eb0efc30aa",
+    "source": "backup_20261009_224853/pipeline_results/gpu_ropt_c208/seeds/s0015.poly",
+    "reference_label": "msieve_orig seed 15 e 1.669e-15 j 0",
+    "reference_source": "backup_20261009_224853/pipeline_results/gpu_ropt_c208/base/baseline.poly",
+    "reference_rotation": {
+      "u": 306,
+      "v": -50074289306,
+      "t": 301312009
+    },
+    "historical_loss": "cell_cap"
+  },
+  {
+    "seed": 27,
+    "file": "s0027.poly",
+    "sha256": "8b8b37562a8232975380cc4e6403cf6c4ffcf4692326a5b58a002930ba7aea68",
+    "source": "backup_20261009_224853/pipeline_results/gpu_ropt_c208/seeds/s0027.poly",
+    "reference_label": "msieve_orig seed 27 e 1.767e-15 j 0",
+    "reference_source": "backup_20261009_224853/pipeline_results/gpu_ropt_c208/base/baseline.poly",
+    "reference_rotation": {
+      "u": -295,
+      "v": 47727458321,
+      "t": 213451585
+    },
+    "historical_loss": "cell_cap"
+  },
+  {
+    "seed": 32,
+    "file": "s0032.poly",
+    "sha256": "f1ac8382e2533d6d879ae96e5c15f60aaf6475afa82768e4f00cc4db5486816a",
+    "source": "backup_20261009_224853/pipeline_results/gpu_ropt_c208/seeds/s0032.poly",
+    "reference_label": "msieve_orig seed 32 e 1.758e-15 j 0",
+    "reference_source": "backup_20261009_224853/pipeline_results/gpu_ropt_c208/base/baseline.poly",
+    "reference_rotation": {
+      "u": 295,
+      "v": -30827451862,
+      "t": 105787825
+    },
+    "historical_loss": "cell_cap"
+  },
+  {
+    "seed": 103,
+    "file": "s0103.poly",
+    "sha256": "f2d8738729108875cf6b66e8c91000ae6419af19997c5f2010b4dcf13dc57058",
+    "source": "backup_20261009_224853/pipeline_results/gpu_ropt_c208/seeds/s0103.poly",
+    "reference_label": "msieve_orig seed 103 e 1.634e-15 j 0",
+    "reference_source": "backup_20261009_224853/pipeline_results/gpu_ropt_c208/base/baseline.poly",
+    "reference_rotation": {
+      "u": 2014,
+      "v": 569611649768,
+      "t": -421860197
+    },
+    "historical_loss": "cell_cap"
+  },
+  {
+    "seed": 151,
+    "file": "s0151.poly",
+    "sha256": "bee665015476fa491fa59b9fc10df9739c3d3124c04d6e84b7efe9d9ce9c4605",
+    "source": "backup_20261009_224853/pipeline_results/gpu_ropt_c208/seeds/s0151.poly",
+    "reference_label": "msieve_orig seed 151 e 1.536e-15 j 0",
+    "reference_source": "backup_20261009_224853/pipeline_results/gpu_ropt_c208/base/baseline.poly",
+    "reference_rotation": {
+      "u": 189,
+      "v": -14447292887,
+      "t": 107992068
+    },
+    "historical_loss": "cell_cap"
+  },
+  {
+    "seed": 222,
+    "file": "s0222.poly",
+    "sha256": "abb3524b504a1ce9c8eab25cdc18a82bcb383dc90c93e6d5ea288c5800c266a5",
+    "source": "backup_20261009_224853/pipeline_results/gpu_ropt_c208/seeds/s0222.poly",
+    "reference_label": "msieve_orig seed 222 e 1.537e-15 j 0",
+    "reference_source": "backup_20261009_224853/pipeline_results/gpu_ropt_c208/base/baseline.poly",
+    "reference_rotation": {
+      "u": -16152,
+      "v": 6992188045104,
+      "t": 1158405946
+    },
+    "historical_loss": "line_scan"
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "backup": "backup_20261013_052537",
+  "n": 4871625288700920481337981295877564327842899731910392387008220997117526670696844767805709783428745874017203355923366866874884514288387873724614593638088059593041027678792336490123364876179,
+  "raw_polynomials": 1624941,
+  "sha256": {
+    "input.ms": "ba4528a73835c7e35f65b4e5503c8ab6b733c8b943b24b946d5e3bc3ebe8358a",
+    "bin/s23_ropt": "33bd62b900fcdd33702c838962b888bd3beb739ac290283f36eb43cf50505797",
+    "bin/s23_sopt": "39ac39c8b2837c6ee3d2921f80b3cef6ae24616de5a225b653daf11b57415c26",
+    "cpu_reference/best150_cado.txt": "3b6479fccce4a86dc82d9c86d7d32c11cd51122debcc77ce18d4b3c32232b662",
+    "cpu_reference/best150_cado_inv.txt": "ec3bd9d3d0a709f618877f4cd3d3823957dbdcbf1c23d09e8da8ecd23b5e6445",
+    "cpu_reference/best300_msieve.ms": "8382e51a9a4b19347cb13c59096ca1142eecaa215b9cef928f786ba0c4f5614b",
+    "cpu_reference/best300_msieve_inv.ms": "30cf0bab81f5556c61598ca7611df7a8b37074ccc6d5cd8fe975a3b7d4a929e3",
+    "cpu_reference/cado_ropt_inv.txt": "a4dcc537d53c103e48b41fb66a5560af40290d082e8336d791642b6cc49c51a0",
+    "cpu_reference/cado_ropt_orig.txt": "e65b8ede6609d880f13d4f39ab3b597cd49edfa7edd7310c2ad56e0bf63a0b61",
+    "cpu_reference/msieve_ropt_inv.p": "6cdaebfbe249769d5619c5a98fbeca452a9b56b52ce55db8073592352e09ae6d",
+    "cpu_reference/msieve_ropt_orig.p": "e12a51275bdfa0a7ed40ba84adc171274af2e01e8fee5ccd191899b0aef58a68",
+    "cpu_reference/pipeline_report.txt": "f7526a3a77bc55941df6c998b18ec93c6d08beec89efca5895aab4d5677f06a3",
+    "cpu_reference/pipeline_settings.txt": "e145fa0989de779440db7552da428cf30a3f909e8bc4b3b1c338b62903cd5c8f",
+    "cpu_reference/skewopt_results.txt": "d0fca007f11b9fc3d113e1e0028f2836698c8e93758c4b91ca2286e904b33318"
+  }
+}

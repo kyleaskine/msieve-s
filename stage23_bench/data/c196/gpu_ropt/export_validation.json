@@ -1,0 +1,5 @@
+{
+  "exports": 400,
+  "exact_coefficients_and_resultants": true,
+  "max_readback_relative_error": 1.6152101411925912e-07
+}

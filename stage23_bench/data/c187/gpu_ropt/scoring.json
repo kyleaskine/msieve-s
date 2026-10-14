@@ -1,0 +1,7 @@
+{
+  "params": "job:32,33,15,50e6",
+  "lattice": "15,16384",
+  "qband": "50e6,230e6,7",
+  "source": "User-provided sieve parameters, 2026-10-13",
+  "note": "Model comparison; no test sieving performed."
+}

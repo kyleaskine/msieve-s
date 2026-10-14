@@ -1,7 +1,90 @@
 # stage23_gpu: GPU size optimization (M1) and root optimization (M2)
 
+Experimental root basin discovery: `s23_ropt -search -u-scan 256 -umax 20000
+-u-basins 4 -u-radius 128` adds bounded coarse samples and local expansion before
+the existing cell cap. Add `-plan` to inspect the sampled and retained lines
+without running the sieve. Omitting `-u-scan`, or setting it to zero, preserves
+the local scan. The driver exposes the same options with double hyphens. See the
+[implementation plan](../ROPT_OPTIMIZATION_PLAN.md) and
+[C208 coverage fixtures](../stage23_bench/data/c208/ropt_coverage/README.md).
+
+Residue-class sieving supports explicit classes and experimental automatic selection:
+
+```bash
+# Window coordinates, output coordinates, and size budgets refer to the original seed.
+build/s23_ropt -poly seed.poly -u -100 100 -v -1000000 1000000 \
+  -residue 6 1 -2 -check 32 -launch 30
+build/s23_ropt -poly seed.poly -search -budget 3 -maxcells 2e11 -umax 20000 \
+  -residue 2520 U V -rerank 4096 -refine 200 -launch 30 -out class.poly
+# Select 16 classes for this seed, with four exploration slots and one shared cap.
+build/s23_ropt -poly seed.poly -search -budget 3 -maxcells 2e11 -umax 20000 \
+  -classes 2520 16 -class-explore 4 -aw 1.3 -rerank 4096 -refine 200 \
+  -launch 30 -out classes.poly
+```
+
+`-residue M U V` sieves only `(u,v) = (U,V) mod M`; signed residues are normalized.
+M may be any integer from 1 through 65536; it need not be square-free or smooth.
+M=1 is the dense identity. Both CPU and CUDA paths retain full original-coordinate
+prime-power/projective scores and exact exports, including content division.
+For a prime-power period q, the lookup is `T[(v_start + M*j) mod q]`, whose
+period is `q/gcd(q,M)`. This handles primes dividing M, including partial lifts,
+without inverting M or altering the polynomial used for root counting.
+
+In search mode, the line scan visits matching u values at spacing M, starting
+nearest zero in each direction, and uses nearby plus independent starts when
+M>1. The ordinary patience and line-count limits apply to those visited lines.
+The size minimum and budget are relative to that class's visited u lines.
+`-maxcells`, block lengths and launch limits count **selected cells**; band
+endpoints and exported u/v remain in original coordinates. `-plan` reports those
+counts without running the sieve. This first mode cannot be combined with
+`-u-scan` or `-cell`; search umax is limited to 1e9. Class windows permit at most
+one million selected u lines and coordinate spans at most INT64_MAX.
+
+The pipeline accepts `--residue M,U,V` (or `[gpu] residue=M,U,V`), including
+preprocess/pipeline continuations, and records the class in its pipeline checkpoints.
+It applies that coordinate class to each parent seed. Content-derived seeds use
+the equivalent class under `(u,v)=(u0+d*u',v0+d*v')`; incompatible lattices are skipped.
+
+`-classes M K` automatically selects up to K classes separately for each seed.
+M is 2..4096; K is 1..min(64,M*M). The bounded proposal pool contains the best
+4*K conditional small-prime root means plus deterministic exploration proposals.
+Means include projective roots and conditional prime-power lifts. Size probes
+on admissible coordinates then rank the proposals with the current alpha weight,
+correcting for guaranteed content factors. These are heuristic local size
+estimates; good classes can be missed. Modulus 2520 is an experimental setting,
+not an established optimum for all polynomial sizes.
+
+`-class-explore E` reserves E class slots outside the leading combined ranking;
+it defaults to floor(K/4). All classes share the existing size band, one total
+`-maxcells` cap, one proxy pool and one final output cut. Exploration slots do
+not guarantee cells or finalists after those cuts. Diagnostics report the
+selected classes, their admitted cell counts, proxy survivors and finalists.
+`-plan` includes the class selection and cap without sieving. Proposal modeling
+permits at most 65536 possible u lines across the candidate rows; reduce `-umax`
+if that bound is exceeded. Automatic mode requires search, positive maxlines and
+patience, and cannot combine with explicit `-residue`, `-u-scan`, window or cell mode.
+The pipeline checks a conservative upper bound on candidate rows before sopt,
+so a valid pipeline configuration cannot exceed that limit on a later seed.
+
+Use `--classes 2520,16 --class-explore 4` on the driver's `all` or `pipeline`
+command, or set `[gpu] classes=2520,16` and `class_explore=4`. A separate
+`preprocess` command continues to accept raw polynomials; choose the search
+settings when running `pipeline`. Settings are saved for pipeline resume and
+forwarded through breadth, depth and MurphyE searches. Both class modes are
+off by default. See the [root optimization plan](../ROPT_OPTIMIZATION_PLAN.md)
+for the correctness checks, coverage results and remaining quality comparisons.
+
 Standalone tools, built separately from msieve. The plan, decisions and benchmarks are in
 `../GPU_STAGE23_PLAN.md`; fixtures and the acceptance tooling are in `../stage23_bench/`.
+
+The reusable driver is now available through `../nfs_optimize.sh --gpu`:
+`all` runs from raw polynomials to a final winner; `preprocess` and `pipeline`
+also work separately. `pipeline --input FILE` starts from raw polynomials,
+and `--initial-unsorted FILE` imports a CPU sopt pass. Each run has a persistent
+directory under `stage23_gpu/runs/`, with frozen executables, verified checkpoints,
+resume, scoring settings and final exports. See
+[`README_NFS_OPTIMIZE.md`, GPU workflow](../README_NFS_OPTIMIZE.md#gpu-workflow).
+The mode still uses host size modeling and scoring; it does not yet free the CPU.
 
 ## How this is tested
 
@@ -77,7 +160,7 @@ For the C205/C208 job, for example, from `stage23_gpu/`:
 ```bash
 build/s23_ropt -poly seed.poly -search -budget 3 -maxcells 2e11 -aw 1.3 \
   -rerank 4096 -murphy -Bf 17179869184 -Bg 8589934592 -area 3.4359738368e17 \
-  -K 16000 -Keval 64000 -maxeval 384 -t 4 -out ranked.poly
+  -murphy-points 16000 -murphy-eval-points 64000 -maxeval 384 -t 4 -out ranked.poly
 ```
 
 The bounds must be supplied explicitly: algebraic `Bf = 2^lpba`, rational
@@ -91,11 +174,28 @@ integer translation and `skew:`; use `score_polys.py --useskew` for readback.
 
 This mode is opt-in because full-pool CPU refinement is expensive. Earlier
 per-block and global proxy cuts can still lose candidates, and MurphyE still has
-the documented lattice-geometry limitations. Invalid cells are reported, valid
-outputs are retained, and the run exits 1 if any cell fails. Progress and scoring
+the documented lattice-geometry limitations. Cells already invalid before MurphyE
+are skipped; actual scoring failures retain valid outputs and return status 3
+when at least one valid finalist remains. Empty/failed results and brute-root
+disagreements return 1. The driver validates completed partial exports before
+checkpointing them and records the partial failure. Progress and scoring
 parameters are logged; the export labels retain control/proposal scores, acceptance,
 evaluation counts and limit status. `-murphy` rejects low search accuracy, missing
-bounds, `-rerank 0`, and window/cell mode. Omitting it preserves the old behavior.
+bounds, `-rerank 0`, and window/cell/plan mode. `-K` and `-Keval` remain aliases
+for the longer angle-count options. Omitting `-murphy` preserves the old behavior.
+`lognorm` retains the size model's optimized value in both modes;
+`lognorm_at_murphy_skew` reports the selected polynomial at its MurphyE skew.
+
+`-pool-out FILE` saves the full proxy shortlist before exact refinement and the
+output cut. Use `-pool-in FILE` with the same seed, `-aw` and projective setting
+to refine those cells again, optionally with `-murphy`; replay runs on the host
+without initializing CUDA or repeating the size model/sieve. The versioned pool
+includes exact seed coefficients, original coordinates, scores and translation
+starts. Truncated, incompatible and duplicate-cell pools are rejected before
+opening the polynomial output. The pipeline saves and verifies these pools with
+its breadth/depth checkpoints and replays the deepest available pool for each
+accurate seed. Older frozen binaries without this capability keep their original
+combined search/refinement behavior. `-capabilities` reports support.
 
 `make test` now checks the C205 proxy ranking reversal, the C181 translation gain
 at 256,000 angles, exact polynomial export and resultant preservation, a real
@@ -121,8 +221,10 @@ next pipeline run to `../backup_20261009_224853/pipeline_results/ropt_murphy_int
 The shared integral now converts GMP coefficients to double once per evaluation
 and caches the unit-angle grid per worker. This preserves CADO's polynomial
 evaluator, explicit fused multiply-add operations, angle order and serial sum.
-Native compilation enables hardware FMA; implicit contraction and fast-math remain
-disabled. Search bounds, candidate counts, K/Keval and acceptance rules are unchanged.
+The initial timing build used native compilation to enable hardware FMA; implicit
+contraction and fast-math remained disabled. The current scorer uses the compiler's
+portable baseline. The root optimizer's separate size model uses explicit `-mfma`
+on x86-64, requiring FMA3 (see below).
 The cache keeps two grids, at most 8 MiB per thread; orders above 262144 stream
 without allocating a larger cache. Coefficients are never cached across calls.
 
@@ -131,9 +233,13 @@ were **byte-identical**, including all scores, skews, translations, search count
 and acceptance decisions. Aggregate child CPU time fell from 414.77/472.38 s to
 33.84/38.85 s: **12.2× less CPU time**. Wall times (old 110/684 s, new 7/127 s)
 were affected by shared-host scheduling and are not an idle-machine speedup claim.
-The new integral test makes 252 exact comparisons against CADO's own scalar
-`MurphyE`, with four workers, translated/modified polynomials, changing K, cache
-eviction, and the uncached large-K path; every value matches bit for bit.
+The initial integral test made 252 exact comparisons, but only read the last
+polynomial of each fixture. The corrected reader tests all 25 blocks: 2,100 exact
+comparisons against CADO's scalar `MurphyE`, with four workers, translated/modified
+polynomials, changing K, cache eviction, and the uncached large-K path. All match
+bit for bit in the 2026-10-12 recheck. The timing and byte-identity results above
+describe the initial build; the later separated-start search and portable scoring
+build have not been rebenchmarked against those timings.
 
 A real 4096-candidate CPU ranking run completed in **191.00 s wall** on four
 workers (748.82 s aggregate CPU). It refined all 4096 before retaining 200, accepted

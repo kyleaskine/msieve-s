@@ -1,0 +1,102 @@
+[
+  {
+    "name": "breadth_comparison",
+    "command": [
+      "/usr/bin/python3",
+      "/home/kylea/msieve-s/stage23_bench/runs/20261011_c184/score.py",
+      "/home/kylea/msieve-s/stage23_gpu/runs/20261013_backups/c165",
+      "job:30,31,14,30e6",
+      "14,8192",
+      "30e6,90e6,7",
+      "8"
+    ],
+    "elapsed_seconds": 98.24883556365967
+  },
+  {
+    "name": "breadth_analysis",
+    "command": [
+      "/usr/bin/python3",
+      "/home/kylea/msieve-s/stage23_bench/runs/20261011_c184/analyze.py",
+      "/home/kylea/msieve-s/stage23_gpu/runs/20261013_backups/c165"
+    ],
+    "elapsed_seconds": 0.06578660011291504
+  },
+  {
+    "name": "murphy/s0008",
+    "command": [
+      "/home/kylea/msieve-s/stage23_gpu/runs/20261013_backups/c165/bin/s23_ropt",
+      "-poly",
+      "/home/kylea/msieve-s/stage23_gpu/runs/20261013_backups/c165/seeds/s0008.poly",
+      "-search",
+      "-budget",
+      "3",
+      "-aw",
+      "1.3",
+      "-maxcells",
+      "2e11",
+      "-rerank",
+      "4096",
+      "-top",
+      "3",
+      "-t",
+      "8",
+      "-launch",
+      "30",
+      "-murphy",
+      "-Bf",
+      "2147483648.0",
+      "-Bg",
+      "1073741824.0",
+      "-area",
+      "4026531840000000.0",
+      "-murphy-points",
+      "16000",
+      "-murphy-eval-points",
+      "64000",
+      "-maxeval",
+      "384",
+      "-out",
+      "/home/kylea/msieve-s/stage23_gpu/runs/20261013_backups/c165/murphy/s0008.poly"
+    ],
+    "elapsed_seconds": 154.87943148612976
+  },
+  {
+    "name": "murphy/s0001",
+    "command": [
+      "/home/kylea/msieve-s/stage23_gpu/runs/20261013_backups/c165/bin/s23_ropt",
+      "-poly",
+      "/home/kylea/msieve-s/stage23_gpu/runs/20261013_backups/c165/seeds/s0001.poly",
+      "-search",
+      "-budget",
+      "3",
+      "-aw",
+      "1.3",
+      "-maxcells",
+      "2e11",
+      "-rerank",
+      "4096",
+      "-top",
+      "3",
+      "-t",
+      "8",
+      "-launch",
+      "30",
+      "-murphy",
+      "-Bf",
+      "2147483648.0",
+      "-Bg",
+      "1073741824.0",
+      "-area",
+      "4026531840000000.0",
+      "-murphy-points",
+      "16000",
+      "-murphy-eval-points",
+      "64000",
+      "-maxeval",
+      "384",
+      "-out",
+      "/home/kylea/msieve-s/stage23_gpu/runs/20261013_backups/c165/murphy/s0001.poly"
+    ],
+    "elapsed_seconds": 146.06838655471802
+  }
+]

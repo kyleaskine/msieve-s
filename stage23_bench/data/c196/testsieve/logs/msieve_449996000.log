@@ -1,0 +1,104 @@
+# telemetry   NVML bound to 00000000:01:00.0
+# commit      8d36ed4b-dirty
+# argv        /home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/bin/bench --pipeline --cofactor --poly /home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/jobs/msieve.job --fb1 /home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/fb/msieve.m17 --sq-side 1 --logI 17 --J 32768 --qrange 449996000:449999999 --relations /home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/raw/msieve_449996000.dat --log /home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/raw/msieve_449996000.log --log-every 1
+# job         deg=5 skew=189812531.19999999 c0=126444154077170582251380966835237382358402187200 c1=-1672575075419686304157918913311962014904 c2=-10189401176119899216642123255494 c3=133662762321950605387345 c4=-560567653307022 c5=-1247400 Y0=-84368494233689115723599623921233489129 Y1=150129302634749295453121 rlim=200000000 alim=300000000 lpbr=32 lpba=33 mfbr=62 mfba=95 rlambda=0 alambda=0 logI=17 J=32768 sqside=1 nbe=0 lim0=200000000 lpb0=32 mfb0=62 lim1=300000000 lpb1=33 mfb1=95 maxbits=17 cofac=1 ecm=-1 b1=200 b2=6000 curves=12 rounds=4 budget=65536
+# fingerprint 824829cb9ee6c6ac
+# device      CUDA 0 of 1: NVIDIA GeForce RTX 5070 [00000000:01:00.0], driver 13.4, runtime 13.4
+# geometry    logI=17 J=32768 (I17e, area 4.295e+09) region=2^14 maxbits=17 blocks=288 threads=256 fill=4608x32
+# fb          side1 16243276 entries p in [131072, 300000000) = full base to alim; side0 11066686 entries p in [131072, 200000000)
+# fb-source   side1 fbgen/CADO text file
+# gate        sq-side 1  scale 1.1750/1.7750  allowance 96.70/63.50  lpb 33/32  mfb 95/62
+# band        qrange 449996000:449999999  target-rels 0  nq 0  relations /home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/raw/msieve_449996000.dat
+2026-10-13T06:00:31-0400 +0s  band start
+2026-10-13T06:00:33-0400 +2s  q=449996011 nq=1 rel=0 cand=4302 rel/s=0.0 pct=0.30 eta=-- ms/q=723.58 acc/wall=0.686 gpu=92% board=114.0W load=21.30
+2026-10-13T06:00:35-0400 +4s  q=449996077 nq=3 rel=0 cand=12652 rel/s=0.0 pct=1.95 eta=-- ms/q=634.72 acc/wall=0.737 gpu=74% board=185.0W load=21.30
+2026-10-13T06:00:35-0400 +5s  q=449996167 nq=5 rel=0 cand=21258 rel/s=0.0 pct=4.20 eta=-- ms/q=597.54 acc/wall=0.771 gpu=82% board=198.8W load=21.30
+2026-10-13T06:00:36-0400 +6s  q=449996251 nq=8 rel=0 cand=33827 rel/s=0.0 pct=6.30 eta=-- ms/q=562.78 acc/wall=0.809 gpu=85% board=207.8W load=21.20
+2026-10-13T06:00:38-0400 +8s  q=449996497 nq=11 rel=0 cand=46554 rel/s=0.0 pct=12.45 eta=-- ms/q=544.03 acc/wall=0.832 gpu=89% board=212.8W load=21.20
+2026-10-13T06:00:39-0400 +9s  q=449996507 nq=14 rel=0 cand=59161 rel/s=0.0 pct=12.70 eta=-- ms/q=534.19 acc/wall=0.844 gpu=88% board=211.3W load=21.20
+2026-10-13T06:00:40-0400 +10s  q=449996507 nq=16 rel=0 cand=67446 rel/s=0.0 pct=12.70 eta=-- ms/q=532.61 acc/wall=0.847 gpu=84% board=206.2W load=21.10
+2026-10-13T06:00:41-0400 +11s  q=449996531 nq=18 rel=0 cand=75750 rel/s=0.0 pct=13.30 eta=-- ms/q=535.16 acc/wall=0.843 gpu=94% board=195.2W load=21.10
+2026-10-13T06:00:42-0400 +12s  q=449996537 nq=20 rel=0 cand=84245 rel/s=0.0 pct=13.45 eta=-- ms/q=537.69 acc/wall=0.840 gpu=64% board=194.5W load=21.10
+2026-10-13T06:00:44-0400 +14s  q=449996653 nq=22 rel=0 cand=92754 rel/s=0.0 pct=16.35 eta=-- ms/q=540.39 acc/wall=0.835 gpu=81% board=195.6W load=21.10
+2026-10-13T06:00:45-0400 +15s  q=449996693 nq=24 rel=0 cand=101076 rel/s=0.0 pct=17.35 eta=-- ms/q=541.93 acc/wall=0.833 gpu=82% board=198.9W load=21.10
+2026-10-13T06:00:46-0400 +16s  q=449996731 nq=26 rel=0 cand=109351 rel/s=0.0 pct=18.30 eta=-- ms/q=544.93 acc/wall=0.829 gpu=92% board=192.3W load=21.25
+2026-10-13T06:00:47-0400 +17s  q=449996773 nq=28 rel=0 cand=117692 rel/s=0.0 pct=19.35 eta=-- ms/q=543.01 acc/wall=0.832 gpu=94% board=207.9W load=21.25
+2026-10-13T06:00:48-0400 +18s  q=449996777 nq=30 rel=0 cand=126056 rel/s=0.0 pct=19.45 eta=-- ms/q=541.01 acc/wall=0.836 gpu=93% board=214.8W load=21.25
+2026-10-13T06:00:50-0400 +20s  q=449996797 nq=32 rel=2935 cand=4185 rel/s=158.4 pct=19.95 eta=0.02h ms/q=575.52 acc/wall=0.837 gpu=94% board=168.5W load=21.25
+2026-10-13T06:00:51-0400 +21s  q=449996809 nq=34 rel=2935 cand=12616 rel/s=150.0 pct=20.25 eta=0.02h ms/q=571.65 acc/wall=0.839 gpu=96% board=211.2W load=21.23
+2026-10-13T06:00:52-0400 +22s  q=449996843 nq=36 rel=2935 cand=20958 rel/s=142.7 pct=21.10 eta=0.02h ms/q=567.90 acc/wall=0.842 gpu=91% board=214.7W load=21.23
+2026-10-13T06:00:54-0400 +24s  q=449996879 nq=39 rel=2935 cand=33770 rel/s=132.9 pct=22.00 eta=0.02h ms/q=563.05 acc/wall=0.845 gpu=88% board=216.4W load=21.23
+2026-10-13T06:00:55-0400 +25s  q=449996881 nq=41 rel=2935 cand=42210 rel/s=127.0 pct=22.05 eta=0.02h ms/q=560.49 acc/wall=0.846 gpu=87% board=209.8W load=21.23
+2026-10-13T06:00:56-0400 +26s  q=449996959 nq=43 rel=2935 cand=50696 rel/s=121.2 pct=24.00 eta=0.02h ms/q=559.80 acc/wall=0.845 gpu=90% board=201.5W load=21.14
+2026-10-13T06:00:57-0400 +27s  q=449996959 nq=45 rel=2935 cand=59059 rel/s=116.1 pct=24.00 eta=0.02h ms/q=558.31 acc/wall=0.845 gpu=92% board=204.1W load=21.14
+2026-10-13T06:00:58-0400 +28s  q=449996993 nq=47 rel=2935 cand=67333 rel/s=111.4 pct=24.85 eta=0.02h ms/q=557.30 acc/wall=0.845 gpu=88% board=208.2W load=21.14
+2026-10-13T06:00:59-0400 +29s  q=449997043 nq=49 rel=2935 cand=75811 rel/s=106.9 pct=26.10 eta=0.02h ms/q=557.02 acc/wall=0.844 gpu=89% board=201.1W load=21.14
+2026-10-13T06:01:00-0400 +30s  q=449997073 nq=51 rel=2935 cand=84262 rel/s=103.0 pct=26.85 eta=0.02h ms/q=555.57 acc/wall=0.845 gpu=92% board=204.9W load=21.14
+2026-10-13T06:01:01-0400 +31s  q=449997131 nq=53 rel=2935 cand=92704 rel/s=99.4 pct=28.30 eta=0.02h ms/q=554.23 acc/wall=0.845 gpu=93% board=207.1W load=21.36
+2026-10-13T06:01:02-0400 +32s  q=449997151 nq=55 rel=2935 cand=100996 rel/s=96.1 pct=28.80 eta=0.02h ms/q=552.41 acc/wall=0.847 gpu=82% board=214.7W load=21.36
+2026-10-13T06:01:03-0400 +33s  q=449997169 nq=57 rel=2935 cand=109588 rel/s=92.9 pct=29.25 eta=0.02h ms/q=551.41 acc/wall=0.848 gpu=92% board=208.7W load=21.36
+2026-10-13T06:01:04-0400 +34s  q=449997241 nq=59 rel=2935 cand=117941 rel/s=89.7 pct=31.05 eta=0.02h ms/q=551.34 acc/wall=0.848 gpu=87% board=202.1W load=21.36
+2026-10-13T06:01:05-0400 +35s  q=449997343 nq=61 rel=2935 cand=126230 rel/s=86.9 pct=33.60 eta=0.02h ms/q=550.77 acc/wall=0.848 gpu=87% board=207.3W load=21.42
+2026-10-13T06:01:07-0400 +38s  q=449997391 nq=63 rel=5792 cand=4237 rel/s=160.7 pct=34.80 eta=0.02h ms/q=569.13 acc/wall=0.849 gpu=87% board=168.9W load=21.42
+2026-10-13T06:01:08-0400 +39s  q=449997403 nq=65 rel=5792 cand=12565 rel/s=155.9 pct=35.10 eta=0.02h ms/q=568.69 acc/wall=0.848 gpu=85% board=202.0W load=21.42
+2026-10-13T06:01:09-0400 +40s  q=449997487 nq=67 rel=5792 cand=21146 rel/s=151.4 pct=37.20 eta=0.02h ms/q=567.91 acc/wall=0.848 gpu=82% board=201.2W load=21.42
+2026-10-13T06:01:10-0400 +41s  q=449997511 nq=69 rel=5792 cand=29550 rel/s=146.8 pct=37.80 eta=0.02h ms/q=568.81 acc/wall=0.845 gpu=79% board=189.9W load=21.38
+2026-10-13T06:01:11-0400 +42s  q=449997529 nq=71 rel=5792 cand=38148 rel/s=142.6 pct=38.25 eta=0.02h ms/q=569.06 acc/wall=0.843 gpu=88% board=190.0W load=21.38
+2026-10-13T06:01:12-0400 +43s  q=449997547 nq=73 rel=5792 cand=46684 rel/s=139.0 pct=38.70 eta=0.02h ms/q=567.92 acc/wall=0.843 gpu=92% board=204.3W load=21.38
+2026-10-13T06:01:13-0400 +44s  q=449997637 nq=75 rel=5792 cand=55146 rel/s=135.6 pct=40.95 eta=0.02h ms/q=566.60 acc/wall=0.844 gpu=88% board=208.1W load=21.38
+2026-10-13T06:01:14-0400 +45s  q=449997641 nq=77 rel=5792 cand=63666 rel/s=132.3 pct=41.05 eta=0.02h ms/q=565.56 acc/wall=0.844 gpu=97% board=204.2W load=21.67
+2026-10-13T06:01:16-0400 +46s  q=449997649 nq=79 rel=5792 cand=72219 rel/s=129.1 pct=41.25 eta=0.02h ms/q=565.17 acc/wall=0.844 gpu=89% board=203.8W load=21.67
+2026-10-13T06:01:17-0400 +48s  q=449997679 nq=81 rel=5792 cand=80640 rel/s=126.0 pct=42.00 eta=0.02h ms/q=564.78 acc/wall=0.844 gpu=91% board=202.5W load=21.67
+2026-10-13T06:01:18-0400 +49s  q=449997683 nq=83 rel=5792 cand=89050 rel/s=123.0 pct=42.10 eta=0.02h ms/q=564.21 acc/wall=0.844 gpu=92% board=206.0W load=21.67
+2026-10-13T06:01:19-0400 +50s  q=449997689 nq=85 rel=5792 cand=97382 rel/s=120.4 pct=42.25 eta=0.02h ms/q=563.08 acc/wall=0.845 gpu=78% board=214.2W load=21.67
+2026-10-13T06:01:20-0400 +51s  q=449997749 nq=87 rel=5792 cand=105717 rel/s=117.9 pct=43.75 eta=0.02h ms/q=561.88 acc/wall=0.845 gpu=98% board=211.2W load=21.62
+2026-10-13T06:01:21-0400 +52s  q=449997781 nq=90 rel=5792 cand=118342 rel/s=114.4 pct=44.55 eta=0.02h ms/q=559.53 acc/wall=0.847 gpu=97% board=220.3W load=21.62
+2026-10-13T06:01:22-0400 +53s  q=449997799 nq=92 rel=5792 cand=126920 rel/s=112.2 pct=45.00 eta=0.02h ms/q=558.34 acc/wall=0.849 gpu=93% board=216.3W load=21.62
+2026-10-13T06:01:24-0400 +55s  q=449997853 nq=93 rel=8659 cand=338 rel/s=162.3 pct=46.35 eta=0.02h ms/q=570.68 acc/wall=0.849 gpu=100% board=139.3W load=21.62
+2026-10-13T06:01:25-0400 +56s  q=449997853 nq=95 rel=8659 cand=8809 rel/s=159.2 pct=46.35 eta=0.02h ms/q=569.53 acc/wall=0.850 gpu=93% board=199.6W load=21.49
+2026-10-13T06:01:26-0400 +57s  q=449997859 nq=97 rel=8659 cand=17310 rel/s=156.2 pct=46.50 eta=0.02h ms/q=568.51 acc/wall=0.851 gpu=93% board=206.8W load=21.49
+2026-10-13T06:01:27-0400 +58s  q=449997913 nq=99 rel=8659 cand=25845 rel/s=152.8 pct=47.85 eta=0.02h ms/q=569.66 acc/wall=0.849 gpu=95% board=183.1W load=21.49
+2026-10-13T06:01:28-0400 +59s  q=449998019 nq=101 rel=8659 cand=34343 rel/s=149.8 pct=50.50 eta=0.02h ms/q=569.39 acc/wall=0.849 gpu=97% board=198.3W load=21.49
+2026-10-13T06:01:29-0400 +60s  q=449998051 nq=103 rel=8659 cand=42711 rel/s=147.2 pct=51.30 eta=0.02h ms/q=568.15 acc/wall=0.850 gpu=95% board=211.6W load=21.29
+2026-10-13T06:01:31-0400 +62s  q=449998067 nq=106 rel=8659 cand=55613 rel/s=143.7 pct=51.70 eta=0.02h ms/q=565.55 acc/wall=0.852 gpu=96% board=223.5W load=21.29
+2026-10-13T06:01:32-0400 +63s  q=449998093 nq=108 rel=8659 cand=63818 rel/s=141.2 pct=52.35 eta=0.02h ms/q=565.07 acc/wall=0.851 gpu=78% board=205.2W load=21.29
+2026-10-13T06:01:33-0400 +64s  q=449998117 nq=110 rel=8659 cand=72348 rel/s=138.7 pct=52.95 eta=0.02h ms/q=564.50 acc/wall=0.851 gpu=84% board=205.7W load=21.29
+2026-10-13T06:01:34-0400 +65s  q=449998169 nq=112 rel=8659 cand=80605 rel/s=136.5 pct=54.25 eta=0.01h ms/q=563.49 acc/wall=0.852 gpu=92% board=211.0W load=21.29
+2026-10-13T06:01:35-0400 +66s  q=449998273 nq=114 rel=8659 cand=88978 rel/s=134.1 pct=56.85 eta=0.01h ms/q=563.68 acc/wall=0.850 gpu=95% board=192.0W load=21.35
+2026-10-13T06:01:36-0400 +67s  q=449998343 nq=116 rel=8659 cand=97650 rel/s=131.9 pct=58.60 eta=0.01h ms/q=563.05 acc/wall=0.850 gpu=91% board=206.9W load=21.35
+2026-10-13T06:01:37-0400 +68s  q=449998357 nq=118 rel=8659 cand=106159 rel/s=129.7 pct=58.95 eta=0.01h ms/q=562.82 acc/wall=0.850 gpu=73% board=204.9W load=21.35
+2026-10-13T06:01:37-0400 +69s  q=449998447 nq=120 rel=8659 cand=114518 rel/s=127.7 pct=61.20 eta=0.01h ms/q=562.40 acc/wall=0.849 gpu=89% board=202.2W load=21.35
+2026-10-13T06:01:39-0400 +71s  q=449998541 nq=122 rel=8659 cand=122921 rel/s=125.5 pct=63.55 eta=0.01h ms/q=562.71 acc/wall=0.848 gpu=85% board=193.8W load=21.32
+2026-10-13T06:01:41-0400 +73s  q=449998547 nq=124 rel=11548 cand=371 rel/s=162.2 pct=63.70 eta=0.01h ms/q=571.53 acc/wall=0.848 gpu=100% board=136.3W load=21.32
+2026-10-13T06:01:42-0400 +74s  q=449998579 nq=126 rel=11548 cand=9072 rel/s=159.9 pct=64.50 eta=0.01h ms/q=570.53 acc/wall=0.848 gpu=84% board=202.7W load=21.32
+2026-10-13T06:01:43-0400 +75s  q=449998621 nq=128 rel=11548 cand=17508 rel/s=157.6 pct=65.55 eta=0.01h ms/q=569.57 acc/wall=0.848 gpu=92% board=206.8W load=21.32
+2026-10-13T06:01:44-0400 +76s  q=449998669 nq=131 rel=11548 cand=30097 rel/s=154.5 pct=66.75 eta=0.01h ms/q=567.70 acc/wall=0.850 gpu=93% board=214.8W load=21.13
+2026-10-13T06:01:46-0400 +78s  q=449998711 nq=134 rel=11548 cand=42583 rel/s=151.6 pct=67.80 eta=0.01h ms/q=565.85 acc/wall=0.851 gpu=95% board=219.5W load=21.13
+2026-10-13T06:01:47-0400 +79s  q=449998711 nq=136 rel=11548 cand=51148 rel/s=149.5 pct=67.80 eta=0.01h ms/q=565.26 acc/wall=0.851 gpu=85% board=208.4W load=21.13
+2026-10-13T06:01:48-0400 +80s  q=449998799 nq=139 rel=11548 cand=63787 rel/s=146.7 pct=70.00 eta=0.01h ms/q=563.80 acc/wall=0.851 gpu=80% board=214.8W load=21.04
+2026-10-13T06:01:49-0400 +81s  q=449998837 nq=141 rel=11548 cand=72305 rel/s=144.7 pct=70.95 eta=0.01h ms/q=563.36 acc/wall=0.852 gpu=91% board=206.8W load=21.04
+2026-10-13T06:01:51-0400 +82s  q=449998909 nq=143 rel=11548 cand=80706 rel/s=142.8 pct=72.75 eta=0.01h ms/q=562.71 acc/wall=0.852 gpu=91% board=211.9W load=21.04
+2026-10-13T06:01:52-0400 +84s  q=449998943 nq=146 rel=11548 cand=93574 rel/s=140.3 pct=73.60 eta=0.01h ms/q=561.25 acc/wall=0.853 gpu=96% board=221.3W load=21.04
+2026-10-13T06:01:53-0400 +85s  q=449998981 nq=148 rel=11548 cand=101885 rel/s=138.6 pct=74.55 eta=0.01h ms/q=560.48 acc/wall=0.853 gpu=86% board=215.2W load=21.04
+2026-10-13T06:01:54-0400 +86s  q=449999183 nq=150 rel=11548 cand=110327 rel/s=136.8 pct=79.60 eta=0.01h ms/q=560.29 acc/wall=0.853 gpu=82% board=203.3W load=21.28
+2026-10-13T06:01:55-0400 +87s  q=449999183 nq=152 rel=11548 cand=118722 rel/s=134.9 pct=79.60 eta=0.01h ms/q=560.55 acc/wall=0.852 gpu=91% board=192.0W load=21.28
+2026-10-13T06:01:56-0400 +88s  q=449999281 nq=154 rel=11548 cand=127161 rel/s=133.2 pct=82.05 eta=0.01h ms/q=560.33 acc/wall=0.851 gpu=89% board=204.7W load=21.28
+2026-10-13T06:01:58-0400 +90s  q=449999281 nq=155 rel=14445 cand=386 rel/s=163.3 pct=82.05 eta=0.01h ms/q=567.92 acc/wall=0.851 gpu=91% board=138.2W load=21.28
+2026-10-13T06:02:00-0400 +92s  q=449999327 nq=158 rel=14445 cand=12943 rel/s=160.6 pct=83.20 eta=0.01h ms/q=566.49 acc/wall=0.852 gpu=97% board=221.2W load=21.58
+2026-10-13T06:02:01-0400 +93s  q=449999413 nq=160 rel=14445 cand=21395 rel/s=158.7 pct=85.35 eta=0.00h ms/q=565.97 acc/wall=0.852 gpu=81% board=207.4W load=21.58
+2026-10-13T06:02:02-0400 +94s  q=449999437 nq=162 rel=14445 cand=29783 rel/s=156.9 pct=85.95 eta=0.00h ms/q=565.58 acc/wall=0.852 gpu=92% board=206.0W load=21.58
+2026-10-13T06:02:03-0400 +95s  q=449999449 nq=164 rel=14445 cand=38268 rel/s=155.2 pct=86.25 eta=0.00h ms/q=564.78 acc/wall=0.852 gpu=93% board=214.5W load=21.58
+2026-10-13T06:02:04-0400 +96s  q=449999507 nq=167 rel=14445 cand=50907 rel/s=152.8 pct=87.70 eta=0.00h ms/q=563.39 acc/wall=0.853 gpu=93% board=221.1W load=21.45
+2026-10-13T06:02:05-0400 +97s  q=449999527 nq=169 rel=14445 cand=59190 rel/s=151.2 pct=88.20 eta=0.00h ms/q=562.67 acc/wall=0.853 gpu=89% board=210.8W load=21.45
+2026-10-13T06:02:07-0400 +99s  q=449999597 nq=172 rel=14445 cand=71937 rel/s=148.9 pct=89.95 eta=0.00h ms/q=561.25 acc/wall=0.854 gpu=97% board=224.7W load=21.45
+2026-10-13T06:02:08-0400 +100s  q=449999617 nq=175 rel=14445 cand=84624 rel/s=146.7 pct=90.45 eta=0.00h ms/q=560.10 acc/wall=0.855 gpu=92% board=218.1W load=21.45
+2026-10-13T06:02:09-0400 +102s  q=449999681 nq=178 rel=14445 cand=97260 rel/s=144.5 pct=92.05 eta=0.00h ms/q=558.95 acc/wall=0.856 gpu=95% board=218.9W load=21.49
+2026-10-13T06:02:10-0400 +103s  q=449999729 nq=181 rel=14445 cand=110048 rel/s=142.4 pct=93.25 eta=0.00h ms/q=557.80 acc/wall=0.856 gpu=96% board=219.5W load=21.49
+2026-10-13T06:02:11-0400 +104s  q=449999731 nq=183 rel=14445 cand=118424 rel/s=140.9 pct=93.30 eta=0.00h ms/q=557.45 acc/wall=0.856 gpu=83% board=209.0W load=21.49
+2026-10-13T06:02:12-0400 +105s  q=449999777 nq=185 rel=14445 cand=126940 rel/s=139.6 pct=94.45 eta=0.00h ms/q=556.91 acc/wall=0.856 gpu=93% board=213.7W load=21.49
+2026-10-13T06:02:14-0400 +107s  q=449999783 nq=186 rel=17350 cand=359 rel/s=165.0 pct=94.60 eta=0.00h ms/q=562.77 acc/wall=0.857 gpu=95% board=138.4W load=21.37
+2026-10-13T06:02:15-0400 +108s  q=449999821 nq=188 rel=17350 cand=8856 rel/s=163.4 pct=95.55 eta=0.00h ms/q=562.14 acc/wall=0.857 gpu=93% board=202.5W load=21.37
+2026-10-13T06:02:16-0400 +109s  q=449999821 nq=190 rel=17350 cand=17263 rel/s=161.8 pct=95.55 eta=0.00h ms/q=561.63 acc/wall=0.857 gpu=91% board=210.7W load=21.37
+2026-10-13T06:02:17-0400 +110s  q=449999947 nq=192 rel=17350 cand=25688 rel/s=160.3 pct=98.70 eta=0.00h ms/q=561.25 acc/wall=0.857 gpu=88% board=210.7W load=21.37
+2026-10-13T06:02:18-0400 +111s  q=449999981 nq=195 rel=17350 cand=38449 rel/s=158.1 pct=99.55 eta=0.00h ms/q=560.19 acc/wall=0.858 gpu=96% board=221.4W load=21.18
+2026-10-13T06:02:20-0400 +113s  band end  nq=196  rel=18296  nq_session=196  rel_session=18296  cand_session=823381  wall=560.52ms/q  sieve=341.16ms/q  td=128.27ms/q  acc/wall=0.857  rel/q=93.347

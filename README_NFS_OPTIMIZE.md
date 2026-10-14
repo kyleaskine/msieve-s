@@ -45,6 +45,138 @@ cado_build_dir = $HOME/cado-nfs/build/YOUR-BUILD-DIR
 ./nfs_optimize.sh watch
 ```
 
+## GPU workflow
+
+The GPU mode runs degree-5 size and root optimization from raw stage-1 output.
+Build its tools once with `make -C stage23_gpu s23_sopt s23_ropt CUDA=120`
+(choose the CUDA architecture for your device). The host scorer builds on demand
+using the configured CADO libraries. Size modeling, exact-alpha reranking,
+MurphyE scoring and content-seed generation still use the CPU.
+
+One command from raw polynomials to a final polynomial:
+
+```bash
+./nfs_optimize.sh --gpu --size big all \
+    --input msieve.dat.ms --run-dir stage23_gpu/runs/my-job \
+    --params job:32,33,16.5,80e6 \
+    --lattice 17,32768 --qband 80e6,450e6,7
+```
+
+These scoring numbers are examples: supply the current job's large-prime bounds,
+region and q band. `--params` is `job:lpbr,lpba,I,qmin`; for a `2^LOGI × J`
+rectangle, the equivalent MurphyE `I` is `(LOGI + log2(J))/2`. Set `--lattice`
+and `--qband` together to rank by the lattice band model. Omitting both ranks by
+MurphyE. The `[gpu]` config section can supply these values and search settings.
+
+The existing two-step workflow is also available:
+
+```bash
+./nfs_optimize.sh --gpu preprocess \
+    --input msieve.dat.ms --run-dir stage23_gpu/runs/my-job
+./nfs_optimize.sh --gpu --size big pipeline \
+    --run-dir stage23_gpu/runs/my-job \
+    --params job:32,33,16.5,80e6 \
+    --lattice 17,32768 --qband 80e6,450e6,7
+```
+
+`preprocess` only deduplicates raw polynomials and runs GPU sopt at effort 0;
+it needs no scoring parameters. `pipeline` takes those results, selects the
+original raw inputs for the higher-effort sopt pass, generates parent/content
+seeds, searches them, and selects the final polynomial. `pipeline --input FILE`
+also performs preprocessing, just like `all`. Without `--input`, `preprocess`
+and a new `all` run use `[preprocessing] input_file` (normally `msieve.dat.ms`).
+Input files use the existing multiline `n:`, `c0:`…`c5:`, `Y0:`, `Y1:` format.
+
+To reuse a completed CPU preprocessing pass, supply its **unsorted paired**
+output; the raw/output pairs are needed to recover the original shortlist:
+
+```bash
+./nfs_optimize.sh --gpu pipeline \
+    --initial-unsorted cado_sopt_unsorted.txt \
+    --run-dir stage23_gpu/runs/from-cpu \
+    --params job:32,33,16.5,80e6
+```
+
+The default search uses two workers with short `-launch 30` kernels, a breadth
+cap of `2e11` cells per search, and depth at `6e12` on the best 16 distinct parent
+families. `--depth-seeds 0` disables depth. Accurate MurphyE translation/skew
+refinement runs on the four leading families over the entire retained pool
+(4096 cells by default), before cutting the outputs. Breadth and depth save
+those pools, so refinement reuses the completed search without another sieve.
+Old runs retain their frozen binaries; binaries without pool support continue
+using the older combined search/refinement path. This is followed by
+independent final scoring at 256k angles; lattice validation uses a different
+sample stream with 256 lattices and 4096 points. Coarse-pass controls remain in
+the finalist pool. These are model rankings, not measured test-sieve gains.
+
+Every run stores its own preprocessing files, inputs, frozen executables,
+command logs and verified checkpoints. No CPU pipeline output rotation is used.
+Paths are relative to this repository unless absolute. The default run directory
+is `stage23_gpu/runs/current`; use a named directory for each job. Resume and
+report commands need no repeated scoring options:
+
+```bash
+./nfs_optimize.sh --gpu pipeline --run-dir stage23_gpu/runs/my-job --resume
+./nfs_optimize.sh --gpu report --run-dir stage23_gpu/runs/my-job
+```
+
+Successful checkpoints are reused automatically after checking their hashes.
+Failed commands and missing or changed outputs are rerun. A continuation inherits
+the saved pipeline settings and frozen binaries, so it can finish after the
+original raw file is moved or grows. New runs copy and hash the consumed input
+bytes into `RUN/inputs/` before preprocessing; a live source is read only up to
+its initial byte length, and the snapshot must contain complete polynomial blocks.
+Resuming uses that snapshot. Use a new run directory to consume more input or
+change search/scoring settings. Execution settings (`--device`, `--threads`,
+`--workers`, `--launch`, `--slice`) can change on resume. Logs record actual
+commands, and `execution.json` saves the latest execution settings.
+
+Source hashes are provenance. Explicit per-stage schema versions determine
+checkpoint compatibility; unrelated script edits do not invalidate completed
+work. Old checkpoints with matching parameters and output hashes remain usable.
+Old runs without snapshots can still reuse their verified preprocessing outputs;
+repairing those outputs requires the original bytes. A lock prevents concurrent
+writers to the same run.
+
+Partial MurphyE scoring failures retain valid, exactly checked outputs and record
+the failed search in the summary/report. Empty, malformed, or unrelated failed
+outputs remain errors. Finalist limits count unique polynomial/skew configurations,
+so repeated breadth/depth candidates do not consume extra slots.
+
+The winner is `RUN/results/best.poly`; all validated finalists, scores and a
+readable report are in `RUN/results/`. Progress is in `RUN/status.json` and
+per-command logs are in `RUN/logs/`. `RUN/preprocess/` includes the familiar
+`cado_sopt_unsorted.txt`, `cado_sopt_output.txt`, and `cado_results_sorted.ms`.
+Use `./nfs_optimize.sh --gpu pipeline --help` for all options.
+
+Experimental distant-basin discovery is available with
+`--u-scan 256 --u-basins 4 --u-radius 128` on `all` or `pipeline`, or the matching
+`u_scan`, `u_basins`, `u_radius` keys in `[gpu]`. It samples across `--umax`, refines
+promising locations, and adds nearby lines before the existing cell cap. It is
+off by default (`--u-scan 0`). Compare in a separate run directory: the added size
+model work and changed cell allocation can help some seeds and hurt others.
+The [root optimization plan](ROPT_OPTIMIZATION_PLAN.md) records the coverage
+tests and subsequent residue-class work.
+
+The first explicit residue-class mode is available as `--residue M,U,V`, with
+`--u-scan 0`. For example, `--residue 2520,1488,1704` restricts each seed's search
+to that original-coordinate class. It counts selected cells against the budget
+and supports both `all` and `pipeline`; settings are saved for resume. This is
+an experimental single-class mode, and the same class need not suit different
+seeds. For a content-derived seed, the driver converts the parent class through
+`u=u0+d*u'`, `v=v0+d*v'`; incompatible content lattices are skipped.
+
+Automatic selection is available with `--classes 2520,16 --class-explore 4`,
+on either `all` or `pipeline`, including a pipeline starting from raw input or
+an earlier preprocess pass. It chooses classes separately for each seed and
+shares one cell cap and candidate pool across them. The matching config keys
+are `[gpu] classes=2520,16` and `class_explore=4`; leave `residue` empty and
+`u_scan=0`. Exploration reserves class slots; later size and retention cuts can
+still remove their cells. This mode is experimental and off by default. Use a
+new run directory for changed search settings. See the
+[root-sieve details](stage23_gpu/README.md) and
+[measured results](ROPT_OPTIMIZATION_PLAN.md#2026-10-14-r2b-automatic-selection-and-shared-budget).
+
 ## Current Wrapper State
 
 `./nfs_optimize.sh` currently supports these commands:
@@ -53,6 +185,7 @@ cado_build_dir = $HOME/cado-nfs/build/YOUR-BUILD-DIR
 ./nfs_optimize.sh preprocess
 ./nfs_optimize.sh batch [-c N]
 ./nfs_optimize.sh pipeline
+./nfs_optimize.sh all
 ./nfs_optimize.sh report
 ./nfs_optimize.sh cleanup [--deep]
 ./nfs_optimize.sh watch

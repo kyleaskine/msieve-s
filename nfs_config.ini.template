@@ -96,6 +96,49 @@ extract_top_n = 2000
 msieve_ropt_count = 300
 cado_ropt_count = 150
 
+[gpu]
+# ./nfs_optimize.sh --gpu all|preprocess|pipeline|report
+# A run directory owns its frozen inputs, binaries, checkpoints and results.
+# Use a different directory for each number or search configuration.
+run_dir = stage23_gpu/runs/current
+device = 0
+workers = 2
+launch = 30
+slice = 10
+# Parent seed count defaults to pipeline.msieve_ropt_count; --size overrides it.
+# seeds = 300
+budget = 3
+maxcells = 2e11
+depth_seeds = 16
+depth_maxcells = 6e12
+murphy_seeds = 4
+rerank = 4096
+keep = 200
+score_top = 32
+finalists = 32
+maxlines = 1000
+umax = 20000
+# Experimental distant-basin discovery. Zero keeps the local scan.
+# Example: u_scan = 256; compare in a separate run directory before adopting.
+u_scan = 0
+u_basins = 4
+u_radius = 128
+# Experimental explicit residue class M,U,V; empty keeps the dense sieve.
+# This is one seed-coordinate class, not automatic class selection. Requires u_scan=0.
+residue =
+# Experimental automatic class selection M,K; e.g. 2520,16. Empty keeps dense mode.
+# Shares maxcells across all K classes. Mutually exclusive with residue/u_scan.
+classes =
+# Reserved exploration class slots; -1 uses K/4. The size/cell cap can remove cells.
+class_explore = -1
+# Required for pipeline/all: use THIS JOB's lpbr, lpba, equivalent MurphyE I, qmin.
+# For a 2^LOGI x J rectangle, equivalent I = (LOGI + log2(J)) / 2.
+# params = job:32,33,16.5,80e6
+# Optional lattice ranking; set both, using this job's actual region and q band.
+# Without these the winner is ranked by MurphyE alone.
+# lattice = 17,32768
+# qband = 80e6,450e6,7
+
 [testing]
 # Number of top polynomials to use for sopteffort testing
 test_poly_count = 100

@@ -1,0 +1,109 @@
+{
+  "run": "/home/kylea/msieve-s/stage23_gpu/runs/20261013_backups/c165",
+  "best": {
+    "msieve_orig": {
+      "label": "msieve_orig seed 8 e 1.013e-12 j 0",
+      "band": 255089100.0,
+      "ratio": 1.0,
+      "murphy": 5.782562e-08,
+      "skew": 4060215.9,
+      "relations_per_q": [
+        89.956,
+        83.2854,
+        78.8368,
+        73.977,
+        71.4416,
+        68.8017,
+        66.8536
+      ]
+    },
+    "msieve_inv": {
+      "label": "msieve_inv seed 8 e 1.013e-12 j 0",
+      "band": 255089100.0,
+      "ratio": 1.0,
+      "murphy": 5.782562e-08,
+      "skew": 4060215.9,
+      "relations_per_q": [
+        89.956,
+        83.2854,
+        78.8368,
+        73.977,
+        71.4416,
+        68.8017,
+        66.8536
+      ]
+    },
+    "gpu_murphy": {
+      "label": "gpu_murphy seed s0008 rank 0 u -4 v -5893033 t -2052446 MurphyE 5.7823342262917999e-08 lognorm 49.760476 lognorm_at_murphy_skew 50.203408 alpha_s -6.868534 control 5.7728576065568428e-08 proposal 5.7823342262917999e-08 accepted 1 calls 135 limited 0 alpha -7.404406",
+      "band": 254993000.0,
+      "ratio": 0.9996232688891842,
+      "murphy": 5.782501e-08,
+      "skew": 4016479.3,
+      "relations_per_q": [
+        89.9396,
+        83.2443,
+        78.8163,
+        73.9313,
+        71.431,
+        68.7565,
+        66.8537
+      ]
+    },
+    "cado_orig": {
+      "label": "cado_orig seed 8 E 9.972e-13",
+      "band": 254338000.0,
+      "ratio": 0.9970555386333638,
+      "murphy": 5.77299e-08,
+      "skew": 3867078.2,
+      "relations_per_q": [
+        89.8083,
+        82.9459,
+        78.565,
+        73.6634,
+        71.3391,
+        68.6764,
+        66.6333
+      ]
+    },
+    "cado_inv": {
+      "label": "cado_inv seed 8 E 9.972e-13",
+      "band": 254338000.0,
+      "ratio": 0.9970555386333638,
+      "murphy": 5.77299e-08,
+      "skew": 3867078.2,
+      "relations_per_q": [
+        89.8083,
+        82.9459,
+        78.565,
+        73.6634,
+        71.3391,
+        68.6764,
+        66.6333
+      ]
+    },
+    "gpu": {
+      "label": "gpu seed s0008 rank 0 u -4 v -5893033 t -2600030 Ea 40.134749 lognorm 49.760476 alpha_s -6.868534 alpha -7.404406",
+      "band": 254338000.0,
+      "ratio": 0.9970555386333638,
+      "murphy": 5.77299e-08,
+      "skew": 3867078.2,
+      "relations_per_q": [
+        89.8083,
+        82.9459,
+        78.565,
+        73.6634,
+        71.3391,
+        68.6764,
+        66.6333
+      ]
+    }
+  },
+  "scoring": {
+    "params": "job:30,31,14,30e6",
+    "lattice": "14,8192",
+    "qband": "30e6,90e6,7",
+    "source": "User-provided sieve parameters, 2026-10-13",
+    "note": "Model comparison; no test sieving performed."
+  },
+  "note": "Model comparison with user-provided parameters; no test sieving performed."
+}

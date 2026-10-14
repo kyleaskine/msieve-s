@@ -96,8 +96,29 @@ class MurphyRanking(unittest.TestCase):
                    '-t', '2', '-check', '16', '-out', str(out)]
             bf, bg, area = bounds('job:33,34,16.5,80e6')
             opts = ['-murphy', '-Bf', bf, '-Bg', bg, '-area', area]
+            pool = tmp / 'saved.pool'
+            subprocess.run(cmd + ['-pool-out', str(pool)], capture_output=True, text=True, check=True)
             r = subprocess.run(cmd + opts + ['-murphy-points', '16000', '-murphy-eval-points', '64000'],
                                capture_output=True, text=True, check=True)
+            direct = out.read_bytes()
+            replay = subprocess.run(cmd + opts + ['-pool-in', str(pool), '-dev', '999'],
+                                    capture_output=True, text=True, check=True)
+            self.assertIn('replaying 8 saved candidates; no size model or sieve', replay.stdout)
+            self.assertEqual(direct, out.read_bytes())
+            saved_pool = pool.read_text()
+            for damaged in (saved_pool[:-5], saved_pool.replace('S23_ROPT_POOL 1', 'S23_ROPT_POOL 99'),
+                            saved_pool.replace(str(seed['n']), str(seed['n'] + 1), 1)):
+                pool.write_text(damaged)
+                bad_pool = subprocess.run(cmd + opts + ['-pool-in', str(pool)], capture_output=True, text=True)
+                self.assertEqual(bad_pool.returncode, 2)
+                self.assertIn('candidate pool', bad_pool.stderr)
+                self.assertEqual(direct, out.read_bytes())
+            pool.write_text(saved_pool)
+            for incompatible in (['-aw', '1.3'], ['-noproj']):
+                bad_pool = subprocess.run(cmd + opts + ['-pool-in', str(pool)] + incompatible,
+                                          capture_output=True, text=True)
+                self.assertEqual(bad_pool.returncode, 2)
+                self.assertEqual(direct, out.read_bytes())
             self.assertIn('8 cells before the 1-output cut', r.stderr)
             self.assertIn('8 optimized', r.stdout)
             self.assertIn('0 failed', r.stdout)

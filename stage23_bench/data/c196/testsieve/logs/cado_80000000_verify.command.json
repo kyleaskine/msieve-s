@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/bin/bench",
+    "--poly",
+    "/home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/jobs/cado.job",
+    "--check-relations",
+    "/home/kylea/msieve-s/stage23_gpu/build/runs_20261013/c196_testsieve/raw/cado_80000000.dat"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 0.2727518081665039
+}

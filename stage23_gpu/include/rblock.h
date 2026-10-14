@@ -24,6 +24,7 @@ struct Blk {
     int64_t u, v0;
     uint32_t len;
     float L0, dL;
+    uint32_t step = 1; // original-v spacing; dL is per SELECTED cell
 };
 
 static const int K_MAX = 16; /* at most 32: the GPU keeps a warp's best k one per lane */
@@ -36,7 +37,8 @@ S23_HD bool cell_before(float ka, uint32_t oa, float kb, uint32_t ob)
 
 /* CPU: the GPU kernel's per-cell sums in the same prime order, and its choice: the
  * block's exact best k cells by cell_before (outputs past the block's cells: score -inf) */
-inline void cpu_block(const RsSeed &S, const float *PT, const Blk &B, int k, float aw, Hit *out,
+template <bool Strided = false>
+inline void cpu_block_impl(const RsSeed &S, const float *PT, const Blk &B, int k, float aw, Hit *out,
                       std::vector<float> &T, std::vector<float> &acc)
 {
     rs_line_tables(T.data(), S, PT, B.u);
@@ -52,11 +54,14 @@ inline void cpu_block(const RsSeed &S, const float *PT, const Blk &B, int k, flo
         for (int i = 0; i < RS_NPRIMES; i++) {
             const int64_t q = S.pr[i].qmax;
             const float *Ti = T.data() + S.pr[i].off;
-            uint32_t idx = (uint32_t)((((B.v0 + (int64_t)base) % q) + q) % q);
+            const uint32_t stride = Strided ? B.step : 1;
+            const uint32_t step = stride % q;
+            uint32_t idx = (uint32_t)((((B.v0 + (int64_t)base * stride) % q) + q) % q);
             for (uint32_t c = 0; c < n; c++) {
                 acc[c] += Ti[idx];
-                if (++idx == q)
-                    idx = 0;
+                idx += step;
+                if (idx >= q)
+                    idx -= q;
             }
         }
         for (uint32_t c = 0; c < n; c++) {
@@ -76,7 +81,16 @@ inline void cpu_block(const RsSeed &S, const float *PT, const Blk &B, int k, flo
         }
     }
     for (int m = 0; m < k; m++)
-        out[m] = {ba[m], bk[m], B.u, bk[m] > -INFINITY ? B.v0 + (int64_t)bo[m] : 0};
+        out[m] = {ba[m], bk[m], B.u, bk[m] > -INFINITY ? B.v0 + (int64_t)bo[m] * (Strided ? B.step : 1) : 0};
+}
+
+inline void cpu_block(const RsSeed &S, const float *PT, const Blk &B, int k, float aw, Hit *out,
+                      std::vector<float> &T, std::vector<float> &acc)
+{
+    if (B.step == 1)
+        cpu_block_impl<false>(S, PT, B, k, aw, out, T, acc);
+    else
+        cpu_block_impl<true>(S, PT, B, k, aw, out, T, acc);
 }
 
 } // namespace s23
