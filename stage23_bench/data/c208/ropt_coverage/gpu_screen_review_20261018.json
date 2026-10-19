@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-18",
+  "review_fixes": {
+    "cut_guard": 0.125,
+    "guard_is_proved": false,
+    "stack_bytes": 32768,
+    "stack_setup_before_sieve": true,
+    "cuda_setup_or_buffer_failure": "CPU screen with saved starts preserved",
+    "nonfinite_scores": "rank last",
+    "shared_code": [
+      "cold size search",
+      "projective polynomial construction",
+      "prime predicate",
+      "trace/retention proxy"
+    ],
+    "host_reference_results_reused": true
+  },
+  "validation": {
+    "host_suite": "make -C stage23_gpu -j2 test: passed",
+    "cuda_suite": "test_alpha_screen_gpu.py with CUDA executable: 6 passed, including invalid-device fallback and two concurrent workers",
+    "audits": {
+      "checked": {
+        "summary": "stage23_gpu/runs/20261018_gpu_screen/review_fixes/summary.json",
+        "cases": 25,
+        "verified_exports": 5000,
+        "all_exports_byte_identical": true,
+        "binary_sha256": "9c5a35cbc3aebbc10a9560a5e0500c9adfa19122c97b7dec3499281bcfab2461",
+        "max_key_error": 1.42108547152e-14
+      },
+      "unchecked": {
+        "summary": "stage23_gpu/runs/20261018_gpu_screen/review_fixes_unchecked/summary.json",
+        "cases": 25,
+        "verified_exports": 5000,
+        "all_exports_byte_identical": true,
+        "binary_sha256": "9c5a35cbc3aebbc10a9560a5e0500c9adfa19122c97b7dec3499281bcfab2461"
+      }
+    }
+  },
+  "limits": [
+    "Unchecked selection remains heuristic; checked success selects by host scores.",
+    "Unaudited GPU finalists still require host size search for canonical exports.",
+    "Preparation batches increased; transfer/host overlap remains future work.",
+    "No idle-GPU performance measurement; benchmark was sharing the device."
+  ]
+}

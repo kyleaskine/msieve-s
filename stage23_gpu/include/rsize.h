@@ -32,7 +32,7 @@ template <int L> struct RsizePoly {
 };
 
 /* f + (u x + v) g, exactly; false on overflow */
-template <int L> bool rs_rotate(Int<L> *fr, const RsizePoly<L> &P, int64_t u, int64_t v)
+template <int L> S23_HD bool rs_rotate(Int<L> *fr, const RsizePoly<L> &P, int64_t u, int64_t v)
 {
     for (int i = 0; i <= 5; i++)
         fr[i] = P.f[i];
@@ -42,7 +42,7 @@ template <int L> bool rs_rotate(Int<L> *fr, const RsizePoly<L> &P, int64_t u, in
 }
 
 /* c(x + k) by repeated synthetic division, as translate<L, 5> with a 64-bit k */
-template <int L> bool rs_translate(Int<L> *c, int64_t k)
+template <int L> S23_HD bool rs_translate(Int<L> *c, int64_t k)
 {
     for (int i = 0; i < 5; i++)
         for (int j = 4; j >= i; j--)
@@ -194,10 +194,46 @@ inline double rs_skewness(const DPoly &P, double &xh)
     return s;
 }
 
+/* Cold-skew evaluation shared by the host reference and device screen. */
+template <int L> S23_HD double rs_cold_lognorm_at(const Int<L> *fr, int64_t t)
+{
+    Int<L> ft[6];
+    for (int i = 0; i <= 5; ++i) ft[i] = fr[i];
+    if (!rs_translate(ft, t)) return INFINITY;
+    return L2_skew_lognorm(ft, 5);
+}
+
+/* max_iterations=0 is the unbounded host reference. Device exhaustion requests
+ * fallback. Both use the same evaluations, comparison order and step policy. */
+template <int L> S23_HD double rs_cold_size(const Int<L> *fr, int64_t &t, int64_t step,
+                                           bool &ok, int max_iterations = 0)
+{
+    double best = rs_cold_lognorm_at(fr, t);
+    if (!isfinite(best)) { ok = false; return INFINITY; }
+    if (step <= 0) step = 1;
+    for (int it = 0; step; ++it) {
+        if (max_iterations && it >= max_iterations) { ok = false; return INFINITY; }
+        bool moved = false;
+        for (int dir = 1; dir >= -1 && !moved; dir -= 2) {
+            if ((dir > 0 && t > INT64_MAX - step) || (dir < 0 && t < INT64_MIN + step)) {
+                ok = false;
+                return INFINITY;
+            }
+            const double c = rs_cold_lognorm_at(fr, t + dir * step);
+            if (c < best) { best = c; t += dir * step; moved = true; }
+        }
+        if (moved) {
+            if (step < (int64_t(1) << 40)) step *= 2;
+        } else step /= 2;
+    }
+    return best;
+}
+
 /* lognorm of fr(x + t); +inf on overflow. With xh, the skewness is warm-started from it
  * (rs_skewness); without, CADO's. */
 template <int L> double rs_lognorm_at(const Int<L> *fr, int64_t t, double *xh = nullptr)
 {
+    if (!xh) return rs_cold_lognorm_at(fr, t);
     Int<L> ft[6];
     for (int i = 0; i <= 5; i++)
         ft[i] = fr[i];
@@ -217,11 +253,17 @@ double rs_size(const RsizePoly<L> &P, int64_t u, int64_t v, int64_t &t, int64_t 
     Int<L> fr[6];
     if (!rs_rotate(fr, P, u, v))
         return INFINITY;
+    if (!xh) {
+        bool ok = true;
+        return rs_cold_size(fr, t, step0, ok);
+    }
     double best = rs_lognorm_at(fr, t, xh);
     int64_t step = step0 > 0 ? step0 : 1;
     while (step >= 1) {
         bool moved = false;
         for (int dir = 1; dir >= -1 && !moved; dir -= 2) {
+            if ((dir > 0 && t > INT64_MAX - step) || (dir < 0 && t < INT64_MIN + step))
+                return INFINITY;
             const double c = rs_lognorm_at(fr, t + dir * step, xh);
             if (c < best) {
                 best = c;

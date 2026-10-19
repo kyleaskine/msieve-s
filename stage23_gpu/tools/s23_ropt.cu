@@ -11,6 +11,12 @@
  *           [-residue M U V]  (window/search: (u,v) = (U,V) mod M)
  *           [-classes M K [-class-explore E]]  (search: automatic classes, shared cap)
  *           [-pool-out FILE | -pool-in FILE] (save/replay cells before exact refinement)
+ *           [-alpha-screen N B] (search: screen N proxy cells with alpha through prime B)
+ *           [-alpha-screen-exact-size] (also compute exact size before the screen cut)
+ *           [-alpha-screen-gpu [-alpha-screen-check]] (CUDA exact-size screen; optional CPU audit)
+ * Or: s23_ropt -batch MANIFEST (serial independent searches in one CUDA session;
+ *     S23_ROPT_BATCH 1 header, then one tab-separated argv row per seed).
+ *           [-trace-cell U V] (report the first cutoff losing this cell; never force retention)
  *
  * For the seed in FILE (CADO format, degree 5), scores cells (u, v) of
  * f_{u,v} = f + (u x + v) g by the alpha sieve of include/rsieve.h (p < 200: affine roots
@@ -61,6 +67,25 @@
  *   alpha_s), and the lost cell is kept. About 0.5 s a search on 4 threads.
  *   The re-rank fixes only the cut to the written cells. Each block's best K are still chosen
  *   by E, so a cell that alpha_s misjudges can be lost inside its block first.
+ * -alpha-screen N B (search, experimental): retain N by the original proxy, then
+ *   rank them using interpolated lognorm plus W times CADO alpha through prime B,
+ *   with both terms corrected for content. Fully refine only max(-rerank, -refine,
+ *   -top) of these. N must be at least that count, and 2 <= B <= the full alpha bound.
+ *   This host screening stage can recover cells outside the ordinary proxy pool,
+ *   but cannot recover per-block losses. It adds a heuristic cut, so validate on
+ *   independent seeds before enabling it. Pools are saved BEFORE this stage in the
+ *   unchanged v1 format, allowing replay with different screening policies.
+ *   -alpha-screen-exact-size replaces interpolated size by the usual integer-
+ *   translation size search before this cut. Its size and translation are reused
+ *   in full refinement; only alpha is recomputed to the full bound. This costs
+ *   more at screening but protects candidates with pessimistic size interpolation.
+ *   -alpha-screen-gpu moves that exact-size screen to CUDA (B <= 2000). It uses
+ *   bounded fixed-width arithmetic, with host fallback, and rechecks near-cut
+ *   scores on the host within an empirical 0.125 guard. This is not a proof of
+ *   CPU shortlist identity. Host checks retain their canonical translations;
+ *   other finalists are refined from their saved starts. -alpha-screen-check
+ *   compares every successful device score with CADO and selects by the host
+ *   values on success; use it for validation, not timing.
  * -murphy (search, opt-in, requires -rerank > 0 and explicit Bf/Bg/area): optimize
  *   translation and skew for ALL max(-rerank, -refine, -top) retained proxy cells
  *   on the host, before the output cut. Search at K >= 16000, validate control and
@@ -129,8 +154,11 @@
 #include "rsegment.h"
 #include "rclass_rank.h"
 #include "rpool.h"
+#include "rtrace.h"
 #include "rhost.h"
+#include "rscreen.h"
 #include "murphy_cell.h"
+#include "ropt_batch.h"
 #include <memory>
 
 using namespace s23;
@@ -149,6 +177,8 @@ static const int NT = 256; /* threads per block */
             exit(2);                                                                      \
         }                                                                                 \
     } while (0)
+
+#include "rscreen_cuda.h"
 
 template <bool Strided>
 __global__ void __launch_bounds__(NT) sieve_kernel(const RsSeed *Sg, const float *PT, const Blk *blks, int k, float aw,
@@ -414,17 +444,29 @@ static double parse_bound(const char *s)
     return !*s || *end || errno ? NAN : n;
 }
 
-int main(int argc, char **argv)
+struct RoptSession {
+#ifdef __CUDACC__
+    RsScreenWorkspace screen;
+#endif
+};
+
+static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *preflight = nullptr)
 {
-    if (argc == 2 && !strcmp(argv[1], "-capabilities")) {
-        printf("ropt-pool-v1 partial-murphy-exit-3\n");
-        return 0;
-    }
+    // These are process globals for the shared host model, but options and
+    // sampling must behave exactly as in a fresh process for every seed.
+    rs_warm_skew = true;
+    rs_fast_search = true;
+    rng_state = 0x2545F4914F6CDD1Dull;
     const char *path = NULL, *out_path = NULL;
     const char *pool_in = nullptr, *pool_out = nullptr;
+    RsCellTrace trace;
+    bool trace_valid = true;
     int64_t u0 = 0, u1 = 0, v0 = 0, v1 = 0, cell_u = 0, cell_v = 0, umax = 5000;
     int top = 20, k = 8, seg_log = 20, use_cpu = 0, dev = 0, threads = 8, check = 0, cell = 0, search = 0;
     int patience = 20, refine = 200, rerank = 4096, window = 0, plan = 0, noproj = 0;
+    int screen_count = 0, screen_bound = 0;
+    bool screen_options = false, screen_exact_size = false;
+    bool screen_gpu = false, screen_check = false;
     double budget = 0.5, aw = 1.0, maxcells = 0, band = 0;
     int maxlines = 1000, launch_log2 = 32;
     RsScanConfig scan;
@@ -446,6 +488,22 @@ int main(int argc, char **argv)
             pool_in = argv[++i];
         else if (!strcmp(argv[i], "-pool-out") && i + 1 < argc)
             pool_out = argv[++i];
+        else if (!strcmp(argv[i], "-alpha-screen") && i + 2 < argc) {
+            screen_options = true;
+            screen_count = parse_count(argv[++i]);
+            screen_bound = parse_count(argv[++i]);
+        }
+        else if (!strcmp(argv[i], "-alpha-screen-exact-size"))
+            screen_exact_size = true;
+        else if (!strcmp(argv[i], "-alpha-screen-gpu"))
+            screen_gpu = true;
+        else if (!strcmp(argv[i], "-alpha-screen-check"))
+            screen_check = true;
+        else if (!strcmp(argv[i], "-trace-cell") && i + 2 < argc) {
+            trace.enabled = true;
+            trace.u = parse_coordinate(argv[++i], trace_valid);
+            trace.v = parse_coordinate(argv[++i], trace_valid);
+        }
         else if (!strcmp(argv[i], "-u") && i + 2 < argc) {
             window = 1;
             u0 = atoll(argv[++i]);
@@ -555,6 +613,10 @@ int main(int argc, char **argv)
     use_cpu = 1;
 #endif
     omp_set_num_threads(threads > 0 ? threads : 1);
+    if (!trace_valid || (trace.enabled && (cell || (!search && !window)))) {
+        fprintf(stderr, "s23_ropt: -trace-cell needs integer U/V and search or window mode, not -cell\n");
+        return 2;
+    }
     if ((pool_in || pool_out) && (!search || window || cell || plan || !rerank ||
             (pool_in && (pool_out || class_mod || residue_mod || scan.step)))) {
         fprintf(stderr, "s23_ropt: pools require search and rerank; pool replay cannot use search selection options\n");
@@ -586,8 +648,9 @@ int main(int argc, char **argv)
             fprintf(stderr, "s23_ropt: -residue window permits at most 1000000 selected u lines\n");
             return 2;
         }
-        printf("# residue class: u = %u, v = %u (mod %u); counts are selected cells\n",
-               residue.u, residue.v, residue.modulus);
+        if (!preflight)
+            printf("# residue class: u = %u, v = %u (mod %u); counts are selected cells\n",
+                   residue.u, residue.v, residue.modulus);
     }
     if ((scan_options && scan.step <= 0) || scan.step < 0 ||
         (scan.step && (!search || window || cell || !rs_scan_valid(scan)))) {
@@ -608,6 +671,22 @@ int main(int argc, char **argv)
                         "0 < -band <= -budget\n");
         return 2;
     }
+    if ((screen_check && !screen_gpu) ||
+        (screen_gpu && (!screen_options || !screen_exact_size || use_cpu || screen_bound > RS_SCREEN_MAX_BOUND))) {
+        fprintf(stderr, "s23_ropt: -alpha-screen-gpu requires a CUDA build, no -cpu, "
+                        "-alpha-screen N B with B <= 2000, and -alpha-screen-exact-size; "
+                        "-alpha-screen-check requires -alpha-screen-gpu\n");
+        return 2;
+    }
+    if ((screen_exact_size && !screen_options) || (screen_options && (!search || window || cell || plan || rerank <= 0 ||
+        screen_count < std::max({rerank, refine, top}) || screen_count > (1 << 24) ||
+        screen_bound < 2 || (unsigned long)screen_bound > cio_alpha_bound() || !std::isfinite(aw)))) {
+        fprintf(stderr, "s23_ropt: -alpha-screen needs search with rerank > 0, "
+                        "max(rerank,refine,top) <= N <= 2^24, 2 <= B <= %lu; no window/cell/plan; "
+                        "-alpha-screen-exact-size requires -alpha-screen\n",
+                        cio_alpha_bound());
+        return 2;
+    }
     if ((murphy_options && !murphy) || (murphy &&
         (!search || window || cell || plan || !rerank || !murphy_config_valid(mc)))) {
         fprintf(stderr, "s23_ropt: -murphy requires -search, -rerank > 0, explicit finite -Bf/-Bg > 1 and "
@@ -615,20 +694,36 @@ int main(int argc, char **argv)
                         "Murphy options require -murphy and cannot be used with window/-cell/-plan\n");
         return 2;
     }
+    if (preflight) {
+        if (!search || window || cell || plan || !out_path) {
+            fprintf(stderr, "s23_ropt: each batch job requires -search and -out; no window/cell/plan\n");
+            return 2;
+        }
+        preflight->inputs = {path};
+        if (pool_in) preflight->inputs.push_back(pool_in);
+        preflight->outputs = {out_path};
+        if (pool_out) preflight->outputs.push_back(pool_out);
+        return 0;
+    }
     FILE *fh = fopen(path, "r");
     if (!fh) {
         perror(path);
         return 2;
     }
-    cio_poly P;
-    cio_init(&P);
-    if (cio_read_next(fh, &P) != 1) {
+    struct ScopedPoly {
+        cio_poly value;
+        ScopedPoly() { cio_init(&value); }
+        ~ScopedPoly() { cio_clear(&value); }
+    } owner;
+    cio_poly &P = owner.value;
+    const int read_status = cio_read_next(fh, &P);
+    fclose(fh);
+    if (read_status != 1) {
         fprintf(stderr, "s23_ropt: %s: no polynomial\n", path);
         return 2;
     }
-    fclose(fh);
-    static RsSeed S;
-    static RsizePoly<LP> R;
+    RsSeed S{};
+    RsizePoly<LP> R{};
     if (!rs_seed_and_size(S, R, P)) {
         fprintf(stderr, "s23_ropt: only degree 5 (and coefficients up to 512 bits)\n");
         return 2;
@@ -637,6 +732,7 @@ int main(int argc, char **argv)
      * on WSL2 creating it takes 1-13 s */
     struct GpuStart {
         std::thread th;
+        bool screen_ready = false;
         ~GpuStart()
         {
             if (th.joinable())
@@ -644,10 +740,10 @@ int main(int argc, char **argv)
         }
     } gpu_start;
 #ifdef __CUDACC__
-    if (!use_cpu && !cell && !plan && !pool_in)
-        gpu_start.th = std::thread([dev] {
-            if (cudaSetDevice(dev) == cudaSuccess)
-                cudaFree(0);
+    if (!use_cpu && !cell && !plan && (!pool_in || screen_gpu))
+        gpu_start.th = std::thread([dev, screen_gpu, &gpu_start, &session] {
+            if (screen_gpu) gpu_start.screen_ready = session.screen.start(dev);
+            else if (cudaSetDevice(dev) == cudaSuccess) cudaFree(0);
         });
 #endif
     S.proj = !noproj;
@@ -671,6 +767,13 @@ int main(int argc, char **argv)
     std::map<int64_t, RsLine> lines;
     std::vector<RsLine *> kept; /* search: the lines whose bands are sieved */
     double L_best = INFINITY, budget_used = band > 0 ? band : budget;
+    if (!pool_in) {
+        trace.stage("region", window ? trace.u >= u0 && trace.u <= u1 && trace.v >= v0 && trace.v <= v1
+                                    : (__int128)trace.u >= -(__int128)umax && trace.u <= umax);
+        if (residue_mod)
+            trace.stage("explicit_class", rs_residue(trace.u, residue.modulus) == residue.u &&
+                                           rs_residue(trace.v, residue.modulus) == residue.v);
+    }
     /* every line's band at L_best + b (the -maxcells loop and -plan's step table): the cells, and
      * in *nl the lines with a band */
     std::vector<RsLine *> all;
@@ -750,6 +853,11 @@ int main(int argc, char **argv)
             scan_u(residue.u, residue.modulus);
         else {
             auto pool = rs_class_pool(S, PT.data(), class_mod, class_count);
+            const auto is_trace_class = [&](const RsClassProposal &c) {
+                return trace.enabled && c.cell.u == rs_residue(trace.u, class_mod) &&
+                       c.cell.v == rs_residue(trace.v, class_mod);
+            };
+            trace.stage("class_proposal", std::any_of(pool.begin(), pool.end(), is_trace_class));
             std::set<uint32_t> urows;
             for (const auto &c : pool)
                 urows.insert(c.cell.u);
@@ -784,6 +892,17 @@ int main(int argc, char **argv)
                 }
             }
             selected_classes = rs_choose_classes(pool, class_count, class_explore, aw);
+            if (trace.active()) {
+                const auto ranked = rs_choose_classes(pool, (int)pool.size(), 0, aw);
+                const auto it = std::find_if(ranked.begin(), ranked.end(), is_trace_class);
+                trace.stage("class_size", it != ranked.end());
+                if (it != ranked.end())
+                    printf("# trace-cell class mod %d u %u v %u: root mean %.9g size %.9g key %.9g "
+                           "size-root rank %zu of %zu exploration %u\n", class_mod, it->cell.u, it->cell.v,
+                           it->roots, it->size, it->key(aw), (size_t)(it - ranked.begin()) + 1,
+                           ranked.size(), it->exploration);
+                trace.stage("class_selection", std::any_of(selected_classes.begin(), selected_classes.end(), is_trace_class));
+            }
             class_rows.modulus = class_mod;
             printf("# automatic classes: mod %d, %zu proposals, %zu sampled lines, %zu selected, exploration requested %d\n",
                    class_mod, pool.size(), lines.size(), selected_classes.size(), class_explore);
@@ -834,13 +953,21 @@ int main(int argc, char **argv)
         auto tb = std::chrono::steady_clock::now();
         for (auto &kv : lines)
             all.push_back(&kv.second);
+        trace.stage("line_scan", lines.count(trace.u) != 0);
+        const auto in_trace_band = [&]() {
+            const auto it = lines.find(trace.u);
+            return it != lines.end() && it->second.v_lo <= trace.v && trace.v <= it->second.v_hi;
+        };
         for (;;) {
             const double c = bands_at(budget_used, nullptr);
+            if (!n_bands)
+                trace.stage("size_band", in_trace_band());
             n_bands++;
             if (maxcells <= 0 || c <= maxcells || budget_used <= 0.5)
                 break;
             budget_used = std::max(0.5, budget_used - 0.25);
         }
+        trace.stage("cell_cap_budget", in_trace_band());
         t_bands = secs(tb);
         for (auto *L : all)
             if (band_cells(L) > 0)
@@ -877,6 +1004,7 @@ int main(int argc, char **argv)
         }
         lines_dropped = kept.size() - nkeep;
         kept.resize(nkeep);
+        trace.stage("cell_cap_lines", in_trace_band());
         auto tk = std::chrono::steady_clock::now();
 #pragma omp parallel for schedule(dynamic, 1)
         for (size_t i = 0; i < kept.size(); i++)
@@ -907,6 +1035,13 @@ int main(int argc, char **argv)
         nblk += seg_blocks(G, seg_log);
         ncells += (double)seg_cells(G);
     }
+    if (trace.active() && !pool_in) {
+        const bool admitted = std::any_of(segs.begin(), segs.end(), [&](const Seg &s) {
+            return s.u == trace.u && s.a <= trace.v && trace.v <= s.b &&
+                   ((uint64_t)trace.v - (uint64_t)s.a) % s.step == 0;
+        });
+        trace.stage("segments", admitted);
+    }
     if (class_mod) {
         std::map<std::pair<uint32_t, uint32_t>, double> admitted;
         for (const auto &s : segs)
@@ -928,6 +1063,7 @@ int main(int argc, char **argv)
     const double t_model = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
     if (plan && window) {
         printf("# window: %.3g cells in %zu blocks\n", ncells, nblk);
+        trace.finish("plan_admitted");
         return 0;
     }
     if (plan) {
@@ -952,6 +1088,7 @@ int main(int argc, char **argv)
             if (b <= 0.5)
                 break;
         }
+        trace.finish("plan_admitted");
         return 0;
     }
 
@@ -972,13 +1109,34 @@ int main(int argc, char **argv)
     auto order = [](const Cand &a, const Cand &b) {
         return a.key < b.key || (a.key == b.key && (a.h.u < b.h.u || (a.h.u == b.h.u && a.h.v < b.h.v)));
     };
-    const size_t cap = (size_t)std::max<int64_t>({4 * (int64_t)std::max(top, refine), rerank, 4096});
+    const size_t cap = (size_t)std::max<int64_t>({4 * (int64_t)std::max(top, refine), rerank, screen_count, 4096});
+    const auto proxy_candidate = [&](const Hit &hit) {
+        Cand c{};
+        c.h = hit;
+        c.A = NAN;
+        c.L = window ? 0 : rs_line_interp(lines.at(hit.u), hit.v, c.t);
+        c.key = window ? -hit.score : c.L + aw * (S.alpha0 - hit.score);
+        return c;
+    };
+    // Count the watched cell's global proxy rank even if streaming truncation
+    // removes it. Evaluate its proxy exactly as keep() does, without inserting it.
+    Cand watched{};
+    size_t trace_before = 0, trace_total = 0;
+    bool trace_score_agrees = true;
+    if (trace.active() && !pool_in) {
+        rs_line_tables(T.data(), S, PT.data(), trace.u);
+        watched = proxy_candidate({rs_cell_score(T.data(), S, trace.v), 0, trace.u, trace.v});
+        printf("# trace-cell proxy key %.17g interpolated lognorm %.17g alpha_s %.9g\n",
+               watched.key, watched.L, S.alpha0 - watched.h.score);
+    }
     std::vector<Hit> sample; /* -check: a uniform sample of the sieve's hits (reservoir) */
     size_t nhits = 0;
     auto keep = [&](const Hit *h, size_t n) {
         for (size_t i = 0; i < n; i++) {
             if (!(h[i].score > -INFINITY))
                 continue;
+            if (trace.matches(h[i].u, h[i].v))
+                trace.block_hit = true;
             if (check) {
                 nhits++;
                 if (sample.size() < (size_t)check)
@@ -986,19 +1144,17 @@ int main(int argc, char **argv)
                 else if (rng() % nhits < (size_t)check)
                     sample[rng() % check] = h[i];
             }
-            Cand c;
-            c.h = h[i];
-            c.t = 0;
-            c.A = NAN;
-            if (window) {
-                c.L = 0;
-                c.key = -h[i].score;
-            } else {
-                c.L = rs_line_interp(lines[h[i].u], h[i].v, c.t);
-                c.key = c.L + aw * (S.alpha0 - h[i].score);
+            Cand c = proxy_candidate(h[i]);
+            if (!window) {
                 auto it = line_best.find(h[i].u);
                 if (it == line_best.end() || c.key < it->second.key)
                     line_best[h[i].u] = c;
+            }
+            if (trace.active()) {
+                trace_total++;
+                trace_before += order(c, watched);
+                if (trace.matches(c.h.u, c.h.v))
+                    trace_score_agrees = c.key == watched.key;
             }
             best.push_back(c);
         }
@@ -1027,29 +1183,117 @@ int main(int argc, char **argv)
         return 2;
     }
     std::sort(best.begin(), best.end(), order);
+    const auto trace_rank = [&](const char *stage, size_t keep) {
+        if (!trace.active()) return;
+        const auto it = std::find_if(best.begin(), best.end(), [&](const Cand &c) {
+            return trace.matches(c.h.u, c.h.v);
+        });
+        trace.rank(stage, it == best.end() ? 0 : (size_t)(it - best.begin()) + 1, keep, best.size());
+    };
+    if (!pool_in)
+        trace.stage("block_topk", trace.block_hit);
+    else
+        trace_rank("replay_input", best.size());
 
     /* search: exact translation and lognorm for the best max(top, refine), then re-rank; with -rerank N, for
        the best N, re-ranked by CADO's alpha instead of alpha_s, and the best max(top, refine) of them kept */
-    double t_refine = 0;
+    double t_refine = 0, t_screen = 0;
     std::vector<std::unique_ptr<MurphyCell>> murphy_cells;
     size_t murphy_skipped = 0, murphy_failed = 0, murphy_accepted = 0, murphy_limited = 0, murphy_count = 0;
     if (!window) {
         const auto t2 = std::chrono::steady_clock::now();
         const size_t nout = (size_t)std::max(refine, top);
         const size_t nref = std::min(best.size(), std::max(nout, (size_t)rerank));
-        if (pool_out && !rs_pool_write(pool_out, P, aw, !noproj, best, nref)) {
+        const size_t nproxy = screen_options ? std::min(best.size(), (size_t)screen_count) : nref;
+        if (!pool_in && trace_score_agrees)
+            trace.rank("proxy_pool", trace_before + 1, nproxy, trace_total);
+        else {
+            if (!trace_score_agrees)
+                printf("# trace-cell: host/device proxy disagreement; rank uses the remaining pool only\n");
+            trace_rank("proxy_pool", nproxy);
+        }
+        if (pool_out && !rs_pool_write(pool_out, P, aw, !noproj, best, nproxy)) {
             fprintf(stderr, "s23_ropt: cannot write candidate pool %s\n", pool_out);
             return 2;
         }
-        class_survivors("proxy pool", nref);
+        class_survivors("proxy pool", nproxy);
+        // A screen with no cut is unnecessary, except when explicitly auditing CUDA.
+        if (screen_options && (nproxy > nref || screen_check)) {
+            const auto ts = std::chrono::steady_clock::now();
+            best.resize(nproxy);
+            bool device_screened = false;
+#ifdef __CUDACC__
+            if (screen_gpu && gpu_start.screen_ready) {
+                size_t fallbacks = 0;
+                device_screened = rs_screen_gpu(best, R, P, screen_bound, aw, dev, screen_check, fallbacks, session.screen);
+                if (device_screened) {
+                    printf("# alpha-screen GPU: %zu cells, %zu host fallbacks; finalists canonicalized on host\n",
+                           nproxy, fallbacks);
+                    std::sort(best.begin(), best.end(), order);
+                    const double cut = nref ? best[nref - 1].key : 0;
+                    size_t rechecks = 0;
+                    if (nref < nproxy) {
+#pragma omp parallel for schedule(dynamic, 1) reduction(+:rechecks)
+                        for (size_t i = 0; i < nproxy; ++i) {
+                            auto &c = best[i];
+                            if (c.screen_host || !rs_screen_near_cut(c.key, cut)) continue;
+                            const RsExact x = rs_exact_cell(P, R, c.h.u, c.h.v, c.t, screen_bound);
+                            c.L = x.L; c.A = x.A; c.key = rs_screen_key(c.L, c.A, aw);
+                            c.screen_host = true;
+                            ++rechecks;
+                        }
+                    }
+                    printf("# alpha-screen GPU: %zu boundary rechecks (absolute key guard %.6g)\n",
+                           rechecks, RS_SCREEN_CUT_GUARD);
+                }
+            }
+#endif
+            if (!device_screened) {
+#pragma omp parallel for schedule(dynamic, 1)
+                for (size_t i = 0; i < nproxy; i++) {
+                    Cand &c = best[i];
+                    if (screen_exact_size) {
+                        const RsExact x = rs_exact_cell(P, R, c.h.u, c.h.v, c.t, screen_bound);
+                        c.L = x.L;
+                        c.A = x.A;
+                        c.key = rs_screen_key(c.L, c.A, aw);
+                        c.screen_host = true;
+                    } else {
+                        c.key = rs_alpha_screen_key(P, c.h.u, c.h.v, c.L, screen_bound, aw);
+                        if (!std::isfinite(c.key)) c.key = INFINITY;
+                    }
+                }
+            }
+            size_t invalid = 0;
+            for (auto &c : best) {
+                if (!std::isfinite(c.key)) { c.key = INFINITY; ++invalid; }
+            }
+            if (invalid)
+                printf("# alpha-screen: %zu nonfinite scores ranked last\n", invalid);
+            std::sort(best.begin(), best.end(), order);
+            trace_rank("alpha_screen_cut", nref);
+            class_survivors("alpha screen", nref);
+            t_screen = std::chrono::duration<double>(std::chrono::steady_clock::now() - ts).count();
+            printf("# alpha-screen: %zu proxy cells, alpha through %d, %zu to full refinement, %.6f s, size %s\n",
+                   nproxy, screen_bound, nref, t_screen, screen_exact_size ? "exact" : "interpolated");
+        }
 #pragma omp parallel for schedule(dynamic, 1)
         for (size_t i = 0; i < nref; i++) {
             Cand &c = best[i];
             if (rerank) { /* of the polynomial written, content divided out */
-                const RsExact x = rs_exact_cell(P, R, c.h.u, c.h.v, c.t);
-                c.L = x.L;
-                c.A = x.A;
-                c.key = c.L + aw * c.A;
+                if (screen_exact_size && c.screen_host) {
+                    // The screen already ran the same size search from the saved
+                    // start and removed content. Reuse it without a second search.
+                    if (screen_bound != (int)cio_alpha_bound()) {
+                        double log_content = 0;
+                        c.A = cio_alpha_rot(&P, (long)c.h.u, (long)c.h.v, cio_alpha_bound(), &log_content);
+                    }
+                } else {
+                    const RsExact x = rs_exact_cell(P, R, c.h.u, c.h.v, c.t);
+                    c.L = x.L;
+                    c.A = x.A;
+                }
+                c.key = rs_screen_key(c.L, c.A, aw);
             } else {
                 c.L = rs_size(R, c.h.u, c.h.v, c.t, 1 << 10);
                 c.key = c.L + aw * (S.alpha0 - c.h.score);
@@ -1091,6 +1335,14 @@ int main(int argc, char **argv)
                 if (m.result.valid) ranked.push_back(i);
             }
             std::sort(ranked.begin(), ranked.end(), [&](size_t a, size_t b) { return order(best[a], best[b]); });
+            if (trace.active()) {
+                const auto it = std::find_if(ranked.begin(), ranked.end(), [&](size_t i) {
+                    return trace.matches(best[i].h.u, best[i].h.v);
+                });
+                trace.stage("murphy_evaluation", it != ranked.end());
+                trace.rank("murphy_cut", it == ranked.end() ? 0 : (size_t)(it - ranked.begin()) + 1,
+                           nout, ranked.size());
+            }
             ranked.resize(std::min(ranked.size(), nout));
             std::vector<Cand> chosen;
             std::vector<std::unique_ptr<MurphyCell>> selected;
@@ -1102,6 +1354,7 @@ int main(int argc, char **argv)
             murphy_cells = std::move(selected);
         } else {
             std::sort(best.begin(), best.end(), order);
+            trace_rank(rerank ? "exact_alpha_cut" : "exact_size_cut", nout);
             best.resize(std::min(best.size(), nout));
         }
         t_refine = std::chrono::duration<double>(std::chrono::steady_clock::now() - t2).count();
@@ -1115,6 +1368,8 @@ int main(int argc, char **argv)
                ncells, t_sieve, ncells / t_sieve, use_cpu ? "CPU" : "GPU");
     if (!window)
         printf(", size model %.2f s, refine %.2f s", t_model, t_refine);
+    if (screen_options)
+        printf(" (includes alpha screen %.2f s)", t_screen);
     if (!use_cpu)
         printf(", waited %.2f s for the GPU context", t_start);
     printf("\n");
@@ -1140,6 +1395,10 @@ int main(int argc, char **argv)
             printf("# best %d by validated MurphyE: %zu optimized, %zu accepted, %zu limited, %zu failed, %zu skipped before MurphyE; "
                    "Bf %.17g Bg %.17g area %.17g K %d Keval %d maxeval %d\n", top, murphy_count,
                    murphy_accepted, murphy_limited, murphy_failed, murphy_skipped, mc.Bf, mc.Bg, mc.area, mc.K, mc.Keval, mc.maxeval);
+        else if (screen_options)
+            printf("# best %d by Ea = lognorm + %.2f alpha (CADO's, p <= %lu; content divided out), "
+                   "after alpha-screen %d %d and full refinement of at most %d cells:\n",
+                   top, aw, cio_alpha_bound(), screen_count, screen_bound, std::max({rerank, refine, top}));
         else if (rerank)
             printf("# best %d by Ea = lognorm + %.2f alpha (CADO's, p <= %lu; content divided out), of the best %d by "
                    "the proxy E = lognorm + %.2f alpha_s (%s; exact translation):\n",
@@ -1193,6 +1452,7 @@ int main(int argc, char **argv)
         cio_poly q;
         cio_init(&q);
         size_t nwritten = 0, nskipped = 0;
+        bool trace_written = false;
         for (size_t j = 0; j < best.size(); j++) {
             const Cand &c = best[j];
             unsigned long content;
@@ -1204,6 +1464,7 @@ int main(int argc, char **argv)
                 continue;
             }
             nwritten++;
+            trace_written |= trace.matches(c.h.u, c.h.v);
             if (murphy) {
                 const auto &m = murphy_cells[j]->result;
                 fprintf(o, "# u %lld v %lld t %lld MurphyE %.17g lognorm %.6f lognorm_at_murphy_skew %.6f alpha_s %.6f "
@@ -1230,8 +1491,39 @@ int main(int argc, char **argv)
         if (nskipped)
             printf(" (%zu skipped: translation out of range)", nskipped);
         printf("\n");
+        trace.stage("export", trace_written);
     }
-    cio_clear(&P);
+    if (window)
+        trace_rank("window_top", (size_t)top);
+    trace.finish("retained");
     // Status 3 means a completed partial export; 1 remains a failed result.
     return bad || (murphy && best.empty()) ? 1 : murphy_failed ? 3 : 0;
+}
+
+int main(int argc, char **argv)
+{
+    if (argc == 2 && !strcmp(argv[1], "-capabilities")) {
+        printf("ropt-pool-v1 partial-murphy-exit-3 alpha-screen-v1 alpha-screen-exact-size-v1 ropt-batch-v1"
+#ifdef __CUDACC__
+               " alpha-screen-gpu-v1"
+#endif
+               "\n");
+        return 0;
+    }
+    RoptSession session;
+    if (argc >= 2 && !strcmp(argv[1], "-batch")) {
+        if (argc != 3) {
+            fprintf(stderr, "s23_ropt: use -batch FILE alone; each manifest row supplies all job options\n");
+            return 2;
+        }
+        const int status = ropt_batch(argv[2], argv[0],
+            [&](int n, char **a, RoptJobPaths &p) { return ropt_job(n, a, session, &p); },
+            [&](int n, char **a) { return ropt_job(n, a, session); });
+#ifdef __CUDACC__
+        printf("# batch GPU resources: device setups %zu, buffer allocations %zu, prime uploads %zu\n",
+               session.screen.setups, session.screen.allocations, session.screen.prime_uploads);
+#endif
+        return status;
+    }
+    return ropt_job(argc, argv, session);
 }

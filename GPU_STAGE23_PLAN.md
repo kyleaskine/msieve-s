@@ -21,7 +21,7 @@ poly by poly; the ropt of M2 is our own design.)
 Speed alone is not the motivation. The CPU pipeline takes about 2 h, while stage 1 takes
 about 24 h on a rented 5090.
 
-## Current status (updated 2026-10-14)
+## Current status (updated 2026-10-18)
 
 The next root-search implementation is tracked in
 [`ROPT_OPTIMIZATION_PLAN.md`](ROPT_OPTIMIZATION_PLAN.md): a reproducible loss
@@ -35,6 +35,55 @@ implemented as an opt-in mode. Five of six historical C208 losses are recovered
 as the first exact-alpha finalist without supplying their classes; seed 103's
 reference is excluded at class selection. Equal-time MurphyE and test-sieve
 comparisons remain pending.
+
+The October 16 loss audit now pinpoints both outstanding C208 failures: seed
+103's class ranks 15th for 12 ranked slots; seed 10 is lost at block top K and,
+with smaller blocks, at proxy rank 17,719. Diagnostic wider configurations
+recover them as exact-alpha finalists 3 and 4 respectively. The new
+`-trace-cell U V` option observes these cuts without forcing retention. Defaults
+are unchanged; see the root optimization plan's October 16 record.
+
+An opt-in host intermediate screen, `-alpha-screen N B`, now reduces the cost
+of wider candidate retention. Screening 32,768 cells through prime 500 before
+fully refining 4,096 recovers seed 10 at rank 4, with 4.51 s median CPU replay
+refinement versus 10.75 s for full refinement of all 32,768. The live CUDA
+search reproduces this recovery and the replay's exports. The screen loses
+some other finalists on C208 and independent C171 pools, so defaults and
+pipeline settings remain unchanged. This is a host-stage prototype; GPU
+scoring and equal-time MurphyE/yield validation remain future work.
+
+The October 17 follow-up found that size interpolation, not only truncated
+alpha, can discard a quality winner. The new `-alpha-screen-exact-size` option
+computes the usual integer-translation size before screening and reuses it
+during full refinement. It recovers C171 seed 1's best MurphyE candidate, which
+the interpolated screen lost by 1.2637%. Both MurphyE and lattice-model winners
+survive in all 17 existing controls and eight new C147/C166 holdout pools.
+This remains a host reference and opt-in; lower finalists can still be lost,
+and there is no new test-sieve result. See the root optimization plan's
+October 17 record and `alpha_quality_20261017.json` in the C208 coverage corpus.
+
+The October 18 implementation adds opt-in `-alpha-screen-gpu` for that corrected
+screen. Exact integer rotation/translation, primitive content, and the full
+prime-power/projective valuation recurrence through the screen bound now run
+on CUDA, with bounded-work CPU fallback. The 25-case corpus reproduces all
+5,000 CPU exports byte for byte. Finalists still receive full CPU refinement
+from their saved starts; two device translations differed at indistinguishable
+norms before this final pass. On C208, median screen-plus-refinement time fell
+from 6.22 s to 2.20 s (full broad refinement: 10.96 s). C171's smaller phase fell
+from 0.68 s to 0.37 s, but fresh-process context overhead offset the gain.
+Defaults and pipeline forwarding are unchanged. Next migration work is
+persistent/batched seed execution and the remaining full-refinement/scoring
+host work, followed by equal-time search and actual sieve-yield validation.
+
+Persistent seed execution is now available through standalone `-batch FILE`.
+It retains the CUDA context, screening buffers and prime tables while resetting
+per-seed numerical state. Checked and unchecked 25-case batches reproduce all
+5000 CPU-reference exports. Across 16 C171 saved pools, three alternating
+repetitions reduced process wall time from 12.203 s for individual GPU processes
+to 5.165 s for one batch (2.36x); individual CPU screening took 10.981 s.
+This uses the reviewed screen and two CPU threads. The resumable driver still
+needs batch/checkpoint integration, and full refinement/scoring remains on the
+host. See the root optimization plan's persistent-execution record for limits.
 
 The pipeline review fixes now preserve valid partial MurphyE exports, save and
 replay full candidate pools without a second sieve, freeze consumed input bytes,
@@ -61,6 +110,18 @@ Where an older claim turned out wrong or weaker than first written, it is marked
     and was identical 2000/2000, with exact resultants checked. The full raw
     effort-0 sweep was not repeated.
 - **M2 (GPU ropt) is competitive with CADO's ropt at c168 size, but not at c208 size.**
+  - **C171 integrated driver (reviewed 2026-10-16):** all 786,898 raw polynomials
+    processed, with 317 breadth searches. The best GPU candidate is +0.8733%
+    against the best CPU finalist under the saved lattice model; ordinary
+    MurphyE favors the CPU CADO winner. The comparison uses inherited C168
+    settings. All 172 comparison resultants verify; initial sopt used three
+    CADO fallbacks. Subsequent user-reported GGNFS 14e algebraic test sieves at
+    six q values from 40M to 150M favor GPU at every point: aggregate 35.625
+    versus 33.448 rel/s (+6.51%), with projected relation count +0.376%.
+    These use lpb 31/32 and CADO skew 12.99M, unlike the saved model's 30/31
+    and 16.42M; no repeated timings or raw sieve logs are available. Compact
+    evidence: `stage23_bench/data/c171/gpu_ropt/summary.json` and
+    `stage23_bench/data/c171/gpu_ropt/testsieve_user_20261016.json`.
   - **C196, full GPU path (2026-10-12):** all 1,770,850 raw polys processed; the same
     top 2000 and 300 seeds as the CPU pipeline. All 318 breadth searches succeed in
     17.7 min; size optimization plus breadth takes 54.5 min. MurphyE refinement of

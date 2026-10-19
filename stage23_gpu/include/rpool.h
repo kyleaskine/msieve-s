@@ -15,6 +15,8 @@ struct RsCandidate {
     double L;
     int64_t t;
     double A;
+    // Transient screening state, deliberately absent from the v1 pool format.
+    bool screen_host = false;
 };
 
 inline bool rs_pool_write(const char *path, const cio_poly &p, double aw, bool proj,

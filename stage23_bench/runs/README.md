@@ -42,3 +42,43 @@ They take the run directory as an argument; each file's docstring or header says
   excluded from yield counts. `save_testsieve.py RUN` archives the completed
   measurements and logs to `data/c196/testsieve/`. This run used
   `stage23_gpu/build/runs_20261013/c196_testsieve/`.
+- `20261016_loss_trace/run.py`: bounded C208 seed-10/103 retention experiments
+  using `-trace-cell`. Default mode makes CPU plans; `--gpu` runs four sequential
+  CUDA variants and verifies all exports. `--wide-pool` instead runs the two
+  seed-10 pool-size follow-ups. Use a fresh `--run-dir` to freeze a new binary.
+  Full artifacts live in `stage23_gpu/runs/20261016_loss_trace/`; compact evidence
+  is retained in `data/c208/ropt_coverage/trace_20261016/`.
+- `20261016_alpha_screen/run.py`: CPU-only replay audit of the intermediate
+  alpha-screen stage. Alternates three C208 seed-10 policies for three repeats,
+  then audits all 16 saved C171 depth pools with the selected bound, checking
+  every exported resultant. Freezes the binary and records commands, hashes,
+  timings and retention under `stage23_gpu/runs/20261016_alpha_screen/replay/`.
+  Use a fresh `--run-dir` for another build. Requires the saved local pools;
+  compact results, including a separate live CUDA validation, are in
+  `data/c208/ropt_coverage/alpha_screen_20261016.json`.
+- `20261017_alpha_quality/`: CPU audit of MurphyE/lattice quality after
+  screening. `run.py` scores every distinct exported finalist, freezes skews,
+  and validates leading retained/discarded configurations at higher accuracy
+  on three independent lattice streams. `assess_exact.py` checks the corrected
+  exact-size screen against those winners by identical integer coefficients.
+  `holdout.py` replays a fixed policy on the first four unused depth pools from
+  each of C147/C166; pass its directory via `run.py --replay-dir` and a fresh
+  `--run-dir` to score them. The October 16 replay script additionally supports
+  `--exact-size` and `--control-only`. Full artifacts are under
+  `stage23_gpu/runs/20261017_alpha_quality/`; compact results are in
+  `data/c208/ropt_coverage/alpha_quality_20261017.json`.
+- `20261018_gpu_screen/run.py`: CUDA port audit against the 25 corrected CPU
+  screen cases. Compares every screened score with CADO, all 200 exports per
+  case byte for byte, and every resultant. `--timings --repeats 3` alternates
+  CPU screen, GPU screen and full broad CPU refinement on C208 seed 10 and
+  C171 seed 1, without the expensive oracle. Use a fresh `--run-dir` to freeze
+  each build. Context wait and process wall time are recorded separately from
+  refinement. Full artifacts: `stage23_gpu/runs/20261018_gpu_screen/`; compact
+  results: `data/c208/ropt_coverage/gpu_screen_20261018.json`.
+- `20261018_ropt_batch/run.py`: runs the same 25-case corpus in one persistent
+  CUDA session and verifies all 5,000 exports; `--check` also compares every
+  screened score with CADO. `--timings --repeats 3` alternates individual and
+  batched CPU/GPU execution of all 16 C171 seeds with two host threads. Supply
+  a fresh `--run-dir`; each run freezes its binaries and records the manifest,
+  commands, hashes, phase/process timings and GPU workspace reuse counts.
+  Artifacts live under `stage23_gpu/runs/20261018_ropt_batch/`.

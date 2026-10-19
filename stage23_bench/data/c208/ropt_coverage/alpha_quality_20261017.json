@@ -1,0 +1,2628 @@
+{
+  "date": "2026-10-17",
+  "feature": "-alpha-screen-exact-size (requires -alpha-screen N B)",
+  "original_quality": {
+    "cases": [
+      {
+        "case": "c208_s0010",
+        "unique_finalists": 224,
+        "lost_finalists": 13,
+        "validated_configurations": 9,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                147,
+                4704054682
+              ],
+              "screen": [
+                147,
+                4704054682
+              ],
+              "narrow": [
+                147,
+                4704054682
+              ],
+              "lost": [
+                7,
+                -177812098
+              ]
+            },
+            "best_scores": {
+              "wide": 5427997666.666667,
+              "screen": 5427997666.666667,
+              "narrow": 5427997666.666667,
+              "lost": 5077131000.0
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -6.464016534519523
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                147,
+                4704054682
+              ],
+              "screen": [
+                147,
+                4704054682
+              ],
+              "narrow": [
+                147,
+                4704054682
+              ],
+              "lost": [
+                7,
+                -177812098
+              ]
+            },
+            "best_scores": {
+              "wide": 3.4495739999999997e-09,
+              "screen": 3.4495739999999997e-09,
+              "narrow": 3.4495739999999997e-09,
+              "lost": 3.2010539999999994e-09
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -7.204367843681581
+          }
+        }
+      },
+      {
+        "case": "c171_s0001",
+        "unique_finalists": 234,
+        "lost_finalists": 34,
+        "validated_configurations": 10,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                25,
+                218299299
+              ],
+              "screen": [
+                25,
+                218299299
+              ],
+              "lost": [
+                0,
+                293874
+              ]
+            },
+            "best_scores": {
+              "wide": 522072833.3333333,
+              "screen": 522072833.3333333,
+              "lost": 497087233.3333333
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -4.785845653080967
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                0,
+                293874
+              ],
+              "screen": [
+                25,
+                218299299
+              ],
+              "lost": [
+                0,
+                293874
+              ]
+            },
+            "best_scores": {
+              "wide": 6.943972e-08,
+              "screen": 6.856224e-08,
+              "lost": 6.943972e-08
+            },
+            "wide_winner_retained": false,
+            "screen_vs_wide_percent": -1.2636571691245213,
+            "fixed_winner_ratios_by_stream": [
+              -1.2636571691245213,
+              -1.2636571691245213,
+              -1.2636571691245213
+            ],
+            "lost_vs_wide_percent": 0.0
+          }
+        }
+      },
+      {
+        "case": "c171_s0002",
+        "unique_finalists": 224,
+        "lost_finalists": 24,
+        "validated_configurations": 11,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                16,
+                204377935
+              ],
+              "screen": [
+                16,
+                204377935
+              ],
+              "lost": [
+                1,
+                -3583025
+              ]
+            },
+            "best_scores": {
+              "wide": 507982300.0,
+              "screen": 507982300.0,
+              "lost": 475662200.0
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -6.362446093102059
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                1,
+                -4354145
+              ],
+              "screen": [
+                1,
+                -4354145
+              ],
+              "lost": [
+                1,
+                -3583025
+              ]
+            },
+            "best_scores": {
+              "wide": 6.916865e-08,
+              "screen": 6.916865e-08,
+              "lost": 6.4981e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -6.054260130854072
+          }
+        }
+      },
+      {
+        "case": "c171_s0003",
+        "unique_finalists": 216,
+        "lost_finalists": 16,
+        "validated_configurations": 9,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                5,
+                44781915
+              ],
+              "screen": [
+                5,
+                44781915
+              ],
+              "lost": [
+                0,
+                254375
+              ]
+            },
+            "best_scores": {
+              "wide": 501772500.0,
+              "screen": 501772500.0,
+              "lost": 463109133.3333333
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -7.705357839791283
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                -1,
+                2380695
+              ],
+              "screen": [
+                -1,
+                2380695
+              ],
+              "lost": [
+                0,
+                254375
+              ]
+            },
+            "best_scores": {
+              "wide": 6.759951e-08,
+              "screen": 6.759951e-08,
+              "lost": 6.411555e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -5.153824339850999
+          }
+        }
+      },
+      {
+        "case": "c171_s0005",
+        "unique_finalists": 211,
+        "lost_finalists": 11,
+        "validated_configurations": 10,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                9,
+                29599969
+              ],
+              "screen": [
+                9,
+                29599969
+              ],
+              "lost": [
+                0,
+                138913
+              ]
+            },
+            "best_scores": {
+              "wide": 504545766.6666667,
+              "screen": 504545766.6666667,
+              "lost": 454684100.0
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -9.882486379002419
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                9,
+                29599969
+              ],
+              "screen": [
+                9,
+                29599969
+              ],
+              "lost": [
+                0,
+                138913
+              ]
+            },
+            "best_scores": {
+              "wide": 6.796636e-08,
+              "screen": 6.796636e-08,
+              "lost": 6.332597e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -6.827480535959252
+          }
+        }
+      },
+      {
+        "case": "c171_s0006",
+        "unique_finalists": 209,
+        "lost_finalists": 9,
+        "validated_configurations": 9,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                -5,
+                9097349
+              ],
+              "screen": [
+                -5,
+                9097349
+              ],
+              "lost": [
+                -17,
+                136648949
+              ]
+            },
+            "best_scores": {
+              "wide": 514484133.3333333,
+              "screen": 514484133.3333333,
+              "lost": 470210100.0
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -8.605519677833918
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                -5,
+                9097349
+              ],
+              "screen": [
+                -5,
+                9097349
+              ],
+              "lost": [
+                -17,
+                136648949
+              ]
+            },
+            "best_scores": {
+              "wide": 7.011479e-08,
+              "screen": 7.011479e-08,
+              "lost": 6.465432e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -7.787900384498048
+          }
+        }
+      },
+      {
+        "case": "c171_s0008",
+        "unique_finalists": 216,
+        "lost_finalists": 16,
+        "validated_configurations": 10,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                -1,
+                -5528328
+              ],
+              "screen": [
+                -1,
+                -5528328
+              ],
+              "lost": [
+                -1,
+                -1243278
+              ]
+            },
+            "best_scores": {
+              "wide": 493673600.0,
+              "screen": 493673600.0,
+              "lost": 436709000.0
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -11.538919642452017
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                -1,
+                -5528328
+              ],
+              "screen": [
+                -1,
+                -5528328
+              ],
+              "lost": [
+                -4,
+                -16960821
+              ]
+            },
+            "best_scores": {
+              "wide": 6.78953e-08,
+              "screen": 6.78953e-08,
+              "lost": 6.004114e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -11.568046683643784
+          }
+        }
+      },
+      {
+        "case": "c171_s0009",
+        "unique_finalists": 218,
+        "lost_finalists": 18,
+        "validated_configurations": 12,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                -16,
+                -46575773
+              ],
+              "screen": [
+                -16,
+                -46575773
+              ],
+              "lost": [
+                -58,
+                918700399
+              ]
+            },
+            "best_scores": {
+              "wide": 497047633.3333333,
+              "screen": 497047633.3333333,
+              "lost": 467220566.6666667
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -6.00084673306629
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                -16,
+                -46575773
+              ],
+              "screen": [
+                -16,
+                -46575773
+              ],
+              "lost": [
+                -2,
+                4727731
+              ]
+            },
+            "best_scores": {
+              "wide": 6.569965e-08,
+              "screen": 6.569965e-08,
+              "lost": 6.208403e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -5.50325610562613
+          }
+        }
+      },
+      {
+        "case": "c171_s0016",
+        "unique_finalists": 231,
+        "lost_finalists": 31,
+        "validated_configurations": 10,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                4,
+                1652440
+              ],
+              "screen": [
+                4,
+                1652440
+              ],
+              "lost": [
+                0,
+                1055432
+              ]
+            },
+            "best_scores": {
+              "wide": 503083600.0,
+              "screen": 503083600.0,
+              "lost": 451533233.3333333
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -10.246878782505863
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                0,
+                -1619008
+              ],
+              "screen": [
+                0,
+                -1619008
+              ],
+              "lost": [
+                0,
+                1055432
+              ]
+            },
+            "best_scores": {
+              "wide": 6.882798e-08,
+              "screen": 6.882798e-08,
+              "lost": 6.268894e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -8.91939586197359
+          }
+        }
+      },
+      {
+        "case": "c171_s0034",
+        "unique_finalists": 229,
+        "lost_finalists": 29,
+        "validated_configurations": 8,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                -3,
+                -93873577
+              ],
+              "screen": [
+                -3,
+                -93873577
+              ],
+              "lost": [
+                -3,
+                2415239
+              ]
+            },
+            "best_scores": {
+              "wide": 500317333.3333333,
+              "screen": 500317333.3333333,
+              "lost": 461959033.3333333
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -7.666794141318311
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                -3,
+                -93873577
+              ],
+              "screen": [
+                -3,
+                -93873577
+              ],
+              "lost": [
+                -3,
+                2415239
+              ]
+            },
+            "best_scores": {
+              "wide": 6.728733e-08,
+              "screen": 6.728733e-08,
+              "lost": 6.311623e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -6.198938195348235
+          }
+        }
+      },
+      {
+        "case": "c171_s0045",
+        "unique_finalists": 206,
+        "lost_finalists": 6,
+        "validated_configurations": 10,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                184,
+                1785977808
+              ],
+              "screen": [
+                184,
+                1785977808
+              ],
+              "lost": [
+                184,
+                5186722848
+              ]
+            },
+            "best_scores": {
+              "wide": 509050166.6666667,
+              "screen": 509050166.6666667,
+              "lost": 474887400.0
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -6.711080538558578
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                184,
+                1785977808
+              ],
+              "screen": [
+                184,
+                1785977808
+              ],
+              "lost": [
+                4,
+                -13602072
+              ]
+            },
+            "best_scores": {
+              "wide": 6.588781e-08,
+              "screen": 6.588781e-08,
+              "lost": 6.181092e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -6.187624084030119
+          }
+        }
+      },
+      {
+        "case": "c171_s0046",
+        "unique_finalists": 213,
+        "lost_finalists": 13,
+        "validated_configurations": 12,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                48,
+                -126164574
+              ],
+              "screen": [
+                48,
+                -126164574
+              ],
+              "lost": [
+                180,
+                272372268
+              ]
+            },
+            "best_scores": {
+              "wide": 493881933.3333333,
+              "screen": 493881933.3333333,
+              "lost": 460194100.0
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -6.821029695491321
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                48,
+                -126164574
+              ],
+              "screen": [
+                48,
+                -126164574
+              ],
+              "lost": [
+                180,
+                272372268
+              ]
+            },
+            "best_scores": {
+              "wide": 6.519105e-08,
+              "screen": 6.519105e-08,
+              "lost": 5.937503e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -8.921500727477172
+          }
+        }
+      },
+      {
+        "case": "c171_s0055",
+        "unique_finalists": 214,
+        "lost_finalists": 14,
+        "validated_configurations": 10,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                55,
+                18850139
+              ],
+              "screen": [
+                55,
+                18850139
+              ],
+              "lost": [
+                55,
+                -568606621
+              ]
+            },
+            "best_scores": {
+              "wide": 502224200.0,
+              "screen": 502224200.0,
+              "lost": 467314266.6666667
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -6.951065546688772
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                55,
+                18850139
+              ],
+              "screen": [
+                55,
+                18850139
+              ],
+              "lost": [
+                100,
+                -1661508811
+              ]
+            },
+            "best_scores": {
+              "wide": 6.570438e-08,
+              "screen": 6.570438e-08,
+              "lost": 6.189828e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -5.792764500631476
+          }
+        }
+      },
+      {
+        "case": "c171_s0086",
+        "unique_finalists": 217,
+        "lost_finalists": 17,
+        "validated_configurations": 10,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                6,
+                1017585
+              ],
+              "screen": [
+                6,
+                1017585
+              ],
+              "lost": [
+                -5,
+                -4071697
+              ]
+            },
+            "best_scores": {
+              "wide": 500119200.0,
+              "screen": 500119200.0,
+              "lost": 425853566.6666667
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -14.849586525239044
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                6,
+                1017585
+              ],
+              "screen": [
+                6,
+                1017585
+              ],
+              "lost": [
+                -5,
+                -4071697
+              ]
+            },
+            "best_scores": {
+              "wide": 6.895791e-08,
+              "screen": 6.895791e-08,
+              "lost": 5.839693999999999e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -15.315095831645731
+          }
+        }
+      },
+      {
+        "case": "c171_s0094",
+        "unique_finalists": 222,
+        "lost_finalists": 22,
+        "validated_configurations": 10,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                6,
+                -13788244
+              ],
+              "screen": [
+                6,
+                -13788244
+              ],
+              "lost": [
+                234,
+                -4050951412
+              ]
+            },
+            "best_scores": {
+              "wide": 490086466.6666667,
+              "screen": 490086466.6666667,
+              "lost": 430982100.0
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -12.059987509687065
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                6,
+                -13788244
+              ],
+              "screen": [
+                6,
+                -13788244
+              ],
+              "lost": [
+                6,
+                -2938636
+              ]
+            },
+            "best_scores": {
+              "wide": 6.655557e-08,
+              "screen": 6.655557e-08,
+              "lost": 5.673188e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -14.760132022008076
+          }
+        }
+      },
+      {
+        "case": "c171_s0119",
+        "unique_finalists": 205,
+        "lost_finalists": 5,
+        "validated_configurations": 9,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                -155,
+                2537040278
+              ],
+              "screen": [
+                -155,
+                2537040278
+              ],
+              "lost": [
+                -20,
+                -67501132
+              ]
+            },
+            "best_scores": {
+              "wide": 502193366.6666667,
+              "screen": 502193366.6666667,
+              "lost": 457245500.0
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -8.9503107070112
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                -155,
+                2537040278
+              ],
+              "screen": [
+                -155,
+                2537040278
+              ],
+              "lost": [
+                -20,
+                -67501132
+              ]
+            },
+            "best_scores": {
+              "wide": 6.536025e-08,
+              "screen": 6.536025e-08,
+              "lost": 6.051945e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -7.406336420071835
+          }
+        }
+      },
+      {
+        "case": "c171_s0179",
+        "unique_finalists": 212,
+        "lost_finalists": 12,
+        "validated_configurations": 9,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                -38,
+                119119055
+              ],
+              "screen": [
+                -38,
+                119119055
+              ],
+              "lost": [
+                -87,
+                948370961
+              ]
+            },
+            "best_scores": {
+              "wide": 512872800.0,
+              "screen": 512872800.0,
+              "lost": 444913266.6666667
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -13.25075795271914
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                -38,
+                119119055
+              ],
+              "screen": [
+                -38,
+                119119055
+              ],
+              "lost": [
+                -87,
+                948370961
+              ]
+            },
+            "best_scores": {
+              "wide": 6.689486e-08,
+              "screen": 6.689486e-08,
+              "lost": 5.721551e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -14.469497357495031
+          }
+        }
+      }
+    ],
+    "unique_finalists": 3701,
+    "validated_configurations": 168,
+    "config": {
+      "c171": {
+        "Bf": 4294967296,
+        "Bg": 2147483648,
+        "area": 5368709120000000,
+        "lattice": "14,8192",
+        "q": [
+          40000000,
+          62000000,
+          84000000,
+          106000000,
+          128000000,
+          150000000
+        ]
+      },
+      "c208": {
+        "Bf": 17179869184,
+        "Bg": 8589934592,
+        "area": 343597383680000000,
+        "lattice": "17,32768",
+        "q": [
+          80000000,
+          195000000,
+          310000000,
+          425000000,
+          540000000,
+          655000000,
+          770000000,
+          885000000,
+          1000000000
+        ]
+      }
+    },
+    "scorer_sha256": "3db4195375d134592178b9df4db0d26d48574262fb0e5187d4ba0dde57c1d7c1"
+  },
+  "diagnosis": {
+    "case": "c171_s0001",
+    "cell": [
+      0,
+      293874
+    ],
+    "interpolated_lognorm": 51.14259662804259,
+    "exact_lognorm_printed": 50.066483,
+    "murphy_loss_percent": -1.2636571691245213,
+    "interpretation": "Size interpolation was pessimistic; keeping best exact-alpha/size cells alone did not imply MurphyE winner preservation."
+  },
+  "corrected_quality": {
+    "cases": [
+      {
+        "case": "c208_s0010",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0001",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0002",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0003",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0005",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0006",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0008",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0009",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0016",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0034",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0045",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0046",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0055",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0086",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0094",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0119",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      },
+      {
+        "case": "c171_s0179",
+        "retained_quality_winners": {
+          "lattice": true,
+          "murphy": true
+        }
+      }
+    ],
+    "verified_exports": 3400,
+    "preserved": {
+      "murphy": 17,
+      "lattice": 17
+    },
+    "note": "Exact integer-polynomial membership check against previously validated winners. Newly exported candidates are not rescored here. Known cases now inform the exact-size policy, so these are regression controls, not a fresh independent acceptance set."
+  },
+  "fresh_holdouts": {
+    "selection": {
+      "cases": [
+        {
+          "case": "c147_s0003",
+          "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/seeds/s0003.poly",
+          "pool": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/depth/s0003.pool",
+          "input_sha256": "3cff893f5676f8580d8a24c4a4de96d967833ede37a0a6b52772e2ac55c5d703",
+          "pool_sha256": "d19f86cbbe0e215077d1d6aeaae4f701f4f561495b4ffce84546d37faf43466d",
+          "config": {
+            "params": "job:29,30,14,10e6",
+            "lattice": "14,8192",
+            "qband": "10e6,30e6,7",
+            "source": "Inherited C146 user settings in stage23_bench/data/c146/test_sieve/README.txt; region 14,8192 follows the nearby-job convention.",
+            "note": "Settings inherited from a similar sized job, 2026-10-15; model ranking, no test sieving."
+          }
+        },
+        {
+          "case": "c147_s0008",
+          "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/seeds/s0008.poly",
+          "pool": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/depth/s0008.pool",
+          "input_sha256": "5e93b125b59c98137afdc0e76266cc45a548514018ae9d77830e9aa3fddf1e9a",
+          "pool_sha256": "cf60f81ceef587e0deca10ccc72e3d3a96a5d6ea6c7e37eeb89f2af8511f103a",
+          "config": {
+            "params": "job:29,30,14,10e6",
+            "lattice": "14,8192",
+            "qband": "10e6,30e6,7",
+            "source": "Inherited C146 user settings in stage23_bench/data/c146/test_sieve/README.txt; region 14,8192 follows the nearby-job convention.",
+            "note": "Settings inherited from a similar sized job, 2026-10-15; model ranking, no test sieving."
+          }
+        },
+        {
+          "case": "c147_s0010",
+          "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/seeds/s0010.poly",
+          "pool": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/depth/s0010.pool",
+          "input_sha256": "c966e920bd77b325118c3ff3bb352011ada0bbe9d4feda53a87a1873a6db7fa5",
+          "pool_sha256": "d59abe8fbfcfaf204f3fd2da8faca165002988713f08e3b616f49cf2fd68f022",
+          "config": {
+            "params": "job:29,30,14,10e6",
+            "lattice": "14,8192",
+            "qband": "10e6,30e6,7",
+            "source": "Inherited C146 user settings in stage23_bench/data/c146/test_sieve/README.txt; region 14,8192 follows the nearby-job convention.",
+            "note": "Settings inherited from a similar sized job, 2026-10-15; model ranking, no test sieving."
+          }
+        },
+        {
+          "case": "c147_s0014",
+          "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/seeds/s0014.poly",
+          "pool": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/depth/s0014.pool",
+          "input_sha256": "76ac9e410779783f6d523b7a250b60577866261f0359a773b817366daf821f17",
+          "pool_sha256": "5cf3d672dbdcc5642792535001de41af1aa3b028c9ce3c1de259c8597a528adb",
+          "config": {
+            "params": "job:29,30,14,10e6",
+            "lattice": "14,8192",
+            "qband": "10e6,30e6,7",
+            "source": "Inherited C146 user settings in stage23_bench/data/c146/test_sieve/README.txt; region 14,8192 follows the nearby-job convention.",
+            "note": "Settings inherited from a similar sized job, 2026-10-15; model ranking, no test sieving."
+          }
+        },
+        {
+          "case": "c166_s0004",
+          "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/seeds/s0004.poly",
+          "pool": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/depth/s0004.pool",
+          "input_sha256": "d9b0cb8363b8d60efed66210bae6119f6e24841a2542f589caf9c2d914b08243",
+          "pool_sha256": "f5acb7f74396cb7573f21648efb46ffe531f750ba7b9bdd1baa45969036bda87",
+          "config": {
+            "params": "job:30,31,14,30e6",
+            "lattice": "14,8192",
+            "qband": "30e6,90e6,7",
+            "source": "Inherited C165 user settings from stage23_bench/data/c165/gpu_ropt/scoring.json.",
+            "note": "Settings inherited from a similar sized job, 2026-10-15; model ranking, no test sieving."
+          }
+        },
+        {
+          "case": "c166_s0006",
+          "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/seeds/s0006.poly",
+          "pool": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/depth/s0006.pool",
+          "input_sha256": "05ef1b33cd89f4124bd6959fb18e9a075a4d493882ed0aa096ac30ebbf87c52c",
+          "pool_sha256": "f5a917f91d0feefd11ac4ea5309c6e57810b2e871dfd8ff401fa784641d0dc38",
+          "config": {
+            "params": "job:30,31,14,30e6",
+            "lattice": "14,8192",
+            "qband": "30e6,90e6,7",
+            "source": "Inherited C165 user settings from stage23_bench/data/c165/gpu_ropt/scoring.json.",
+            "note": "Settings inherited from a similar sized job, 2026-10-15; model ranking, no test sieving."
+          }
+        },
+        {
+          "case": "c166_s0008",
+          "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/seeds/s0008.poly",
+          "pool": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/depth/s0008.pool",
+          "input_sha256": "933c7036a1200776dbb69b0dc9365def907361f91bd14a6c320695d5aa0d028f",
+          "pool_sha256": "5e0fccdb3a4320b75a0e2ed2c5f21097ba9de8b6afa12b8358267e16a0ee4d8c",
+          "config": {
+            "params": "job:30,31,14,30e6",
+            "lattice": "14,8192",
+            "qband": "30e6,90e6,7",
+            "source": "Inherited C165 user settings from stage23_bench/data/c165/gpu_ropt/scoring.json.",
+            "note": "Settings inherited from a similar sized job, 2026-10-15; model ranking, no test sieving."
+          }
+        },
+        {
+          "case": "c166_s0009",
+          "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/seeds/s0009.poly",
+          "pool": "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/depth/s0009.pool",
+          "input_sha256": "f5f22931ced5f26bd3cd9be9085229f32f48e0c992e4fc65a3bc0fe7b6e16ec7",
+          "pool_sha256": "f68ffa09dc4d1db4eb90e93a286ddfdff0471e2cdec652769258133b58b5d733",
+          "config": {
+            "params": "job:30,31,14,30e6",
+            "lattice": "14,8192",
+            "qband": "30e6,90e6,7",
+            "source": "Inherited C165 user settings from stage23_bench/data/c165/gpu_ropt/scoring.json.",
+            "note": "Settings inherited from a similar sized job, 2026-10-15; model ranking, no test sieving."
+          }
+        }
+      ],
+      "policy": "screen 4096 through prime 500 with exact size, fully refine 512, export 200; no retuning",
+      "binary_sha256": "0f2dfacc0f806fc4c6438f2780c1633675b802da0e403c2f54755ca2e8f46764"
+    },
+    "cases": [
+      {
+        "case": "c147_s0003",
+        "unique_finalists": 200,
+        "lost_finalists": 0,
+        "validated_configurations": 6,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                212,
+                -482055972
+              ],
+              "screen": [
+                212,
+                -482055972
+              ]
+            },
+            "best_scores": {
+              "wide": 242131200.0,
+              "screen": 242131200.0
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": null
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                2,
+                -2306772
+              ],
+              "screen": [
+                2,
+                -2306772
+              ]
+            },
+            "best_scores": {
+              "wide": 1.640825e-07,
+              "screen": 1.640825e-07
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": null
+          }
+        }
+      },
+      {
+        "case": "c147_s0008",
+        "unique_finalists": 203,
+        "lost_finalists": 3,
+        "validated_configurations": 8,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                54,
+                -154127855
+              ],
+              "screen": [
+                54,
+                -154127855
+              ],
+              "lost": [
+                9,
+                -14925395
+              ]
+            },
+            "best_scores": {
+              "wide": 241213033.33333334,
+              "screen": 241213033.33333334,
+              "lost": 221481466.66666666
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -8.180141178109368
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                54,
+                -154127855
+              ],
+              "screen": [
+                54,
+                -154127855
+              ],
+              "lost": [
+                9,
+                -14925395
+              ]
+            },
+            "best_scores": {
+              "wide": 1.6008470000000002e-07,
+              "screen": 1.6008470000000002e-07,
+              "lost": 1.497022e-07
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -6.485629170058105
+          }
+        }
+      },
+      {
+        "case": "c147_s0010",
+        "unique_finalists": 203,
+        "lost_finalists": 3,
+        "validated_configurations": 7,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                11,
+                4570321
+              ],
+              "screen": [
+                11,
+                4570321
+              ],
+              "lost": [
+                97,
+                169579509
+              ]
+            },
+            "best_scores": {
+              "wide": 254179100.0,
+              "screen": 254179100.0,
+              "lost": 226196600.0
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -11.008969659582558
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                11,
+                4570321
+              ],
+              "screen": [
+                11,
+                4570321
+              ],
+              "lost": [
+                29,
+                29005333
+              ]
+            },
+            "best_scores": {
+              "wide": 1.75206e-07,
+              "screen": 1.75206e-07,
+              "lost": 1.502444e-07
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -14.247000673492916
+          }
+        }
+      },
+      {
+        "case": "c147_s0014",
+        "unique_finalists": 200,
+        "lost_finalists": 0,
+        "validated_configurations": 4,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                3,
+                -1310863
+              ],
+              "screen": [
+                3,
+                -1310863
+              ]
+            },
+            "best_scores": {
+              "wide": 237737266.66666666,
+              "screen": 237737266.66666666
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": null
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                3,
+                -1310863
+              ],
+              "screen": [
+                3,
+                -1310863
+              ]
+            },
+            "best_scores": {
+              "wide": 1.660887e-07,
+              "screen": 1.660887e-07
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": null
+          }
+        }
+      },
+      {
+        "case": "c166_s0004",
+        "unique_finalists": 201,
+        "lost_finalists": 1,
+        "validated_configurations": 6,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                -1,
+                -731053
+              ],
+              "screen": [
+                -1,
+                -731053
+              ],
+              "lost": [
+                39,
+                102738747
+              ]
+            },
+            "best_scores": {
+              "wide": 211858900.0,
+              "screen": 211858900.0,
+              "lost": 190572900.0
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -10.047253148203827
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                -1,
+                -731053
+              ],
+              "screen": [
+                -1,
+                -731053
+              ],
+              "lost": [
+                39,
+                102738747
+              ]
+            },
+            "best_scores": {
+              "wide": 4.769191e-08,
+              "screen": 4.769191e-08,
+              "lost": 4.159365e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -12.786780818801336
+          }
+        }
+      },
+      {
+        "case": "c166_s0006",
+        "unique_finalists": 204,
+        "lost_finalists": 4,
+        "validated_configurations": 8,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                -4,
+                2918087
+              ],
+              "screen": [
+                -4,
+                2918087
+              ],
+              "lost": [
+                -4,
+                -142962505
+              ]
+            },
+            "best_scores": {
+              "wide": 236249000.0,
+              "screen": 236249000.0,
+              "lost": 199326266.66666666
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -15.628736347384898
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                -4,
+                2918087
+              ],
+              "screen": [
+                -4,
+                2918087
+              ],
+              "lost": [
+                -4,
+                -142962505
+              ]
+            },
+            "best_scores": {
+              "wide": 5.264848e-08,
+              "screen": 5.264848e-08,
+              "lost": 4.281205e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -18.683217445213984
+          }
+        }
+      },
+      {
+        "case": "c166_s0008",
+        "unique_finalists": 202,
+        "lost_finalists": 2,
+        "validated_configurations": 9,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                90,
+                -1500826054
+              ],
+              "screen": [
+                90,
+                -1500826054
+              ],
+              "lost": [
+                90,
+                -21908614
+              ]
+            },
+            "best_scores": {
+              "wide": 226575233.33333334,
+              "screen": 226575233.33333334,
+              "lost": 207850166.66666666
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -8.264392533635267
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                -54,
+                524480378
+              ],
+              "screen": [
+                -54,
+                524480378
+              ],
+              "lost": [
+                -36,
+                120843338
+              ]
+            },
+            "best_scores": {
+              "wide": 4.78713e-08,
+              "screen": 4.78713e-08,
+              "lost": 4.377256e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -8.561998525212388
+          }
+        }
+      },
+      {
+        "case": "c166_s0009",
+        "unique_finalists": 203,
+        "lost_finalists": 3,
+        "validated_configurations": 9,
+        "metrics": {
+          "lattice": {
+            "winner_cells": {
+              "wide": [
+                7,
+                148883638
+              ],
+              "screen": [
+                7,
+                148883638
+              ],
+              "lost": [
+                99,
+                -456136882
+              ]
+            },
+            "best_scores": {
+              "wide": 216607233.33333334,
+              "screen": 216607233.33333334,
+              "lost": 198093033.33333334
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -8.547359991209891
+          },
+          "murphy": {
+            "winner_cells": {
+              "wide": [
+                7,
+                148883638
+              ],
+              "screen": [
+                7,
+                148883638
+              ],
+              "lost": [
+                99,
+                -456136882
+              ]
+            },
+            "best_scores": {
+              "wide": 4.548758999999999e-08,
+              "screen": 4.548758999999999e-08,
+              "lost": 4.099219e-08
+            },
+            "wide_winner_retained": true,
+            "screen_vs_wide_percent": 0.0,
+            "fixed_winner_ratios_by_stream": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lost_vs_wide_percent": -9.88269547804136
+          }
+        }
+      }
+    ],
+    "unique_finalists": 1616,
+    "validated_configurations": 57,
+    "note": "Fixed bound 500, exact-size screening 4096 to 512; no retuning after inspecting these eight cases. Inherited job model settings."
+  },
+  "exact_score_retention": {
+    "c208": {
+      "best_preserved": true,
+      "retained": {
+        "8": 8,
+        "32": 32,
+        "200": 200
+      },
+      "control_count": 200,
+      "trial_count": 200
+    },
+    "c171": {
+      "8": 128,
+      "32": 512,
+      "200": 3114
+    }
+  },
+  "timing": {
+    "median_refine_seconds": {
+      "narrow": 1.2,
+      "wide": 9.42,
+      "screen": 4.0,
+      "screen_exact": 5.44
+    },
+    "exact_size_reduction_vs_wide_percent": 42.250530785562624,
+    "records": [
+      {
+        "tag": "c208_narrow_0",
+        "command": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/s23_ropt_cpu",
+          "-poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0010.poly",
+          "-search",
+          "-pool-in",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.pool",
+          "-aw",
+          "1.3",
+          "-refine",
+          "200",
+          "-top",
+          "8",
+          "-t",
+          "2",
+          "-rerank",
+          "4096",
+          "-trace-cell",
+          "7",
+          "-174864538",
+          "-out",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/c208_narrow_0.poly"
+        ],
+        "seconds": 1.308262872043997,
+        "returncode": 0,
+        "binary_sha256": "0f2dfacc0f806fc4c6438f2780c1633675b802da0e403c2f54755ca2e8f46764",
+        "input_sha256": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+        "pool_sha256": "c0f4f8672d786a6bcc66ed4c7eaeef71065ef55bfedf115c874f121c447a7082",
+        "refine_seconds": 1.2,
+        "screen_seconds": 0,
+        "verified_exports": 200,
+        "trace": [
+          "# trace-cell u 7 v -174864538: replay_input rank 17719 keep 65536 available 65536",
+          "# trace-cell u 7 v -174864538: stage replay_input pass",
+          "# trace-cell u 7 v -174864538: proxy_pool rank 17719 keep 4096 available 65536",
+          "# trace-cell u 7 v -174864538: stage proxy_pool lost",
+          "# trace-cell u 7 v -174864538: result proxy_pool"
+        ],
+        "output_sha256": "09bbc3b2a2ce35cb9b75b77b1c743c6a0648e839077800f55e2da51ce93d639d"
+      },
+      {
+        "tag": "c208_wide_0",
+        "command": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/s23_ropt_cpu",
+          "-poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0010.poly",
+          "-search",
+          "-pool-in",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.pool",
+          "-aw",
+          "1.3",
+          "-refine",
+          "200",
+          "-top",
+          "8",
+          "-t",
+          "2",
+          "-rerank",
+          "32768",
+          "-trace-cell",
+          "7",
+          "-174864538",
+          "-out",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/c208_wide_0.poly"
+        ],
+        "seconds": 9.499454258999322,
+        "returncode": 0,
+        "binary_sha256": "0f2dfacc0f806fc4c6438f2780c1633675b802da0e403c2f54755ca2e8f46764",
+        "input_sha256": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+        "pool_sha256": "c0f4f8672d786a6bcc66ed4c7eaeef71065ef55bfedf115c874f121c447a7082",
+        "refine_seconds": 9.42,
+        "screen_seconds": 0,
+        "verified_exports": 200,
+        "trace": [
+          "# trace-cell u 7 v -174864538: replay_input rank 17719 keep 65536 available 65536",
+          "# trace-cell u 7 v -174864538: stage replay_input pass",
+          "# trace-cell u 7 v -174864538: proxy_pool rank 17719 keep 32768 available 65536",
+          "# trace-cell u 7 v -174864538: stage proxy_pool pass",
+          "# trace-cell u 7 v -174864538: exact_alpha_cut rank 4 keep 200 available 32768",
+          "# trace-cell u 7 v -174864538: stage exact_alpha_cut pass",
+          "# trace-cell u 7 v -174864538: stage export pass",
+          "# trace-cell u 7 v -174864538: result retained"
+        ],
+        "output_sha256": "553cc5ebebf56f6fe84e98d37eba7bab46d4095fb42f6e3fd632b8d1c9c8f31a"
+      },
+      {
+        "tag": "c208_screen_0",
+        "command": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/s23_ropt_cpu",
+          "-poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0010.poly",
+          "-search",
+          "-pool-in",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.pool",
+          "-aw",
+          "1.3",
+          "-refine",
+          "200",
+          "-top",
+          "8",
+          "-t",
+          "2",
+          "-rerank",
+          "4096",
+          "-alpha-screen",
+          "32768",
+          "500",
+          "-trace-cell",
+          "7",
+          "-174864538",
+          "-out",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/c208_screen_0.poly"
+        ],
+        "seconds": 4.128045673016459,
+        "returncode": 0,
+        "binary_sha256": "0f2dfacc0f806fc4c6438f2780c1633675b802da0e403c2f54755ca2e8f46764",
+        "input_sha256": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+        "pool_sha256": "c0f4f8672d786a6bcc66ed4c7eaeef71065ef55bfedf115c874f121c447a7082",
+        "refine_seconds": 4.04,
+        "screen_seconds": 2.854788,
+        "verified_exports": 200,
+        "trace": [
+          "# trace-cell u 7 v -174864538: replay_input rank 17719 keep 65536 available 65536",
+          "# trace-cell u 7 v -174864538: stage replay_input pass",
+          "# trace-cell u 7 v -174864538: proxy_pool rank 17719 keep 32768 available 65536",
+          "# trace-cell u 7 v -174864538: stage proxy_pool pass",
+          "# trace-cell u 7 v -174864538: alpha_screen_cut rank 443 keep 4096 available 32768",
+          "# trace-cell u 7 v -174864538: stage alpha_screen_cut pass",
+          "# trace-cell u 7 v -174864538: exact_alpha_cut rank 4 keep 200 available 4096",
+          "# trace-cell u 7 v -174864538: stage exact_alpha_cut pass",
+          "# trace-cell u 7 v -174864538: stage export pass",
+          "# trace-cell u 7 v -174864538: result retained"
+        ],
+        "output_sha256": "f9acb57ff711ae900212d83495a9e0c7cae4795c725319833e23a779a510e585"
+      },
+      {
+        "tag": "c208_screen_exact_0",
+        "command": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/s23_ropt_cpu",
+          "-poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0010.poly",
+          "-search",
+          "-pool-in",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.pool",
+          "-aw",
+          "1.3",
+          "-refine",
+          "200",
+          "-top",
+          "8",
+          "-t",
+          "2",
+          "-rerank",
+          "4096",
+          "-alpha-screen",
+          "32768",
+          "500",
+          "-alpha-screen-exact-size",
+          "-trace-cell",
+          "7",
+          "-174864538",
+          "-out",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/c208_screen_exact_0.poly"
+        ],
+        "seconds": 5.611681034963112,
+        "returncode": 0,
+        "binary_sha256": "0f2dfacc0f806fc4c6438f2780c1633675b802da0e403c2f54755ca2e8f46764",
+        "input_sha256": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+        "pool_sha256": "c0f4f8672d786a6bcc66ed4c7eaeef71065ef55bfedf115c874f121c447a7082",
+        "refine_seconds": 5.52,
+        "screen_seconds": 4.56259,
+        "verified_exports": 200,
+        "trace": [
+          "# trace-cell u 7 v -174864538: replay_input rank 17719 keep 65536 available 65536",
+          "# trace-cell u 7 v -174864538: stage replay_input pass",
+          "# trace-cell u 7 v -174864538: proxy_pool rank 17719 keep 32768 available 65536",
+          "# trace-cell u 7 v -174864538: stage proxy_pool pass",
+          "# trace-cell u 7 v -174864538: alpha_screen_cut rank 4 keep 4096 available 32768",
+          "# trace-cell u 7 v -174864538: stage alpha_screen_cut pass",
+          "# trace-cell u 7 v -174864538: exact_alpha_cut rank 4 keep 200 available 4096",
+          "# trace-cell u 7 v -174864538: stage exact_alpha_cut pass",
+          "# trace-cell u 7 v -174864538: stage export pass",
+          "# trace-cell u 7 v -174864538: result retained"
+        ],
+        "output_sha256": "553cc5ebebf56f6fe84e98d37eba7bab46d4095fb42f6e3fd632b8d1c9c8f31a"
+      },
+      {
+        "tag": "c208_wide_1",
+        "command": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/s23_ropt_cpu",
+          "-poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0010.poly",
+          "-search",
+          "-pool-in",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.pool",
+          "-aw",
+          "1.3",
+          "-refine",
+          "200",
+          "-top",
+          "8",
+          "-t",
+          "2",
+          "-rerank",
+          "32768",
+          "-trace-cell",
+          "7",
+          "-174864538",
+          "-out",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/c208_wide_1.poly"
+        ],
+        "seconds": 9.72643539798446,
+        "returncode": 0,
+        "binary_sha256": "0f2dfacc0f806fc4c6438f2780c1633675b802da0e403c2f54755ca2e8f46764",
+        "input_sha256": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+        "pool_sha256": "c0f4f8672d786a6bcc66ed4c7eaeef71065ef55bfedf115c874f121c447a7082",
+        "refine_seconds": 9.63,
+        "screen_seconds": 0,
+        "verified_exports": 200,
+        "trace": [
+          "# trace-cell u 7 v -174864538: replay_input rank 17719 keep 65536 available 65536",
+          "# trace-cell u 7 v -174864538: stage replay_input pass",
+          "# trace-cell u 7 v -174864538: proxy_pool rank 17719 keep 32768 available 65536",
+          "# trace-cell u 7 v -174864538: stage proxy_pool pass",
+          "# trace-cell u 7 v -174864538: exact_alpha_cut rank 4 keep 200 available 32768",
+          "# trace-cell u 7 v -174864538: stage exact_alpha_cut pass",
+          "# trace-cell u 7 v -174864538: stage export pass",
+          "# trace-cell u 7 v -174864538: result retained"
+        ],
+        "output_sha256": "553cc5ebebf56f6fe84e98d37eba7bab46d4095fb42f6e3fd632b8d1c9c8f31a"
+      },
+      {
+        "tag": "c208_screen_1",
+        "command": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/s23_ropt_cpu",
+          "-poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0010.poly",
+          "-search",
+          "-pool-in",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.pool",
+          "-aw",
+          "1.3",
+          "-refine",
+          "200",
+          "-top",
+          "8",
+          "-t",
+          "2",
+          "-rerank",
+          "4096",
+          "-alpha-screen",
+          "32768",
+          "500",
+          "-trace-cell",
+          "7",
+          "-174864538",
+          "-out",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/c208_screen_1.poly"
+        ],
+        "seconds": 4.098848121997435,
+        "returncode": 0,
+        "binary_sha256": "0f2dfacc0f806fc4c6438f2780c1633675b802da0e403c2f54755ca2e8f46764",
+        "input_sha256": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+        "pool_sha256": "c0f4f8672d786a6bcc66ed4c7eaeef71065ef55bfedf115c874f121c447a7082",
+        "refine_seconds": 4.0,
+        "screen_seconds": 2.828771,
+        "verified_exports": 200,
+        "trace": [
+          "# trace-cell u 7 v -174864538: replay_input rank 17719 keep 65536 available 65536",
+          "# trace-cell u 7 v -174864538: stage replay_input pass",
+          "# trace-cell u 7 v -174864538: proxy_pool rank 17719 keep 32768 available 65536",
+          "# trace-cell u 7 v -174864538: stage proxy_pool pass",
+          "# trace-cell u 7 v -174864538: alpha_screen_cut rank 443 keep 4096 available 32768",
+          "# trace-cell u 7 v -174864538: stage alpha_screen_cut pass",
+          "# trace-cell u 7 v -174864538: exact_alpha_cut rank 4 keep 200 available 4096",
+          "# trace-cell u 7 v -174864538: stage exact_alpha_cut pass",
+          "# trace-cell u 7 v -174864538: stage export pass",
+          "# trace-cell u 7 v -174864538: result retained"
+        ],
+        "output_sha256": "f9acb57ff711ae900212d83495a9e0c7cae4795c725319833e23a779a510e585"
+      },
+      {
+        "tag": "c208_screen_exact_1",
+        "command": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/s23_ropt_cpu",
+          "-poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0010.poly",
+          "-search",
+          "-pool-in",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.pool",
+          "-aw",
+          "1.3",
+          "-refine",
+          "200",
+          "-top",
+          "8",
+          "-t",
+          "2",
+          "-rerank",
+          "4096",
+          "-alpha-screen",
+          "32768",
+          "500",
+          "-alpha-screen-exact-size",
+          "-trace-cell",
+          "7",
+          "-174864538",
+          "-out",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/c208_screen_exact_1.poly"
+        ],
+        "seconds": 5.108733891043812,
+        "returncode": 0,
+        "binary_sha256": "0f2dfacc0f806fc4c6438f2780c1633675b802da0e403c2f54755ca2e8f46764",
+        "input_sha256": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+        "pool_sha256": "c0f4f8672d786a6bcc66ed4c7eaeef71065ef55bfedf115c874f121c447a7082",
+        "refine_seconds": 5.01,
+        "screen_seconds": 4.229669,
+        "verified_exports": 200,
+        "trace": [
+          "# trace-cell u 7 v -174864538: replay_input rank 17719 keep 65536 available 65536",
+          "# trace-cell u 7 v -174864538: stage replay_input pass",
+          "# trace-cell u 7 v -174864538: proxy_pool rank 17719 keep 32768 available 65536",
+          "# trace-cell u 7 v -174864538: stage proxy_pool pass",
+          "# trace-cell u 7 v -174864538: alpha_screen_cut rank 4 keep 4096 available 32768",
+          "# trace-cell u 7 v -174864538: stage alpha_screen_cut pass",
+          "# trace-cell u 7 v -174864538: exact_alpha_cut rank 4 keep 200 available 4096",
+          "# trace-cell u 7 v -174864538: stage exact_alpha_cut pass",
+          "# trace-cell u 7 v -174864538: stage export pass",
+          "# trace-cell u 7 v -174864538: result retained"
+        ],
+        "output_sha256": "553cc5ebebf56f6fe84e98d37eba7bab46d4095fb42f6e3fd632b8d1c9c8f31a"
+      },
+      {
+        "tag": "c208_narrow_1",
+        "command": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/s23_ropt_cpu",
+          "-poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0010.poly",
+          "-search",
+          "-pool-in",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.pool",
+          "-aw",
+          "1.3",
+          "-refine",
+          "200",
+          "-top",
+          "8",
+          "-t",
+          "2",
+          "-rerank",
+          "4096",
+          "-trace-cell",
+          "7",
+          "-174864538",
+          "-out",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/c208_narrow_1.poly"
+        ],
+        "seconds": 1.020080260001123,
+        "returncode": 0,
+        "binary_sha256": "0f2dfacc0f806fc4c6438f2780c1633675b802da0e403c2f54755ca2e8f46764",
+        "input_sha256": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+        "pool_sha256": "c0f4f8672d786a6bcc66ed4c7eaeef71065ef55bfedf115c874f121c447a7082",
+        "refine_seconds": 0.96,
+        "screen_seconds": 0,
+        "verified_exports": 200,
+        "trace": [
+          "# trace-cell u 7 v -174864538: replay_input rank 17719 keep 65536 available 65536",
+          "# trace-cell u 7 v -174864538: stage replay_input pass",
+          "# trace-cell u 7 v -174864538: proxy_pool rank 17719 keep 4096 available 65536",
+          "# trace-cell u 7 v -174864538: stage proxy_pool lost",
+          "# trace-cell u 7 v -174864538: result proxy_pool"
+        ],
+        "output_sha256": "09bbc3b2a2ce35cb9b75b77b1c743c6a0648e839077800f55e2da51ce93d639d"
+      },
+      {
+        "tag": "c208_screen_2",
+        "command": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/s23_ropt_cpu",
+          "-poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0010.poly",
+          "-search",
+          "-pool-in",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.pool",
+          "-aw",
+          "1.3",
+          "-refine",
+          "200",
+          "-top",
+          "8",
+          "-t",
+          "2",
+          "-rerank",
+          "4096",
+          "-alpha-screen",
+          "32768",
+          "500",
+          "-trace-cell",
+          "7",
+          "-174864538",
+          "-out",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/c208_screen_2.poly"
+        ],
+        "seconds": 3.6513351800385863,
+        "returncode": 0,
+        "binary_sha256": "0f2dfacc0f806fc4c6438f2780c1633675b802da0e403c2f54755ca2e8f46764",
+        "input_sha256": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+        "pool_sha256": "c0f4f8672d786a6bcc66ed4c7eaeef71065ef55bfedf115c874f121c447a7082",
+        "refine_seconds": 3.59,
+        "screen_seconds": 2.410881,
+        "verified_exports": 200,
+        "trace": [
+          "# trace-cell u 7 v -174864538: replay_input rank 17719 keep 65536 available 65536",
+          "# trace-cell u 7 v -174864538: stage replay_input pass",
+          "# trace-cell u 7 v -174864538: proxy_pool rank 17719 keep 32768 available 65536",
+          "# trace-cell u 7 v -174864538: stage proxy_pool pass",
+          "# trace-cell u 7 v -174864538: alpha_screen_cut rank 443 keep 4096 available 32768",
+          "# trace-cell u 7 v -174864538: stage alpha_screen_cut pass",
+          "# trace-cell u 7 v -174864538: exact_alpha_cut rank 4 keep 200 available 4096",
+          "# trace-cell u 7 v -174864538: stage exact_alpha_cut pass",
+          "# trace-cell u 7 v -174864538: stage export pass",
+          "# trace-cell u 7 v -174864538: result retained"
+        ],
+        "output_sha256": "f9acb57ff711ae900212d83495a9e0c7cae4795c725319833e23a779a510e585"
+      },
+      {
+        "tag": "c208_screen_exact_2",
+        "command": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/s23_ropt_cpu",
+          "-poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0010.poly",
+          "-search",
+          "-pool-in",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.pool",
+          "-aw",
+          "1.3",
+          "-refine",
+          "200",
+          "-top",
+          "8",
+          "-t",
+          "2",
+          "-rerank",
+          "4096",
+          "-alpha-screen",
+          "32768",
+          "500",
+          "-alpha-screen-exact-size",
+          "-trace-cell",
+          "7",
+          "-174864538",
+          "-out",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/c208_screen_exact_2.poly"
+        ],
+        "seconds": 5.528198510990478,
+        "returncode": 0,
+        "binary_sha256": "0f2dfacc0f806fc4c6438f2780c1633675b802da0e403c2f54755ca2e8f46764",
+        "input_sha256": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+        "pool_sha256": "c0f4f8672d786a6bcc66ed4c7eaeef71065ef55bfedf115c874f121c447a7082",
+        "refine_seconds": 5.44,
+        "screen_seconds": 4.477476,
+        "verified_exports": 200,
+        "trace": [
+          "# trace-cell u 7 v -174864538: replay_input rank 17719 keep 65536 available 65536",
+          "# trace-cell u 7 v -174864538: stage replay_input pass",
+          "# trace-cell u 7 v -174864538: proxy_pool rank 17719 keep 32768 available 65536",
+          "# trace-cell u 7 v -174864538: stage proxy_pool pass",
+          "# trace-cell u 7 v -174864538: alpha_screen_cut rank 4 keep 4096 available 32768",
+          "# trace-cell u 7 v -174864538: stage alpha_screen_cut pass",
+          "# trace-cell u 7 v -174864538: exact_alpha_cut rank 4 keep 200 available 4096",
+          "# trace-cell u 7 v -174864538: stage exact_alpha_cut pass",
+          "# trace-cell u 7 v -174864538: stage export pass",
+          "# trace-cell u 7 v -174864538: result retained"
+        ],
+        "output_sha256": "553cc5ebebf56f6fe84e98d37eba7bab46d4095fb42f6e3fd632b8d1c9c8f31a"
+      },
+      {
+        "tag": "c208_narrow_2",
+        "command": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/s23_ropt_cpu",
+          "-poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0010.poly",
+          "-search",
+          "-pool-in",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.pool",
+          "-aw",
+          "1.3",
+          "-refine",
+          "200",
+          "-top",
+          "8",
+          "-t",
+          "2",
+          "-rerank",
+          "4096",
+          "-trace-cell",
+          "7",
+          "-174864538",
+          "-out",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/c208_narrow_2.poly"
+        ],
+        "seconds": 1.3000591529998928,
+        "returncode": 0,
+        "binary_sha256": "0f2dfacc0f806fc4c6438f2780c1633675b802da0e403c2f54755ca2e8f46764",
+        "input_sha256": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+        "pool_sha256": "c0f4f8672d786a6bcc66ed4c7eaeef71065ef55bfedf115c874f121c447a7082",
+        "refine_seconds": 1.2,
+        "screen_seconds": 0,
+        "verified_exports": 200,
+        "trace": [
+          "# trace-cell u 7 v -174864538: replay_input rank 17719 keep 65536 available 65536",
+          "# trace-cell u 7 v -174864538: stage replay_input pass",
+          "# trace-cell u 7 v -174864538: proxy_pool rank 17719 keep 4096 available 65536",
+          "# trace-cell u 7 v -174864538: stage proxy_pool lost",
+          "# trace-cell u 7 v -174864538: result proxy_pool"
+        ],
+        "output_sha256": "09bbc3b2a2ce35cb9b75b77b1c743c6a0648e839077800f55e2da51ce93d639d"
+      },
+      {
+        "tag": "c208_wide_2",
+        "command": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/s23_ropt_cpu",
+          "-poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0010.poly",
+          "-search",
+          "-pool-in",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.pool",
+          "-aw",
+          "1.3",
+          "-refine",
+          "200",
+          "-top",
+          "8",
+          "-t",
+          "2",
+          "-rerank",
+          "32768",
+          "-trace-cell",
+          "7",
+          "-174864538",
+          "-out",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261017_alpha_quality/timing/c208_wide_2.poly"
+        ],
+        "seconds": 9.475055072980467,
+        "returncode": 0,
+        "binary_sha256": "0f2dfacc0f806fc4c6438f2780c1633675b802da0e403c2f54755ca2e8f46764",
+        "input_sha256": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+        "pool_sha256": "c0f4f8672d786a6bcc66ed4c7eaeef71065ef55bfedf115c874f121c447a7082",
+        "refine_seconds": 9.39,
+        "screen_seconds": 0,
+        "verified_exports": 200,
+        "trace": [
+          "# trace-cell u 7 v -174864538: replay_input rank 17719 keep 65536 available 65536",
+          "# trace-cell u 7 v -174864538: stage replay_input pass",
+          "# trace-cell u 7 v -174864538: proxy_pool rank 17719 keep 32768 available 65536",
+          "# trace-cell u 7 v -174864538: stage proxy_pool pass",
+          "# trace-cell u 7 v -174864538: exact_alpha_cut rank 4 keep 200 available 32768",
+          "# trace-cell u 7 v -174864538: stage exact_alpha_cut pass",
+          "# trace-cell u 7 v -174864538: stage export pass",
+          "# trace-cell u 7 v -174864538: result retained"
+        ],
+        "output_sha256": "553cc5ebebf56f6fe84e98d37eba7bab46d4095fb42f6e3fd632b8d1c9c8f31a"
+      }
+    ],
+    "note": "Three alternating CPU pool replays per policy, two threads. Run after this task's scorers and tests completed; unrelated system activity uncontrolled. Refinement-phase comparison, not whole GPU search or siever throughput."
+  },
+  "validation": {
+    "full_host_suite": "passed",
+    "cpu_focused_tests": 5,
+    "cuda_built_host_focused_tests": 5,
+    "cuda_host_replay": {
+      "command": [
+        "stage23_gpu/build/s23_ropt",
+        "-poly",
+        "stage23_gpu/runs/20261016_c171/seeds/s0001.poly",
+        "-search",
+        "-pool-in",
+        "stage23_gpu/runs/20261016_c171/depth/s0001.pool",
+        "-aw",
+        "1.3",
+        "-rerank",
+        "512",
+        "-alpha-screen",
+        "4096",
+        "500",
+        "-alpha-screen-exact-size",
+        "-refine",
+        "200",
+        "-top",
+        "8",
+        "-t",
+        "2",
+        "-out",
+        "stage23_gpu/runs/20261017_alpha_quality/cuda_host_replay.poly"
+      ],
+      "binary_sha256": "ce1e37a5d71b15588767edef9be8dd3a97864bdf6490da5f0056e78ebf8893dc",
+      "outputs_identical": true,
+      "note": "CUDA executable, host-only saved-pool replay: no CUDA context or GPU kernels."
+    },
+    "old_policy_equivalence": {
+      "old_policies_byte_identical": 35,
+      "files": [
+        "c171_s0001_screen.poly",
+        "c171_s0001_wide.poly",
+        "c171_s0002_screen.poly",
+        "c171_s0002_wide.poly",
+        "c171_s0003_screen.poly",
+        "c171_s0003_wide.poly",
+        "c171_s0005_screen.poly",
+        "c171_s0005_wide.poly",
+        "c171_s0006_screen.poly",
+        "c171_s0006_wide.poly",
+        "c171_s0008_screen.poly",
+        "c171_s0008_wide.poly",
+        "c171_s0009_screen.poly",
+        "c171_s0009_wide.poly",
+        "c171_s0016_screen.poly",
+        "c171_s0016_wide.poly",
+        "c171_s0034_screen.poly",
+        "c171_s0034_wide.poly",
+        "c171_s0045_screen.poly",
+        "c171_s0045_wide.poly",
+        "c171_s0046_screen.poly",
+        "c171_s0046_wide.poly",
+        "c171_s0055_screen.poly",
+        "c171_s0055_wide.poly",
+        "c171_s0086_screen.poly",
+        "c171_s0086_wide.poly",
+        "c171_s0094_screen.poly",
+        "c171_s0094_wide.poly",
+        "c171_s0119_screen.poly",
+        "c171_s0119_wide.poly",
+        "c171_s0179_screen.poly",
+        "c171_s0179_wide.poly",
+        "c208_narrow_0.poly",
+        "c208_wide_0.poly",
+        "c208_screen_0.poly"
+      ]
+    },
+    "c208_all_200_bytes_match_wide": true,
+    "replay_export_resultants_checked": 17600,
+    "gpu_kernels_run": false
+  },
+  "artifacts": "stage23_gpu/runs/20261017_alpha_quality",
+  "reproduce": {
+    "quality": "python3 stage23_bench/runs/20261017_alpha_quality/run.py --run-dir NEW_AUDIT",
+    "replay": "python3 stage23_bench/runs/20261016_alpha_screen/run.py --exact-size --run-dir NEW_REPLAY",
+    "holdout": "python3 stage23_bench/runs/20261017_alpha_quality/holdout.py --run-dir NEW_HOLDOUT_REPLAY",
+    "holdout_quality": "python3 stage23_bench/runs/20261017_alpha_quality/run.py --replay-dir NEW_HOLDOUT_REPLAY --run-dir NEW_HOLDOUT_QUALITY",
+    "timing": "python3 stage23_bench/runs/20261016_alpha_screen/run.py --exact-size --control-only --run-dir NEW_TIMING"
+  },
+  "limitations": "Top-200 exported-candidate audit and saved-pool replay, not full search-space coverage. Fixed skew validation after a 16k-angle grid search; no new translation optimization or actual test sieving. Uniform-root lattice model omits actual acceptance policy and execution costs. Exact size means the existing bounded local integer-translation search, not a proven global optimum. Lower finalists can still be lost. Defaults and pipeline settings unchanged; host implementation remains the reference for GPU migration."
+}

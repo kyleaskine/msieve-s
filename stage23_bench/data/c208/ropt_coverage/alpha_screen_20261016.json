@@ -1,0 +1,315 @@
+{
+  "date": "2026-10-16",
+  "feature": "s23_ropt -alpha-screen N B; opt-in host intermediate alpha screen",
+  "control": {
+    "screen": {
+      "best_preserved": true,
+      "retained": {
+        "8": 8,
+        "32": 32,
+        "200": 187
+      },
+      "control_count": 200,
+      "trial_count": 200
+    },
+    "narrow": {
+      "best_preserved": true,
+      "retained": {
+        "8": 7,
+        "32": 30,
+        "200": 178
+      },
+      "control_count": 200,
+      "trial_count": 200
+    },
+    "reference_retained": {
+      "narrow": false,
+      "wide": true,
+      "screen": true
+    },
+    "median_refine_seconds": {
+      "narrow": 1.38,
+      "wide": 10.75,
+      "screen": 4.51
+    }
+  },
+  "independent_c171": {
+    "cases": [
+      {
+        "seed": "s0001",
+        "best_preserved": true,
+        "retained": {
+          "8": 6,
+          "32": 25,
+          "200": 166
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0002",
+        "best_preserved": true,
+        "retained": {
+          "8": 8,
+          "32": 31,
+          "200": 176
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0003",
+        "best_preserved": true,
+        "retained": {
+          "8": 8,
+          "32": 31,
+          "200": 184
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0005",
+        "best_preserved": true,
+        "retained": {
+          "8": 8,
+          "32": 30,
+          "200": 189
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0006",
+        "best_preserved": true,
+        "retained": {
+          "8": 8,
+          "32": 32,
+          "200": 191
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0008",
+        "best_preserved": true,
+        "retained": {
+          "8": 8,
+          "32": 32,
+          "200": 184
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0009",
+        "best_preserved": true,
+        "retained": {
+          "8": 8,
+          "32": 32,
+          "200": 182
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0016",
+        "best_preserved": true,
+        "retained": {
+          "8": 6,
+          "32": 29,
+          "200": 169
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0034",
+        "best_preserved": true,
+        "retained": {
+          "8": 8,
+          "32": 31,
+          "200": 171
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0045",
+        "best_preserved": true,
+        "retained": {
+          "8": 8,
+          "32": 32,
+          "200": 194
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0046",
+        "best_preserved": true,
+        "retained": {
+          "8": 8,
+          "32": 32,
+          "200": 187
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0055",
+        "best_preserved": true,
+        "retained": {
+          "8": 8,
+          "32": 32,
+          "200": 186
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0086",
+        "best_preserved": true,
+        "retained": {
+          "8": 8,
+          "32": 32,
+          "200": 183
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0094",
+        "best_preserved": true,
+        "retained": {
+          "8": 8,
+          "32": 31,
+          "200": 178
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0119",
+        "best_preserved": true,
+        "retained": {
+          "8": 8,
+          "32": 32,
+          "200": 195
+        },
+        "control_count": 200,
+        "trial_count": 200
+      },
+      {
+        "seed": "s0179",
+        "best_preserved": true,
+        "retained": {
+          "8": 8,
+          "32": 32,
+          "200": 188
+        },
+        "control_count": 200,
+        "trial_count": 200
+      }
+    ],
+    "best_preserved": 16,
+    "seed_count": 16,
+    "retained_totals": {
+      "8": 124,
+      "32": 496,
+      "200": 2923
+    },
+    "median_refine_seconds": {
+      "wide": 1.205,
+      "screen": 0.53
+    }
+  },
+  "live_gpu": {
+    "command": [
+      "stage23_gpu/build/s23_ropt",
+      "-poly",
+      "stage23_bench/data/c208/ropt_coverage/s0010.poly",
+      "-search",
+      "-budget",
+      "3",
+      "-maxcells",
+      "2e11",
+      "-maxlines",
+      "1000",
+      "-umax",
+      "20000",
+      "-classes",
+      "2520",
+      "16",
+      "-class-explore",
+      "4",
+      "-aw",
+      "1.3",
+      "-rerank",
+      "4096",
+      "-alpha-screen",
+      "32768",
+      "500",
+      "-refine",
+      "200",
+      "-top",
+      "8",
+      "-seg",
+      "16",
+      "-k",
+      "8",
+      "-t",
+      "2",
+      "-launch",
+      "30",
+      "-trace-cell",
+      "7",
+      "-174864538",
+      "-check",
+      "128",
+      "-pool-out",
+      "stage23_gpu/runs/20261016_alpha_screen/live_c208.pool",
+      "-out",
+      "stage23_gpu/runs/20261016_alpha_screen/live_c208.poly"
+    ],
+    "binary_sha256": "a9c5f5b48881cbdfff075522bad1edda16fe658636f173e8e9dc6045e5cd80cb",
+    "seed_sha256": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+    "verified_exports": 200,
+    "exports_identical_to_cpu_replay": true,
+    "proxy_pool_matches_old_gpu_pool_prefix": true,
+    "trace": [
+      "# trace-cell u 7 v -174864538: stage region pass",
+      "# trace-cell u 7 v -174864538: stage class_proposal pass",
+      "# trace-cell u 7 v -174864538: stage class_size pass",
+      "# trace-cell class mod 2520 u 7 v 782: root mean 7.06855526 size 64.8277166 key 55.6385947 size-root rank 2 of 80 exploration 4294967295",
+      "# trace-cell u 7 v -174864538: stage class_selection pass",
+      "# trace-cell u 7 v -174864538: stage line_scan pass",
+      "# trace-cell u 7 v -174864538: stage size_band pass",
+      "# trace-cell u 7 v -174864538: stage cell_cap_budget pass",
+      "# trace-cell u 7 v -174864538: stage cell_cap_lines pass",
+      "# trace-cell u 7 v -174864538: stage segments pass",
+      "# trace-cell proxy key 56.212898044452267 interpolated lognorm 65.811499236577731 alpha_s -7.38353938",
+      "# trace-cell u 7 v -174864538: stage block_topk pass",
+      "# trace-cell u 7 v -174864538: proxy_pool rank 17719 keep 32768 available 3349080",
+      "# trace-cell u 7 v -174864538: stage proxy_pool pass",
+      "# trace-cell u 7 v -174864538: alpha_screen_cut rank 443 keep 4096 available 32768",
+      "# trace-cell u 7 v -174864538: stage alpha_screen_cut pass",
+      "# trace-cell u 7 v -174864538: exact_alpha_cut rank 4 keep 200 available 4096",
+      "# trace-cell u 7 v -174864538: stage exact_alpha_cut pass",
+      "# trace-cell u 7 v -174864538: stage export pass",
+      "# trace-cell u 7 v -174864538: result retained"
+    ],
+    "timing_line": "# s23_ropt: stage23_bench/data/c208/ropt_coverage/s0010.poly, search: 2.73e+10 cells, sieve 2.03 s (1.34e+10 cells/s, GPU), size model 1.03 s, refine 4.37 s (includes alpha screen 3.00 s), waited 0.00 s for the GPU context"
+  },
+  "validation": {
+    "host_suite": "passed",
+    "bounded_cpu_tests": 4,
+    "bounded_cuda_tests": 4,
+    "default_mode_byte_identical_cases": 9,
+    "content_cases": 17,
+    "verified_exports": 8400
+  },
+  "artifacts": "stage23_gpu/runs/20261016_alpha_screen",
+  "reproduce": "python3 stage23_bench/runs/20261016_alpha_screen/run.py --run-dir NEW_DIRECTORY",
+  "limitations": "CPU pool replay only. C171 uses 4096->512 because saved pools contain 4096; this is a retention stress test, not a new wide search. No GPU sieve timing or MurphyE/test-sieve comparison. The alpha-screen bound was chosen on C208 seed 10. Live GPU validation confirms the recovery but is only one run; no equal-time GPU speed claim. Host stage still uses CADO. Per-block losses require separate handling; seed 10 used seg=16. Production defaults and pipeline settings unchanged."
+}

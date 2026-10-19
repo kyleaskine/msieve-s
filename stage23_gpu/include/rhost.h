@@ -66,17 +66,31 @@ bool rs_written_poly(cio_poly &out, const cio_poly &seed, const RsizePoly<L> &R,
 }
 
 /* what -rerank ranks cell (u, v) by: the exact lognorm over integer translations (t: the
- * search's start in, the optimum out) and CADO's alpha to the bound its MurphyE uses, both of
+ * search's start in, the optimum out) and CADO's alpha (default: its MurphyE bound), both of
  * the polynomial rs_written_poly writes, content divided out. With the content left in, the
  * lognorm is log d higher and alpha log d lower, which at aw > 1 ranks such a cell
  * (aw - 1) log d too well. */
 struct RsExact {
     double L, A;
 };
-template <int L> RsExact rs_exact_cell(const cio_poly &seed, const RsizePoly<L> &R, int64_t u, int64_t v, int64_t &t)
+
+/* Intermediate shortlist score: keep the interpolated (untranslated, raw-content)
+ * lognorm, but replace alpha_s by CADO's alpha through a smaller prime bound.
+ * cio_alpha_rot divides out content; adjust the size term to the same polynomial.
+ * This is still a screening approximation, not the final exact-size/alpha score. */
+inline double rs_alpha_screen_key(const cio_poly &seed, int64_t u, int64_t v,
+                                  double interpolated_lognorm, unsigned long bound, double aw)
 {
     double log_content = 0;
-    const double A = cio_alpha_rot(&seed, (long)u, (long)v, cio_alpha_bound(), &log_content);
+    const double alpha = cio_alpha_rot(&seed, (long)u, (long)v, bound, &log_content);
+    return interpolated_lognorm - log_content + aw * alpha;
+}
+
+template <int L> RsExact rs_exact_cell(const cio_poly &seed, const RsizePoly<L> &R, int64_t u, int64_t v, int64_t &t,
+                                      unsigned long alpha_bound = cio_alpha_bound())
+{
+    double log_content = 0;
+    const double A = cio_alpha_rot(&seed, (long)u, (long)v, alpha_bound, &log_content);
     return {rs_size(R, u, v, t, 1 << 10) - log_content, A};
 }
 

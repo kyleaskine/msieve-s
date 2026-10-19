@@ -1,0 +1,432 @@
+{
+  "provenance": "User-pasted test-sieve tables and result.job records, received 2026-10-16. No raw sieve logs, repetitions or hardware details supplied.",
+  "settings": {
+    "siever": "gnfs-lasieve4I14e",
+    "side": "algebraic",
+    "rlim": 80000000,
+    "alim": 120000000,
+    "lpbr": 31,
+    "lpba": 32,
+    "mfbr": 60,
+    "mfba": 92,
+    "rlambda": 2.35,
+    "alambda": 3.5,
+    "lss": 0
+  },
+  "q": [
+    40000000,
+    62000000,
+    84000000,
+    106000000,
+    128000000,
+    150000000
+  ],
+  "polynomials": {
+    "cado": {
+      "source": "stage23_bench/data/c171/gpu_ropt/cado_orig_best.poly",
+      "active_skew": 12994190.161
+    },
+    "gpu": {
+      "source": "stage23_bench/data/c171/gpu_ropt/gpu_best.poly",
+      "active_skew": 39903169.3
+    }
+  },
+  "reported_tests": {
+    "cado": {
+      "yield_raw": [
+        3901,
+        3908,
+        3113,
+        2822,
+        2767,
+        2311
+      ],
+      "yield_normalized": [
+        3482,
+        3457,
+        3281,
+        3054,
+        2906,
+        2790
+      ],
+      "expected_relations_by_segment": [
+        null,
+        76334784,
+        74121496,
+        69689405,
+        65569400,
+        62659698
+      ],
+      "relations_per_second": [
+        41.407,
+        37.893,
+        33.266,
+        33.377,
+        31.857,
+        30.921
+      ],
+      "raw_rational_bits": [
+        122.8,
+        123.2,
+        123.6,
+        123.9,
+        124.1,
+        124.2
+      ],
+      "raw_algebraic_bits": [
+        200.3,
+        202.1,
+        203.3,
+        204.3,
+        205.0,
+        205.6
+      ],
+      "projected_total_relations": 348374783,
+      "aggregate_relations_per_second": 33.448,
+      "eta": "120d 13h 7m",
+      "skew": 12994190.161,
+      "skewopt_comment": 17332597.2
+    },
+    "gpu": {
+      "yield_raw": [
+        4344,
+        3487,
+        3325,
+        2719,
+        2456,
+        2625
+      ],
+      "yield_normalized": [
+        3447,
+        3534,
+        3254,
+        3066,
+        2924,
+        2789
+      ],
+      "expected_relations_by_segment": [
+        null,
+        76784161,
+        74664712,
+        69516289,
+        65882176,
+        62836680
+      ],
+      "relations_per_second": [
+        43.572,
+        42.881,
+        36.927,
+        33.692,
+        32.351,
+        33.014
+      ],
+      "raw_rational_bits": [
+        122.3,
+        122.4,
+        122.4,
+        122.5,
+        122.9,
+        123.1
+      ],
+      "raw_algebraic_bits": [
+        200.5,
+        202.3,
+        203.6,
+        204.8,
+        205.4,
+        206.0
+      ],
+      "projected_total_relations": 349684018,
+      "aggregate_relations_per_second": 35.625,
+      "eta": "113d 14h 34m",
+      "skew": 39903169.3
+    }
+  },
+  "derived": {
+    "gpu_rate_gain_percent_by_q": [
+      5.228584538846115,
+      13.16338109941151,
+      11.005230565742806,
+      0.9437636695928342,
+      1.550679599460092,
+      6.76886258529803
+    ],
+    "gpu_aggregate_rate_gain_percent": 6.508610380291802,
+    "gpu_projected_yield_gain_percent": 0.37581221830282896,
+    "gpu_time_reduction_at_fixed_relations_percent": 6.110877192982455
+  },
+  "model_followup": {
+    "Bf": 4294967296,
+    "Bg": 2147483648,
+    "area": 3355443200000000,
+    "I": 16384,
+    "J": 8192,
+    "nlat": 1024,
+    "npts": 4096,
+    "scorer_sha256": "3db4195375d134592178b9df4db0d26d48574262fb0e5187d4ba0dde57c1d7c1",
+    "gpu_band_gain_percent_by_cado_configuration": {
+      "cado_job_skew": [
+        2.091106350011196,
+        2.12235878482101,
+        2.1355709539659484
+      ],
+      "cado_saved_model_skew": [
+        1.5264867545338623,
+        1.558643914062019,
+        1.5564534575233768
+      ],
+      "cado_skewopt_comment": [
+        1.5109237872237502,
+        1.5401409029916824,
+        1.5447808899293092
+      ]
+    },
+    "records": [
+      {
+        "seed": 3,
+        "command": [
+          "stage23_gpu/runs/20261016_c171/bin/cado_murphy",
+          "-t",
+          "2",
+          "-K",
+          "16000",
+          "-Keval",
+          "256000",
+          "-Bf",
+          "4294967296",
+          "-Bg",
+          "2147483648",
+          "-area",
+          "3355443200000000",
+          "-lattice",
+          "14,8192",
+          "-qpoints",
+          "40000000,62000000,84000000,106000000,128000000,150000000",
+          "-nlat",
+          "1024",
+          "-npts",
+          "4096",
+          "-latseed",
+          "3",
+          "-useskew",
+          "stage23_gpu/runs/20261016_c171/q_diagnostic/user_test_followup/configurations.poly"
+        ],
+        "seconds": 1.947842406021664,
+        "rows": {
+          "gpu": [
+            0.0,
+            522488500.0,
+            39903169.3,
+            8.270129e-08,
+            106.591,
+            95.2727,
+            88.0456,
+            82.3176,
+            77.4462,
+            74.0308
+          ],
+          "cado_job_skew": [
+            1.0,
+            511786500.0,
+            12994190.2,
+            8.41513e-08,
+            105.7056,
+            93.4483,
+            85.5761,
+            80.0807,
+            76.1417,
+            72.7804
+          ],
+          "cado_saved_model_skew": [
+            2.0,
+            514632700.0,
+            16417714.9,
+            8.453797e-08,
+            106.5888,
+            93.5826,
+            85.9223,
+            80.7404,
+            76.6929,
+            73.2494
+          ],
+          "cado_skewopt_comment": [
+            3.0,
+            514711600.0,
+            17332597.2,
+            8.454661e-08,
+            106.6062,
+            93.6026,
+            85.9287,
+            80.7321,
+            76.6925,
+            73.3284
+          ]
+        }
+      },
+      {
+        "seed": 4,
+        "command": [
+          "stage23_gpu/runs/20261016_c171/bin/cado_murphy",
+          "-t",
+          "2",
+          "-K",
+          "16000",
+          "-Keval",
+          "256000",
+          "-Bf",
+          "4294967296",
+          "-Bg",
+          "2147483648",
+          "-area",
+          "3355443200000000",
+          "-lattice",
+          "14,8192",
+          "-qpoints",
+          "40000000,62000000,84000000,106000000,128000000,150000000",
+          "-nlat",
+          "1024",
+          "-npts",
+          "4096",
+          "-latseed",
+          "4",
+          "-useskew",
+          "stage23_gpu/runs/20261016_c171/q_diagnostic/user_test_followup/configurations.poly"
+        ],
+        "seconds": 1.9596569300047122,
+        "rows": {
+          "gpu": [
+            0.0,
+            522218000.0,
+            39903169.3,
+            8.270129e-08,
+            106.5784,
+            95.2349,
+            88.0818,
+            82.2124,
+            77.3111,
+            74.073
+          ],
+          "cado_job_skew": [
+            1.0,
+            511365000.0,
+            12994190.2,
+            8.41513e-08,
+            105.9,
+            93.4738,
+            85.7361,
+            79.8484,
+            75.6707,
+            72.8896
+          ],
+          "cado_saved_model_skew": [
+            2.0,
+            514203400.0,
+            16417714.9,
+            8.453797e-08,
+            106.7239,
+            93.5984,
+            86.0875,
+            80.5077,
+            76.2691,
+            73.3243
+          ],
+          "cado_skewopt_comment": [
+            3.0,
+            514297100.0,
+            17332597.2,
+            8.454661e-08,
+            106.7185,
+            93.6133,
+            86.1295,
+            80.5089,
+            76.2624,
+            73.3838
+          ]
+        }
+      },
+      {
+        "seed": 5,
+        "command": [
+          "stage23_gpu/runs/20261016_c171/bin/cado_murphy",
+          "-t",
+          "2",
+          "-K",
+          "16000",
+          "-Keval",
+          "256000",
+          "-Bf",
+          "4294967296",
+          "-Bg",
+          "2147483648",
+          "-area",
+          "3355443200000000",
+          "-lattice",
+          "14,8192",
+          "-qpoints",
+          "40000000,62000000,84000000,106000000,128000000,150000000",
+          "-nlat",
+          "1024",
+          "-npts",
+          "4096",
+          "-latseed",
+          "5",
+          "-useskew",
+          "stage23_gpu/runs/20261016_c171/q_diagnostic/user_test_followup/configurations.poly"
+        ],
+        "seconds": 1.9289209540002048,
+        "rows": {
+          "gpu": [
+            0.0,
+            522139100.0,
+            39903169.3,
+            8.270129e-08,
+            106.6089,
+            95.2055,
+            88.0094,
+            82.1431,
+            77.3292,
+            74.221
+          ],
+          "cado_job_skew": [
+            1.0,
+            511221600.0,
+            12994190.2,
+            8.41513e-08,
+            105.6914,
+            93.5038,
+            85.5488,
+            79.6668,
+            75.9068,
+            73.0859
+          ],
+          "cado_saved_model_skew": [
+            2.0,
+            514136800.0,
+            16417714.9,
+            8.453797e-08,
+            106.6526,
+            93.6318,
+            85.8759,
+            80.3629,
+            76.4717,
+            73.5399
+          ],
+          "cado_skewopt_comment": [
+            3.0,
+            514195900.0,
+            17332597.2,
+            8.454661e-08,
+            106.6522,
+            93.6327,
+            85.9038,
+            80.3592,
+            76.4628,
+            73.6078
+          ]
+        }
+      }
+    ],
+    "limitations": "Fixed-skew smoothness/lattice model; no lim/mfb/lambda acceptance or sieving/cofactor cost model. Uniform roots, not sampled actual polynomial roots. Cannot predict measured throughput. Area retained from previous diagnostic for MurphyE comparability. The two alternate CADO skews are model-only checks, not test sieves."
+  },
+  "artifacts": "stage23_gpu/runs/20261016_c171/q_diagnostic/user_test_followup"
+}

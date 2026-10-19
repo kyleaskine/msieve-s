@@ -127,7 +127,7 @@ int main(int argc, char **argv)
            lattice. Checked with !(x < tol), so a NaN fails. */
         RsizePoly<RS_LP> R;
         bool xfail = !rs_size_poly(R, P);
-        double worst_a = 0, worst_l = 0;
+        double worst_a = 0, worst_l = 0, worst_screen = 0;
         long ncont = 0;
         cio_poly W;
         cio_init(&W);
@@ -144,6 +144,16 @@ int main(int argc, char **argv)
             const double dl = ok ? fabs(x.L - rs_lognorm_at(fw, 0)) : NAN;
             if (!(da < 1e-9) || !(dl < 1e-9) || lc != 0)
                 xfail = true;
+            // The intermediate screen must score the same primitive polynomial,
+            // including rotations whose content is divided out on export.
+            for (unsigned long bound : {200UL, cio_alpha_bound()}) {
+                double screen_content = 0;
+                const double alpha = ok ? cio_alpha_rot(&W, 0, 0, bound, &screen_content) : NAN;
+                const double key = ok ? rs_alpha_screen_key(P, u, v, x.L + log((double)content), bound, 1.3) : NAN;
+                const double ds = fabs(key - (x.L + 1.3 * alpha));
+                if (!(ds < 1e-9) || screen_content != 0) xfail = true;
+                worst_screen = std::isnan(ds) ? INFINITY : std::max(worst_screen, ds);
+            }
             worst_a = std::isnan(da) ? INFINITY : std::max(worst_a, da);
             worst_l = std::isnan(dl) ? INFINITY : std::max(worst_l, dl);
             ncont += content > 1;
@@ -233,8 +243,8 @@ int main(int argc, char **argv)
         bad += sbad;
         const bool abad = xfail;
         printf("%s: re-rank values vs the written polynomials, 56 cells (%ld with content): worst alpha %.2e, "
-               "lognorm %.2e%s\n",
-               argv[a], ncont, worst_a, worst_l, abad ? "  MISMATCH" : "");
+               "lognorm %.2e, alpha-screen key %.2e%s\n",
+               argv[a], ncont, worst_a, worst_l, worst_screen, abad ? "  MISMATCH" : "");
         all_content += ncont;
         bad += abad;
         cells += fcells;

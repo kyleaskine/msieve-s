@@ -1,0 +1,254 @@
+{
+  "provisional_user_qband": "40M-150M, awaiting confirmation",
+  "region": "I=2^14, J=2^13 (14e default)",
+  "bounds": {
+    "Bf": 2147483648,
+    "Bg": 1073741824
+  },
+  "fixed_skews": {
+    "gpu": 39903169.3,
+    "cado": 16417714.9
+  },
+  "lattice_samples": {
+    "streams": [
+      3,
+      4,
+      5
+    ],
+    "lattices": 1024,
+    "points_per_lattice": 4096
+  },
+  "provisional_band_gpu_vs_cado_percent": [
+    1.5260809668091957,
+    1.5452935032162385,
+    1.5639026408711398
+  ],
+  "provisional_band_mean_percent": 1.545092370298858,
+  "provisional_curve": {
+    "q": [
+      40000000.0,
+      50000000.0,
+      60000000.0,
+      75000000.0,
+      90000000.0,
+      110000000.0,
+      130000000.0,
+      150000000.0
+    ],
+    "gpu_vs_cado_percent": [
+      {
+        "mean": -0.08471159868140103,
+        "streams": [
+          -0.022506431883972944,
+          -0.1641504492484347,
+          -0.06747791491179544
+        ]
+      },
+      {
+        "mean": 0.9175313733478315,
+        "streams": [
+          0.987690997933699,
+          0.9227194728837373,
+          0.8421836492260582
+        ]
+      },
+      {
+        "mean": 1.6244934035701153,
+        "streams": [
+          1.6721883377623703,
+          1.5354915910217093,
+          1.6658002819262663
+        ]
+      },
+      {
+        "mean": 2.265474505670014,
+        "streams": [
+          2.0852383859273127,
+          2.288831880622677,
+          2.422353250460052
+        ]
+      },
+      {
+        "mean": 2.3827987555831966,
+        "streams": [
+          2.254278394175202,
+          2.5147729704170896,
+          2.3793449021572988
+        ]
+      },
+      {
+        "mean": 1.756569026894154,
+        "streams": [
+          1.826151290534228,
+          1.7951230953517916,
+          1.6484326947964423
+        ]
+      },
+      {
+        "mean": 0.9821026615522754,
+        "streams": [
+          0.8917596375598524,
+          0.9884640159278479,
+          1.066084331169126
+        ]
+      },
+      {
+        "mean": 1.220961873410964,
+        "streams": [
+          1.3727162296469864,
+          1.0197931189839915,
+          1.270376271601914
+        ]
+      }
+    ]
+  },
+  "extended_curve": {
+    "q": [
+      25000000.0,
+      37500000.0,
+      50000000.0,
+      62500000.0,
+      75000000.0,
+      87500000.0,
+      100000000.0,
+      150000000.0,
+      250000000.0,
+      500000000.0
+    ],
+    "gpu_vs_cado_percent": [
+      {
+        "mean": -2.4721128864919804,
+        "streams": [
+          -2.494439692044481,
+          -2.4735720628470625,
+          -2.448326904584397
+        ]
+      },
+      {
+        "mean": -0.29235385557280963,
+        "streams": [
+          -0.24474774180226477,
+          -0.2825544868680918,
+          -0.34975933804807235
+        ]
+      },
+      {
+        "mean": 0.864054700110084,
+        "streams": [
+          0.8726494514648353,
+          0.7975921745673409,
+          0.9219224742980758
+        ]
+      },
+      {
+        "mean": 1.7860183683902298,
+        "streams": [
+          1.6513960986771714,
+          1.8238465806433402,
+          1.8828124258501777
+        ]
+      },
+      {
+        "mean": 2.152962044268262,
+        "streams": [
+          2.0416856611190193,
+          2.2769483043496797,
+          2.1402521673360875
+        ]
+      },
+      {
+        "mean": 2.3630241432034107,
+        "streams": [
+          2.4090242314420474,
+          2.415735776282779,
+          2.264312421885406
+        ]
+      },
+      {
+        "mean": 2.0492114138805992,
+        "streams": [
+          1.9712007809957743,
+          2.043909621125639,
+          2.132523839520384
+        ]
+      },
+      {
+        "mean": 1.220961873410964,
+        "streams": [
+          1.3727162296469864,
+          1.0197931189839915,
+          1.270376271601914
+        ]
+      },
+      {
+        "mean": 0.06521142706842713,
+        "streams": [
+          0.23563793841570035,
+          -0.010519524236984878,
+          -0.029484132973434107
+        ]
+      },
+      {
+        "mean": -0.9773245503383395,
+        "streams": [
+          -0.8162329279065017,
+          -1.3947143208181911,
+          -0.7210264022903257
+        ]
+      }
+    ]
+  },
+  "ellipse_probe": [
+    {
+      "q": 25000000.0,
+      "gpu_raw": 3.277338595205663e-08,
+      "cado_raw": 3.352633186655617e-08,
+      "gpu_conditioned": 3.4689372135506224e-07,
+      "cado_conditioned": 3.5318518231780496e-07,
+      "gpu_vs_cado_raw_percent": -2.2458344607947933,
+      "gpu_vs_cado_conditioned_percent": -1.7813490706078072
+    },
+    {
+      "q": 40000000.0,
+      "gpu_raw": 2.6934462718162178e-08,
+      "cado_raw": 2.7559320664280197e-08,
+      "gpu_conditioned": 3.066738454088317e-07,
+      "cado_conditioned": 3.122749702843973e-07,
+      "gpu_vs_cado_raw_percent": -2.267319843365734,
+      "gpu_vs_cado_conditioned_percent": -1.793651559862297
+    },
+    {
+      "q": 75000000.0,
+      "gpu_raw": 2.0696330692746605e-08,
+      "cado_raw": 2.1182554265407803e-08,
+      "gpu_conditioned": 2.59953459052373e-07,
+      "cado_conditioned": 2.6474456175814124e-07,
+      "gpu_vs_cado_raw_percent": -2.295396327416599,
+      "gpu_vs_cado_conditioned_percent": -1.809707694825169
+    },
+    {
+      "q": 150000000.0,
+      "gpu_raw": 1.5457813753162005e-08,
+      "cado_raw": 1.582585056499063e-08,
+      "gpu_conditioned": 2.1651157397691832e-07,
+      "cado_conditioned": 2.205406736768762e-07,
+      "gpu_vs_cado_raw_percent": -2.3255420637092517,
+      "gpu_vs_cado_conditioned_percent": -1.8269191042107225
+    },
+    {
+      "q": 500000000.0,
+      "gpu_raw": 9.280420417964274e-09,
+      "cado_raw": 9.506313966613306e-09,
+      "gpu_conditioned": 1.5735938967365076e-07,
+      "cado_conditioned": 1.603348264071754e-07,
+      "gpu_vs_cado_raw_percent": -2.376247507102991,
+      "gpu_vs_cado_conditioned_percent": -1.8557644650254668
+    }
+  ],
+  "ellipse_note": "256k-angle quadrature at fixed saved skews, area=2^14*2^13*q. The conditioned probe changes alpha_f to alpha_f-log(q), holding ellipse geometry fixed; it is an ablation, not a yield prediction.",
+  "interpretation": "CADO wins on the ideal ellipse with or without special-q conditioning. The lattice-region model favors GPU over most of 40M-150M. CADO also has a modest modeled advantage at 500M; ordinary MurphyE does not integrate over a q tail.",
+  "limitations": "Original diagnostic used inherited lpb=30/31 and saved skews, before actual sieve settings were supplied. Uniform-root model omits lim/mfb/lambda acceptance and execution costs. See subsequent_user_testsieve for user-reported 14e results and a fixed-configuration rerun with lpb=31/32. Sample-stream spread does not measure model bias.",
+  "artifacts": "stage23_gpu/runs/20261016_c171/q_diagnostic",
+  "scorer_sha256": "3db4195375d134592178b9df4db0d26d48574262fb0e5187d4ba0dde57c1d7c1",
+  "subsequent_user_testsieve": "testsieve_user_20261016.json"
+}

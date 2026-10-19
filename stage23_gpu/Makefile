@@ -71,18 +71,22 @@ $(BUILD)/test_rselect: tests/test_rselect.cpp $(HEADERS) $(BUILD)/cado_io.o $(CA
 $(BUILD)/test_rscan: tests/test_rscan.cpp $(HEADERS) | $(BUILD)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
+$(BUILD)/test_rscreen: tests/test_rscreen.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO_LIB_FILES) | $(BUILD)
+	$(CXX) $(CXXFLAGS) $(ROPT_HOST_FLAGS) -Itools -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -fopenmp
+
 $(BUILD)/test_rclass: tests/test_rclass.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO_LIB_FILES) | $(BUILD)
 	$(CXX) $(CXXFLAGS) -ffp-contract=off -Itools -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -fopenmp
 
 $(BUILD)/test_rclass_rank: tests/test_rclass_rank.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO_LIB_FILES) | $(BUILD)
 	$(CXX) $(CXXFLAGS) -ffp-contract=off -Itools -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -fopenmp
 
-test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_rselect $(BUILD)/test_rscan $(BUILD)/test_rclass $(BUILD)/test_rclass_rank $(CASES) $(BUILD)/murphy_rank_probe $(BUILD)/s23_ropt_cpu $(BUILD)/test_murphy_integral $(BUILD)/test_murphy_cell
+test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_rselect $(BUILD)/test_rscan $(BUILD)/test_rclass $(BUILD)/test_rclass_rank $(BUILD)/test_rscreen $(CASES) $(BUILD)/murphy_rank_probe $(BUILD)/s23_ropt_cpu $(BUILD)/test_murphy_integral $(BUILD)/test_murphy_cell
 	./$(BUILD)/test_mpint
 	./$(BUILD)/test_lll $(CASES)
 	./$(BUILD)/test_rsieve $(RSIEVE_POLYS)
 	./$(BUILD)/test_rselect $(RSIEVE_POLYS)
 	./$(BUILD)/test_rscan
+	./$(BUILD)/test_rscreen $(RSIEVE_POLYS)
 	./$(BUILD)/test_rclass $(RSIEVE_POLYS) ../stage23_bench/data/c208/ropt_coverage/s0222.poly
 	./$(BUILD)/test_rclass_rank ../stage23_bench/data/c161/winners/sopt.poly ../stage23_bench/data/c168/content/s0051.poly
 	python3 ../stage23_bench/tools/regress.py
@@ -92,6 +96,10 @@ test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_r
 	python3 tests/test_ropt_scan.py
 	python3 tests/test_ropt_class.py
 	python3 tests/test_ropt_classes.py
+	python3 tests/test_ropt_trace.py
+	python3 tests/test_alpha_screen.py
+	python3 tests/test_alpha_screen_gpu.py
+	python3 tests/test_ropt_batch.py
 	./$(BUILD)/test_murphy_cell ../stage23_bench/data/c181/translation/gpu.poly
 	./$(BUILD)/test_murphy_integral ../stage23_bench/data/c146/winners/msieve_best.poly \
 		../stage23_bench/data/c181/translation/gpu.poly ../stage23_bench/data/c205/gpu_ropt/verified.poly
@@ -129,7 +137,7 @@ $(BUILD)/murphy_rank.o: tools/murphy_rank.cpp $(MURPHY_HEADERS) tools/cado_io.h 
 	$(CXX) $(MURPHY_FLAGS) $(CADO_INC) $(addsuffix /embedded,$(filter %/utils,$(CADO_INC))) \
 		-I../stage23_bench/tools -c -o $@ $<
 
-ROPT_SRC := tools/s23_ropt.cu tools/cado_io.h tools/murphy_cell.h $(MURPHY_HEADERS) $(HEADERS)
+ROPT_SRC := tools/s23_ropt.cu tools/rscreen_cuda.h tools/ropt_batch.h tools/cado_io.h tools/murphy_cell.h $(MURPHY_HEADERS) $(HEADERS)
 
 $(BUILD)/murphy_rank_probe: tests/murphy_rank_probe.cpp tools/murphy_rank.h $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIB_FILES)
 	$(CXX) $(CXXFLAGS) -Itools -o $@ $< $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIBS) -fopenmp

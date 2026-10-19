@@ -60,3 +60,41 @@ choice. They do not validate automatic class selection or final MurphyE/yield.
 `test_ropt_class.py` checks all six plan coverages, selected-cell caps and exact
 content exports. The R2a artifacts are in
 `stage23_gpu/runs/20261013_ropt_classes/`.
+
+The October 16 automatic-class audit adds `s23_ropt -trace-cell U V`, which
+reports the first rejection without inserting the cell into any pool. Seed
+103's class is proposed but ranks 15th for 12 ranked slots; selecting 20 classes
+with four exploration slots recovers it as exact-alpha finalist 3. Seed 10 is
+lost inside its sieve block. Smaller blocks (`-seg 16`) expose a second loss:
+proxy rank 17,719, versus exact-alpha rank 4 in a wider pool. These are retention
+diagnostics, not MurphyE/test-sieve improvements or new defaults. Compact
+evidence is in `trace_20261016/`; experiment commands and limits are documented
+in the root optimization plan.
+
+`alpha_screen_20261016.json` records the follow-up intermediate alpha screen.
+With smaller blocks and a 32,768-cell proxy pool, alpha through prime 500 moves
+seed 10's reference to rank 443, allowing full refinement of only 4,096 cells.
+The live CUDA run retains it as finalist 4 and reproduces CPU replay exports
+exactly. The new stage is opt-in: it retains 187/200 of the broad control's
+finalists, and an independent C171 audit also finds losses. See the record for
+phase timings, exact-resultant checks and limits; no sieve-yield gain is claimed.
+
+`alpha_quality_20261017.json` records the subsequent quality audit and
+`-alpha-screen-exact-size` correction. The original screen preserved all 17
+checked lattice winners but dropped one C171 MurphyE winner because of a
+pessimistic size interpolation. The corrected screen preserves both winners
+in all 17 controls and eight fresh C147/C166 holdouts, with unchanged defaults.
+These are model-quality and retention checks; no GPU kernels or test sievers
+were run in this follow-up.
+
+`gpu_screen_20261018.json` records the CUDA implementation of the corrected
+screen. All 25 saved cases reproduce their validated CPU exports byte for
+byte, preserving the same model winners. It includes alternating phase and
+process timings, arithmetic comparison errors, fallback tests and remaining
+host work. This is a GPU screening/replay result, not a new test-sieve result.
+
+`ropt_batch_20261018.json` records persistent multi-seed execution using the
+reviewed screen. Checked and unchecked 25-case batches preserve all 5000
+exports, using one CUDA setup and one screening workspace allocation. Three
+alternating 16-seed C171 replays compare batch and separate-process CPU/GPU
+execution. The production driver's worker scheduling is outside this timing.

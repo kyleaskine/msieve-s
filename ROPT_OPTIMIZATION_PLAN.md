@@ -28,8 +28,10 @@ little useful gain. These conclusions do not cover degree six.
 ## Baseline and problem
 
 The integrated driver has passed a real, bounded GPU run and split/all/resume
-checks. A production-size replay of that driver is still needed before claiming
-its end-to-end speed or search quality. Recent component runs, made by the earlier
+checks. Full saved-input driver runs subsequently completed on C147/C166
+(October 15) and C171 (October 16); these establish integration and model
+comparisons, but controlled end-to-end speed and test-sieve comparisons remain
+pending. Recent component runs, made by the earlier
 job scripts, took 13.9/31.1 minutes for initial sopt on C165/C187 and 14.7/17.2
 minutes for their root-search breadth passes. Root size modeling has already
 been accelerated; the measured dense breadth pass is now sieve-bound.
@@ -402,3 +404,376 @@ command outputs. Forty acceptance commands checked 110 exported polynomials.
 Artifacts, frozen binaries, hashes, commands and logs are saved locally in
 `stage23_gpu/runs/20261014_pipeline_review/`; these are bounded correctness
 checks, not production throughput or polynomial-quality measurements.
+
+### 2026-10-16: C171 review and first-loss tracing
+
+Reviewed the completed C171 driver run: 786,898 raw polynomials, 317 breadth
+searches, 16 depth searches and four full-pool MurphyE refinements. Its best
+GPU candidate scores **0.8733% above the best CPU finalist by the saved lattice
+model**. Ordinary MurphyE ranks the CPU CADO winner higher (GPU is 2.2458%
+lower on that metric). All 172 comparison polynomials have valid nonzero
+resultants divisible by n. Scoring uses inherited C168 job settings; subsequent
+user-reported test sieves are recorded below. The CPU screen considered 2,100 candidates,
+retaining three cells per Y1 and pass before finalist validation. Initial sopt
+needed three CADO fallbacks. Compact evidence and winner polynomials are in
+`stage23_bench/data/c171/gpu_ropt/summary.json`; the original run remains under
+`stage23_gpu/runs/20261016_c171/`. This review rechecked resultants and saved
+reports; it did not rerun the full job or its scoring.
+
+The user's later GGNFS 14e algebraic test sieves cover q=40,62,84,106,128,150M
+with rlim/alim=80M/120M, lpb=31/32, mfb=60/92 and lambda=2.35/3.5. GPU is
+faster at all six samples: the reported aggregate rate is 35.625 versus 33.448
+rel/s (+6.51%), while projected relations are 349,684,018 versus 348,374,783
+(+0.376%). The CADO job's active skew is 12,994,190.161, versus 16,417,714.9
+in the saved model; GPU uses 39,903,169.3 in both. A fresh fixed-configuration
+lattice check with lpb=31/32 predicts +2.09–2.14% GPU yield at the supplied
+skews across three streams, or +1.53–1.56% using the saved CADO skew. This
+model has no lim/mfb/lambda acceptance or execution-cost model, so it cannot
+explain the measured speed gain. The GPU's smaller rational norms are a
+possible cost explanation, pending phase timings. Preserve the distinction
+between short test-sieve timing, extrapolated relation counts and model
+predictions. User reports, settings and rerun commands are saved in
+`stage23_bench/data/c171/gpu_ropt/testsieve_user_20261016.json`; raw sieve logs
+and repeated timings were not supplied.
+
+Added optional `s23_ropt -trace-cell U V` diagnostics. A watched cell is never
+inserted into proposals, model starts or survivor lists. The trace follows the
+first failing boundary through class proposals/selection, geometry/cell caps,
+block top K, the global proxy pool, refinement and export. It supports plans
+and saved-pool replay, explicitly limiting what each can establish. A streamed
+counter measures proxy rank among **all block survivors**, even when the watched
+cell has already been removed from the retained global pool.
+
+Actual CUDA searches with `-budget 3 -maxcells 2e11 -umax 20000 -maxlines 1000
+-aw 1.3 -class-explore 4 -t 2 -launch 30` diagnosed:
+
+| Case | First loss / recovery |
+|---|---|
+| Seed 103, `-classes 2520 16` | Its proposed class `(2014,2408)` ranks 15th by size/root estimate; only 12 ranked slots remain after four exploration slots. |
+| Seed 103, `-classes 2520 20` | Reference admitted and retained as exact-alpha finalist **3**, within the same cell cap. |
+| Seed 10, `-classes 2520 16 -seg 20 -k 8` | Geometry admits the reference; it is lost at **block top K**, before reranking. |
+| Seed 10, `-k 16` or `-seg 18 -k 8` | Still lost at block top K. |
+| Seed 10, `-seg 16 -k 8` | Passes block top K, but has global proxy rank **17,719**, outside pools of 4,096 and 16,384. |
+| Seed 10, `-seg 16 -k 8 -rerank 65536` | Reference retained as exact-alpha finalist **4**. |
+
+Replaying that saved pool with `-rerank 32768` also retains the reference at
+rank 4 and produces the same 200 exported polynomials byte for byte. This is
+a replay result; a separate 32,768-pool sieve run was not performed.
+
+Seed 10's cheap proxy uses alpha_s=-7.38354 and interpolated lognorm=65.81150;
+the earlier alpha audit already measured the substantial error from omitted
+higher prime powers and primes above 200. Wider sparse coverage exposes this
+retention problem again. Merely increasing the final export count cannot recover
+a cell removed inside a sieve block or before exact refinement.
+
+These are diagnostic recovery experiments, not a production-policy change.
+The GPU was shared with another workload. In these runs, seed 10's 65,536-cell
+exact refinement took 18.90 s versus about 1.2 s for 4,096 cells; blindly widening
+the pool has a real cost. Equal-time quality and test-sieve comparisons remain
+necessary before choosing smaller blocks, wider pools, or a stronger proxy.
+
+The full host suite and five bounded trace tests on CUDA passed. Trace-on/off
+checks preserve polynomial and candidate-pool bytes for dense, explicit-class
+and automatic-class searches; replay, invalid options and cutoff distinctions
+are covered. Commands, frozen binaries, pools, logs and hashes are under
+`stage23_gpu/runs/20261016_loss_trace/`; the repeatable experiment script is
+`stage23_bench/runs/20261016_loss_trace/run.py`. All 1,200 exports from its six
+GPU variant searches passed exact resultant checks and sampled brute-root checks.
+Nine bounded CPU searches (three fixtures across dense/explicit/automatic modes)
+also match the frozen pre-change binary's polynomial and pool bytes. Compact
+measurements and trace logs are retained under
+`stage23_bench/data/c208/ropt_coverage/trace_20261016/`.
+
+**Next:** evaluate a cheaper way to preserve candidates with weak truncated
+alpha, using these losses as controls and independent seeds to measure false
+rejections. Compare class diversity/budget choices and retention policies at
+equal elapsed time. The driver's 32-of-200 scoring cut still needs its own audit.
+
+### 2026-10-16: intermediate alpha screening prototype
+
+Added opt-in `s23_ropt -alpha-screen N B`: retain N proxy cells, recompute CADO
+alpha through prime B on the host, rank by interpolated lognorm plus weighted
+alpha with content divided out, then fully refine only
+`max(-rerank,-refine,-top)`. The saved v1 pool remains the original proxy pool
+before screening. Trace output distinguishes `alpha_screen_cut`; screening
+time is reported separately and included in total refinement time. Defaults
+and driver settings are unchanged. This does not change block selection.
+
+The C208 seed-10 control used N=32768, B=500, rerank=4096 and smaller blocks
+(`-seg 16`), with the earlier class/budget settings. The reference moves from
+proxy rank 17,719 to screening rank 443 and finishes as exact-alpha finalist 4.
+Three CPU-only replays, with alternating policy order and two threads, gave:
+
+| Policy | Median refinement | Reference retained | Broad control top 32 / top 200 retained |
+|---|---:|---|---:|
+| Original 4096-cell pool | 1.38 s | No | 30 / 178 |
+| Full refinement of 32768 | 10.75 s | Yes | 32 / 200 |
+| Screen 32768 through 500, fully refine 4096 | 4.51 s | Yes | 32 / 187 |
+
+The screen is 58% cheaper than full refinement of the wide pool in this replay,
+but is slower than the original narrow pool. It adds a heuristic cutoff and
+does not preserve every strong finalist. A single complete CUDA search confirms
+the recovery on 2.73e10 selected cells: sieve 2.03 s, size model 1.03 s, refinement
+4.37 s including 3.00 s screening. The GPU appeared idle before this bounded
+run. These phases are not an equal-time comparison with the earlier shared-GPU
+experiments. All 200 exports match CPU replay byte for byte, and the saved proxy
+pool matches the first 32,768 cells of the original wide GPU pool.
+
+Without retuning B, replayed all 16 C171 depth pools. Because those pools contain
+4096 cells, this audit screens 4096 to 512, rather than running wider searches.
+Every best exact-score cell survived, with 124/128 top-eight, 496/512 top-32 and
+2923/3200 top-200 cells retained. Median refinement times were 1.205 s full and
+0.530 s screened. These are alpha/size rankings, not MurphyE or test-sieve results.
+
+Validation: full host suite, four focused tests on CPU and CUDA, nine default
+searches with byte-identical pools/exports versus the frozen pre-screen binary,
+and 8,400 exact-resultant checks across replay/live exports. The shared screen
+score also matches the primitive written polynomial on 17 content cells; live
+sampled root checks find zero differences. Reproduction script:
+`stage23_bench/runs/20261016_alpha_screen/run.py`. Full records:
+`stage23_gpu/runs/20261016_alpha_screen/`. Compact results:
+`stage23_bench/data/c208/ropt_coverage/alpha_screen_20261016.json`.
+
+**Next:** score the lost finalists by MurphyE/lattice quality, evaluate keeping
+some original-proxy candidates alongside screened candidates, and compare at
+equal total runtime on independent wider searches. GPU implementation of the
+screen should follow a validated retention policy. The separate block-top-K
+loss still requires smaller blocks or a better within-block policy.
+
+### 2026-10-17: quality audit and exact-size screening
+
+Scored the union of the broad/screened top-200 exports: 3,701 distinct
+polynomials across C208 seed 10 and all 16 C171 depth seeds. Each skew was
+searched at 16k MurphyE angles. Leading retained and discarded configurations
+(168 total) were then frozen and validated at 256k angles and three fresh
+lattice streams, each with 512 lattices and 4096 points per q. C171 uses the
+user's supplied lpb 31/32, 14x13-bit region and provisional q=40M–150M; C208
+uses archived lpb 33/34, I=17/J=32768 and q=80M–1G. No translations were
+optimized during this audit, and the lattice model still omits lim/mfb/lambda
+acceptance and processing cost.
+
+The interpolated-size screen retains every checked lattice-model winner, but
+loses C171 seed 1's best ordinary MurphyE cell `(0,293874)`. Its best retained
+MurphyE is 1.2637% lower. This is a per-seed loss, not a measured whole-job yield
+loss. The pool's interpolated lognorm for this cell is 51.1425966, versus exact
+50.066483. That pessimistic size estimate is large enough to discard it despite
+the improved alpha estimate.
+
+Added opt-in `-alpha-screen-exact-size`, requiring `-alpha-screen`. Compute
+the same local integer-translation size search used in full refinement before
+the screen cut, with content removed consistently. Reuse the resulting size
+and translation for survivors; recompute only alpha to the full bound. This
+avoids a second size search that could change the selected configuration.
+The cheaper interpolated mode and all previous defaults remain available.
+
+With the same bound 500 and candidate counts, the corrected stage retains
+all 200 broad-control C208 finalists. On C171 it retains 128/128 top-eight,
+512/512 top-32 and 3114/3200 top-200 exact-score cells. Every previously
+validated MurphyE and lattice winner survives in the identical integer
+polynomial configuration (17/17 for each metric). These cases now serve as
+regression controls for the correction.
+
+For a fresh check, fixed the corrected policy before inspecting eight unused
+depth pools: first four filenames each from C147 and C166. Screen 4096 through
+prime 500 with exact size, fully refine 512, export 200; no retuning. Scored
+1,616 unique finalists and independently validated 57 leading configurations
+at the same higher accuracy. Both quality winners survive in all eight cases.
+These smaller jobs use archived inherited model settings, not newly confirmed
+sieve parameters. Preservation of these winners does not establish lossless
+retention or guarantee gains after a later translation search.
+
+After scoring and test processes finished, repeated the C208 replay timings
+three times per policy in alternating order, on two CPU threads:
+
+| Policy | Median refinement | Broad control top 200 retained |
+|---|---:|---:|
+| Original 4096-cell proxy pool | 1.20 s | 178 |
+| Fully refine 32768 | 9.42 s | 200 |
+| Interpolated-size screen 32768 to 4096, alpha 500 | 4.00 s | 187 |
+| Exact-size screen 32768 to 4096, alpha 500 | 5.44 s | 200 |
+
+The exact-size policy costs 42.3% less than full refinement of the broad pool
+and reproduces its 200 exports byte for byte on this case. It costs more than
+the original narrow pool, which misses the known reference. These are CPU
+refinement timings, not end-to-end GPU or sieve throughput; unrelated system
+activity was not controlled. The earlier replay timings taken alongside
+quality scoring remain in the artifacts but are not used for this comparison.
+
+Validation: full host suite; five focused tests on the CPU build and the
+CUDA-built host path; a CUDA-executable pool replay matching CPU exports;
+35 original-policy export files byte-identical to the pre-correction run.
+The full-alpha exact-size screen also matches ordinary full refinement when
+cutting 128 cells to eight, including a fixture with content. All new replay
+exports and quality-audit inputs pass exact resultant checks. GPU kernels were
+not changed or run during this follow-up.
+
+Reproduction scripts are in `stage23_bench/runs/20261017_alpha_quality/`:
+`run.py` for model scoring, `assess_exact.py` for winner preservation, and
+`holdout.py` for fresh fixed-policy replay. The earlier replay script accepts
+`--exact-size` and `--control-only` for repeated phase timings. Full artifacts:
+`stage23_gpu/runs/20261017_alpha_quality/`. Compact results:
+`stage23_bench/data/c208/ropt_coverage/alpha_quality_20261017.json`.
+
+**Next:** use the exact-size screen as the correctness reference for GPU
+implementation, checking primitive-content handling, translation identity and
+prime-power/projective alpha before timing it. Preserve this corpus for
+regressions and require broader equal-time search/yield checks before changing
+defaults. Block-top-K losses and the driver's 32-of-200 cut remain separate work.
+
+### 2026-10-18: corrected screen on CUDA
+
+Implemented opt-in `-alpha-screen-gpu`, requiring `-alpha-screen-exact-size`
+and a screen bound at most 2000. Shared fixed-width arithmetic performs exact
+rotation, the same local translation size search, primitive-content division,
+and affine/projective prime-power valuations. The alpha calculation uses
+Hanrot's recurrence at every prime, avoiding the large discriminant needed
+only for CADO's shortcuts. It is mathematically equivalent on the supported
+square-free inputs; floating-point addition order can differ.
+
+The device processes 2048 candidates per batch, with separate preparation/size
+and per-prime alpha kernels. Overflow, recursion-depth exhaustion or search
+exhaustion requests CPU fallback, counted in the log. A 1e-8 band around the
+screen cut is rescored on the host. This is an empirical numerical guard,
+not a universal error bound. Full-alpha refinement still runs on the host
+from each survivor's original saved translation; device translations are not
+used for export. `-alpha-screen-check` compares every successful device score
+with the independent CPU/CADO reference and fails on key error above 1e-8.
+It is intentionally excluded from timing runs. Defaults, pool v1 format and
+pipeline forwarding remain unchanged.
+
+The same 25 retention cases (C208 seed 10, 16 C171 pools and eight C147/C166
+holdouts) reproduce all 5000 previously validated exports byte for byte.
+All 131072 screened candidates were audited. Worst discrepancies were zero
+for lognorm, 5.33e-15 for alpha and 1.42e-14 for the combined key. Two device
+translations differed at indistinguishable norms before host refinement;
+the final pass preserves the exact validated configurations. No corpus case
+needed fallback. This preserves the previously checked MurphyE and lattice
+winners by identity; no new quality-model scoring or test sieving is claimed.
+
+Three alternating replays per policy on the RTX 5070, with two host workers:
+
+| Case/policy | Screen | Screen + final refinement | Process wall |
+|---|---:|---:|---:|
+| C208, CPU screen 32768 to 4096 | 5.151 s | 6.22 s | 6.343 s |
+| C208, GPU screen 32768 to 4096 | 0.847 s | 2.20 s | 2.652 s |
+| C208, full CPU refinement of 32768 | — | 10.96 s | 11.076 s |
+| C171 seed 1, CPU screen 4096 to 512 | 0.552 s | 0.68 s | 0.704 s |
+| C171 seed 1, GPU screen 4096 to 512 | 0.175 s | 0.37 s | 0.760 s |
+| C171 seed 1, full CPU refinement of 4096 | — | 1.27 s | 1.288 s |
+
+These are medians of saved-pool replays; each GPU process creates its own
+context. C208 gains 2.83x in the refinement phase versus CPU screening and
+4.98x versus broad full refinement. C171's phase is faster, but its short
+process loses that gain to context startup. These are not end-to-end search
+or relation-throughput measurements, and the machine is not an isolated lab
+host. Broad C171 refinement retains additional lower-ranked candidates; the
+GPU comparison preserves the corrected screen's policy, not every broad
+finalist.
+
+Validation includes the full host suite, 1350 shared-arithmetic/CADO comparisons
+across nine fixtures and bounds 2/3/31/200/500/2000, real CUDA screening tests
+(including a square-free polynomial whose deep root forces CPU fallback),
+and live GPU sieve/screen/replay export agreement. The optional GPU tests are
+`S23_ROPT_BIN=stage23_gpu/build/s23_ropt python3 -m unittest discover
+-s stage23_gpu/tests -p 'test_alpha_screen*.py'` from the repository root.
+Reproduction: `stage23_bench/runs/20261018_gpu_screen/run.py`; full artifacts
+under `stage23_gpu/runs/20261018_gpu_screen/`, compact results in
+`stage23_bench/data/c208/ropt_coverage/gpu_screen_20261018.json`.
+
+**Next:** amortize GPU context/allocation costs across seeds, then migrate the
+remaining full-alpha refinement and final scoring with the same export/quality
+checks. Add explicit driver forwarding before pipeline use. Require equal-time
+search and test-sieve comparisons before changing defaults; block-top-K loss
+and the driver's 32-of-200 cut still require separate work.
+
+
+### 2026-10-18 review corrections to GPU screening
+
+The cutoff guard is now 0.125 rather than 1e-8 to cover local-search path
+differences, but remains empirical. Unchecked GPU selection is not guaranteed
+identical for every input. Check mode uses all host-reference keys and
+translations for its cut and export, while still rejecting discrepancies.
+
+Screen stack reservation is 32 KiB, before the sieve. CUDA setup and buffer
+failures fall back to the CPU screen without changing the saved starts;
+non-finite cells rank last instead of aborting valid exports. Device prime
+capacity and bound checks share constants. Preparation batches scale with SM
+count. Host fallbacks/rechecks and full-bound alpha are reused, and screening
+is skipped when it would cut nothing (except explicit audits). The cold size
+search, projective polynomial construction, prime predicate and trace/retention
+proxy construction now share implementations. The preceding benchmark numbers
+are historical; these review changes have not been retimed on an idle GPU.
+
+Validation after these fixes: the full `make test` host suite passes, as do
+six CUDA regression tests (including invalid-device CPU fallback and two
+concurrent workers). Both checked and unchecked audits of all 25 saved cases
+retain all 5,000 reference exports byte for byte. Checked maximum key error
+is 1.42e-14. Compact evidence is in
+`stage23_bench/data/c208/ropt_coverage/gpu_screen_review_20261018.json`.
+Unaudited GPU finalists still need host size canonicalization; preparation
+now uses larger batches but does not yet overlap host work and transfers.
+
+### 2026-10-18: persistent multi-seed execution
+
+Added `s23_ropt -batch FILE`, advertised as `ropt-batch-v1` in CPU and CUDA
+builds. A versioned manifest contains complete, tab-separated argv rows for
+independent searches/replays. One process runs them serially. CUDA retains its
+context and screening workspace; scratch grows only when needed, and prime
+tables upload only when the bound changes. Seed coefficients upload on each
+job. Device switches release scratch on its owning device, and a failed setup
+still permits CPU fallback followed by a later valid GPU job.
+
+Each job resets the host model switches and sampling RNG to fresh-process
+defaults. Polynomial storage has per-job lifetime, including error paths.
+Preflight validates all options and rejects duplicate outputs or output/input
+aliases (relative paths, symlinks and existing hard links) before execution.
+Paths are relative to the working directory; no shell parsing or expansion.
+Runtime errors stop the batch while preserving earlier completed exports.
+Partial MurphyE status 3 continues subsequent jobs and propagates to the batch.
+The interface is standalone; production-driver forwarding/checkpoint integration
+remains a separate step. Root-sieve scratch still allocates per search; this
+change retains the screen scratch and device context.
+
+Both checked and unchecked single-session audits of the fixed 25-case corpus
+reproduce all 5000 reference exports byte for byte, with exact resultant
+validation. The checked audit covers all 131072 candidates; largest key error
+remains 1.42e-14, with two device translations corrected by the existing host
+path. Each audit reports one device setup, one screen allocation and one prime
+upload across all 25 seeds. Search/ranking policies and the review's 0.125
+cutoff guard are unchanged.
+
+Three alternating repetitions of all 16 C171 depth pools on the idle RTX 5070,
+using two CPU threads, bound 500, 4096-to-512 screening and 200 exports per seed:
+
+| Execution mode | Median process wall, all 16 seeds | Refinement total | Context wait total |
+|---|---:|---:|---:|
+| CPU, separate processes | 10.981 s | 10.71 s | — |
+| CPU, one batch process | 11.174 s | 10.92 s | — |
+| GPU screen, separate processes | 12.203 s | 5.02 s | 5.40 s |
+| GPU screen, one batch process | 5.165 s | 4.54 s | 0.30 s |
+
+This is 2.36x faster than separate GPU processes and 2.13x faster than separate
+CPU screening processes for the same work and outputs. Every timed repetition
+reproduces all 3200 reference exports. GPU batches took 5.161–5.176 s; these
+are shared-desktop measurements, with more variation in CPU timings. No CPU
+build/test work or other GPU compute process was running when timing began.
+The earlier `/bench` job had finished before CUDA validation and timing.
+These are serial saved-pool comparisons, not complete searches, a comparison
+against the driver's two-worker scheduling, or relation-throughput results.
+
+Validation: full host suite; six batch tests on the CUDA executable plus twelve
+existing screening regressions; final CPU batch checks (four pass, two CUDA-only
+skips). Tests cover live GPU search versus fresh processes, changed per-job
+options, scratch growth and reuse, prime-bound changes, invalid-device recovery,
+malformed manifests, file aliases and failure after a completed job.
+Reproduction: `stage23_bench/runs/20261018_ropt_batch/run.py`, with `--check`
+for the CPU oracle or `--timings --repeats 3` for the four execution modes.
+Full artifacts: `stage23_gpu/runs/20261018_ropt_batch/`; compact record:
+`stage23_bench/data/c208/ropt_coverage/ropt_batch_20261018.json`.
+
+**Next:** connect persistent execution to the resumable driver while preserving
+per-seed checkpoints and worker limits. Remaining numerical migration is full
+alpha/final scoring and CPU size canonicalization; boundary rechecks and those
+host passes still account for much of the 4.54-second batched refinement phase.
+Equal-time search and sieve-yield validation remain necessary before changing
+search defaults.

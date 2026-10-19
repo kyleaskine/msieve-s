@@ -180,6 +180,18 @@ S23_HD_CALL double special_val0(const Int<L> *f, uint32_t p, int depth, bool &ok
     return v;
 }
 
+/* rev(f)(p*x), used by both projective alpha and the screening valuation. */
+template <int L, int DEG>
+S23_HD bool projective_poly(Int<L> *g, const Int<L> *f, uint32_t p)
+{
+    Int<L> pw, pi;
+    set_si(pw, 1);
+    set_si(pi, p);
+    for (int i = 0; i <= DEG; ++i)
+        if ((i && !mul(pw, pw, pi)) || !mul(g[i], f[DEG-i], pw)) return false;
+    return true;
+}
+
 /* special_valuation(f, p) - special_valuation_affine(f, p), as CADO computes the two
  * (polyselect_alpha.c), with special_val0(f, p) evaluated once and shared: when p divides
  * the discriminant exactly once, special_valuation uses the shortcut (p*e - 1)/(p^2 - 1)
@@ -208,14 +220,10 @@ S23_HD double projective_term(const Int<L> *f, uint32_t p, int pvaluation_disc, 
     } else {
         full = v0 * pd;
         if (p_divides_lc) {
-            Int<L> G[DEG + 1], pw, pi;
-            set_si(pw, 1);
-            set_si(pi, p);
-            for (int i = 0; i <= DEG; i++) {
-                if ((i > 0 && !mul(pw, pw, pi)) || !mul(G[i], f[DEG - i], pw)) {
-                    ok = false;
-                    return 0.0;
-                }
+            Int<L> G[DEG + 1];
+            if (!projective_poly<L, DEG>(G, f, p)) {
+                ok = false;
+                return 0.0;
             }
             full += special_val0<L, DEG>(G, p, 0, ok);
         }

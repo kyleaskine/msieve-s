@@ -1,0 +1,29 @@
+{
+  "command": [
+    "stage23_gpu/build/s23_ropt_cpu",
+    "-poly",
+    "stage23_bench/data/c208/ropt_coverage/s0010.poly",
+    "-search",
+    "-aw",
+    "1.3",
+    "-pool-in",
+    "stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.pool",
+    "-rerank",
+    "32768",
+    "-refine",
+    "200",
+    "-top",
+    "8",
+    "-t",
+    "2",
+    "-trace-cell",
+    "7",
+    "-174864538",
+    "-out",
+    "stage23_gpu/runs/20261016_loss_trace/seed10_pool32768_replay.poly"
+  ],
+  "returncode": 0,
+  "seconds": 9.883261677983683,
+  "binary_sha256": "c4fb67a8948bea3ccce56d284e43eb7993bdb727133baaf61d3a167028bc9035",
+  "exports_identical_to_65536": true
+}

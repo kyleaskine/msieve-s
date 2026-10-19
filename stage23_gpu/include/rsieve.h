@@ -36,6 +36,7 @@
 #include <math.h>
 #include <vector>
 #include "hd.h"
+#include "rprimes.h"
 
 namespace s23 {
 
@@ -93,13 +94,7 @@ S23_HD void rs_init_primes(RsSeed &S)
     for (int i = 0; i < RS_NPRIMES; i++)
         S.poff[i] = RS_NOPROJ;
     for (uint32_t p = 2; p < RS_BOUND && n < RS_NPRIMES; p++) {
-        bool prime = true;
-        for (uint32_t d = 2; d * d <= p; d++)
-            if (p % d == 0) {
-                prime = false;
-                break;
-            }
-        if (!prime)
+        if (!rs_is_prime(p))
             continue;
         RsPrime &P = S.pr[n++];
         P.p = p;

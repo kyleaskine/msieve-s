@@ -1,0 +1,107 @@
+# trace-cell u 7 v -174864538: stage region pass
+# trace-cell u 7 v -174864538: stage class_proposal pass
+# trace-cell u 7 v -174864538: stage class_size pass
+# trace-cell class mod 2520 u 7 v 782: root mean 7.06855526 size 64.8277166 key 55.6385947 size-root rank 2 of 80 exploration 4294967295
+# trace-cell u 7 v -174864538: stage class_selection pass
+# automatic classes: mod 2520, 80 proposals, 695 sampled lines, 16 selected, exploration requested 4
+# class u 7 v 1622: root mean 7.068555, guaranteed log content 0.000000, size estimate 64.827717, key 55.638595, ranked
+# class u 7 v 782: root mean 7.068555, guaranteed log content 0.000000, size estimate 64.827717, key 55.638595, ranked
+# class u 7 v 2462: root mean 7.068555, guaranteed log content 0.000000, size estimate 64.827717, key 55.638595, ranked
+# class u 47 v 142: root mean 6.926142, guaranteed log content 0.000000, size estimate 65.162880, key 56.158895, ranked
+# class u 127 v 422: root mean 7.068555, guaranteed log content 0.000000, size estimate 65.538417, key 56.349295, ranked
+# class u 127 v 1262: root mean 7.068555, guaranteed log content 0.000000, size estimate 65.538417, key 56.349295, ranked
+# class u 127 v 2102: root mean 7.068555, guaranteed log content 0.000000, size estimate 65.538417, key 56.349295, ranked
+# class u 187 v 2: root mean 7.068555, guaranteed log content 0.000000, size estimate 65.768154, key 56.579032, ranked
+# class u 187 v 842: root mean 7.068555, guaranteed log content 0.000000, size estimate 65.768154, key 56.579032, ranked
+# class u 187 v 1682: root mean 7.068555, guaranteed log content 0.000000, size estimate 65.768154, key 56.579032, ranked
+# class u 147 v 922: root mean 6.926142, guaranteed log content 0.000000, size estimate 65.623997, key 56.620011, ranked
+# class u 607 v 422: root mean 7.068555, guaranteed log content 0.000000, size estimate 65.863668, key 56.674546, ranked
+# class u 2461 v 1184: root mean 5.623518, guaranteed log content 0.000000, size estimate 65.962750, key 58.652177, exploration
+# class u 2160 v 1882: root mean 4.849809, guaranteed log content 0.000000, size estimate 66.703243, key 60.398491, exploration
+# class u 2495 v 900: root mean 4.629507, guaranteed log content 0.000000, size estimate 65.741517, key 59.723159, exploration
+# class u 813 v 770: root mean 3.744249, guaranteed log content 0.000000, size estimate 66.838866, key 61.971342, exploration
+# trace-cell u 7 v -174864538: stage line_scan pass
+# trace-cell u 7 v -174864538: stage size_band pass
+# trace-cell u 7 v -174864538: stage cell_cap_budget pass
+# trace-cell u 7 v -174864538: stage cell_cap_lines pass
+# trace-cell u 7 v -174864538: stage segments pass
+# class cells u 7 v 1622: 1760274673 selected (ranked)
+# class cells u 7 v 782: 1760274672 selected (ranked)
+# class cells u 7 v 2462: 1760274671 selected (ranked)
+# class cells u 47 v 142: 1780256842 selected (ranked)
+# class cells u 127 v 422: 1796950154 selected (ranked)
+# class cells u 127 v 1262: 1796950153 selected (ranked)
+# class cells u 127 v 2102: 1796950153 selected (ranked)
+# class cells u 187 v 2: 1789676836 selected (ranked)
+# class cells u 187 v 842: 1789676835 selected (ranked)
+# class cells u 187 v 1682: 1789676835 selected (ranked)
+# class cells u 147 v 922: 1796458582 selected (ranked)
+# class cells u 607 v 422: 1444831694 selected (ranked)
+# class cells u 2461 v 1184: 1707011099 selected (exploration)
+# class cells u 2160 v 1882: 1355038452 selected (exploration)
+# class cells u 2495 v 900: 1737965558 selected (exploration)
+# class cells u 813 v 770: 1470565337 selected (exploration)
+# trace-cell proxy key 56.212898044452267 interpolated lognorm 65.811499236577731 alpha_s -7.38353938
+# trace-cell u 7 v -174864538: stage block_topk pass
+# trace-cell u 7 v -174864538: proxy_pool rank 17719 keep 65536 available 3349080
+# trace-cell u 7 v -174864538: stage proxy_pool pass
+# class proxy pool u 7 v 1622: 4980 cells
+# class proxy pool u 7 v 782: 4926 cells
+# class proxy pool u 7 v 2462: 4939 cells
+# class proxy pool u 47 v 142: 3665 cells
+# class proxy pool u 127 v 422: 4531 cells
+# class proxy pool u 127 v 1262: 4494 cells
+# class proxy pool u 127 v 2102: 4522 cells
+# class proxy pool u 187 v 2: 6501 cells
+# class proxy pool u 187 v 842: 6392 cells
+# class proxy pool u 187 v 1682: 6382 cells
+# class proxy pool u 147 v 922: 7329 cells
+# class proxy pool u 607 v 422: 6874 cells
+# class proxy pool u 2461 v 1184: 1 cells
+# class proxy pool u 2160 v 1882: 0 cells
+# class proxy pool u 2495 v 900: 0 cells
+# class proxy pool u 813 v 770: 0 cells
+# trace-cell u 7 v -174864538: exact_alpha_cut rank 4 keep 200 available 65536
+# trace-cell u 7 v -174864538: stage exact_alpha_cut pass
+# class finalists u 7 v 1622: 18 cells
+# class finalists u 7 v 782: 18 cells
+# class finalists u 7 v 2462: 20 cells
+# class finalists u 47 v 142: 15 cells
+# class finalists u 127 v 422: 6 cells
+# class finalists u 127 v 1262: 5 cells
+# class finalists u 127 v 2102: 11 cells
+# class finalists u 187 v 2: 6 cells
+# class finalists u 187 v 842: 19 cells
+# class finalists u 187 v 1682: 15 cells
+# class finalists u 147 v 922: 60 cells
+# class finalists u 607 v 422: 7 cells
+# class finalists u 2461 v 1184: 0 cells
+# class finalists u 2160 v 1882: 0 cells
+# class finalists u 2495 v 900: 0 cells
+# class finalists u 813 v 770: 0 cells
+# s23_ropt: /home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0010.poly, search: 2.73e+10 cells, sieve 4.01 s (6.82e+09 cells/s, GPU), size model 0.93 s, refine 18.90 s, waited 0.00 s for the GPU context
+# size model: best line minimum 64.8277; 27 lines within 3.00 (u -2579..2707), 154 lines scanned; line scan 0.85 s, bands 0.03 s at 1 budgets, knots 0.04 s
+# best 8 by Ea = lognorm + 1.30 alpha (CADO's, p <= 2000; content divided out), of the best 65536 by the proxy E = lognorm + 1.30 alpha_s (affine roots p^e <= 200, projective p^(e+3); exact translation):
+u    147  v       4704054682  t      -61160968  Ea 53.9308  lognorm 65.6248  alpha -8.9954  alpha_s -8.4761
+u      7  v       7721916662  t       23668078  Ea 53.9461  lognorm 65.7326  alpha -9.0665  alpha_s -8.4885
+u    147  v        993039682  t      -14224474  Ea 54.1542  lognorm 65.6305  alpha -8.8279  alpha_s -8.2195
+u      7  v       -174864538  t         713341  Ea 54.1779  lognorm 64.9856  alpha -8.3136  alpha_s -7.3835
+u    147  v       7819893562  t      -91195818  Ea 54.2582  lognorm 65.6275  alpha -8.7457  alpha_s -8.2842
+u      7  v       -697294138  t       -6408892  Ea 54.3432  lognorm 65.2739  alpha -8.4082  alpha_s -8.1932
+u    147  v      -3461592038  t       42505619  Ea 54.3844  lognorm 65.6325  alpha -8.6524  alpha_s -8.2360
+u    147  v      -8112730838  t       84196289  Ea 54.3903  lognorm 65.6505  alpha -8.6617  alpha_s -8.1001
+# best cell of the best 10 lines (E with interpolated lognorm):
+u    147  v       4704054682  E~ 54.6950  lognorm~ 65.7140  alpha_s -8.4761
+u      7  v       7721916662  E~ 54.8436  lognorm~ 65.8786  alpha_s -8.4885
+u    607  v     151425021302  E~ 55.0053  lognorm~ 66.5104  alpha_s -8.8501
+u    187  v      -2905742278  E~ 55.0081  lognorm~ 65.7636  alpha_s -8.2734
+u    127  v     -10195939738  E~ 55.0467  lognorm~ 65.6674  alpha_s -8.1697
+u     47  v      -9092762138  E~ 55.3619  lognorm~ 65.6778  alpha_s -7.9353
+u   2527  v    -557432426938  E~ 55.7917  lognorm~ 67.7641  alpha_s -9.2096
+u   2707  v     181413631562  E~ 55.9643  lognorm~ 67.7801  alpha_s -9.0890
+u  -1913  v    -362737198738  E~ 55.9774  lognorm~ 67.6502  alpha_s -8.9791
+u  -2513  v      -6468278938  E~ 56.3778  lognorm~ 67.7817  alpha_s -8.7722
+# check: 128 random cells of the sieve's output + the printed ones vs brute force: 0 differ
+# wrote 200 polynomials to /home/kylea/msieve-s/stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.poly
+# trace-cell u 7 v -174864538: stage export pass
+# trace-cell u 7 v -174864538: result retained
