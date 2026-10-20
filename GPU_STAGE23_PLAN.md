@@ -81,9 +81,29 @@ per-seed numerical state. Checked and unchecked 25-case batches reproduce all
 5000 CPU-reference exports. Across 16 C171 saved pools, three alternating
 repetitions reduced process wall time from 12.203 s for individual GPU processes
 to 5.165 s for one batch (2.36x); individual CPU screening took 10.981 s.
-This uses the reviewed screen and two CPU threads. The resumable driver still
-needs batch/checkpoint integration, and full refinement/scoring remains on the
-host. See the root optimization plan's persistent-execution record for limits.
+This uses the reviewed screen and two CPU threads. The resumable driver now
+exposes opt-in `--ropt-batch-size`, with individual validated checkpoints as
+each seed completes, failure/interruption recovery, and the existing worker
+limit. Small phases split across workers; a separate event stream preserves
+raw per-seed logs and drives progress/checkpoints (`ropt-batch-events-v1`).
+Older frozen runs can continue with batch size 1. The driver also forwards opt-in exact-size/GPU alpha screening for
+breadth/depth, preserving the unscreened saved pool for final MurphyE
+refinement. Full refinement/scoring remains on the host. See the root
+optimization plan's execution records.
+
+The October 19 C192 adds a coverage regression: CADO effort 10 misses the
+effort-5 winner even from the identical seed. Dense GPU depth recovers its
+rotation at proxy rank 12 and refined rank 6, while ordinary breadth loses it
+to cell-budget tightening and 16-class selection never proposes its class.
+The recovered representative matches CADO's standard MurphyE and provisional
+15e/80M–500M lattice score. Checked GPU screening (4096 to 512) keeps that
+winner and reproduces all 200 CPU-screen exports. These are focused seed
+checks; the independent full raw-input pipeline also completed. It finds the
+same rotation, then improves its translation/skew: standard MurphyE rises
+from 1.864455e-14 to 1.868093e-14 (0.195%), with roughly 0.2% improvement in
+the provisional lattice model. Additional sample streams retain that small
+model advantage; no test sieving has been done. Results are recorded under
+`stage23_gpu/runs/20261019_c192/` and `stage23_bench/data/c192/ropt_coverage/`.
 
 The pipeline review fixes now preserve valid partial MurphyE exports, save and
 replay full candidate pools without a second sieve, freeze consumed input bytes,

@@ -217,7 +217,7 @@ The manifest has the exact header `S23_ROPT_BATCH 1`, then one tab-separated
 argv row per job; blank lines and lines beginning with `#` are ignored. Paths
 may contain spaces and are relative to the process working directory. There
 is no shell expansion or quoting. Arguments cannot contain tabs, newlines or
-NUL bytes. `-batch FILE` is used alone; per-job options do not carry over.
+NUL bytes. Per-job options belong in the manifest and do not carry over.
 Window, cell and plan modes are excluded from batches.
 
 All job options and output/input aliases are checked before execution. Outputs
@@ -227,9 +227,45 @@ inputs rather than chaining a generated pool into a later row. Runtime errors
 stop the batch and preserve completed exports; a partial MurphyE export
 (status 3) permits subsequent jobs and yields batch status 3 if no hard failure
 occurs. Logs contain per-job begin/status markers and a final workspace reuse
-count. GPU allocation/setup fallback remains available per job. The production
-Python driver still launches individual searches; this is an opt-in standalone
-batch interface for the next integration step.
+count. GPU allocation/setup fallback remains available per job.
+
+The driver uses `-batch FILE -batch-events-fd FD` (`ropt-batch-events-v1`) to
+receive completion events independently of stdout/stderr. FD is an inherited,
+writable regular file; stdout and stderr share one regular log descriptor.
+ASCII records are `begin INDEX TOTAL START_BYTE` and
+`end INDEX STATUS SECONDS END_BYTE`, each terminated by a newline. Byte ranges
+exclude batch wrappers and preserve arbitrary job diagnostics exactly.
+
+The Python driver accepts `--ropt-batch-size 16` (or `[gpu] ropt_batch_size=16`)
+to group pending seeds into persistent processes, with at most `--workers`
+processes running. Small phases split across workers: 16 seeds with two workers
+and batch size 16 form two groups of eight. The default is 1. Each completed seed is validated and
+checkpointed as its flushed status arrives, including before a later failure
+or interruption. Resume skips verified seeds and repairs only missing/corrupt
+outputs; batch size can change on resume. Per-seed logs retain partial MurphyE
+status, and every batch attempt keeps its own manifest and process log under
+`batches/` and `logs/batches/`, including the separate `.events` file. Progress
+updates after each completed or reused seed, even within a running batch.
+Driver batching requires both `ropt-batch-v1` and `ropt-batch-events-v1`.
+Older frozen binaries can resume with `--ropt-batch-size 1`; a new run directory
+with rebuilt binaries is needed to enable batching. Rejected settings are not saved.
+Screening is also available in the driver: add `--alpha-screen 4096,500
+--alpha-screen-exact-size --alpha-screen-gpu --rerank 512` to a new run's
+command, alongside the batch option. `--alpha-screen-check` enables the
+expensive CPU oracle. The `[gpu]` keys use underscores and Boolean values;
+blank Boolean values mean false. Older runs missing screen settings keep
+screening disabled even when the current global configuration enables it.
+N must be at least `max(rerank,keep,3)` and at most 2^24; B is 2..2000.
+GPU mode requires exact-size mode. These options apply to breadth/depth only:
+the saved pool contains all N starts before screening, and final MurphyE
+refinement visits all of them. Screening/scoring settings require a new run
+directory when changed. Defaults keep screening disabled.
+
+The C192 driver audit screens all sixteen depth pools (4096 to 512 each).
+Checked and unchecked GPU runs reproduce all 3200 CPU-screen exports byte
+for byte. All 512 of the original top-32 exports survive; 132 lower-ranked
+original exports are replaced. This checks the depth pools, not an entire
+screened pipeline or all possible inputs.
 
 In the October 18 test, a single session reproduced all 5000 reference exports
 across 25 saved cases. For the 16 C171 pools, three alternating repeats reduced

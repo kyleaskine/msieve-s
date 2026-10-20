@@ -109,6 +109,27 @@ independent final scoring at 256k angles; lattice validation uses a different
 sample stream with 256 lattices and 4096 points. Coarse-pass controls remain in
 the finalist pool. These are model rankings, not measured test-sieve gains.
 
+Add `--ropt-batch-size 16` to run groups of pending seeds in a persistent ropt
+process. This requires a binary advertising `ropt-batch-v1` and
+`ropt-batch-events-v1`; the default is 1. Small phases split across the requested
+workers. Each completed seed receives its own validated
+checkpoint, so an interruption or a later failed seed preserves earlier work.
+Batch size may change on resume. This option changes process scheduling only.
+Older frozen binaries can resume with `--ropt-batch-size 1`; use a new run
+directory with rebuilt binaries for batching. Rejected execution settings are
+not saved. Progress updates for each completed or reused seed, and completion
+events are separate from the byte-preserving command logs.
+
+For an experimental GPU screen, add `--alpha-screen 4096,500
+--alpha-screen-exact-size --alpha-screen-gpu --rerank 512` to a new run.
+Breadth/depth then screen 4096 proxy candidates down to 512 before full
+refinement. Their saved pools still contain all 4096 starts, which final
+MurphyE refinement evaluates without the alpha cut. `--alpha-screen-check`
+compares GPU scores against the CPU oracle and is intended for validation.
+Screening is off by default; changing its policy requires a new run directory.
+Blank screen Boolean configuration values mean false. Runs predating these
+options keep screening disabled when resumed, regardless of the global config.
+
 Every run stores its own preprocessing files, inputs, frozen executables,
 command logs and verified checkpoints. No CPU pipeline output rotation is used.
 Paths are relative to this repository unless absolute. The default run directory
@@ -128,7 +149,7 @@ bytes into `RUN/inputs/` before preprocessing; a live source is read only up to
 its initial byte length, and the snapshot must contain complete polynomial blocks.
 Resuming uses that snapshot. Use a new run directory to consume more input or
 change search/scoring settings. Execution settings (`--device`, `--threads`,
-`--workers`, `--launch`, `--slice`) can change on resume. Logs record actual
+`--workers`, `--launch`, `--slice`, `--ropt-batch-size`) can change on resume. Logs record actual
 commands, and `execution.json` saves the latest execution settings.
 
 Source hashes are provenance. Explicit per-stage schema versions determine

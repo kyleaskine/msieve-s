@@ -777,3 +777,119 @@ alpha/final scoring and CPU size canonicalization; boundary rechecks and those
 host passes still account for much of the 4.54-second batched refinement phase.
 Equal-time search and sieve-yield validation remain necessary before changing
 search defaults.
+
+### 2026-10-19: C192 coverage regression and driver batching
+
+The new C192's original CADO effort-5 winner prints MurphyE 1.864e-14.
+Effort 10 returns only 1.665e-14 for the identical seed, while its overall
+original-side best is 1.757e-14. Both logs identify build 0574bc39d. Four
+fresh isolated original/inverted runs reproduce the stored effort-5/10
+results. This demonstrates non-monotonic search quality as effort changes;
+it does not identify the precise internal CADO cutoff responsible.
+
+The winning seed is original index 11 and is unchanged in the deep input.
+Its rotation is `(u,v)=(-34,-5754737141)`. Dense GPU breadth loses it during
+size-budget tightening to meet the 2e11 cell cap. Dense depth (6e12 cap,
+4.58e12 cells visited) retains it at proxy rank 12 and exact-refinement rank 6.
+The exported representative differs from CADO by translation -7 only.
+Automatic 16-class selection modulo 2520 misses its class at proposal time.
+The known cell was traced, not inserted. All 600 exports validate and the
+three live searches pass their brute-force root checks.
+
+The recovered depth pool also passes a new CPU/GPU exact-size screening check:
+4096 candidates to 512, bound 500. The winner remains rank 6; all 200 exports
+match the CPU screen byte for byte. Maximum alpha/key discrepancies are
+3.55e-15/7.11e-15, with zero translation differences, fallbacks or boundary
+rechecks on this fixture. Final canonicalization/refinement still uses CPU.
+
+Independent scoring yields standard MurphyE 1.864455e-14 for both CADO and
+the GPU-recovered representative. Their lattice scores also match at printed
+precision for provisional LPB 32/33, 15e and q=80M–500M. Factor-base limits
+160M/240M are recorded for future test sieving. This is a focused seed
+experiment, separate from the independently launched full GPU pipeline over
+1,642,161 distinct inputs. The full run's comparison is automatically archived
+when completed. Fixtures, hashes, measurements and reproduction instructions
+are in `stage23_bench/data/c192/ropt_coverage/`; full artifacts are under
+`stage23_gpu/runs/20261019_c192/`.
+
+The resumable Python driver now supports opt-in `--ropt-batch-size 16`, or
+`[gpu] ropt_batch_size=16`, with default 1. Pending searches are grouped into
+persistent processes within the existing one/two-worker limit. Each flushed
+completion gets an individually validated export, pool and checkpoint before
+later jobs finish. Failures and interruption preserve completed checkpoints.
+Resume repairs only pending/corrupt outputs; batch size is execution-only and
+can change without invalidating results. Every attempt retains a distinct
+manifest/process log; per-seed logs preserve partial MurphyE reporting.
+Unsupported frozen binaries reject the opt-in. Search policy is unchanged;
+screening remains off by default.
+
+Validation covers all 29 driver regressions, including batch parity, resume,
+corruption, failure after a completed seed, interruption while the next seed
+runs, valid/invalid partial MurphyE, missing status markers and old binaries.
+Three real C192 CUDA searches reproduce separate-process exports and pools
+byte for byte, including resume and one repaired output. The full host suite
+also passes. The live driver check shares the GPU with the full run and makes
+no throughput claim.
+
+The full independent C192 run is now complete: 1,642,161 inputs, 314 breadth
+searches, 16 depth searches, four Murphy-refinement families, no partial
+Murphy failures. It independently selects the known winning family (`s0012`)
+and refines the same rotation to a translation 31,970,404 units from the
+original CADO representative. Separate standard-Murphy scoring improves from
+1.864455e-14 to 1.868093e-14 (0.195%). The provisional lattice score improves
+0.204%; three additional streams with 512 lattices and 8192 samples each
+give gains of 0.196%, 0.191%, and 0.208%. These are model improvements, not
+measured sieve throughput. `comparison.json` and `winner_validation.json`
+preserve the full comparison and additional checks.
+The 1,024,000-angle standard-Murphy check gives 1.868128e-14 versus
+1.864518e-14, retaining a 0.194% advantage with frozen skews.
+
+Driver screening is now exposed via `--alpha-screen N,B`,
+`--alpha-screen-exact-size`, `--alpha-screen-gpu`, and `--alpha-screen-check`,
+with matching configuration keys. It applies only to breadth/depth. Their
+pools are saved before screening, and final Murphy refinement raises its
+candidate count to N so every saved start remains eligible. Screening options
+are semantic settings; legacy runs with screening off keep valid checkpoints.
+Unsupported frozen binaries reject requested screen capabilities.
+
+All 32 driver regressions pass. On all sixteen completed C192 depth pools,
+both checked and unchecked batched GPU screening reproduce the CPU screen's
+3200 exports exactly. All 512 original top-32 exports survive; 3068 of the
+3200 total original exports survive. This is not a full screened-pipeline
+quality guarantee. Defaults remain unchanged. Remaining work: migrate full
+alpha/final scoring and improve coverage while retaining prior winners.
+
+The follow-up driver review is addressed: small batches split across workers,
+feature and semantic checks precede saving execution settings, missing legacy
+screen settings retain their historical defaults, and blank screen Booleans
+mean false. Legacy pool capability caches remain authoritative for ordinary
+resume; failed probes do not overwrite them or persist an unsupported result.
+Screen option defaults, dependencies and capabilities share one registry.
+
+Batch completion now uses a separate inherited event descriptor with byte
+offsets into the shared process log. Per-seed logs preserve arbitrary bytes,
+CRLF and unterminated lines; marker-like diagnostics cannot create checkpoints.
+Progress updates per completed/reused seed, including within a running batch.
+Driver batching requires `ropt-batch-events-v1`; older frozen binaries resume
+with `--ropt-batch-size 1`, and new batched experiments use a fresh run directory
+with rebuilt binaries. `validate_winners.py --run-dir RUN` keeps reproduction
+outputs within the selected study.
+
+Review validation: CPU and CUDA builds pass, all 40 driver regressions and the
+full host suite pass, and three real C192 seeds give byte-identical standalone
+and batched CPU exports/pools with two workers. Resume and repair of one corrupt
+export also pass. Batch transport tests cover opaque diagnostic bytes, failure
+boundaries and descriptor validation.
+
+The GPU follow-up also passes: all eight batch tests and six GPU screening
+tests run without skips. Fresh C192 artifacts reproduce standalone/batched
+live exports and pools, resume, and one corrupt-output repair. All sixteen
+saved depth pools run as two batches of eight per mode; checked and unchecked
+GPU screening each reproduce the CPU screen's 3200 exports byte for byte,
+including all 512 baseline top-32 exports. Every GPU batch uses one device
+setup, one buffer allocation and one prime upload; no screen falls back to CPU.
+The completed source run's inputs remain unchanged. This is correctness
+validation, not a new throughput result. Reproduce with
+`stage23_bench/runs/20261019_c192/review_gpu.py --run-dir NEW_DIRECTORY`.
+Compact evidence: `stage23_bench/data/c192/ropt_coverage/review_gpu_20261019.json`;
+full artifacts: `stage23_gpu/runs/20261019_c192_review_gpu/`.

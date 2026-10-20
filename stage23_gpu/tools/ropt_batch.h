@@ -3,6 +3,8 @@
  * serially with one shared CUDA session and independent numerical state. */
 #pragma once
 #include <chrono>
+#include <cerrno>
+#include <climits>
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
@@ -11,14 +13,31 @@
 #include <vector>
 #include <utility>
 #include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 struct RoptJobPaths {
     std::vector<std::string> inputs, outputs;
 };
 
 template<class Validate, class Execute>
-int ropt_batch(const char *manifest, const char *program, Validate validate, Execute execute)
+int ropt_batch(const char *manifest, const char *program, Validate validate, Execute execute, int events_fd = -1)
 {
+    // The driver passes a separate regular file for machine-readable events.
+    // Both diagnostic streams share one seekable log so byte ranges preserve
+    // arbitrary output, even fragments without a newline or marker-like text.
+    if (events_fd >= 0) {
+        struct stat out, err, events;
+        const int flags = fcntl(events_fd, F_GETFL);
+        if (events_fd <= STDERR_FILENO || flags < 0 || (flags & O_ACCMODE) == O_RDONLY ||
+            fstat(events_fd, &events) || fstat(STDOUT_FILENO, &out) || fstat(STDERR_FILENO, &err) ||
+            !S_ISREG(events.st_mode) || !S_ISREG(out.st_mode) ||
+            out.st_dev != err.st_dev || out.st_ino != err.st_ino ||
+            (out.st_dev == events.st_dev && out.st_ino == events.st_ino)) {
+            fprintf(stderr, "s23_ropt: batch events need a separate writable file and a shared regular stdout/stderr log\n");
+            return 2;
+        }
+    }
     std::ifstream in(manifest);
     std::string line;
     auto read_line = [&]() {
@@ -102,11 +121,22 @@ int ropt_batch(const char *manifest, const char *program, Validate validate, Exe
         for (auto &s : args) argv.push_back(s.data());
         argv.push_back(nullptr);
         printf("# batch job %zu/%zu begin\n", j + 1, jobs.size());
-        fflush(stdout);
+        fflush(nullptr);
+        if (events_fd >= 0 && dprintf(events_fd, "begin %zu %zu %lld\n", j + 1, jobs.size(),
+                (long long)lseek(STDOUT_FILENO, 0, SEEK_CUR)) < 0) {
+            perror("s23_ropt: writing batch begin event");
+            return 2;
+        }
         const auto before = std::chrono::steady_clock::now();
         const int status = execute(int(args.size()), argv.data());
-        printf("# batch job %zu status %d, %.6f s\n", j + 1, status,
-               std::chrono::duration<double>(std::chrono::steady_clock::now() - before).count());
+        const double seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - before).count();
+        fflush(nullptr);
+        if (events_fd >= 0 && dprintf(events_fd, "end %zu %d %.6f %lld\n", j + 1, status, seconds,
+                (long long)lseek(STDOUT_FILENO, 0, SEEK_CUR)) < 0) {
+            perror("s23_ropt: writing batch end event");
+            return 2;
+        }
+        printf("# batch job %zu status %d, %.6f s\n", j + 1, status, seconds);
         fflush(stdout);
         if (status && status != 3) {
             fprintf(stderr, "s23_ropt: batch stopped at job %zu; earlier completed exports retained\n", j + 1);

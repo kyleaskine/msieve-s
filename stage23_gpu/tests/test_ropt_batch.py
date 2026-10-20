@@ -97,6 +97,63 @@ class RoptBatch(unittest.TestCase):
             self.invoke(['-batch', batch])
             self.invoke(['-batch', batch, '-t', 2], 2)
 
+    def test_event_offsets_preserve_opaque_output_and_failure_boundaries(self):
+        # Exercise the actual C++ batch transport with adversarial diagnostics,
+        # independent of which logging conventions today's numerical job uses.
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            source, binary = base / 'events.cpp', base / 'events'
+            source.write_text(r'''
+#include "ropt_batch.h"
+int main(int argc, char **argv) {
+    return ropt_batch(argv[1], argv[0],
+        [](int, char **, RoptJobPaths &) { return 0; },
+        [](int, char **args) {
+            const char body[] = "\xff\r\n# batch job 2/3 begin\n# batch job 1 status 0, 0.100000 s\nunterminated";
+            fwrite(body, 1, sizeof(body)-1, stdout);
+            fflush(stdout);
+            fputs("stderr fragment", stderr);
+            return std::stoi(args[1]);
+        }, std::stoi(argv[2]));
+}
+''')
+            subprocess.run(['g++', '-std=c++17', '-I', str(ROOT / 'stage23_gpu/tools'),
+                            str(source), '-o', str(binary)], check=True, capture_output=True)
+            payload = (b'\xff\r\n# batch job 2/3 begin\n# batch job 1 status 0, 0.100000 s\n'
+                       b'unterminatedstderr fragment')
+            batch = base / 'jobs.tsv'
+            for codes, expected_rc, expected_jobs in (([0, 3, 0], 3, 3), ([0, 7, 0], 7, 2)):
+                manifest(batch, [[code] for code in codes])
+                log_path, events_path = base / 'batch.log', base / 'batch.events'
+                with log_path.open('wb') as log, events_path.open('wb') as events:
+                    result = subprocess.run([str(binary), str(batch), str(events.fileno())],
+                                            stdout=log, stderr=log, pass_fds=(events.fileno(),), timeout=10)
+                self.assertEqual(result.returncode, expected_rc)
+                records = [row.split() for row in events_path.read_text().splitlines()]
+                self.assertEqual(len(records), 2 * expected_jobs)
+                raw = log_path.read_bytes()
+                for j in range(expected_jobs):
+                    begin, end = records[2*j:2*j+2]
+                    self.assertEqual(begin[:3], ['begin', str(j+1), '3'])
+                    self.assertEqual(end[:3], ['end', str(j+1), str(codes[j])])
+                    self.assertEqual(raw[int(begin[3]):int(end[4])], payload)
+
+    def test_events_require_valid_descriptor_and_shared_log(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            batch = base / 'jobs.tsv'
+            out = base / 'out.poly'
+            manifest(batch, [['-poly', CONTROL, '-cpu', *self.common, '-out', out]])
+            for fd in ('2', '-1', 'abc', '2147483648', '999999'):
+                self.invoke(['-batch', batch, '-batch-events-fd', fd], 2)
+                self.assertFalse(out.exists())
+            # A valid event descriptor still requires a common regular log.
+            with (base / 'events').open('wb') as events:
+                result = subprocess.run([str(BIN), '-batch', str(batch), '-batch-events-fd', str(events.fileno())],
+                                        capture_output=True, pass_fds=(events.fileno(),), timeout=10)
+            self.assertEqual(result.returncode, 2)
+            self.assertFalse(out.exists())
+
     @unittest.skipUnless(GPU, 'select CUDA executable with S23_ROPT_BIN')
     def test_live_gpu_batch_matches_separate_gpu_processes(self):
         with tempfile.TemporaryDirectory() as tmp:

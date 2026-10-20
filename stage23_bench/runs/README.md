@@ -82,3 +82,26 @@ They take the run directory as an argument; each file's docstring or header says
   a fresh `--run-dir`; each run freezes its binaries and records the manifest,
   commands, hashes, phase/process timings and GPU workspace reuse counts.
   Artifacts live under `stage23_gpu/runs/20261018_ropt_batch/`.
+- `20261019_c192/`: freezes the new C192 CPU references and executables;
+  traces the original effort-5 winner through dense breadth/depth and automatic
+  residue classes, and repeats effort 5/10 on both signs of the exact seed.
+  `run.py pipeline` launches the full GPU path with provisional 32/33, 15e,
+  q=80M–500M settings; `run.py finish` waits for it, compares all frozen CPU
+  methods and archives the result. `compare.py --target` scores the focused
+  seed experiments independently. `run.py screen` checks the GPU alpha screen
+  against CPU on the recovered depth pool. `run.py driver-check` validates
+  separate/batched live searches, checkpoint reuse and corruption repair.
+  `run.py driver-screen-check` audits checked/unchecked GPU screening against
+  CPU on all sixteen depth pools. `validate_winners.py --run-dir RUN` checks the small
+  GPU/CADO model difference with 1,024,000 angles and three further lattice
+  streams; `save.py` archives those reports and the independently scored winners.
+  Driver batching now needs `ropt-batch-events-v1`: use a fresh run directory
+  with rebuilt binaries for new batching experiments; existing frozen pipeline
+  runs remain resumable with `--ropt-batch-size 1`.
+  `review_gpu.py --run-dir NEW_DIRECTORY` copies the completed C192 fixtures
+  and sixteen depth pools, freezes current CPU/CUDA binaries, and validates
+  live batch/resume/repair plus CPU/GPU screening parity with two workers.
+  It rejects existing destinations and verifies that the source inputs remain
+  unchanged. `run.py driver-screen-check --workers 2` also selects two workers.
+  Full artifacts: `stage23_gpu/runs/20261019_c192/`; compact evidence:
+  `data/c192/ropt_coverage/`.

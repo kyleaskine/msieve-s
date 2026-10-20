@@ -103,6 +103,10 @@ cado_ropt_count = 150
 run_dir = stage23_gpu/runs/current
 device = 0
 workers = 2
+# Seeds per persistent ropt process (opt-in); 1 retains separate processes.
+# Requires ropt-batch-v1 and ropt-batch-events-v1; old frozen runs can use 1.
+# Small phases split across workers. Completed seeds keep individual checkpoints.
+ropt_batch_size = 1
 launch = 30
 slice = 10
 # Parent seed count defaults to pipeline.msieve_ropt_count; --size overrides it.
@@ -113,6 +117,13 @@ depth_seeds = 16
 depth_maxcells = 6e12
 murphy_seeds = 4
 rerank = 4096
+# Optional breadth/depth screen N,B. Example: alpha_screen=4096,500 with rerank=512.
+# Final MurphyE refinement still visits all N saved candidates. Defaults keep it off.
+alpha_screen =
+alpha_screen_exact_size = false
+alpha_screen_gpu = false
+# Expensive CPU oracle for GPU screen validation, not timing runs.
+alpha_screen_check = false
 keep = 200
 score_top = 32
 finalists = 32

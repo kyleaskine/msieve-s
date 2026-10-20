@@ -1503,7 +1503,7 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
 int main(int argc, char **argv)
 {
     if (argc == 2 && !strcmp(argv[1], "-capabilities")) {
-        printf("ropt-pool-v1 partial-murphy-exit-3 alpha-screen-v1 alpha-screen-exact-size-v1 ropt-batch-v1"
+        printf("ropt-pool-v1 partial-murphy-exit-3 alpha-screen-v1 alpha-screen-exact-size-v1 ropt-batch-v1 ropt-batch-events-v1"
 #ifdef __CUDACC__
                " alpha-screen-gpu-v1"
 #endif
@@ -1512,13 +1512,23 @@ int main(int argc, char **argv)
     }
     RoptSession session;
     if (argc >= 2 && !strcmp(argv[1], "-batch")) {
-        if (argc != 3) {
-            fprintf(stderr, "s23_ropt: use -batch FILE alone; each manifest row supplies all job options\n");
+        int events_fd = -1;
+        if (argc == 5 && !strcmp(argv[3], "-batch-events-fd")) {
+            char *end = nullptr;
+            errno = 0;
+            const long fd = strtol(argv[4], &end, 10);
+            if (errno || !*argv[4] || *end || fd <= STDERR_FILENO || fd > INT_MAX) {
+                fprintf(stderr, "s23_ropt: invalid batch events descriptor\n");
+                return 2;
+            }
+            events_fd = int(fd);
+        } else if (argc != 3) {
+            fprintf(stderr, "s23_ropt: use -batch FILE [-batch-events-fd FD]; each manifest row supplies all job options\n");
             return 2;
         }
         const int status = ropt_batch(argv[2], argv[0],
             [&](int n, char **a, RoptJobPaths &p) { return ropt_job(n, a, session, &p); },
-            [&](int n, char **a) { return ropt_job(n, a, session); });
+            [&](int n, char **a) { return ropt_job(n, a, session); }, events_fd);
 #ifdef __CUDACC__
         printf("# batch GPU resources: device setups %zu, buffer allocations %zu, prime uploads %zu\n",
                session.screen.setups, session.screen.allocations, session.screen.prime_uploads);

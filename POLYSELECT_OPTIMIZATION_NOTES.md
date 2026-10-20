@@ -2,6 +2,183 @@
 
 > **Consolidates four prior plan docs** (`POLYSELECT_OPTIMIZATION_NOTES.md` original, `TRANS_KERNEL_PLAN.md`, `TWO_LEVEL_SCATTER_PLAN.md`, `FUSED_TRANS_SCATTER_PLAN.md`). The full version history is in git; this file is the working reference going forward.
 
+## Profile and source audit (2026-10-19)
+
+Read-only performance investigation of the saved reports and current production
+source; no new GPU timings or kernel changes. The May conclusions below describe
+the experiments performed then, not proof that these kernels cannot improve.
+In particular, the dominant trans capture is memory-latency-heavy, and the
+previous wave-alignment experiment did not address the very small trans launch.
+
+### Evidence and timing scope
+
+Reimported `trans_full_post_memset.ncu-rep`,
+`trans_full_post_memset_60060.ncu-rep`, `trans_full.ncu-rep`,
+`trans_full_medium.ncu-rep`, `filter_420.ncu-rep`,
+`filter_60060.ncu-rep`, and `scatter_roots_ncu.ncu-rep`. Also queried
+`profile_gerbicz_420_memset.sqlite` and the earlier arena trace directly.
+The trans report has no CUDA line information; the load identifications below
+use the captured SASS, kernel argument offsets, and matching source control flow.
+Stall sample percentages are shares of sampled warp stalls, not wall-time savings.
+See NVIDIA's [stall attribution guidance](https://docs.nvidia.com/nsight-compute/ComputeTriage/).
+
+The memset-cleanup Systems trace contains 12,456 batches. Its measured kernel
+totals differ slightly from the rounded May summary: trans 25.923 s, scatter
+24.342 s, filter 12.979 s, count-and-store 6.258 s. The span from first to last GPU
+activity is 106.855 s; the union of kernels, copies, and clears occupies 70.391 s.
+These are instrumented trace times, not the approximately 88 s unprofiled run.
+
+### 1. Small trans launch leaves almost the whole GPU unused
+
+The host launch heuristic in `stage1_sieve_gpu.c:780` targets an estimated amount
+of work per block, without a minimum device-coverage requirement. The three
+degree-5 groups have 1, 5, and 25 roots per p and run serially in the same stream.
+Grouping the Systems trace by launch shape exposes this distribution:
+
+| Grid / block | Launch count | Total GPU time | Mean launch |
+|---|---:|---:|---:|
+| `(317,3)` / 224 | 12,255 | 16.056 s | 1,310 us |
+| `(21,10)` / 256 | 6,898 | 2.932 s | 425 us |
+| `(21,11)` / 256 | 5,557 | 2.251 s | 405 us |
+| **`(1,5)` / 128** | **12,455** | **4.420 s** | **355 us** |
+
+The startup copies, interpreted using `p_soa_array_start`, identify the p counts
+as 71,001, 5,296, and **30**. The third group's 120-byte p copy and 6,000-byte root
+copy correspond to 30 p values with 25 roots each. Thus each of its five blocks
+has only 30 useful threads; the other 98 return immediately. At most five of 48
+SMs can work on this launch, with only one useful warp per block. The group's
+750 entries are only 0.76% of 98,231 entries per q, but consume 17.1% of trans
+time and about 6.3% of total kernel time. The earlier arena trace independently
+shows 4.261 s for the same shape.
+
+**First experiment:** increase q-axis subdivision specifically for this sparse
+group, and test a warp-sized x block. There are 356 q records in a normal batch,
+so considerably more independent q tiles are available. More tiles increase the
+number of modular inversions and may split runs of equal q; benchmark that
+tradeoff. This is different from the reverted *decrease-only* wave-alignment
+experiment on the 951-block launch. The measured 4.42 s is an upper bound on
+what eliminating this launch's entire cost could save in this trace.
+
+### 2. Repeated p/q metadata stores can be avoided on the Gerbicz path
+
+The trans kernels write `p_out[j] = (q << shift) | p` for every generated root
+(`stage1_core.cu:546`, with equivalent sites in all variants). For fixed p arrays,
+shift, and output layout, this value depends on the **batch-local q index**, not
+the actual special-q value or the computed root. Gerbicz only reads this array;
+unlike the sort path, it does not reorder it.
+
+A normal saved batch has 98,231 entries per q and 356 q records: 34,970,236 slots,
+or **139.88 MB of 32-bit metadata capacity**. Nearly all valid slots are rewritten
+every batch. The collision scan only fetches a slot's metadata after matching a
+candidate; the May counters record roughly 2,826 matched values per batch.
+
+**Experiment:** initialize all metadata slots once per coefficient/layout, then
+use a Gerbicz trans variant that only writes roots. Initialize even slots whose
+roots are zero in the first batch: gcd validity can change in later batches.
+Refresh when the p arrays, shift, or arithmetic-progression layout changes, and
+preserve the existing behavior for the sorting engine. This avoids a repeated
+large store stream without fusing bucket scatter into the register-heavy trans
+kernel. A later alternative is to reconstruct metadata only for matches using
+the original index and a small per-entry p map; that is a larger interface change.
+
+### 3. Trans repeatedly reads its own prefix-product scratch
+
+The dominant trans capture reports 68.53% DRAM throughput, 52.81% SM throughput,
+51.3% long-scoreboard stalls, 28.99 active threads per warp, and 56 registers
+without spills. Calling it simply math-chain-saturated is too strong.
+
+The forward pass stores prefix products into the first root plane
+(`stage1_core.cu:486`). The backward pass loads them (`:517`) and subsequently
+overwrites those locations with final roots. This is intentional batch inversion
+amortization, not an unnecessary duplicate calculation, but it creates an
+expensive memory dependency:
+
+- SASS load at `0x1701106090` followed by the nonzero test at `0x17011060b0`:
+  **46,919 / 75,182 long-scoreboard samples (62.4%)**. The pointer is the
+  `roots_out` kernel argument, matching the backward prefix-product read.
+- Load at `0x1701103db0` and test at `0x1701103dd0`: **16,308 samples (21.7%)**,
+  matching the forward `curr_q->p` read and q-change test.
+- Another 4,507 samples occur after loading the q root, and 4,490 after loading
+  a start root. Together these four sites account for about 96% of the captured
+  long-scoreboard samples.
+
+**Experiments:** prefetch the next prefix while working on the current one;
+investigate read-only/alias annotations for q and start-root inputs; consider
+bounded q tiles that retain some prefixes on chip. Preserve the batch-inversion
+algorithm and track registers: 56 to 64 registers would cross the five-block
+occupancy boundary for 224-thread blocks. The previous forced-register and
+scatter-fusion failures do not directly test these memory-access changes.
+
+### 4. Filter: repeated passes, underfilled warps, and an allocation boundary
+
+The filter first reads every bucket item to build hash tables, then reads them
+again to filter. Survivors are repeatedly compacted into global `arr_a/arr_b`
+buffers and read on the next iteration (`collision_engine.cu:198,235,264`).
+The capture reports 19.509 million global-load sectors at L1 (624.3 MB requested)
+but 282.2 MB DRAM reads: cache does absorb part of the repeated traffic. Global
+stores use only 11.3 of 32 bytes per sector on average. The repeated-loop item
+load accounts for 30,440 / 48,710 long-scoreboard samples (62.5%). Shared loads
+also show about three wavefronts per request due to bank conflicts.
+
+The block contains 128 threads, has 24.576 KB dynamic plus 96 bytes static shared
+memory, and incurs 1,024 bytes of driver shared memory. Allocation rounds to
+**25,728 bytes per block**. Four blocks would require 102,912 bytes, just over the
+102,400-byte SM budget; only three fit. This is a real allocation boundary, not
+just a vague need for less shared memory. Removing the 80-byte history array
+alone does not establish that a fourth block will fit: counters and allocation
+rounding still matter.
+
+**Low-cost experiment:** sweep 128/256 threads without changing hash resolution
+or convergence. At three resident blocks, 256 threads could provide 24 rather
+than 12 warps per SM, subject to the compiled register usage. The tradeoff is
+extra idle warps and synchronization once survivor counts become small. No such
+sweep is recorded in the May log. Higher occupancy alone is not a performance
+guarantee ([CUDA guidance](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#occupancy)).
+
+**Larger experiment:** after the bucket shrinks, process a bounded survivor list
+on chip, with a fallback for larger lists. This differs from putting the entire
+initial bucket in shared memory. Reuse space released as hash tables shrink if
+possible, rather than increasing the launch's shared-memory allocation.
+
+The report shows 24.64% achieved versus 25% theoretical occupancy, and average
+SM-active cycles are 99.2% of elapsed cycles. It therefore does **not** support a
+claim that most filter time is a globally idle GPU waiting for a few final
+blocks. Average active lanes are 24.55/32 (21.90 after predication), and 12.5% of
+sampled stalls are at barriers: there is inefficiency *within* blocks. The
+iteration histogram establishes varying work, but not its share of total time.
+Changing the history/barrier scheme must preserve the barrier that prevents the
+next iteration from resetting `s_cnt_out` before every thread has read it.
+
+### 5. Host/device round trips remain visible
+
+`collision_engine_run` has four explicit stream synchronizations per normal
+batch: after bucket sizing, candidate count, dedup count, and match count. The
+trace confirms **49,824** runtime stream synchronizations and **87,192 four-byte
+DtoH copies** (seven per batch), in addition to the final found-array copy.
+The candidate count is copied to pageable stack storage, which can block inside
+`cudaMemcpyAsync` itself. Attribute queries/settings are also repeated per batch.
+
+The 36.464 s of GPU-idle intervals in the instrumented trace includes CPU work,
+launch/readback latency, OS scheduling and profiler overhead. It is not a claim
+that 36 s can be recovered, and API time spent waiting overlaps GPU execution.
+Nevertheless, keep invariant setup out of the batch loop, consider deferring
+safe arena-success/overflow decisions to device code, and measure an unprofiled
+run before deciding whether broader orchestration changes are worthwhile.
+
+### Suggested experiment order
+
+1. Sparse 25-root-group q subdivision (clear underutilization, localized change).
+2. Reuse p/q metadata on Gerbicz batches (large repeated write stream).
+3. Filter block-size sweep with unchanged hash/convergence semantics.
+4. Prefix-load prefetch/cache experiments, then bounded on-chip filter survivors.
+5. Reduce host round trips where the preceding changes leave material overhead.
+
+Use fixed coefficients 420 and 60060, canonical polynomial-set parity, and both
+unprofiled wall time and per-launch-shape timing. Capture the sparse group itself
+with NCU; the existing detailed trans captures do not cover that five-block
+launch. Include partial batches and `num_aprog_vals > 1` when validating metadata
+reuse. None of the proposed speedups has been measured yet.
+
 ## Current state (2026-05-26)
 
 Polyselect stage 1 on the test 157-digit composite, degree 5, RTX 5070 (sm_120), CUDA 12.8. Coeff 420 baseline timing on the production gerbicz path:

@@ -43,6 +43,9 @@ class Pipeline(unittest.TestCase):
         self.executable = self.base / 'fake-tool'
         self.executable.write_text(f'''#!{sys.executable}
 import sys
+import os
+import subprocess
+import time
 from pathlib import Path
 sys.path.insert(0, {str(ROOT / 'scripts')!r})
 import gpu_pipeline as g
@@ -52,7 +55,43 @@ with (base / 'calls').open('a') as out:
     out.write(Path(sys.argv[0]).name + ' ' + ' '.join(args) + '\\n')
 def opt(flag): return args[args.index(flag) + 1]
 if '-capabilities' in args:
-    if not (base / 'legacy-tool').exists(): print('ropt-pool-v1 partial-murphy-exit-3')
+    if (base / 'probe-fail').exists(): sys.exit(7)
+    if not (base / 'legacy-tool').exists():
+        print('ropt-pool-v1 partial-murphy-exit-3 ropt-batch-v1')
+        if not (base / 'old-batch').exists(): print('ropt-batch-events-v1')
+        if not (base / 'no-screen').exists():
+            print('alpha-screen-v1 alpha-screen-exact-size-v1 alpha-screen-gpu-v1')
+elif '-batch' in args:
+    jobs = Path(opt('-batch')).read_text().splitlines()
+    assert jobs.pop(0) == 'S23_ROPT_BATCH 1'
+    event_fd = int(opt('-batch-events-fd'))
+    def event(text):
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os.write(event_fd, (text + ' ' + str(os.lseek(1, 0, os.SEEK_CUR)) + '\\n').encode('ascii'))
+    if (base / 'batch-barrier').exists() and '/breadth/' in opt('-batch'):
+        Path(opt('-batch')).with_suffix('.started').touch()
+        until = time.monotonic() + 10
+        while len(list(Path(opt('-batch')).parent.glob('*.started'))) < 2:
+            if time.monotonic() > until: sys.exit(8)
+            time.sleep(.01)
+    partial = False
+    for i, job in enumerate(jobs, 1):
+        print(f'# batch job {{i}}/{{len(jobs)}} begin', flush=True)
+        event(f'begin {{i}} {{len(jobs)}}')
+        if i == 2 and (base / 'batch-wait').exists(): time.sleep(60)
+        if i == 2 and (base / 'batch-fail').exists():
+            (base / 'batch-fail').unlink()
+            event(f'end {{i}} 7 0.010000')
+            print(f'# batch job {{i}} status 7, 0.010000 s', flush=True)
+            sys.exit(7)
+        p = subprocess.run([sys.argv[0], *job.split('\\t')])
+        if not (base / 'batch-no-end').exists():
+            event(f'end {{i}} {{p.returncode}} 0.010000')
+            print(f'# batch job {{i}} status {{p.returncode}}, 0.010000 s', flush=True)
+        if p.returncode not in (0, 3): sys.exit(p.returncode)
+        partial |= p.returncode == 3
+    sys.exit(3 if partial else 0)
 elif '-inputpolys' in args:
     polys = list(g.raw_polys(opt('-inputpolys')))
     for i, p in enumerate(polys):
@@ -61,6 +100,7 @@ elif '-inputpolys' in args:
         p.update(lognorm=50., exp_E=10. + i, alpha=-2., proj=-1., rroots=1, skew=1000.)
         print(g.sopt_text(p, i))
 elif '-search' in args:
+    if (base / 'log-bytes').exists(): os.write(1, (base / 'log-bytes').read_bytes())
     if (base / 'fail-once').exists():
         (base / 'fail-once').unlink()
         Path(opt('-out')).write_text('incomplete output')
@@ -332,6 +372,254 @@ else:
         rows = driver.read_json(run / 'scores/final.json')
         self.assertEqual(sum(r['phase'] != 'murphy' for r in rows), 2)
         self.assertEqual(len(rows), 3)
+
+    def test_batch_matches_single_and_execution_switch_reuses_checkpoints(self):
+        single, batch = self.base / 'single', self.base / 'batch with spaces'
+        self.invoke('all', single, '--input', self.raw, *self.params())
+        self.invoke('all', batch, '--input', self.raw, *self.params(), '--ropt-batch-size', 16)
+        self.assertEqual((single / 'results/best.poly').read_bytes(), (batch / 'results/best.poly').read_bytes())
+        self.assertEqual(len(list((batch / 'batches/breadth').glob('*.tsv'))), 1)
+        before = self.calls()
+        self.invoke('pipeline', batch, '--ropt-batch-size', 1)
+        self.assertEqual(before, self.calls())
+
+    def test_batch_failure_preserves_completed_seed_and_repairs_only_pending(self):
+        run = self.base / 'batch'
+        (self.base / 'batch-fail').touch()
+        with self.assertRaisesRegex(RuntimeError, 'exited 7'):
+            self.invoke('all', run, '--input', self.raw, *self.params(), '--ropt-batch-size', 16)
+        first = run / 'checkpoints/breadth/s0001.json'
+        self.assertTrue(first.exists())
+        self.assertFalse((run / 'checkpoints/breadth/s0002.json').exists())
+        first_bytes = first.read_bytes()
+        self.invoke('pipeline', run)
+        self.assertEqual(first_bytes, first.read_bytes())
+        manifests = sorted((run / 'batches/breadth').glob('*.tsv'))
+        self.assertEqual(len(manifests), 2)
+        self.assertIn('s0001', manifests[0].read_text())
+        manifest = manifests[-1].read_text()
+        self.assertNotIn('s0001', manifest)
+        self.assertIn('s0002', manifest)
+        (run / 'breadth/s0002.poly').write_text('corrupt')
+        self.invoke('pipeline', run)
+        self.assertEqual(first_bytes, first.read_bytes())
+        self.assertTrue(driver.read_cado_blocks(run / 'breadth/s0002.poly'))
+
+    def test_batch_interruption_commits_completed_seed_while_next_job_runs(self):
+        run = self.base / 'batch'
+        (self.base / 'batch-wait').touch()
+        record = driver.Run.record_step
+
+        def stop_after_first(workflow, name, *args):
+            record(workflow, name, *args)
+            if name == 'breadth/s0001':
+                workflow.stop.set()
+
+        with patch.object(driver.Run, 'record_step', stop_after_first):
+            with self.assertRaises(InterruptedError):
+                self.invoke('all', run, '--input', self.raw, *self.params(), '--ropt-batch-size', 16)
+        self.assertTrue((run / 'checkpoints/breadth/s0001.json').exists())
+        self.assertFalse((run / 'checkpoints/breadth/s0002.json').exists())
+        (self.base / 'batch-wait').unlink()
+        self.invoke('pipeline', run)
+        self.assertEqual(driver.read_json(run / 'status.json')['stage'], 'complete')
+
+    def test_batch_partial_murphy_and_missing_status(self):
+        run = self.base / 'partial'
+        (self.base / 'murphy-failure').write_text('partial')
+        self.invoke('all', run, '--input', self.raw, *self.params(), '--ropt-batch-size', 16)
+        report = driver.read_json(run / 'results/summary.json')
+        self.assertEqual(len(report['partial_murphy_searches']), 1)
+        self.assertTrue((run / 'checkpoints/murphy/s0001.json').exists())
+        (self.base / 'murphy-failure').write_text('invalid')
+        invalid = self.base / 'invalid-partial'
+        with self.assertRaisesRegex(ValueError, 'complete degree-5'):
+            self.invoke('all', invalid, '--input', self.raw, *self.params(), '--ropt-batch-size', 16)
+        self.assertFalse((invalid / 'checkpoints/murphy/s0001.json').exists())
+        (self.base / 'batch-no-end').touch()
+        broken = self.base / 'missing-status'
+        with self.assertRaisesRegex(RuntimeError, 'batch job ordering'):
+            self.invoke('all', broken, '--input', self.raw, *self.params(), '--ropt-batch-size', 16)
+        self.assertFalse((broken / 'checkpoints/breadth/s0001.json').exists())
+
+    def test_batch_rejects_unsupported_binary(self):
+        (self.base / 'legacy-tool').touch()
+        with self.assertRaisesRegex(ValueError, 'ropt-batch-v1'):
+            self.invoke('all', self.base / 'batch', '--input', self.raw, *self.params(), '--ropt-batch-size', 16)
+        self.assertFalse(any('-inputpolys' in c for c in self.calls()))
+        self.assertFalse((self.base / 'batch/execution.json').exists())
+
+    def test_rejected_batch_setting_does_not_poison_resume(self):
+        run = self.base / 'old-batch-run'
+        (self.base / 'old-batch').touch()
+        self.invoke('all', run, '--input', self.raw, *self.params())
+        before, execution = self.calls(), (run / 'execution.json').read_bytes()
+        with self.assertRaisesRegex(ValueError, '--ropt-batch-size 1'):
+            self.invoke('pipeline', run, '--ropt-batch-size', 16)
+        self.assertEqual((run / 'execution.json').read_bytes(), execution)
+        self.invoke('pipeline', run)
+        self.assertEqual(before, self.calls())
+        # Also allow recovery from execution.json poisoned by the older driver.
+        saved = driver.read_json(run / 'execution.json')
+        saved['ropt_batch_size'] = 16
+        driver.write_json(run / 'execution.json', saved)
+        self.invoke('pipeline', run, '--ropt-batch-size', 1)
+        self.assertEqual(driver.read_json(run / 'execution.json')['ropt_batch_size'], 1)
+        with self.assertRaisesRegex(ValueError, 'new --run-dir'):
+            self.invoke('pipeline', run, '--budget', 4, '--workers', 2)
+        self.assertEqual((run / 'execution.json').read_bytes(), execution)
+
+    def test_batch_small_phase_uses_both_workers(self):
+        (self.base / 'batch-barrier').touch()
+        run = self.base / 'two-workers'
+        self.invoke('all', run, '--input', self.raw, *self.params(), '--workers', 2, '--ropt-batch-size', 16)
+        manifests = list((run / 'batches/breadth').glob('*.tsv'))
+        self.assertEqual(len(manifests), 2)
+        self.assertTrue(all(len(path.read_bytes().splitlines()) == 2 for path in manifests))
+
+    def test_batch_logs_preserve_bytes_without_parsing_diagnostics(self):
+        payload = b'non-UTF8: \xff\r\n# batch job 1/2 begin\n# batch job 1 status 0, 0.000001 s\nno newline'
+        (self.base / 'log-bytes').write_bytes(payload)
+        for size in (1, 16):
+            run = self.base / f'bytes-{size}'
+            self.invoke('all', run, '--input', self.raw, *self.params(), '--ropt-batch-size', size)
+            for phase in ('breadth', 'depth', 'murphy'):
+                for log in (run / 'logs' / phase).glob('*.log'):
+                    self.assertEqual(log.read_bytes(), payload)
+
+    def test_progress_reports_reused_seeds_and_completed_jobs_inside_batch(self):
+        run = self.base / 'progress'
+        states = []
+        state, record = driver.Run.state, driver.Run.record_step
+
+        def capture(workflow, phase, **extra):
+            state(workflow, phase, **extra)
+            states.append(driver.read_json(workflow.path / 'status.json'))
+
+        def stop_after_first(workflow, name, *args):
+            record(workflow, name, *args)
+            if name == 'breadth/s0001':
+                workflow.stop.set()
+
+        (self.base / 'batch-wait').touch()
+        with patch.object(driver.Run, 'state', capture), patch.object(driver.Run, 'record_step', stop_after_first):
+            with self.assertRaises(InterruptedError):
+                self.invoke('all', run, '--input', self.raw, *self.params(), '--ropt-batch-size', 16)
+        self.assertEqual([s['completed'] for s in states if s['stage'] == 'breadth'], [0, 1])
+        (self.base / 'batch-wait').unlink()
+        self.invoke('pipeline', run)
+        before = self.calls()
+        states.clear()
+        with patch.object(driver.Run, 'state', capture):
+            self.invoke('pipeline', run)
+        self.assertEqual(before, self.calls())
+        self.assertEqual([s['completed'] for s in states if s['stage'] == 'breadth'], [0, 1, 2])
+
+    def test_capability_probe_failure_preserves_legacy_pool_cache_and_retries(self):
+        run = driver.Run(self.base / 'probe')
+        marker = run.path / 'bin/ropt_capabilities.json'
+        original = dict(sha256=driver.digest(self.executable), pool_v1=True)
+        driver.write_json(marker, original)
+        (self.base / 'probe-fail').touch()
+        self.assertTrue(run.pool_capable(self.executable))
+        with self.assertRaisesRegex(RuntimeError, 'cache unchanged'):
+            run.ropt_capabilities(self.executable)
+        self.assertEqual(driver.read_json(marker), original)
+        self.assertTrue(run.pool_capable(self.executable))
+        (self.base / 'probe-fail').unlink()
+        self.assertIn('ropt-batch-events-v1', run.ropt_capabilities(self.executable))
+        self.assertTrue(driver.read_json(marker)['pool_v1'])
+        # An ambiguous empty cache written by the old driver must be re-probed.
+        driver.write_json(marker, dict(original, pool_v1=False, capabilities=[]))
+        self.assertTrue(run.pool_capable(self.executable))
+
+    def test_failed_uncached_capability_probe_is_not_cached(self):
+        run = driver.Run(self.base / 'probe')
+        (self.base / 'probe-fail').touch()
+        with self.assertRaisesRegex(RuntimeError, 'probe exited 7'):
+            run.ropt_capabilities(self.executable)
+        self.assertFalse((run.path / 'bin/ropt_capabilities.json').exists())
+        with patch.object(driver.subprocess, 'run', side_effect=subprocess.TimeoutExpired('probe', 30)):
+            with self.assertRaisesRegex(RuntimeError, 'cache unchanged'):
+                run.ropt_capabilities(self.executable)
+        (self.base / 'probe-fail').unlink()
+        self.assertTrue(run.pool_capable(self.executable))
+
+    def test_legacy_pool_cache_resumes_without_reprobing_or_replaying(self):
+        run = self.base / 'legacy-cache'
+        self.invoke('all', run, '--input', self.raw, *self.params())
+        driver.write_json(run / 'bin/ropt_capabilities.json',
+                          dict(sha256=driver.digest(run / 'bin/s23_ropt'), pool_v1=True))
+        before = self.calls()
+        checkpoints = {str(p): p.read_bytes() for p in (run / 'checkpoints').rglob('*.json')}
+        (self.base / 'probe-fail').touch()
+        self.invoke('all', run)
+        self.assertEqual(before, self.calls())
+        self.assertEqual(checkpoints, {str(p): p.read_bytes() for p in (run / 'checkpoints').rglob('*.json')})
+
+    def test_gpu_screen_forwarding_preserves_full_pool_murphy_and_resume(self):
+        run = self.base / 'screen'
+        self.invoke('all', run, '--input', self.raw, *self.params(), '--ropt-batch-size', 16,
+                    '--rerank', 512, '--alpha-screen', '4096,500', '--alpha-screen-exact-size',
+                    '--alpha-screen-gpu', '--alpha-screen-check')
+        calls = [c for c in self.calls() if '-search' in c]
+        ordinary = [c for c in calls if '-murphy' not in c]
+        final = [c for c in calls if '-murphy' in c]
+        self.assertTrue(ordinary and final)
+        self.assertTrue(all('-alpha-screen 4096 500 -alpha-screen-exact-size -alpha-screen-gpu -alpha-screen-check' in c
+                            and '-rerank 512 ' in c for c in ordinary))
+        self.assertTrue(all('-alpha-screen' not in c and '-rerank 4096 ' in c and '-pool-in' in c for c in final))
+        before = self.calls()
+        self.invoke('pipeline', run)
+        self.assertEqual(before, self.calls())
+        with self.assertRaisesRegex(ValueError, 'new --run-dir'):
+            self.invoke('pipeline', run, '--no-alpha-screen-check')
+
+    def test_screen_validation_and_unsupported_binary(self):
+        for flags in (['--alpha-screen', '4,500'], ['--alpha-screen', '4096,2001'],
+                      ['--alpha-screen', 'bad'], ['--alpha-screen', '16777217,500'],
+                      ['--alpha-screen-exact-size'], ['--alpha-screen', '4096,500', '--alpha-screen-gpu'],
+                      ['--alpha-screen', '4096,500', '--alpha-screen-check']):
+            with self.subTest(flags=flags), contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+                self.invoke('all', self.base / 'invalid', '--input', self.raw, *self.params(), *flags)
+            self.assertFalse((self.base / 'invalid').exists())
+        (self.base / 'no-screen').touch()
+        with self.assertRaisesRegex(ValueError, 'lacks requested screening'):
+            self.invoke('all', self.base / 'unsupported', '--input', self.raw, *self.params(),
+                        '--alpha-screen', '4096,500')
+        self.assertFalse(any('-inputpolys' in c for c in self.calls()))
+
+    def test_old_checkpoint_ignores_absent_neutral_screen_options(self):
+        run = self.base / 'old'
+        self.invoke('all', run, '--input', self.raw, *self.params())
+        settings = driver.read_json(run / 'settings.json')
+        for name in driver.SCREEN_OPTIONS:
+            settings.pop(name)
+        driver.write_json(run / 'settings.json', settings)
+        marker = run / 'checkpoints/pipeline_settings.json'
+        record = driver.read_json(marker)
+        record['outputs']['settings.json'] = driver.digest(run / 'settings.json')
+        driver.write_json(marker, record)
+        self.config.write_text(self.config.read_text() + '[gpu]\nalpha_screen=4096,500\n'
+                               'alpha_screen_exact_size=true\nalpha_screen_gpu=true\nalpha_screen_check=true\n')
+        before = self.calls()
+        self.invoke('pipeline', run)
+        self.assertEqual(before, self.calls())
+        with self.assertRaisesRegex(ValueError, 'new --run-dir'):
+            self.invoke('pipeline', run, '--alpha-screen', '4096,500')
+
+    def test_blank_screen_config_is_false_and_help_and_report_work(self):
+        self.config.write_text(self.config.read_text() + '[gpu]\n' +
+                               ''.join(key + '=\n' for key in driver.SCREEN_OPTIONS))
+        run = self.base / 'blanks'
+        self.invoke('all', run, '--input', self.raw, *self.params())
+        self.invoke('report', run)
+        with contextlib.redirect_stdout(io.StringIO()), self.assertRaises(SystemExit) as result:
+            driver.parser(['--config', str(self.config), '--help'])
+        self.assertEqual(result.exception.code, 0)
+        settings = driver.read_json(run / 'settings.json')
+        for key, option in driver.SCREEN_OPTIONS.items():
+            self.assertEqual(settings[key], option['default'])
 
     def test_sqlite_uri_reserved_characters_and_frozen_input_repair(self):
         run = self.base / 'run?#% with spaces'

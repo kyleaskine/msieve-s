@@ -25,8 +25,19 @@ import threading
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-EXECUTION_SETTINGS = {'device', 'threads', 'workers', 'launch', 'slice'}
+EXECUTION_SETTINGS = {'device', 'threads', 'workers', 'launch', 'slice', 'ropt_batch_size'}
 EXECUTION_FLAGS = {'-dev', '-t', '-launch', '-slice'}
+# Each new semantic option declares its historical default, dependencies and
+# executable capabilities together. Missing saved keys mean historical behavior,
+# never the current machine's configuration.
+SCREEN_OPTIONS = {
+    'alpha_screen': dict(default='', capabilities=('alpha-screen-v1', 'ropt-pool-v1')),
+    'alpha_screen_exact_size': dict(default=False, requires='alpha_screen',
+                                   capabilities=('alpha-screen-exact-size-v1',)),
+    'alpha_screen_gpu': dict(default=False, requires='alpha_screen_exact_size',
+                            capabilities=('alpha-screen-gpu-v1',)),
+    'alpha_screen_check': dict(default=False, requires='alpha_screen_gpu', capabilities=()),
+}
 # Bump only the affected format/algorithm when saved results become incompatible.
 # Source hashes are provenance, not an instruction to repeat expensive work.
 STEP_SCHEMAS = {'index_e0': 1, 'index_resopt': 1, 'seeds': 2}
@@ -44,6 +55,10 @@ def digest(path):
 
 def semantic_parameters(parameters):
     parameters = {k: v for k, v in parameters.items() if k not in EXECUTION_SETTINGS}
+    # Neutral new options must not invalidate pre-screening pipeline settings.
+    for key, option in SCREEN_OPTIONS.items():
+        if parameters.get(key, option['default']) == option['default']:
+            parameters.pop(key, None)
     if 'argv' in parameters:
         argv, out = iter(parameters['argv']), []
         for arg in argv:
@@ -168,15 +183,18 @@ class Run:
     def __init__(self, directory):
         self.path = directory
         self.stop = threading.Event()
+        self.state_lock = threading.Lock()
         sources = [Path(__file__), ROOT / 'stage23_bench/tools/polyfmt.py',
                    ROOT / 'stage23_bench/tools/content_seeds.py', ROOT / 'stage23_bench/tools/score_polys.py']
         self.version = {str(p.relative_to(ROOT)): digest(p) for p in sources}
 
     def state(self, stage, **extra):
-        write_json(self.path / 'status.json', dict(stage=stage, updated=time.time(), **extra))
-        print(stage, ' '.join(f'{k}={v}' for k, v in extra.items()), flush=True)
+        with self.state_lock:
+            write_json(self.path / 'status.json', dict(stage=stage, updated=time.time(), **extra))
+            print(stage, ' '.join(f'{k}={v}' for k, v in extra.items()), flush=True)
 
-    def step(self, name, signature, outputs, action):
+    def prepare_step(self, name, signature, outputs):
+        """Verify one checkpoint and prepare its output directories if needed."""
         marker = self.path / 'checkpoints' / (name + '.json')
         signature = dict(schema=STEP_SCHEMAS.get(name, 1), parameters=semantic_parameters(signature))
         if marker.exists():
@@ -190,16 +208,26 @@ class Run:
                 raise ValueError(f'{name}: search or scoring settings changed; use a new --run-dir')
             if same and all(p.is_file() and digest(p) == old['outputs'].get(str(p.relative_to(self.path))) for p in outputs):
                 print(f'Reusing {name}', flush=True)
-                return
+                return False
             print(f'Rebuilding {name}: changed stage inputs, schema or output', flush=True)
             marker.unlink()
         for p in outputs:
             p.parent.mkdir(parents=True, exist_ok=True)
-        start = time.monotonic()
-        action()
+        return True
+
+    def record_step(self, name, signature, outputs, seconds):
+        marker = self.path / 'checkpoints' / (name + '.json')
+        signature = dict(schema=STEP_SCHEMAS.get(name, 1), parameters=semantic_parameters(signature))
         hashes = {str(p.relative_to(self.path)): digest(p) for p in outputs}
         write_json(marker, dict(signature=signature, source_hashes=self.version,
-                                outputs=hashes, seconds=time.monotonic() - start))
+                                outputs=hashes, seconds=seconds))
+
+    def step(self, name, signature, outputs, action):
+        if not self.prepare_step(name, signature, outputs):
+            return
+        start = time.monotonic()
+        action()
+        self.record_step(name, signature, outputs, time.monotonic() - start)
 
     def freeze(self, name, source=None):
         dst = self.path / 'bin' / name
@@ -220,18 +248,31 @@ class Run:
         write_json(marker, dict(source=str(source), sha256=digest(dst)))
         return dst
 
-    def command(self, name, argv, output=None, accepted=(0,)):
+    def command(self, name, argv, output=None, accepted=(0,), progress=None, pass_fds=()):
         argv = list(map(str, argv))
         log = self.path / 'logs' / (name + '.log')
         log.parent.mkdir(parents=True, exist_ok=True)
         start = time.monotonic()
         print(f'Running {name} (log: {log})', flush=True)
-        with log.open('w') as err:
-            out = output.open('w') if output else err
+        progress_failed = False
+
+        def report_progress():
+            nonlocal progress_failed
+            if progress and not progress_failed:
+                try:
+                    progress(log)
+                except BaseException:
+                    progress_failed = True
+                    raise
+
+        with log.open('wb') as err:
+            out = output.open('wb') if output else err
             try:
-                with subprocess.Popen(argv, cwd=ROOT, stdout=out, stderr=err, start_new_session=True) as proc:
+                with subprocess.Popen(argv, cwd=ROOT, stdout=out, stderr=err,
+                                      start_new_session=True, pass_fds=pass_fds) as proc:
                     try:
                         while True:
+                            report_progress()
                             if self.stop.is_set():
                                 raise InterruptedError('pipeline interrupted')
                             try:
@@ -240,13 +281,20 @@ class Run:
                             except subprocess.TimeoutExpired:
                                 pass
                     except BaseException:
-                        os.killpg(proc.pid, signal.SIGTERM)
+                        try:
+                            os.killpg(proc.pid, signal.SIGTERM)
+                        except ProcessLookupError:
+                            pass
                         try:
                             proc.wait(timeout=10)
                         except subprocess.TimeoutExpired:
                             os.killpg(proc.pid, signal.SIGKILL)
                             proc.wait()
                         raise
+                    finally:
+                        # Batch boundaries are flushed by ropt. Commit completed
+                        # jobs even when a later job fails or we terminate it.
+                        report_progress()
             finally:
                 if out is not err:
                     out.close()
@@ -255,16 +303,37 @@ class Run:
             raise RuntimeError(f'{name} exited {rc}; see {log}')
         return rc
 
+    def ropt_capabilities(self, binary):
+        marker = self.path / 'bin/ropt_capabilities.json'
+        binary_hash = digest(binary)
+        if marker.exists():
+            result = read_json(marker)
+            if (result['sha256'] == binary_hash and 'capabilities' in result and
+                    (result['capabilities'] or result.get('probe_ok'))):
+                return set(result['capabilities'])
+        try:
+            p = subprocess.run([str(binary), '-capabilities'], capture_output=True, timeout=30)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise RuntimeError(f'ropt capability probe failed; cache unchanged, retry: {error}') from error
+        if p.returncode:
+            raise RuntimeError(f'ropt capability probe exited {p.returncode}; cache unchanged, retry: '
+                               + p.stderr.decode('utf-8', errors='replace').strip())
+        supported = set(p.stdout.decode('ascii').split())
+        write_json(marker, dict(sha256=binary_hash, pool_v1='ropt-pool-v1' in supported,
+                               capabilities=sorted(supported), probe_ok=True))
+        return supported
+
     def pool_capable(self, binary):
         marker = self.path / 'bin/ropt_capabilities.json'
         if marker.exists():
             result = read_json(marker)
-            if result['sha256'] == digest(binary):
-                return result['pool_v1']
-        p = subprocess.run([str(binary), '-capabilities'], text=True, capture_output=True, timeout=30)
-        supported = p.returncode == 0 and 'ropt-pool-v1' in p.stdout.split()
-        write_json(marker, dict(sha256=digest(binary), pool_v1=supported))
-        return supported
+            if result['sha256'] == digest(binary) and 'pool_v1' in result:
+                # Honor the old pool-only cache without probing newer features.
+                # Empty capability lists from the old writer may represent a
+                # failed probe; only trust them when success was recorded.
+                if 'capabilities' not in result or result['capabilities'] or result.get('probe_ok'):
+                    return result['pool_v1']
+        return 'ropt-pool-v1' in self.ropt_capabilities(binary)
 
     def snapshot(self, source, mode):
         """Own exactly the bytes hashed, including a bounded prefix of a live input."""
@@ -410,8 +479,82 @@ def seed_residue(residue, seed):
     return [m, (u // g * inverse) % m, (v // g * inverse) % m]
 
 
+def run_ropt_batch(run, binary, phase, jobs, ordinal, on_complete):
+    """Commit validated seeds using events on a separate inherited descriptor.
+
+    Events contain byte offsets into the process log. Job diagnostics are opaque
+    bytes, including unterminated lines and text resembling batch markers.
+    """
+    name = f'{phase}/batch_{ordinal:04d}_{time.time_ns()}'
+    manifest = run.path / 'batches' / (name + '.tsv')
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    arrays = [[os.fsencode(arg) for arg in map(str, job['argv'][1:])] for job in jobs]
+    if any(not a or any(c in a for c in (b'\t', b'\n', b'\r', b'\0')) for argv in arrays for a in argv):
+        raise ValueError('batch arguments must be nonempty and cannot contain tabs/newlines/NUL')
+    manifest.write_bytes(b'S23_ROPT_BATCH 1\n' + b''.join(b'\t'.join(argv)+b'\n' for argv in arrays))
+    events = manifest.with_suffix('.events')
+    completed = 0
+    active = None
+    cursor = 0
+
+    with events.open('wb') as event_writer, events.open('rb') as reader:
+        def progress(log):
+            nonlocal active, completed, cursor
+            while True:
+                offset = reader.tell()
+                line = reader.readline()
+                if not line.endswith(b'\n'):
+                    reader.seek(offset)
+                    break
+                begin = re.fullmatch(rb'begin (\d+) (\d+) (\d+)\n', line)
+                end = re.fullmatch(rb'end (\d+) (\d+) ([\d.]+) (\d+)\n', line)
+                if begin:
+                    index, total, start = map(int, begin.groups())
+                    if active is not None or index != completed + 1 or total != len(jobs) or start < cursor:
+                        raise RuntimeError(f'{name}: invalid batch job ordering')
+                    active = start
+                elif end:
+                    index, rc, seconds, stop = end.groups()
+                    index, rc, stop, seconds = int(index), int(rc), int(stop), float(seconds)
+                    if (active is None or index != completed + 1 or stop < active or
+                            not math.isfinite(seconds) or seconds < 0 or stop > log.stat().st_size):
+                        raise RuntimeError(f'{name}: invalid batch completion')
+                    job = jobs[index-1]
+                    path = run.path / 'logs' / (job['name'] + '.log')
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    with log.open('rb') as source, path.open('wb') as dest:
+                        source.seek(active)
+                        remaining = stop - active
+                        while remaining:
+                            block = source.read(min(remaining, 1024 * 1024))
+                            if not block:
+                                raise RuntimeError(f'{name}: truncated batch log')
+                            dest.write(block)
+                            remaining -= len(block)
+                    write_json(path.with_suffix('.json'), dict(command=list(map(str, job['argv'])),
+                               returncode=rc, seconds=seconds, batch=str(manifest)))
+                    if rc not in (0, 3):
+                        raise RuntimeError(f"{job['name']} exited {rc}; see {path}")
+                    job['finish'](rc)
+                    run.record_step(job['name'], job['signature'], job['outputs'], seconds)
+                    completed += 1
+                    active, cursor = None, stop
+                    on_complete()
+                else:
+                    raise RuntimeError(f'{name}: invalid batch event')
+
+        run.command('batches/' + name, [binary, '-batch', manifest, '-batch-events-fd', event_writer.fileno()],
+                    accepted=(0, 3), progress=progress, pass_fds=(event_writer.fileno(),))
+        if completed != len(jobs) or reader.read():
+            raise RuntimeError(f'{name}: only {completed}/{len(jobs)} completed job events')
+
+
 def search(run, args, seeds, binary, phase, cap, n, accurate=False, save_pool=False, replay_phase=None):
-    def one(seed):
+    # Also guard direct library callers, before preparing or invalidating checkpoints.
+    validate_ropt_features(run, args, binary)
+    binary_hash = digest(binary)
+
+    def prepare_job(seed):
         name = seed['search']
         src = run.path / 'seeds' / (name + '.poly')
         dst = run.path / phase / (name + '.poly')
@@ -419,8 +562,12 @@ def search(run, args, seeds, binary, phase, cap, n, accurate=False, save_pool=Fa
         pool_path = dst.with_suffix('.pool')
         pool_partial = pool_path.with_suffix('.partial.pool')
         replay = run.path / replay_phase / (name + '.pool') if replay_phase else None
+        screen = getattr(args, 'alpha_screen', '')
+        # Preserve full-pool Murphy refinement: a heuristic alpha cut is only
+        # used for breadth/depth. Final scoring still visits every saved start.
+        rerank = max(args.rerank, int(screen.split(',')[0])) if accurate and screen else args.rerank
         argv = [binary, '-poly', src, '-search', '-budget', args.budget, '-maxcells', cap,
-                '-aw', 1.3, '-rerank', args.rerank, '-top', 3, '-refine', args.keep,
+                '-aw', 1.3, '-rerank', rerank, '-top', 3, '-refine', args.keep,
                 '-t', args.threads, '-dev', args.device, '-launch', args.launch,
                 '-maxlines', args.maxlines, '-umax', args.umax, '-out', partial]
         if replay:
@@ -433,45 +580,84 @@ def search(run, args, seeds, binary, phase, cap, n, accurate=False, save_pool=Fa
             argv += ['-residue', *seed_residue(args.residue, seed)]
         if args.classes and not replay:
             argv += ['-classes', *args.classes.split(','), '-class-explore', args.class_explore]
+        if screen and not accurate:
+            argv += ['-alpha-screen', *screen.split(',')]
+            for key, option in SCREEN_OPTIONS.items():
+                if isinstance(option['default'], bool) and getattr(args, key, False):
+                    argv.append('-' + key.replace('_', '-'))
         if accurate:
             bounds = score_bounds(args.params)
             argv += ['-murphy', '-Bf', bounds['Bf'], '-Bg', bounds['Bg'], '-area', bounds['area'],
                      '-murphy-points', 16000, '-murphy-eval-points', 64000, '-maxeval', 384]
 
-        def action():
-            # An old frozen ropt uses 1 for partial Murphy failure; newer builds
-            # use 3. Accept it only with a completed, validated partial export.
-            rc = run.command(f'{phase}/{name}', argv, accepted=(0, 1, 3) if accurate else (0,))
+        def finish(rc):
+            if rc and not accurate:
+                raise RuntimeError(f'{phase}/{name}: unexpected partial non-Murphy search')
             blocks = read_cado_blocks(partial)
             if not blocks:
                 raise ValueError(f'{phase}/{name}: empty polynomial export')
             for _, p in blocks:
                 validate_poly(p, n)
             if rc:
-                log = (run.path / 'logs' / phase / (name + '.log')).read_text()
+                log = (run.path / 'logs' / phase / (name + '.log')).read_text(encoding='utf-8', errors='replace')
                 if (not re.search(r'\b[1-9]\d* failed, \d+ skipped before MurphyE', log) or
                         f'# wrote {len(blocks)} polynomials to ' not in log or
                         re.search(r'BRUTE FORCE DIFFERS|vs brute force: [1-9]', log)):
                     raise RuntimeError(f'{phase}/{name} exited {rc} without a verified partial MurphyE export')
                 print(f'{phase}/{name}: retaining {len(blocks)} valid cells after partial MurphyE failure; see log', flush=True)
-            partial.replace(dst)
             if save_pool:
                 if not pool_partial.is_file() or not pool_partial.stat().st_size:
                     raise ValueError(f'{phase}/{name}: missing candidate pool')
+            partial.replace(dst)
+            if save_pool:
                 pool_partial.replace(pool_path)
 
-        signature = dict(argv=list(map(str, argv)), input=digest(src), binary=digest(binary))
+        signature = dict(argv=list(map(str, argv)), input=digest(src), binary=binary_hash)
         if replay:
             signature['pool'] = digest(replay)
-        run.step(f'{phase}/{name}', signature, [dst, pool_path] if save_pool else [dst], action)
-        return name
+        return dict(name=f'{phase}/{name}', argv=argv, signature=signature,
+                    outputs=[dst, pool_path] if save_pool else [dst], finish=finish)
+
+    jobs = [prepare_job(seed) for seed in seeds]
+    pending = []
+    completed = 0
+    progress_lock = threading.Lock()
+
+    def report_completion():
+        nonlocal completed
+        with progress_lock:
+            completed += 1
+            run.state(phase, completed=completed, searches=len(seeds))
+
+    run.state(phase, completed=0, searches=len(seeds))
+    for job in jobs:
+        if run.prepare_step(job['name'], job['signature'], job['outputs']):
+            pending.append(job)
+        else:
+            report_completion()
+
+    def one(job):
+        start = time.monotonic()
+        # Legacy frozen builds use status 1 for partial Murphy failure. finish
+        # accepts that only after validating a complete partial export and log.
+        rc = run.command(job['name'], job['argv'], accepted=(0, 1, 3) if accurate else (0,))
+        job['finish'](rc)
+        run.record_step(job['name'], job['signature'], job['outputs'], time.monotonic()-start)
+        report_completion()
 
     pool = concurrent.futures.ThreadPoolExecutor(max_workers=args.workers)
     try:
-        futures = [pool.submit(one, seed) for seed in seeds]
-        for i, future in enumerate(concurrent.futures.as_completed(futures), 1):
+        if args.ropt_batch_size > 1 and pending:
+            # A small phase must still use all workers. The configured batch
+            # size is a maximum, not a reason to serialize the last 16 seeds.
+            batch_size = min(args.ropt_batch_size, math.ceil(len(pending) / args.workers))
+            futures = [pool.submit(run_ropt_batch, run, binary, phase, pending[i:i+batch_size],
+                                   i//batch_size, report_completion)
+                       for i in range(0, len(pending), batch_size)]
+        else:
+            futures = [pool.submit(one, job) for job in pending]
+        for future in concurrent.futures.as_completed(futures):
             future.result()
-            run.state(phase, completed=i, searches=len(seeds))
     except BaseException:
         run.stop.set()
         raise
@@ -541,16 +727,31 @@ def unique_rows(rows):
     return list(unique.values())
 
 
+def validate_ropt_features(run, args, ropt):
+    if args.ropt_batch_size > 1:
+        required = {'ropt-batch-v1', 'ropt-batch-events-v1'}
+        if required - run.ropt_capabilities(ropt):
+            raise ValueError('--ropt-batch-size > 1 requires ropt-batch-v1 and ropt-batch-events-v1; '
+                             'resume with --ropt-batch-size 1, or use a new --run-dir with a rebuilt executable')
+    if getattr(args, 'alpha_screen', ''):
+        required = {cap for key, option in SCREEN_OPTIONS.items() if getattr(args, key, option['default'])
+                    for cap in option['capabilities']}
+        missing = required - run.ropt_capabilities(ropt)
+        if missing:
+            raise ValueError('frozen ropt executable lacks requested screening capabilities: ' + ', '.join(sorted(missing)))
+
+
+def pipeline_settings(args):
+    return {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items() if k not in
+            ('command', 'input', 'initial_unsorted', 'default_input', 'resume', 'config')}
+
+
 def pipeline(run, args, info):
     sopt = run.freeze('s23_sopt', args.sopt_binary)
     ropt = run.freeze('s23_ropt', args.ropt_binary)
     pools = run.pool_capable(ropt)
     scorer = run.freeze('cado_murphy')
-    settings = {k: v for k, v in vars(args).items() if k not in
-                ('command', 'input', 'initial_unsorted', 'default_input', 'resume', 'config')}
-    settings = {k: str(v) if isinstance(v, Path) else v for k, v in settings.items()}
-    run.step('pipeline_settings', settings, [run.path / 'settings.json'],
-             lambda: write_json(run.path / 'settings.json', settings))
+    settings = pipeline_settings(args)
     seeds = select_seeds(run, args, info, sopt)
     rows = search(run, args, seeds, ropt, 'breadth', args.maxcells, info['n'], save_pool=pools)
     ranked = score(run, args, rows, scorer, 'breadth')
@@ -634,6 +835,8 @@ def parser(argv=None):
     ap.add_argument('-t', '--threads', type=int, default=setting('system', 'threads', 8))
     ap.add_argument('--device', type=int, default=setting('gpu', 'device', 0))
     ap.add_argument('--workers', type=int, default=setting('gpu', 'workers', 2))
+    ap.add_argument('--ropt-batch-size', type=int, default=setting('gpu', 'ropt_batch_size', 1),
+                    help='seeds per persistent ropt process; 1 preserves separate processes')
     ap.add_argument('--launch', type=int, default=setting('gpu', 'launch', 30))
     ap.add_argument('--slice', type=float, default=setting('gpu', 'slice', 10))
     ap.add_argument('--budget', type=float, default=setting('gpu', 'budget', 3))
@@ -642,6 +845,19 @@ def parser(argv=None):
     ap.add_argument('--depth-seeds', type=int, default=setting('gpu', 'depth_seeds', 16))
     ap.add_argument('--murphy-seeds', type=int, default=setting('gpu', 'murphy_seeds', 4))
     ap.add_argument('--rerank', type=int, default=setting('gpu', 'rerank', 4096))
+    ap.add_argument('--alpha-screen', default=setting('gpu', 'alpha_screen', ''),
+                    help='experimental N,B proxy screen for breadth/depth; final MurphyE uses all N saved starts')
+    def boolean(value):
+        if not value:
+            return False
+        if value.lower() not in configparser.ConfigParser.BOOLEAN_STATES:
+            raise argparse.ArgumentTypeError(f'expected a boolean or blank, got {value!r}')
+        return configparser.ConfigParser.BOOLEAN_STATES[value.lower()]
+
+    for key, option in SCREEN_OPTIONS.items():
+        if isinstance(option['default'], bool):
+            ap.add_argument('--' + key.replace('_', '-'), action=argparse.BooleanOptionalAction,
+                            default=setting('gpu', key, option['default']))
     ap.add_argument('--keep', type=int, default=setting('gpu', 'keep', 200))
     ap.add_argument('--score-top', type=int, default=setting('gpu', 'score_top', 32))
     ap.add_argument('--finalists', type=int, default=setting('gpu', 'finalists', 32))
@@ -668,7 +884,8 @@ def parser(argv=None):
     saved = run_dir / 'settings.json'
     if saved.exists():
         options = {a.dest for a in ap._actions} - {'command', 'config', 'run_dir', 'input', 'initial_unsorted', 'resume'}
-        defaults = {k: v for k, v in read_json(saved).items() if k in options}
+        defaults = {k: option['default'] for k, option in SCREEN_OPTIONS.items()}
+        defaults.update({k: v for k, v in read_json(saved).items() if k in options})
         for key in ('sopt_binary', 'ropt_binary'):
             if key in defaults:
                 defaults[key] = Path(defaults[key])
@@ -677,6 +894,12 @@ def parser(argv=None):
     if execution.exists():
         ap.set_defaults(**{k: v for k, v in read_json(execution).items() if k in EXECUTION_SETTINGS})
     args = ap.parse_args(argv)
+    for key, option in SCREEN_OPTIONS.items():
+        if isinstance(option['default'], bool) and isinstance(getattr(args, key), str):
+            try:
+                setattr(args, key, boolean(getattr(args, key)))
+            except argparse.ArgumentTypeError as error:
+                ap.error(f'[gpu] {key}: {error}')
     args.default_input = Path(setting('preprocessing', 'input_file', 'msieve.dat.ms'))
     for k, v in vars(args).items():
         if isinstance(v, Path):
@@ -685,7 +908,7 @@ def parser(argv=None):
         return args
     if args.threads == 0:
         args.threads = os.cpu_count() or 1
-    for key in ('extract', 'seeds', 'threads', 'workers', 'rerank', 'keep', 'score_top', 'finalists', 'maxlines', 'umax'):
+    for key in ('extract', 'seeds', 'threads', 'workers', 'rerank', 'keep', 'score_top', 'finalists', 'maxlines', 'umax', 'ropt_batch_size'):
         if getattr(args, key) < 1:
             ap.error(f'--{key.replace("_", "-")} must be positive')
     if args.workers > 2:
@@ -737,6 +960,17 @@ def parser(argv=None):
             ap.error(f'--{key.replace("_", "-")} must be finite and positive')
     if args.budget < .5 or args.score_top > args.keep or args.rerank < max(args.keep, 3):
         ap.error('need budget >= 0.5, score-top <= keep, rerank >= max(keep,3)')
+    if args.alpha_screen:
+        try:
+            count, bound = map(int, args.alpha_screen.split(','))
+            if not (max(args.rerank, args.keep, 3) <= count <= 2**24 and 2 <= bound <= 2000):
+                raise ValueError()
+        except ValueError:
+            ap.error('--alpha-screen needs N,B: max(rerank,keep,3) <= N <= 2^24 and 2 <= B <= 2000')
+        args.alpha_screen = f'{count},{bound}'
+    for key, option in SCREEN_OPTIONS.items():
+        if getattr(args, key) and option.get('requires') and not getattr(args, option['requires']):
+            ap.error('--' + key.replace('_', '-') + ' requires --' + option['requires'].replace('_', '-'))
     if args.depth_seeds and args.depth_maxcells <= args.maxcells:
         ap.error('--depth-maxcells must exceed --maxcells when depth is enabled')
     if args.command in ('pipeline', 'all'):
@@ -772,9 +1006,16 @@ def main(argv=None):
         except BlockingIOError:
             raise ValueError(f'another pipeline is using {args.run_dir}') from None
         run = Run(args.run_dir)
-        write_json(run.path / 'execution.json', {k: getattr(args, k) for k in EXECUTION_SETTINGS})
         try:
             run.state('starting', command=args.command)
+            if args.command in ('pipeline', 'all'):
+                # Reject unsupported frozen binaries before an expensive sopt pass.
+                validate_ropt_features(run, args, run.freeze('s23_ropt', args.ropt_binary))
+                settings = pipeline_settings(args)
+                run.step('pipeline_settings', settings, [run.path / 'settings.json'],
+                         lambda: write_json(run.path / 'settings.json', settings))
+            # Failed feature/semantic validation must not poison later resumes.
+            write_json(run.path / 'execution.json', {k: getattr(args, k) for k in EXECUTION_SETTINGS})
             if args.command in ('preprocess', 'all') or args.input or args.initial_unsorted:
                 info = preprocess(run, args)
             else:
