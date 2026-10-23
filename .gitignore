@@ -24,6 +24,7 @@ cub/built
 # GPU profiler artifacts
 *.nsys-rep
 *.ncu-rep
+*.ncu-repz
 *.sqlite
 profile_*.log
 trans_*.log
@@ -55,6 +56,13 @@ nfs_config.ini
 *.t
 msieve.log
 msieve.dat.*
+*.w[0-9]*.jsonl
+*.w[0-9]*.jsonl.zst
+*.w[0-9]*.jsonl.zst.partial
+stage23_bench/runs/**/*.candidates.jsonl.zst
+stage23_bench/runs/**/*.candidates.jsonl.zst.partial
+stage23_bench/runs/**/ledger.jsonl
+/as660.log
 worktodo.ini
 factor.log
 *.ms

@@ -1,0 +1,10 @@
+{
+  "name": "nsys",
+  "logging": false,
+  "profiler": "nsys",
+  "returncode": 0,
+  "process_seconds": 6.200280079006916,
+  "coefficient_seconds": 2.2968305310059804,
+  "raw_count": 2,
+  "raw_set_sha256": "c80ddbad05f46589d05d1336cd5324379a5441a2834e6e51142a9c56508034b0"
+}

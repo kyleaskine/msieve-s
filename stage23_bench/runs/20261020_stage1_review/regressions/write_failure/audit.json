@@ -1,0 +1,66 @@
+{
+  "exposure_mode": "q_uint32_sixteenths",
+  "coefficients": [],
+  "timing": [
+    {
+      "sidecar": "/tmp/stage1-review-extra-20261020-v3/write_failure/provenance.w0.jsonl",
+      "coefficient": 1,
+      "batch_first": 1,
+      "generation_seconds": 0.006094006,
+      "batches": 28,
+      "seconds": 0.07479035599999997,
+      "audit_prepare_seconds": 0.00034388100000000004,
+      "search_seconds": 0.065492589,
+      "readback_submit_seconds": 0.002859879999999999,
+      "gpu_span_seconds": 0.059765407429999994
+    }
+  ],
+  "launches": [
+    {
+      "sidecar": "/tmp/stage1-review-extra-20261020-v3/write_failure/provenance.w0.jsonl",
+      "coefficient": 1,
+      "group": 0,
+      "num_p": 71001,
+      "roots_per_p": 1,
+      "blocks_x": 317,
+      "blocks_y": 1,
+      "threads": 224,
+      "q_tile": 56,
+      "calls": 28
+    },
+    {
+      "sidecar": "/tmp/stage1-review-extra-20261020-v3/write_failure/provenance.w0.jsonl",
+      "coefficient": 1,
+      "group": 1,
+      "num_p": 5296,
+      "roots_per_p": 5,
+      "blocks_x": 21,
+      "blocks_y": 2,
+      "threads": 256,
+      "q_tile": 28,
+      "calls": 28
+    },
+    {
+      "sidecar": "/tmp/stage1-review-extra-20261020-v3/write_failure/provenance.w0.jsonl",
+      "coefficient": 1,
+      "group": 2,
+      "num_p": 30,
+      "roots_per_p": 25,
+      "blocks_x": 1,
+      "blocks_y": 1,
+      "threads": 128,
+      "q_tile": 56,
+      "calls": 28
+    }
+  ],
+  "exposure": [
+    {
+      "N": "1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039",
+      "ad": "420",
+      "q_min": 1,
+      "q_max": 268435455,
+      "aprog": 1,
+      "qroots": 1568
+    }
+  ]
+}

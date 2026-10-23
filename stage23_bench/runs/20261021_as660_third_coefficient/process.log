@@ -1,0 +1,161 @@
+snapshot saved; auditing completed third coefficient
+{"counts": {"batches": 3440522, "qroots": 199550235, "bucket_grows": 0, "hash_caps": 0, "arena_fallbacks": 3779, "returned_hits": 309570, "admitted_hits": 309570, "valid_hits": 309570, "unique_candidates": 296586, "repeated_qroot_work": null, "unmatched_raw": 0, "raw_links": 309570}, "incomplete": []}
+starting 10,000-candidate CPU sopt sample
+CPU sopt finished
+{
+  "returned_hits": 309570,
+  "unique_candidates": 296586,
+  "repeat_discoveries": 12984,
+  "repeat_fraction": 0.04194204864812482,
+  "admitted_hits": 309570,
+  "qroots": 199550235,
+  "hits_per_million_qroots": 1551.3386892278027,
+  "unique_per_million_qroots": 1486.272366454492,
+  "gate_ratio_max": 0.001369527890926092,
+  "coefficient": {
+    "sidecar": "/home/kylea/msieve-s/stage23_bench/runs/20261021_as660_third_coefficient/third.w0.jsonl",
+    "parameters": {
+      "type": "coefficient",
+      "coefficient": 2,
+      "ad": "415800",
+      "configured_norm": 5.965531165413326e+29,
+      "effective_norm": 5.965531165413326e+29,
+      "m0": 1.0451071437663179e+38,
+      "coeff_max": 1.0661342278302957e+27,
+      "pmin": 5903733,
+      "pmax": 14168960,
+      "qmin": 1,
+      "qmax": 4294967295
+    },
+    "setup": {
+      "type": "setup",
+      "coefficient": 2,
+      "entries_per_q": 602452,
+      "qroots_total": 199550235,
+      "seconds": 2.201906908
+    },
+    "ending": {
+      "type": "coefficient_end",
+      "coefficient": 2,
+      "complete": true,
+      "qroots_done": 199550235,
+      "found": 309570,
+      "seconds": 19677.31607431,
+      "wall_seconds": 19677.275484324
+    }
+  },
+  "sopt": {
+    "n": 10000,
+    "mean": 58.643085,
+    "best": 53.74,
+    "q01": 55.96,
+    "q10": 57.04,
+    "median": 58.32
+  },
+  "q_bins": [
+    {
+      "bin": 0,
+      "qroots": 57123844,
+      "raw_hits": 88862,
+      "hits_per_million_qroots": 1555.6025956516512,
+      "sample": {
+        "n": 2918,
+        "mean": 58.68883139136395,
+        "best": 54.41,
+        "q01": 55.948499999999996,
+        "q10": 57.08,
+        "median": 58.38
+      }
+    },
+    {
+      "bin": 1,
+      "qroots": 49887765,
+      "raw_hits": 77228,
+      "hits_per_million_qroots": 1548.0348738814014,
+      "sample": {
+        "n": 2411,
+        "mean": 58.662069680630445,
+        "best": 54.54,
+        "q01": 55.940999999999995,
+        "q10": 57.07,
+        "median": 58.35
+      }
+    },
+    {
+      "bin": 2,
+      "qroots": 47155803,
+      "raw_hits": 73109,
+      "hits_per_million_qroots": 1550.3712236646675,
+      "sample": {
+        "n": 2325,
+        "mean": 58.59665806451613,
+        "best": 53.74,
+        "q01": 55.9148,
+        "q10": 57.004,
+        "median": 58.26
+      }
+    },
+    {
+      "bin": 3,
+      "qroots": 45382823,
+      "raw_hits": 70371,
+      "hits_per_million_qroots": 1550.6086961580156,
+      "sample": {
+        "n": 2233,
+        "mean": 58.60651589789521,
+        "best": 55.16,
+        "q01": 56.05,
+        "q10": 57.03,
+        "median": 58.29
+      }
+    }
+  ],
+  "chronology_bins": [
+    {
+      "bin": 0,
+      "sample": {
+        "n": 2425,
+        "mean": 58.656841237113404,
+        "best": 54.97,
+        "q01": 55.9248,
+        "q10": 57.03,
+        "median": 58.35
+      }
+    },
+    {
+      "bin": 1,
+      "sample": {
+        "n": 2467,
+        "mean": 58.65010539116336,
+        "best": 53.74,
+        "q01": 55.866600000000005,
+        "q10": 57.04,
+        "median": 58.38
+      }
+    },
+    {
+      "bin": 2,
+      "sample": {
+        "n": 2536,
+        "mean": 58.619089116719245,
+        "best": 54.41,
+        "q01": 56.0,
+        "q10": 57.03,
+        "median": 58.28
+      }
+    },
+    {
+      "bin": 3,
+      "sample": {
+        "n": 2572,
+        "mean": 58.647041213063765,
+        "best": 53.76,
+        "q01": 56.1242,
+        "q10": 57.06,
+        "median": 58.31
+      }
+    }
+  ],
+  "sampled_identities_spanning_q_bins": 113,
+  "sampled_identities_spanning_chronology_bins": 0
+}

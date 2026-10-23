@@ -1,0 +1,26 @@
+[
+  {
+    "ad": 138600,
+    "command": [
+      "/home/kylea/msieve-s/stage23_bench/runs/20261021_as660_two_coefficients/bin/sopt",
+      "-sopteffort",
+      "0",
+      "-inputpolys",
+      "/home/kylea/msieve-s/stage23_bench/runs/20261021_as660_two_coefficients/sample-138600.ms"
+    ],
+    "returncode": 0,
+    "seconds": 190.58214548198157
+  },
+  {
+    "ad": 277200,
+    "command": [
+      "/home/kylea/msieve-s/stage23_bench/runs/20261021_as660_two_coefficients/bin/sopt",
+      "-sopteffort",
+      "0",
+      "-inputpolys",
+      "/home/kylea/msieve-s/stage23_bench/runs/20261021_as660_two_coefficients/sample-277200.ms"
+    ],
+    "returncode": 0,
+    "seconds": 185.92247122098343
+  }
+]

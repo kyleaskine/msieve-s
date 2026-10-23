@@ -1,0 +1,153 @@
+
+
+Msieve v. 1.54 (SVN unknown)
+Tue Oct 20 11:57:25 2026
+random seeds: 43a6d5fc 0205b689
+factoring 5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599 (196 digits)
+no P-1/P+1/ECM available, skipping
+commencing number field sieve (196-digit input)
+commencing number field sieve polynomial selection
+setting degree to 5
+polynomial degree: 5
+max stage 1 norm: 5.97e+29
+max stage 2 norm: 4.79e+28
+min E-value: 2.27e-15
+poly select deadline: 1079999
+reading leading coefficients from coeff_list.txt
+time limit set to 300.00 CPU-hours
+expecting poly E from 1.06e-14 to > 1.22e-14
+searching leading coefficients from 1 to 2035228490
+using GPU 0 (NVIDIA GeForce RTX 5070)
+selected card has CUDA arch 12.0
+using Gerbicz GPU collision engine with bucket hashing
+deadline: 8640000 CPU-seconds per coefficient
+reading leading coefficients from coeff_list.txt
+[2026-10-20 11:57:26] coeff 138600 norm 5.97e+29 specialq 2140000000 - 2140100000 other 6835066 - 16404160
+found_array stats: batches 57 peak 1 saturated 0 total 2 cap 1000
+[2026-10-20 11:57:28] coeff 138600: found 2 polys (2 total)
+polynomial selection complete
+error generating or reading NFS polynomials
+elapsed time 00:00:03
+Collecting data...
+Generating '/tmp/nsys-kylea/nsys-report-14a2.qdstrm'
+
+[1/2] [0%                          ] trace.nsys-rep
+[1/2] [0%                          ] trace.nsys-rep
+[1/2] [1%                          ] trace.nsys-rep
+[1/2] [2%                          ] trace.nsys-rep
+[1/2] [5%                          ] trace.nsys-rep
+[1/2] [8%                          ] trace.nsys-rep
+[1/2] [==19%                       ] trace.nsys-rep
+[1/2] [==20%                       ] trace.nsys-rep
+[1/2] [===================80%      ] trace.nsys-rep
+[1/2] [===================82%      ] trace.nsys-rep
+[1/2] [=======================96%  ] trace.nsys-rep
+[1/2] [========================98% ] trace.nsys-rep
+[1/2] [========================100%] trace.nsys-rep
+[1/2] [========================100%] trace.nsys-rep
+
+[2/2] [0%                          ] trace.sqlite
+[2/2] [1%                          ] trace.sqlite
+[2/2] [2%                          ] trace.sqlite
+[2/2] [3%                          ] trace.sqlite
+[2/2] [4%                          ] trace.sqlite
+[2/2] [5%                          ] trace.sqlite
+[2/2] [6%                          ] trace.sqlite
+[2/2] [7%                          ] trace.sqlite
+[2/2] [8%                          ] trace.sqlite
+[2/2] [9%                          ] trace.sqlite
+[2/2] [10%                         ] trace.sqlite
+[2/2] [11%                         ] trace.sqlite
+[2/2] [12%                         ] trace.sqlite
+[2/2] [13%                         ] trace.sqlite
+[2/2] [14%                         ] trace.sqlite
+[2/2] [=15%                        ] trace.sqlite
+[2/2] [=16%                        ] trace.sqlite
+[2/2] [=17%                        ] trace.sqlite
+[2/2] [==18%                       ] trace.sqlite
+[2/2] [==19%                       ] trace.sqlite
+[2/2] [==20%                       ] trace.sqlite
+[2/2] [==21%                       ] trace.sqlite
+[2/2] [===22%                      ] trace.sqlite
+[2/2] [===23%                      ] trace.sqlite
+[2/2] [===24%                      ] trace.sqlite
+[2/2] [====25%                     ] trace.sqlite
+[2/2] [====26%                     ] trace.sqlite
+[2/2] [====27%                     ] trace.sqlite
+[2/2] [====28%                     ] trace.sqlite
+[2/2] [=====29%                    ] trace.sqlite
+[2/2] [=====30%                    ] trace.sqlite
+[2/2] [=====31%                    ] trace.sqlite
+[2/2] [=====32%                    ] trace.sqlite
+[2/2] [======33%                   ] trace.sqlite
+[2/2] [======34%                   ] trace.sqlite
+[2/2] [======35%                   ] trace.sqlite
+[2/2] [=======36%                  ] trace.sqlite
+[2/2] [=======37%                  ] trace.sqlite
+[2/2] [=======38%                  ] trace.sqlite
+[2/2] [=======39%                  ] trace.sqlite
+[2/2] [========40%                 ] trace.sqlite
+[2/2] [========41%                 ] trace.sqlite
+[2/2] [========42%                 ] trace.sqlite
+[2/2] [=========43%                ] trace.sqlite
+[2/2] [=========44%                ] trace.sqlite
+[2/2] [=========45%                ] trace.sqlite
+[2/2] [=========46%                ] trace.sqlite
+[2/2] [==========47%               ] trace.sqlite
+[2/2] [==========48%               ] trace.sqlite
+[2/2] [==========49%               ] trace.sqlite
+[2/2] [===========50%              ] trace.sqlite
+[2/2] [===========51%              ] trace.sqlite
+[2/2] [===========52%              ] trace.sqlite
+[2/2] [===========53%              ] trace.sqlite
+[2/2] [============54%             ] trace.sqlite
+[2/2] [============55%             ] trace.sqlite
+[2/2] [============56%             ] trace.sqlite
+[2/2] [============57%             ] trace.sqlite
+[2/2] [=============58%            ] trace.sqlite
+[2/2] [=============59%            ] trace.sqlite
+[2/2] [=============60%            ] trace.sqlite
+[2/2] [==============61%           ] trace.sqlite
+[2/2] [==============62%           ] trace.sqlite
+[2/2] [==============63%           ] trace.sqlite
+[2/2] [==============64%           ] trace.sqlite
+[2/2] [===============65%          ] trace.sqlite
+[2/2] [===============66%          ] trace.sqlite
+[2/2] [===============67%          ] trace.sqlite
+[2/2] [================68%         ] trace.sqlite
+[2/2] [================69%         ] trace.sqlite
+[2/2] [================70%         ] trace.sqlite
+[2/2] [================71%         ] trace.sqlite
+[2/2] [=================72%        ] trace.sqlite
+[2/2] [=================73%        ] trace.sqlite
+[2/2] [=================74%        ] trace.sqlite
+[2/2] [==================75%       ] trace.sqlite
+[2/2] [==================76%       ] trace.sqlite
+[2/2] [==================77%       ] trace.sqlite
+[2/2] [==================78%       ] trace.sqlite
+[2/2] [===================79%      ] trace.sqlite
+[2/2] [===================80%      ] trace.sqlite
+[2/2] [===================81%      ] trace.sqlite
+[2/2] [===================82%      ] trace.sqlite
+[2/2] [====================83%     ] trace.sqlite
+[2/2] [====================84%     ] trace.sqlite
+[2/2] [====================85%     ] trace.sqlite
+[2/2] [=====================86%    ] trace.sqlite
+[2/2] [=====================87%    ] trace.sqlite
+[2/2] [=====================88%    ] trace.sqlite
+[2/2] [=====================89%    ] trace.sqlite
+[2/2] [======================90%   ] trace.sqlite
+[2/2] [======================91%   ] trace.sqlite
+[2/2] [======================92%   ] trace.sqlite
+[2/2] [=======================93%  ] trace.sqlite
+[2/2] [=======================94%  ] trace.sqlite
+[2/2] [=======================95%  ] trace.sqlite
+[2/2] [=======================96%  ] trace.sqlite
+[2/2] [========================97% ] trace.sqlite
+[2/2] [========================98% ] trace.sqlite
+[2/2] [========================99% ] trace.sqlite
+[2/2] [========================100%] trace.sqlite
+[2/2] [========================100%] trace.sqlite
+Generated:
+	/home/kylea/msieve-s/stage23_bench/runs/20261020_as660_first_coefficient/nsys/trace.nsys-rep
+	/home/kylea/msieve-s/stage23_bench/runs/20261020_as660_first_coefficient/nsys/trace.sqlite

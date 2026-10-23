@@ -12,6 +12,263 @@
 > qualify conclusions 1 and 5, answer the `las` question under "Verify first", and move a
 > modest lattice-aware calculator (workstream 1) earlier.
 
+## Execution roadmap and C196 search (2026-10-19)
+
+**Update 2026-10-23:** the user completed the CPU pipeline on all eight
+coefficients (1,687,829 distinct candidates), including 180180 and 360360.
+Full-corpus effort-0 scoring, top-1,000 effort-50 reoptimization, and ropt on
+300 msieve / 150 CADO seeds in both sign passes are complete. The independent
+CPU review verified all optimized resultants and joined selected inputs and
+root-optimized finalists back to original coefficients. Exact tails and
+top-300 origins are in
+`stage23_bench/runs/20261023_as660_cpu_review/README.md`. This supersedes the
+October 22 pending-full-scoring status below. The CADO winner originates from
+831600; the msieve winner from 360360. The GPU workflow is already running and
+includes common-parameter rescoring. Do not launch duplicate optimization work.
+The subsequent archive pass completed the two new full collision audits and
+validated compact provenance for all 1,687,829 identities, with log2 exposure
+covering 1,141,047,425 searched roots. The compact research index and lossless
+archive/reconstruction records are in `stage23_bench/runs/20261023_stage1_archive/`.
+Outside-cutoff controls, quality comparisons using those logarithmic bins,
+and a clean 138600 timing control remain pending.
+
+Revised after Claude's source review. The audits below and
+`POLYSELECT_OPTIMIZATION_NOTES.md` supply the evidence; they do not establish an
+optimal search policy. Implementation began on 2026-10-20: the prefix fix, optional
+provenance, q-window controls, and bounded correctness tests are now implemented.
+See the implementation record at the top of `POLYSELECT_OPTIMIZATION_NOTES.md`.
+As of 2026-10-22, all six completed AS660 C196 coefficients (138600 through
+831600, in steps of 138600) have passed collision reconstruction and raw-output
+joins: 1,237,445 outputs / 1,190,117 distinct candidate identities. Extracted
+sections ending at completed coefficient boundaries can lack `worker_end`;
+those expected diagnostics are distinguished from incomplete coefficients.
+The completed source runs have clean worker endings. Representative GPU profiles
+are in `stage23_bench/runs/20261020_as660_first_coefficient/`; the latest audits
+and combined 60,000-candidate CPU sopt comparison are in
+`stage23_bench/runs/20261022_as660_six_coefficients/`, referencing the earlier
+two- and three-coefficient artifacts. Detailed results are at the top of
+`POLYSELECT_OPTIMIZATION_NOTES.md`.
+
+Typical and lower-tail sopt quality modestly worsens across these related
+coefficients. At exploratory common sopt thresholds, extra candidate density
+does not compensate per q root, but q-root throughput rises: **per elapsed hour
+the estimates are much flatter and do not establish a smaller-coefficient
+advantage**. Reproduced rates and timing limitations are in the latest run's
+`productivity-comparison.json`. The first coefficient has both contention and
+an older clock and cannot serve as a clean rate baseline. Within coefficients, larger-q quarters
+have slightly better mean scores in all six samples (combined difference
+-0.05775); discovery chronology has no detected average deterioration
+(+0.00425). These are sopt associations, not final-quality or causal conclusions.
+First score the full distinct corpus on CPU with the frozen binary and explicit
+effort 0, retaining IDs and checking input/output joins. Report exact observed
+tails per coefficient per recorded elapsed hour and the global top-300 origins;
+full scoring removes subsampling uncertainty, not future-search uncertainty.
+Then run broad/deep ropt with common scoring parameters and retained provenance.
+Supplement the global top seeds with per-coefficient quotas and stratified
+outside-cutoff controls to assess missed finalists; top-300 origins alone do not
+settle allocation. Full scoring and ropt remain pending. Apply the same audit
+and scoring to the user's new 180180 run when complete, and later obtain a quiet,
+matched-work 138600 timing control. Do not change search allocation yet.
+All returned collisions
+passed the admission gate, so none of these coefficients supplies rejected
+candidates for the fixed-geometry admission sweep. Retain the reference search
+policy while testing final quality.
+The subsequent provenance code review is addressed in the implementation log:
+schema 2 reduces repeated launch records, hashes the runtime PTX, handles audit
+I/O errors through a drained shutdown, and uses RAW host duration timing on
+Linux. The rebuilt executable passed the review regressions; no production
+restart was launched by the agent.
+
+**Order:** isolate the correctness issue → add provenance and controlled q windows
+→ measure a representative C196 pilot and start useful search work → tune kernels
+against that workload while analyzing quality offline → compare coefficient
+allocation and search geometry. Provenance is a prerequisite for a substantial
+C196 run; kernel optimization and the research conclusions are not.
+
+### 0. Isolate the prefix-width correctness issue
+
+- [x] Fix the narrowing load in `sieve_kernel_trans_pp64_r64`
+  (`stage1_core.cu:502`): a 64-bit prefix is assigned to `uint32` before testing
+  for zero. A nonzero prefix with zero low 32 bits is incorrectly skipped.
+- [x] Make this a separate correctness change, with a deterministic regression
+  case and an independent modular-arithmetic reference. Exercise trailing invalid
+  q entries and repeated q roots. Do not rely on a large random run to hit it.
+- [x] Rebuild the PTX and establish corrected reference outputs before comparing
+  performance variants. Historical raw-set parity can legitimately change here;
+  classify differences using the arithmetic reference. The review's estimated
+  occurrence rate and exact extent of damage have not been measured.
+
+### 1. Preserve provenance and expose controlled q windows
+
+- [x] Add optional buffered sidecar logging, keeping existing polynomial formats
+  usable. Record run/coefficient/batch IDs, source/build/GPU settings, exact N,
+  configured/effective bounds, p ranges, root-group sizes, q values/root counts
+  including no-hit work, progression counts, launch geometry, and timing scopes.
+- [x] Log every **returned** found-array entry before the coefficient gate:
+  q, qroot, offset, p1, p2, `coeff/coeff_max`, and admission/validation status.
+  Save exact integer inputs as well as the floating gate value. Separate returned,
+  gate-passing, mathematically valid, and successfully expanded candidates.
+- [ ] For valid hits, retain original `(a_d, P, m)` / raw `(c_d, Y1, Y0)` identity
+  through sopt/ropt, including multiplier/sign changes. Deduplicate by raw identity
+  while retaining all discovery provenance. Preserve original unsorted output;
+  file position already gives approximate chronology, but neither it nor batch ID
+  implies ascending q.
+  Raw identities and sampled sopt joins are implemented and validated at production
+  scale; ropt transformations are fixture-tested. Production ropt joins remain pending.
+- [x] Recover rejected candidates offline with the same `handle_collision`
+  validation, or use a separate audit path that never submits them to production
+  callbacks. This permits admission sweeps on one fixed-geometry collision corpus;
+  it does not make reconstruction, sopt, or ropt free. Rejected-hit reconstruction
+  is fixture-tested; this production corpus has no gate rejections.
+- [ ] Before a rejected-candidate sweep, explicitly capture the later configured
+  `pol_expand` bound and audit its effect, so it does not silently censor that
+  population. Current raw joins validate the observed admitted outputs only.
+- [x] Log found-array saturation and collision-engine overflow/cap events. A
+  saturated found array truncates records; do not call such a corpus complete.
+  Rerun affected fixed work with sufficient capacity before using it as a complete
+  admission curve. Aggregate found/accepted counts alone do not identify causes.
+- [x] Add explicit q magnitude windows using the existing factory reset bounds.
+  Specify disjoint inclusive ranges `[lo, hi-1]`, with wide arithmetic at the
+  UINT32_MAX endpoint. Preserve the original factor-base configuration; include
+  trivial q=1 only in its own window. Verify no missing or duplicated q/root work.
+- [x] Control the partial-batch offset policy: window boundaries can increase
+  `num_aprog_vals`, so disjoint q ranges alone do not reproduce an unsplit search's
+  candidate set. For equivalence tests use a common fixed progression policy;
+  for production record boundary extras and account for repeated p-array setup.
+  Completed windows are resumable; interrupted windows need checkpoints or
+  explicit replay/deduplication, not an assumption that q traversal is sorted.
+- [x] Verify candidate parity with logging on/off and measure initial logging
+  overhead. Final RAW-clock pairs returned identical 86-polynomial multisets;
+  pooled overhead was 1.27%, with substantial short-run noise.
+- [ ] Establish logging overhead <=1% of coefficient elapsed time on a quiet GPU;
+  if exceeded, buffer/batch further or
+  separate expensive rejected-candidate reconstruction from capture. Retain
+  essential provenance during production and make it optional for clean tuning.
+
+**Deliverable:** validated raw → sopt → ropt joins, collision and no-hit work
+records, and reproducible q work units. Batch time belongs to all its q values;
+do not invent per-q cost by dividing it among successful hits. Grouped windows
+provide a cleaner basis for productivity comparisons, including setup cost.
+
+A cheap CPU-only companion check can attempt q reconstruction from the 10,000
+random raw rows in each saved fixture. Factor |Y1| and enumerate admissible
+`P=q*p1*p2` decompositions using the original bounds, coprimality, and root
+conditions. Report unique/ambiguous/unresolved fractions before interpreting
+correlations: composite p factors overlap the allowed q factors, so uniqueness
+is not automatic. Recover root counts from N/a_d and the factory rules, not
+factorization alone. This lacks unsuccessful-work exposure, and a null result
+on c146/c161 is not a reason to omit C196 provenance.
+
+### 2. Measure C196 and start useful search work
+
+The user's C196 is AS660, distributed start-number 660. Its exact N and search
+settings are recorded in the run headers and audit manifests; six coefficients
+are complete and the user has switched to 180180. Final common sieving/scoring
+parameters still need to be fixed in the ropt manifest.
+
+- [ ] Preserve the distributed reference policy: degree 5,
+  `min_coeff=high_coeff_mult=138600`, `num_polys=1600000`. These are reference
+  choices, not proven optimal. Use explicit `collengine=gerbicz` and fixed search
+  work for benchmarks; the raw-count target is not an equal-time budget.
+- [ ] Run an instrumented pilot at a_d=138600, sampling selected q windows across
+  the actual range. Nearby coefficient controls are 69300 and 277200. Choose
+  runtime/coverage after measuring setup and batch costs; an initial traversal
+  prefix is neither a low-q sample nor necessarily representative.
+- [x] Confirm the printed effective norm and p/q bounds. The old c157 launch
+  shapes are not a C196 tuning specification. Under the automatic-bound/target
+  regime, a 196-digit N with a_d=138600 gives roughly p=5.3–14.0 million across
+  possible N values, versus roughly 0.19–0.49 million for c157/ad=420. Larger p
+  permits additional factor combinations and can change group sizes, entries
+  per q, batch depth, packing limits, and useful launch geometry. Measure them.
+- [x] Capture a short Systems trace and representative NCU launches by shape,
+  separately from unprofiled timings. Measure p setup, q counting/generation,
+  trans/collision work, readback/host processing, and queue drain. Existing CUDA
+  event spans can include gaps between launches; distinguish them from the union
+  of active GPU intervals. Never subtract profiled kernel totals from a different
+  unprofiled wall-time run to estimate CPU overhead.
+- [x] Time coefficients with a monotonic high-resolution clock, retaining both
+  process/setup time and coefficient elapsed time. Printed start/end timestamps
+  are a useful startup-free cross-check but coarse for small improvements.
+- [ ] Keep all valid experimental C196 candidates eligible for the real final
+  pool. Once capture and correctness checks pass, continue the reference search
+  with provenance; do not wait for kernel tuning or every quality question.
+
+**Deliverable:** a current C196 baseline, launch/cost distribution, and useful
+search corpus. Keep c157/ad420 and ad60060 as historical diagnostics and quick
+regression workloads where their inputs/build support remain available.
+
+### 3. Tune against the measured workload
+
+- [ ] Sweep the trans launch heuristic across all root groups: work per block,
+  q subdivision, and minimum x block size. Include sparse coverage, medium-group
+  wave tails, and the dominant group's prefix working set. Test extra q tiling
+  before more invasive prefetching. A second stream for a small group is an
+  alternative experiment, with disjoint writes and an explicit join before the
+  collision engine; concurrency and benefit are not guaranteed.
+- [ ] Prefer index-derived metadata on Gerbicz matches over a full initialized
+  metadata array. Build a per-entry p map once and decode q from the current
+  layout/plane size. Validate partial batches, multiple progressions, all root
+  groups, normal/fallback match paths, and the DSO interface. The `pp32_r64`
+  trans variant also uses `p_out` for prefix scratch: preserve or replace that
+  scratch before removing the buffer. Keep sorting behavior intact.
+- [ ] Independently stop allocating sort-only p/root scratch on Gerbicz and
+  update cleanup accordingly. At the maximum single-worker caps this saves
+  480 MB (decimal); actual savings depend on memory settings/thread count.
+  Keep batch capacity fixed for timing/parity comparisons before spending savings
+  on a different search layout.
+- [ ] If the C196 timeline shows material uncovered q-generation/host work,
+  prioritize preparing the next batch while the current batch executes. Use
+  separate factory/scratch state and safe buffer lifetimes. Choose this against
+  kernel work using measured recoverable time, not an assumed 80% utilization.
+- [ ] Benchmark variants separately before combining. Use >=5 interleaved A/B
+  pairs after warmup on identical work, no competing GPU job, and report paired
+  elapsed-time ratios with a 95% confidence interval. For a speed-only default
+  change require >=2% median coefficient-time improvement and an interval wholly
+  favoring the change; investigate/reject >2% regressions on retained workloads.
+  If inconclusive, extend measurement or leave the variant experimental. Memory
+  savings/correctness have separate acceptance criteria, not invented speedups.
+- [ ] Require canonical raw-set/count/duplicate parity against the corrected
+  baseline for performance-only changes, including partial batches and changing
+  gcd validity. Diagnose saturated outputs before interpreting parity failures.
+
+**Deliverable:** commands, environment, timings, correctness checks, and accepted
+or rejected variants under `stage23_bench/runs/`, linked from the GPU notes.
+
+### 4. Analyze q quality and admission from the corpus
+
+- [ ] Hold geometry fixed initially. Size-optimize pilot candidates with one
+  validated implementation/settings; record optimized norm, exp_E, projective
+  alpha, skew, and original P. Include an explicitly sampled population outside
+  the current admission gate, recording selection probabilities and censoring.
+- [ ] Analyze within each a_d against actual q magnitude, factors/root count,
+  and P. Report logarithmic/equal-count bins and exposure; output order is a
+  secondary diagnostic. Root-optimize strong candidates in every stratum plus
+  a reproducible stratified audit sample with common effort.
+- [ ] Compare fixed-threshold exceedances and final-score tails, not only means
+  or best-so-far curves. An offline threshold sweep covers the recorded collision
+  population only, not hits that different geometry would generate. Measure
+  useful candidates per time only where work attribution is valid.
+- [ ] Confirm apparent q trends on another coefficient and another N before
+  generalizing; test-sieve C196 finalists with the intended job's parameters.
+
+### 5. Compare coefficient allocation and independent geometry
+
+- [ ] Separate magnitude from divisibility using explicit coefficient lists in
+  overlapping bands. Compare near-matched 16M/17M and 18M/19M families, with M
+  containing neither 17 nor 19, across several pairs and numbers.
+- [ ] Use validated q windows to compare more coefficients shallowly versus fewer
+  deeply at equal total cost, including restart/setup and downstream work. Keep
+  exploration across families and rank by final-score progress, not raw hit count.
+- [ ] Sweep geometry separately from admission: effective B, p expansion, and q
+  coverage, using common permissive admission plus audit sampling as needed.
+  When the degree-5 automatic bound and target constraint apply, the q clipping
+  transition is B_auto/2.598. Include that point and values on both sides, plus
+  the reference B. Verify actual constraints first; this is a geometric transition,
+  not a proven quality optimum, and a configured bound may already be below it.
+- [ ] Change defaults only with improved final quality per total budget and
+  confirmation beyond C196. A post-collision filter saves downstream work, not
+  stage-1 work already spent; poor raw norm alone is not grounds to reject a seed.
+
 ## Stage-1 geometry and quality audit (2026-10-19)
 
 The hypothesis that a large stage-1/raw norm rules out an excellent final
@@ -51,10 +308,27 @@ P_scale = B^2 / m0
 
 When the GPU's `sqrt(0.5/target)` constraint selects base p_max, and before
 integer rounding or clipping, base p_max scales as B^(-2/3) and q_max as
-B^(10/3). Halving B changes q_max by about 10x and increases p_max by about 1.59x.
+B^(10/3). Halving B changes uncapped q_max by about 10x and increases p_max by about 1.59x.
 A norm sweep changes which regions are searched, not merely which hits survive.
 The automatic cap's comment refers to CPU constraints; it should not be assumed
 to put the GPU q_max just below 2^32 in every regime.
+
+The review identifies a useful exact simplification in this constraint regime:
+
+```
+q_max_uncapped = 2 * B^(10/3) / m0^(7/3)
+B_auto = 1637.8 * m0^0.7
+q_max_uncapped(B_auto) = 2 * 1637.8^(10/3) = 1.0356974e11
+B_transition = B_auto / 2.5982558
+```
+
+Thus the automatic bound yields about 24.114 times UINT32_MAX before clipping,
+independent of N/a_d in this regime. Between B_transition and B_auto the numeric
+q ceiling stays clipped, while p shrinks as B rises and admission loosens. The
+actual q factory/root eligibility still depends on N/a_d. Crossing below the
+transition contracts q coverage. Verify the selected p constraint and configured
+bound before applying this result; it is a natural sweep point, not evidence of
+an optimal final-quality policy.
 
 ### Check against saved raw, size-optimized, and root-optimized results
 

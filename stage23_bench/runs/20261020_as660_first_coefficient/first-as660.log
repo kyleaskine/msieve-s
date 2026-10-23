@@ -1,0 +1,24 @@
+Tue Oct 20 07:32:18 2026  
+Tue Oct 20 07:32:18 2026  
+Tue Oct 20 07:32:18 2026  Msieve v. 1.54 (SVN unknown)
+Tue Oct 20 07:32:18 2026  random seeds: 845ee1c3 e465bdb7
+Tue Oct 20 07:32:18 2026  factoring 5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599 (196 digits)
+Tue Oct 20 07:32:19 2026  no P-1/P+1/ECM available, skipping
+Tue Oct 20 07:32:19 2026  commencing number field sieve (196-digit input)
+Tue Oct 20 07:32:19 2026  commencing number field sieve polynomial selection
+Tue Oct 20 07:32:19 2026  polynomial degree: 5
+Tue Oct 20 07:32:19 2026  max stage 1 norm: 5.97e+29
+Tue Oct 20 07:32:19 2026  max stage 2 norm: 4.79e+28
+Tue Oct 20 07:32:19 2026  min E-value: 2.27e-15
+Tue Oct 20 07:32:19 2026  poly select deadline: 1079999
+Tue Oct 20 07:32:19 2026  leading coeff multiplier: 138600
+Tue Oct 20 07:32:19 2026  stage 1 polynomial target: 1600000
+Tue Oct 20 07:32:19 2026  time limit set to 300.00 CPU-hours
+Tue Oct 20 07:32:19 2026  expecting poly E from 1.06e-14 to > 1.22e-14
+Tue Oct 20 07:32:19 2026  searching leading coefficients from 138600 to 2035228490
+Tue Oct 20 07:32:19 2026  using GPU 0 (NVIDIA GeForce RTX 5070)
+Tue Oct 20 07:32:19 2026  selected card has CUDA arch 12.0
+Tue Oct 20 07:32:19 2026  using Gerbicz GPU collision engine with bucket hashing
+Tue Oct 20 11:39:04 2026  found_array stats: batches 2502772 peak 8 saturated 0 total 185201 cap 1000
+Tue Oct 20 11:39:04 2026  polynomial selection complete
+Tue Oct 20 11:39:04 2026  elapsed time 04:06:46

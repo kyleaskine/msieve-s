@@ -1,0 +1,12 @@
+{
+  "artifact": {
+    "path": "stage23_bench/runs/20261023_stage1_archive/415800.candidates.jsonl.zst",
+    "sha256": "f4f1a1736c28771d53746b42e23e40c060e65fa67234c3bbcd04c1aee6f7f7f1",
+    "bytes": 27547255,
+    "candidates": 296586,
+    "discoveries": 309570,
+    "raw_links": 309570
+  },
+  "previously_audited_ledger": "stage23_bench/runs/20261021_as660_third_coefficient/ledger.jsonl",
+  "ledger_sha256": "6a17cec5ddda2241411204f5605d417e07c517307365ea61dbd0e091db732a23"
+}

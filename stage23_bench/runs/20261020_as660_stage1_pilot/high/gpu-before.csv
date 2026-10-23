@@ -1,0 +1,2 @@
+name, driver_version, memory.used [MiB], memory.free [MiB], utilization.gpu [%]
+NVIDIA GeForce RTX 5070, 617.42, 2496 MiB, 9448 MiB, 2 %

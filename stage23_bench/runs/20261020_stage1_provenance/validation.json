@@ -1,0 +1,295 @@
+{
+  "purpose": "Correctness only; GPU occupied. No representative timings.",
+  "prefix_regression": {
+    "cases": 12,
+    "original_mismatches": 80,
+    "fixed_mismatches": 0
+  },
+  "integration_manifest": {
+    "N": "1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039",
+    "purpose": "correctness only; GPU may be shared",
+    "revision": "e781bc97016d6ea2ff0a964eaa4a7b8fe5b3c8a7",
+    "diff_sha256": "41f8f805fd252941b13d056ddaba7c73aa480aea46e556c0f8d935b2a7acd530",
+    "binaries": {
+      "msieve": "d1371343316ebd9b6e4e5dc482ef0b1506d3d194713dbaba4043a4ca59637583",
+      "stage1_core.ptx": "5517a4f0270ee1258bae09a3243f8b442a175ca8d7751a9c4fbb24aa47a747d3",
+      "cub/sort_engine.so": "c5d9bdd33e5fc9d1418bfdb584eee7b8b3ad754b2269f7eee5bbbc2434f501df",
+      "cub/collision_engine.so": "0b49cb06884eee1d8f086b5ad022666c03869f8210142cde423e45b5339d204a"
+    }
+  },
+  "integration": {
+    "multi.summary": {
+      "counts": {
+        "batches": 30,
+        "qroots": 540,
+        "returned_hits": 8,
+        "admitted_hits": 8,
+        "valid_hits": 8,
+        "unique_candidates": 8,
+        "repeated_qroot_work": 0
+      },
+      "raw_count": 8,
+      "incomplete": []
+    },
+    "sort.summary": {
+      "counts": {
+        "batches": 108,
+        "qroots": 6035,
+        "returned_hits": 12,
+        "admitted_hits": 12,
+        "valid_hits": 12,
+        "unique_candidates": 12,
+        "repeated_qroot_work": 0
+      },
+      "raw_count": 12,
+      "incomplete": []
+    },
+    "auto.summary": {
+      "counts": {
+        "batches": 4,
+        "qroots": 181,
+        "unique_candidates": 0,
+        "repeated_qroot_work": 0
+      },
+      "raw_count": 0,
+      "incomplete": []
+    },
+    "workers.summary": {
+      "counts": {
+        "batches": 18,
+        "qroots": 497,
+        "returned_hits": 2,
+        "admitted_hits": 2,
+        "valid_hits": 2,
+        "unique_candidates": 2,
+        "repeated_qroot_work": 0
+      },
+      "raw_count": 2,
+      "incomplete": []
+    },
+    "left.summary": {
+      "counts": {
+        "batches": 55,
+        "qroots": 3025,
+        "returned_hits": 6,
+        "admitted_hits": 6,
+        "valid_hits": 6,
+        "unique_candidates": 6,
+        "repeated_qroot_work": 0
+      },
+      "raw_count": 6,
+      "incomplete": []
+    },
+    "empty.summary": {
+      "counts": {
+        "unique_candidates": 0,
+        "repeated_qroot_work": 0
+      },
+      "raw_count": 0,
+      "incomplete": []
+    },
+    "right.summary": {
+      "counts": {
+        "batches": 54,
+        "qroots": 3010,
+        "returned_hits": 6,
+        "admitted_hits": 6,
+        "valid_hits": 6,
+        "unique_candidates": 6,
+        "repeated_qroot_work": 0
+      },
+      "raw_count": 6,
+      "incomplete": []
+    },
+    "full.summary": {
+      "counts": {
+        "batches": 108,
+        "qroots": 6035,
+        "returned_hits": 12,
+        "admitted_hits": 12,
+        "valid_hits": 12,
+        "unique_candidates": 12,
+        "repeated_qroot_work": 0
+      },
+      "raw_count": 12,
+      "incomplete": []
+    }
+  },
+  "commands": {
+    "empty.command": [
+      "/tmp/stage1-integration-20261020/msieve",
+      "-v",
+      "-t",
+      "1",
+      "-s",
+      "empty",
+      "-np1",
+      "-nps",
+      "polydegree=5 min_coeff=420 max_coeff=420 high_coeff_mult=420 collengine=gerbicz gpu_mem_mb=128 stage1_qmin=4294967295 stage1_qmax=4294967295 stage1_aprog=1 stage1_provenance=empty",
+      "1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039"
+    ],
+    "off.command": [
+      "/tmp/stage1-integration-20261020/msieve",
+      "-v",
+      "-t",
+      "1",
+      "-s",
+      "off",
+      "-np1",
+      "-nps",
+      "polydegree=5 min_coeff=420 max_coeff=420 high_coeff_mult=420 collengine=gerbicz gpu_mem_mb=128 stage1_qmin=100000000 stage1_qmax=100200000 stage1_aprog=1",
+      "1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039"
+    ],
+    "full.command": [
+      "/tmp/stage1-integration-20261020/msieve",
+      "-v",
+      "-t",
+      "1",
+      "-s",
+      "full",
+      "-np1",
+      "-nps",
+      "polydegree=5 min_coeff=420 max_coeff=420 high_coeff_mult=420 collengine=gerbicz gpu_mem_mb=128 stage1_qmin=100000000 stage1_qmax=100200000 stage1_aprog=1 stage1_provenance=full",
+      "1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039"
+    ],
+    "sort.command": [
+      "/tmp/stage1-integration-20261020/msieve",
+      "-v",
+      "-t",
+      "1",
+      "-s",
+      "sort",
+      "-np1",
+      "-nps",
+      "polydegree=5 min_coeff=420 max_coeff=420 high_coeff_mult=420 collengine=sort gpu_mem_mb=128 stage1_qmin=100000000 stage1_qmax=100200000 stage1_aprog=1 stage1_provenance=sort",
+      "1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039"
+    ],
+    "auto_off.command": [
+      "/tmp/stage1-integration-20261020/msieve",
+      "-v",
+      "-t",
+      "1",
+      "-s",
+      "auto_off",
+      "-np1",
+      "-nps",
+      "polydegree=5 min_coeff=420 max_coeff=420 high_coeff_mult=420 collengine=gerbicz gpu_mem_mb=128 stage1_qmin=1 stage1_qmax=5000",
+      "1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039"
+    ],
+    "left.command": [
+      "/tmp/stage1-integration-20261020/msieve",
+      "-v",
+      "-t",
+      "1",
+      "-s",
+      "left",
+      "-np1",
+      "-nps",
+      "polydegree=5 min_coeff=420 max_coeff=420 high_coeff_mult=420 collengine=gerbicz gpu_mem_mb=128 stage1_qmin=100000000 stage1_qmax=100099999 stage1_aprog=1 stage1_provenance=left",
+      "1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039"
+    ],
+    "multi_off.command": [
+      "/tmp/stage1-integration-20261020/msieve",
+      "-v",
+      "-t",
+      "1",
+      "-s",
+      "multi_off",
+      "-np1",
+      "-nps",
+      "polydegree=5 min_coeff=420 max_coeff=420 high_coeff_mult=420 collengine=gerbicz gpu_mem_mb=128 stage1_qmin=100000000 stage1_qmax=100020000 stage1_aprog=3",
+      "1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039"
+    ],
+    "workers.command": [
+      "/tmp/stage1-integration-20261020/msieve",
+      "-v",
+      "-t",
+      "2",
+      "-s",
+      "workers",
+      "-np1",
+      "-nps",
+      "polydegree=5 min_coeff=420 max_coeff=840 high_coeff_mult=420 collengine=gerbicz gpu_mem_mb=128 stage1_qmin=1 stage1_qmax=5000 stage1_aprog=1 stage1_provenance=workers",
+      "1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039"
+    ],
+    "right.command": [
+      "/tmp/stage1-integration-20261020/msieve",
+      "-v",
+      "-t",
+      "1",
+      "-s",
+      "right",
+      "-np1",
+      "-nps",
+      "polydegree=5 min_coeff=420 max_coeff=420 high_coeff_mult=420 collengine=gerbicz gpu_mem_mb=128 stage1_qmin=100100000 stage1_qmax=100200000 stage1_aprog=1 stage1_provenance=right",
+      "1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039"
+    ],
+    "auto.command": [
+      "/tmp/stage1-integration-20261020/msieve",
+      "-v",
+      "-t",
+      "1",
+      "-s",
+      "auto",
+      "-np1",
+      "-nps",
+      "polydegree=5 min_coeff=420 max_coeff=420 high_coeff_mult=420 collengine=gerbicz gpu_mem_mb=128 stage1_qmin=1 stage1_qmax=5000 stage1_provenance=auto",
+      "1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039"
+    ],
+    "multi.command": [
+      "/tmp/stage1-integration-20261020/msieve",
+      "-v",
+      "-t",
+      "1",
+      "-s",
+      "multi",
+      "-np1",
+      "-nps",
+      "polydegree=5 min_coeff=420 max_coeff=420 high_coeff_mult=420 collengine=gerbicz gpu_mem_mb=128 stage1_qmin=100000000 stage1_qmax=100020000 stage1_aprog=3 stage1_provenance=multi",
+      "1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039"
+    ]
+  },
+  "checks": [
+    "logging on/off raw multiset equality",
+    "split q windows equal unsplit q/root exposure and raw multiset",
+    "Gerbicz/sort equality",
+    "fixed multiple progressions",
+    "adaptive partial batches",
+    "two workers",
+    "empty q intersection",
+    "independent integer reconstruction",
+    "12 raw/sopt joins",
+    "1 actual CADO ropt output joined by exact algebraic transformation"
+  ],
+  "reproduction": [
+    "make -j2 CUDA=120 all",
+    "nvcc -std=c++17 -arch=sm_120 -I. stage23_bench/tests/stage1_prefix.cu -o /tmp/stage1-prefix-test",
+    "/tmp/stage1-prefix-test",
+    "gcc -std=gnu11 -Wall -Wextra -Werror -I. stage23_bench/tests/stage1_audit_options.c -o /tmp/stage1-audit-options",
+    "/tmp/stage1-audit-options",
+    "python3 -m unittest discover -s stage23_bench/tests -p 'test_stage1*.py' -v",
+    "python3 stage23_bench/tests/stage1_integration.py /tmp/new-stage1-test-directory"
+  ],
+  "source_sha256": {
+    "gnfs/poly/stage1/stage1_audit.h": "c6d3e892d8f70281b2be67d54bcaefafed880faeb3c99bc3bdb4955b45593b58",
+    "gnfs/poly/stage1/stage1_sieve_gpu.c": "443224f9bed450344ebf6bdcf4b7ba1e11356b79289c7c6119fdd11bd2f93c7d",
+    "gnfs/poly/stage1/stage1_core_gpu/stage1_core.cu": "fd2fb38fec082c63de4034a42838bb213d611dfdff209e44444e8aa92b5c2fd4",
+    "stage23_bench/tools/stage1_provenance.py": "2bbb8f6772221a336aec38475c4055bcc1fc91a585b75a17df39891119d3f95e"
+  },
+  "downstream_commands": [
+    [
+      "/home/kylea/cado-nfs/build/DESKTOP-3J4UC68/polyselect/sopt",
+      "-sopteffort",
+      "0",
+      "-inputpolys",
+      "full.ms"
+    ],
+    [
+      "/home/kylea/cado-nfs/build/DESKTOP-3J4UC68/polyselect/polyselect_ropt",
+      "-ropteffort",
+      "0.1",
+      "-inputpolys",
+      "ropt_seed.poly"
+    ]
+  ]
+}

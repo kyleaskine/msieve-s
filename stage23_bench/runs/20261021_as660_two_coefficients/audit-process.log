@@ -1,0 +1,2 @@
+saved completed coefficient prefix 4748715449 bytes
+{"counts": {"batches": 1926806, "qroots": 107901096, "bucket_grows": 1, "hash_caps": 0, "arena_fallbacks": 705, "returned_hits": 161745, "admitted_hits": 161745, "valid_hits": 161745, "unique_candidates": 156518, "repeated_qroot_work": null, "unmatched_raw": 0, "raw_links": 161745}, "incomplete": ["/home/kylea/msieve-s/stage23_bench/runs/20261021_as660_two_coefficients/second.w0.jsonl: missing worker_end"]}

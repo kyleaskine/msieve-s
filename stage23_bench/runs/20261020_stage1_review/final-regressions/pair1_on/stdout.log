@@ -1,0 +1,30 @@
+
+
+Msieve v. 1.54 (SVN unknown)
+Tue Oct 20 19:03:01 2026
+random seeds: 4e6e9190 5400e44a
+factoring 5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599 (196 digits)
+no P-1/P+1/ECM available, skipping
+commencing number field sieve (196-digit input)
+commencing number field sieve polynomial selection
+setting degree to 5
+polynomial degree: 5
+max stage 1 norm: 5.97e+29
+max stage 2 norm: 4.79e+28
+min E-value: 2.27e-15
+poly select deadline: 1079999
+reading leading coefficients from coeff_list.txt
+time limit set to 300.00 CPU-hours
+expecting poly E from 1.06e-14 to > 1.22e-14
+searching leading coefficients from 1 to 2035228490
+using GPU 0 (NVIDIA GeForce RTX 5070)
+selected card has CUDA arch 12.0
+using Gerbicz GPU collision engine with bucket hashing
+deadline: 8640000 CPU-seconds per coefficient
+reading leading coefficients from coeff_list.txt
+[2026-10-20 19:03:02] coeff 138600 norm 5.97e+29 specialq 2140000000 - 2142000000 other 6835066 - 16404160
+found_array stats: batches 1134 peak 2 saturated 0 total 86 cap 1000
+[2026-10-20 19:03:09] coeff 138600: found 86 polys (86 total)
+polynomial selection complete
+error generating or reading NFS polynomials
+elapsed time 00:00:08

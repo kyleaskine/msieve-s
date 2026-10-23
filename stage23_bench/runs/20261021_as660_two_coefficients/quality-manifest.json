@@ -1,0 +1,20 @@
+{
+  "sopt": "/home/kylea/cado-nfs/build/DESKTOP-3J4UC68/polyselect/sopt",
+  "effort": 0,
+  "samples": {
+    "138600": {
+      "source_ledger": "/home/kylea/msieve-s/stage23_bench/runs/20261020_as660_first_coefficient/ledger.jsonl",
+      "sample_count": 10000,
+      "selection": "10,000 lexicographically smallest SHA-256 candidate IDs; one raw per identity",
+      "sample_sha256": "49125bf5cf4cf6e88adde0b28e84a279eeef653738558d6a7aa5fe0c12a420ce"
+    },
+    "277200": {
+      "source_ledger": "/home/kylea/msieve-s/stage23_bench/runs/20261021_as660_two_coefficients/ledger.jsonl",
+      "sample_count": 10000,
+      "selection": "10,000 lexicographically smallest SHA-256 candidate IDs; one raw per identity",
+      "sample_sha256": "b31a2db1f2892ce80ec4b89c6aa4fdf9059ad93ab0f5426248346a8c169b98b0"
+    }
+  },
+  "binary_sha256": "093413e1f8909f1c882513adfdbfdf4fa87501f7c6344eec5e574dc7618f9704",
+  "caution": "Exploratory uniform candidate samples. Sopt exp_E is not final Murphy E."
+}

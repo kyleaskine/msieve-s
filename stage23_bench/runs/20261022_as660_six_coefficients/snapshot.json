@@ -1,0 +1,50 @@
+{
+  "source": "/home/kylea/msieve-s/as660-stage1-c.w0.jsonl",
+  "coefficients": [
+    {
+      "ad": 554400,
+      "start": 790,
+      "ending": {
+        "type": "coefficient_end",
+        "coefficient": 1,
+        "complete": true,
+        "qroots_done": 102004491,
+        "found": 151003,
+        "seconds": 9298.420662954,
+        "wall_seconds": 9296.294008732
+      },
+      "end": 4395296607,
+      "sha256": "f5b6e94bd3f4bee792c5d6436d2f370599a101418adb3901e4ec4bf60357f431"
+    },
+    {
+      "ad": 693000,
+      "start": 4395296607,
+      "ending": {
+        "type": "coefficient_end",
+        "coefficient": 2,
+        "complete": true,
+        "qroots_done": 136534031,
+        "found": 230703,
+        "seconds": 12276.689110059,
+        "wall_seconds": 12276.422780991
+      },
+      "end": 10349991235,
+      "sha256": "9598020b31eee44728d7d7a09c3b0aad3f749925f1495049ba66f5025370acf5"
+    },
+    {
+      "ad": 831600,
+      "start": 10349991235,
+      "ending": {
+        "type": "coefficient_end",
+        "coefficient": 3,
+        "complete": true,
+        "qroots_done": 125196933,
+        "found": 199223,
+        "seconds": 10669.505495903,
+        "wall_seconds": 10669.354172945
+      },
+      "end": 15733749668,
+      "sha256": "a0ed5f076e5d305b3bad7822590f8af53b2f37c611216fdb3e41c355b35f34de"
+    }
+  ]
+}

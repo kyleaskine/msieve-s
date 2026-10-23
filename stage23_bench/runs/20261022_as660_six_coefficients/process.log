@@ -1,0 +1,17 @@
+snapshots saved for all three completed coefficients
+554400: auditing
+554400: audit passed {"batches": 1645234, "qroots": 102004491, "bucket_grows": 0, "hash_caps": 0, "arena_fallbacks": 683, "returned_hits": 151003, "admitted_hits": 151003, "valid_hits": 151003, "unique_candidates": 147028, "repeated_qroot_work": null, "unmatched_raw": 0, "raw_links": 151003}
+554400: CPU sopt started
+554400: CPU sopt finished
+554400: validated scores {"n": 10000, "mean": 58.639301, "best": 53.93, "q01": 56.01990000000001, "q10": 57.03, "median": 58.34}
+693000: auditing
+693000: audit passed {"batches": 2314137, "qroots": 136534031, "bucket_grows": 0, "hash_caps": 0, "arena_fallbacks": 3602, "returned_hits": 230703, "admitted_hits": 230703, "valid_hits": 230703, "unique_candidates": 218988, "repeated_qroot_work": null, "unmatched_raw": 0, "raw_links": 230703}
+693000: CPU sopt started
+693000: CPU sopt finished
+693000: validated scores {"n": 10000, "mean": 58.690064, "best": 54.69, "q01": 56.09, "q10": 57.11, "median": 58.41}
+831600: auditing
+831600: audit passed {"batches": 1987253, "qroots": 125196933, "bucket_grows": 1, "hash_caps": 0, "arena_fallbacks": 3857, "returned_hits": 199223, "admitted_hits": 199223, "valid_hits": 199223, "unique_candidates": 191004, "repeated_qroot_work": null, "unmatched_raw": 0, "raw_links": 199223}
+831600: CPU sopt started
+831600: CPU sopt finished
+831600: validated scores {"n": 10000, "mean": 58.651159, "best": 53.0, "q01": 56.13, "q10": 57.08, "median": 58.38}
+six-coefficient comparison saved

@@ -1,0 +1,305 @@
+{
+  "source": "as660-stage1.w0.jsonl",
+  "bytes": 6807792245,
+  "mtime_ns": 1792510744696531042,
+  "metadata": [
+    {
+      "type": "run",
+      "schema": 1,
+      "worker": 0,
+      "run": "as660-stage1",
+      "N": "5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599",
+      "degree": 5,
+      "engine": "gerbicz",
+      "gpu": "NVIDIA GeForce RTX 5070",
+      "args": "min_coeff=138600 high_coeff_mult=138600 num_polys=1600000 collengine=gerbicz stage1_provenance=as660-stage1",
+      "build": "Oct 20 2026 05:33:20",
+      "cuda_headers": 13040,
+      "capacity32": 50000000,
+      "capacity64": 35000000,
+      "found_capacity": 999
+    },
+    {
+      "type": "coefficient",
+      "coefficient": 1,
+      "ad": "138600",
+      "configured_norm": 5.965531165413326e+29,
+      "effective_norm": 5.965531165413326e+29,
+      "m0": 1.3019223042029047e+38,
+      "coeff_max": 9.908406208865017e+26,
+      "pmin": 6835066,
+      "pmax": 16404160,
+      "qmin": 1,
+      "qmax": 4294967295
+    },
+    {
+      "type": "setup",
+      "coefficient": 1,
+      "entries_per_q": 662846,
+      "qroots_total": 130144102,
+      "seconds": 4.50513994
+    },
+    {
+      "type": "coefficient_end",
+      "coefficient": 1,
+      "complete": true,
+      "qroots_done": 130144102,
+      "found": 185201,
+      "seconds": 15725.546966864
+    }
+  ],
+  "log2_exposure": [
+    {
+      "ad": "138600",
+      "log2_bin": 0,
+      "q_min": 1,
+      "q_max": 1,
+      "aprog": 1,
+      "qroots": 1,
+      "progression_qroots": 1
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 6,
+      "q_min": 64,
+      "q_max": 127,
+      "aprog": 1,
+      "qroots": 5,
+      "progression_qroots": 5
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 7,
+      "q_min": 128,
+      "q_max": 255,
+      "aprog": 1,
+      "qroots": 5,
+      "progression_qroots": 5
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 8,
+      "q_min": 256,
+      "q_max": 511,
+      "aprog": 1,
+      "qroots": 5,
+      "progression_qroots": 5
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 9,
+      "q_min": 512,
+      "q_max": 1023,
+      "aprog": 1,
+      "qroots": 20,
+      "progression_qroots": 20
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 10,
+      "q_min": 1024,
+      "q_max": 2047,
+      "aprog": 1,
+      "qroots": 60,
+      "progression_qroots": 60
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 11,
+      "q_min": 2048,
+      "q_max": 4095,
+      "aprog": 1,
+      "qroots": 110,
+      "progression_qroots": 110
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 12,
+      "q_min": 4096,
+      "q_max": 8191,
+      "aprog": 1,
+      "qroots": 185,
+      "progression_qroots": 185
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 13,
+      "q_min": 8192,
+      "q_max": 16383,
+      "aprog": 1,
+      "qroots": 415,
+      "progression_qroots": 415
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 14,
+      "q_min": 16384,
+      "q_max": 32767,
+      "aprog": 1,
+      "qroots": 885,
+      "progression_qroots": 885
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 15,
+      "q_min": 32768,
+      "q_max": 65535,
+      "aprog": 1,
+      "qroots": 1995,
+      "progression_qroots": 1995
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 16,
+      "q_min": 65536,
+      "q_max": 131071,
+      "aprog": 1,
+      "qroots": 4090,
+      "progression_qroots": 4090
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 17,
+      "q_min": 131072,
+      "q_max": 262143,
+      "aprog": 1,
+      "qroots": 6855,
+      "progression_qroots": 6855
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 18,
+      "q_min": 262144,
+      "q_max": 524287,
+      "aprog": 1,
+      "qroots": 11005,
+      "progression_qroots": 11005
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 19,
+      "q_min": 524288,
+      "q_max": 1048575,
+      "aprog": 1,
+      "qroots": 23940,
+      "progression_qroots": 23940
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 20,
+      "q_min": 1048576,
+      "q_max": 2097151,
+      "aprog": 1,
+      "qroots": 50655,
+      "progression_qroots": 50655
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 21,
+      "q_min": 2097152,
+      "q_max": 4194303,
+      "aprog": 1,
+      "qroots": 102510,
+      "progression_qroots": 102510
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 22,
+      "q_min": 4194304,
+      "q_max": 8388607,
+      "aprog": 1,
+      "qroots": 199230,
+      "progression_qroots": 199230
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 23,
+      "q_min": 8388608,
+      "q_max": 16777215,
+      "aprog": 1,
+      "qroots": 382355,
+      "progression_qroots": 382355
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 24,
+      "q_min": 16777216,
+      "q_max": 33554431,
+      "aprog": 1,
+      "qroots": 699080,
+      "progression_qroots": 699080
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 25,
+      "q_min": 33554432,
+      "q_max": 67108863,
+      "aprog": 1,
+      "qroots": 1349775,
+      "progression_qroots": 1349775
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 26,
+      "q_min": 67108864,
+      "q_max": 134217727,
+      "aprog": 1,
+      "qroots": 2631630,
+      "progression_qroots": 2631630
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 27,
+      "q_min": 134217728,
+      "q_max": 268435455,
+      "aprog": 1,
+      "qroots": 4969995,
+      "progression_qroots": 4969995
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 28,
+      "q_min": 268435456,
+      "q_max": 536870911,
+      "aprog": 1,
+      "qroots": 9117255,
+      "progression_qroots": 9117255
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 29,
+      "q_min": 536870912,
+      "q_max": 1073741823,
+      "aprog": 1,
+      "qroots": 17195995,
+      "progression_qroots": 17195995
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 30,
+      "q_min": 1073741824,
+      "q_max": 2147483647,
+      "aprog": 1,
+      "qroots": 32477300,
+      "progression_qroots": 32477300
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 31,
+      "q_min": 2147483648,
+      "q_max": 4294967295,
+      "aprog": 1,
+      "qroots": 60918736,
+      "progression_qroots": 60918736
+    },
+    {
+      "ad": "138600",
+      "log2_bin": 31,
+      "q_min": 2147483648,
+      "q_max": 4294967295,
+      "aprog": 5,
+      "qroots": 10,
+      "progression_qroots": 50
+    }
+  ]
+}

@@ -1,0 +1,209 @@
+{
+  "ratio_quantiles": {
+    "0": 1.2260013006173796e-09,
+    "0.5": 0.00021371322460475025,
+    "0.9": 0.000527751152939059,
+    "0.99": 0.0009202889047082666,
+    "1": 0.0013690961212541124
+  },
+  "discovery_multiplicity": {
+    "1": 176270,
+    "3": 855,
+    "2": 2689,
+    "6": 32,
+    "5": 33,
+    "10": 2,
+    "4": 86,
+    "7": 6,
+    "15": 5,
+    "9": 5,
+    "8": 7,
+    "21": 1,
+    "16": 1,
+    "12": 1
+  },
+  "identities_with_multiple_q": 3385,
+  "q_bins": [
+    {
+      "q_min": 1,
+      "q_max": 268435455,
+      "qroots": 10434806,
+      "qroot_progressions": 10434806,
+      "hits": 14760,
+      "hits_per_million_qroots": 1414.496829169608
+    },
+    {
+      "q_min": 268435456,
+      "q_max": 536870911,
+      "qroots": 9117255,
+      "qroot_progressions": 9117255,
+      "hits": 13171,
+      "hits_per_million_qroots": 1444.623409129173
+    },
+    {
+      "q_min": 536870912,
+      "q_max": 805306367,
+      "qroots": 8717100,
+      "qroot_progressions": 8717100,
+      "hits": 12424,
+      "hits_per_million_qroots": 1425.2446341099678
+    },
+    {
+      "q_min": 805306368,
+      "q_max": 1073741823,
+      "qroots": 8478895,
+      "qroot_progressions": 8478895,
+      "hits": 12011,
+      "hits_per_million_qroots": 1416.5760986543648
+    },
+    {
+      "q_min": 1073741824,
+      "q_max": 1342177279,
+      "qroots": 8290840,
+      "qroot_progressions": 8290840,
+      "hits": 11909,
+      "hits_per_million_qroots": 1436.404513897265
+    },
+    {
+      "q_min": 1342177280,
+      "q_max": 1610612735,
+      "qroots": 8170855,
+      "qroot_progressions": 8170855,
+      "hits": 11724,
+      "hits_per_million_qroots": 1434.8559606063257
+    },
+    {
+      "q_min": 1610612736,
+      "q_max": 1879048191,
+      "qroots": 8056330,
+      "qroot_progressions": 8056330,
+      "hits": 11314,
+      "hits_per_million_qroots": 1404.3615393113241
+    },
+    {
+      "q_min": 1879048192,
+      "q_max": 2147483647,
+      "qroots": 7959275,
+      "qroot_progressions": 7959275,
+      "hits": 11446,
+      "hits_per_million_qroots": 1438.0706785479833
+    },
+    {
+      "q_min": 2147483648,
+      "q_max": 2415919103,
+      "qroots": 7876505,
+      "qroot_progressions": 7876505,
+      "hits": 11198,
+      "hits_per_million_qroots": 1421.696551960546
+    },
+    {
+      "q_min": 2415919104,
+      "q_max": 2684354559,
+      "qroots": 7803525,
+      "qroot_progressions": 7803525,
+      "hits": 11196,
+      "hits_per_million_qroots": 1434.7362249752516
+    },
+    {
+      "q_min": 2684354560,
+      "q_max": 2952790015,
+      "qroots": 7706850,
+      "qroot_progressions": 7706850,
+      "hits": 11088,
+      "hits_per_million_qroots": 1438.7200996516087
+    },
+    {
+      "q_min": 2952790016,
+      "q_max": 3221225471,
+      "qroots": 7634130,
+      "qroot_progressions": 7634130,
+      "hits": 10678,
+      "hits_per_million_qroots": 1398.7186490143604
+    },
+    {
+      "q_min": 3221225472,
+      "q_max": 3489660927,
+      "qroots": 7552398,
+      "qroot_progressions": 7552398,
+      "hits": 10654,
+      "hits_per_million_qroots": 1410.6777741321366
+    },
+    {
+      "q_min": 3489660928,
+      "q_max": 3758096383,
+      "qroots": 7504728,
+      "qroot_progressions": 7504728,
+      "hits": 10625,
+      "hits_per_million_qroots": 1415.7741626345417
+    },
+    {
+      "q_min": 3758096384,
+      "q_max": 4026531839,
+      "qroots": 7440035,
+      "qroot_progressions": 7440055,
+      "hits": 10414,
+      "hits_per_million_qroots": 1399.7245980697671
+    },
+    {
+      "q_min": 4026531840,
+      "q_max": 4294967295,
+      "qroots": 7400575,
+      "qroot_progressions": 7400595,
+      "hits": 10589,
+      "hits_per_million_qroots": 1430.83476621749
+    }
+  ],
+  "caveats": [
+    "Hits include repeat discoveries. Counts are not polynomial quality.",
+    "Mixed-batch timings are not allocated to hit q values.",
+    "The final 10 q roots had five progressions rather than one."
+  ],
+  "logging_pairs": [
+    {
+      "pair": 0,
+      "on": 31.94794637200539,
+      "off": 31.038336113007972,
+      "fractional_overhead": 0.02930602515823022,
+      "raw_count": 432,
+      "raw_set_sha256": "76121583c3ae5191d4839846de59e574ab8c7ba0ee1b57da47095a794cb7fedd"
+    },
+    {
+      "pair": 1,
+      "on": 32.312822359992424,
+      "off": 31.51392632999341,
+      "fractional_overhead": 0.02535057109778993,
+      "raw_count": 432,
+      "raw_set_sha256": "76121583c3ae5191d4839846de59e574ab8c7ba0ee1b57da47095a794cb7fedd"
+    },
+    {
+      "pair": 2,
+      "on": 32.56837822200032,
+      "off": 31.16806202600128,
+      "fractional_overhead": 0.04492791995956802,
+      "raw_count": 432,
+      "raw_set_sha256": "76121583c3ae5191d4839846de59e574ab8c7ba0ee1b57da47095a794cb7fedd"
+    },
+    {
+      "pair": 3,
+      "on": 32.20879177900497,
+      "off": 31.19562008100911,
+      "fractional_overhead": 0.03247801118762328,
+      "raw_count": 432,
+      "raw_set_sha256": "76121583c3ae5191d4839846de59e574ab8c7ba0ee1b57da47095a794cb7fedd"
+    },
+    {
+      "pair": 4,
+      "on": 31.404255731002195,
+      "off": 31.29160994599806,
+      "fractional_overhead": 0.0035998718250205286,
+      "raw_count": 432,
+      "raw_set_sha256": "76121583c3ae5191d4839846de59e574ab8c7ba0ee1b57da47095a794cb7fedd"
+    }
+  ],
+  "logging_summary": {
+    "median_fractional_overhead": 0.02930602515823022,
+    "pooled_fractional_overhead": 0.027109060004544272,
+    "min_fractional_overhead": 0.0035998718250205286,
+    "max_fractional_overhead": 0.04492791995956802
+  }
+}

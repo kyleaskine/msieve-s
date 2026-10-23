@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/home/kylea/msieve-s/stage23_bench/runs/20261021_as660_two_coefficients/bin/sopt",
+    "-sopteffort",
+    "0",
+    "-inputpolys",
+    "/home/kylea/msieve-s/stage23_bench/runs/20261021_as660_third_coefficient/sample-415800.ms"
+  ],
+  "returncode": 0,
+  "seconds": 111.4695187130128
+}

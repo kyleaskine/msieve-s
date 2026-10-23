@@ -1,0 +1,16 @@
+{
+  "artifact": {
+    "path": "stage23_bench/runs/20261023_stage1_archive/180180.candidates.jsonl.zst",
+    "sha256": "2164bb855e9c1fa6327d98e178a55eb4f920d509219fdd04c80a4a754318fc46",
+    "bytes": 15034441,
+    "candidates": 161826,
+    "discoveries": 167046,
+    "raw_links": 167046
+  },
+  "source": "as660-stage1-d.w0.jsonl",
+  "source_bytes": 5073763151,
+  "source_mtime_ns": 1792685073906227903,
+  "raw_source": "msieve.dat.ms",
+  "raw_size": 800210555,
+  "raw_mtime_ns": 1792709559621993393
+}

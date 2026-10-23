@@ -1,0 +1,21 @@
+{
+  "source": "/home/kylea/msieve-s/as660-stage1-b.w0.jsonl",
+  "source_size": 13476191362,
+  "source_mtime_ns": 1792577794541655933,
+  "source_byte_ranges": [
+    [
+      0,
+      791
+    ],
+    [
+      4748715449,
+      13476191362
+    ]
+  ],
+  "byte_ranges": "half-open; original run header followed by third coefficient through worker_end",
+  "sha256": "6f50a4ca2e7a4c0025f9939d0963663fc48ded0cbcff62aeae6f0874f4a5e5cd",
+  "synthetic_records_added": false,
+  "raw_start_index": 346946,
+  "raw_rows": 309570,
+  "raw_sha256": "01ebaac7404b52c24c506bfdc88059e71c9312627fd6754b7da829a0f0e67139"
+}

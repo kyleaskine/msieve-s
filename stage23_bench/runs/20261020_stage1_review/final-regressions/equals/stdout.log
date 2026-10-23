@@ -1,0 +1,16 @@
+
+
+Msieve v. 1.54 (SVN unknown)
+Tue Oct 20 19:02:36 2026
+random seeds: 3b97c5e6 89de602c
+factoring 1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039 (157 digits)
+no P-1/P+1/ECM available, skipping
+commencing number field sieve (157-digit input)
+commencing number field sieve polynomial selection
+setting degree to 5
+polynomial degree: 5
+max stage 1 norm: 7.12e+23
+max stage 2 norm: 3.18e+21
+min E-value: 1.58e-12
+poly select deadline: 871570
+invalid stage1 audit options (provenance prefixes must not contain ',' or '=')

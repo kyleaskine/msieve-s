@@ -499,7 +499,8 @@ sieve_kernel_trans_pp64_r64(uint32 *p_array, uint32 num_p, uint64 *start_roots,
 
 	for (i--; i > start_i; i--) {
 
-		uint32 curr_qq_prod = roots_out[qq_prod_offset];
+		/* A valid 64-bit prefix can have zero low 32 bits. */
+		uint64 curr_qq_prod = roots_out[qq_prod_offset];
 
 		if (curr_qq_prod > 0)
 			break;

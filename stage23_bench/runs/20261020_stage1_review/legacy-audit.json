@@ -1,0 +1,409 @@
+{
+  "counts": {
+    "batches": 227,
+    "qroots": 11751,
+    "bucket_grows": 0,
+    "hash_caps": 0,
+    "arena_fallbacks": 0,
+    "returned_hits": 20,
+    "admitted_hits": 20,
+    "valid_hits": 20,
+    "unique_candidates": 20,
+    "repeated_qroot_work": null,
+    "unmatched_raw": 0,
+    "unmatched_sopt": 0,
+    "unmatched_ropt": 0,
+    "raw_links": 20,
+    "sopt_links": 0,
+    "ropt_links": 0
+  },
+  "incomplete": [],
+  "summary": {
+    "exposure_mode": "q_uint32_sixteenths",
+    "coefficients": [
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/low/provenance.w0.jsonl",
+        "parameters": {
+          "type": "coefficient",
+          "coefficient": 1,
+          "ad": "138600",
+          "configured_norm": 5.965531165413326e+29,
+          "effective_norm": 5.965531165413326e+29,
+          "m0": 1.3019223042029047e+38,
+          "coeff_max": 9.908406208865017e+26,
+          "pmin": 6835066,
+          "pmax": 16404160,
+          "qmin": 1,
+          "qmax": 100000
+        },
+        "setup": {
+          "type": "setup",
+          "coefficient": 1,
+          "entries_per_q": 662846,
+          "qroots_total": 5856,
+          "seconds": 1.197382586
+        },
+        "ending": {
+          "type": "coefficient_end",
+          "coefficient": 1,
+          "complete": true,
+          "qroots_done": 5856,
+          "found": 7,
+          "seconds": 1.831758911
+        }
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/middle/provenance.w0.jsonl",
+        "parameters": {
+          "type": "coefficient",
+          "coefficient": 1,
+          "ad": "138600",
+          "configured_norm": 5.965531165413326e+29,
+          "effective_norm": 5.965531165413326e+29,
+          "m0": 1.3019223042029047e+38,
+          "coeff_max": 9.908406208865017e+26,
+          "pmin": 6835066,
+          "pmax": 16404160,
+          "qmin": 2147433648,
+          "qmax": 2147533647
+        },
+        "setup": {
+          "type": "setup",
+          "coefficient": 1,
+          "entries_per_q": 662846,
+          "qroots_total": 3065,
+          "seconds": 1.33046215
+        },
+        "ending": {
+          "type": "coefficient_end",
+          "coefficient": 1,
+          "complete": true,
+          "qroots_done": 3065,
+          "found": 8,
+          "seconds": 1.983527904
+        }
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/high/provenance.w0.jsonl",
+        "parameters": {
+          "type": "coefficient",
+          "coefficient": 1,
+          "ad": "138600",
+          "configured_norm": 5.965531165413326e+29,
+          "effective_norm": 5.965531165413326e+29,
+          "m0": 1.3019223042029047e+38,
+          "coeff_max": 9.908406208865017e+26,
+          "pmin": 6835066,
+          "pmax": 16404160,
+          "qmin": 4294867296,
+          "qmax": 4294967295
+        },
+        "setup": {
+          "type": "setup",
+          "coefficient": 1,
+          "entries_per_q": 662846,
+          "qroots_total": 2830,
+          "seconds": 1.956764952
+        },
+        "ending": {
+          "type": "coefficient_end",
+          "coefficient": 1,
+          "complete": true,
+          "qroots_done": 2830,
+          "found": 5,
+          "seconds": 3.042424841
+        }
+      }
+    ],
+    "timing": [
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/low/provenance.w0.jsonl",
+        "coefficient": 1,
+        "batch_first": 1,
+        "generation_seconds": 0.0031015399999999986,
+        "batches": 113,
+        "seconds": 0.627016705,
+        "audit_prepare_seconds": 0,
+        "search_seconds": 0.6151451669999999,
+        "readback_submit_seconds": 0.008773732999999997,
+        "gpu_span_seconds": 0.55850582308
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/middle/provenance.w0.jsonl",
+        "coefficient": 1,
+        "batch_first": 1,
+        "generation_seconds": 0.304916406,
+        "batches": 59,
+        "seconds": 0.649794242,
+        "audit_prepare_seconds": 0,
+        "search_seconds": 0.339749848,
+        "readback_submit_seconds": 0.005130321,
+        "gpu_span_seconds": 0.30399689584000006
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/high/provenance.w0.jsonl",
+        "coefficient": 1,
+        "batch_first": 1,
+        "generation_seconds": 0.762438123,
+        "batches": 55,
+        "seconds": 1.082257587,
+        "audit_prepare_seconds": 0,
+        "search_seconds": 0.315171234,
+        "readback_submit_seconds": 0.004650181,
+        "gpu_span_seconds": 0.27888905650000007
+      }
+    ],
+    "launches": [
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/low/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 0,
+        "num_p": 487166,
+        "roots_per_p": 1,
+        "blocks_x": 1903,
+        "blocks_y": 1,
+        "threads": 256,
+        "q_tile": 52,
+        "calls": 112
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/low/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 1,
+        "num_p": 34476,
+        "roots_per_p": 5,
+        "blocks_x": 135,
+        "blocks_y": 2,
+        "threads": 256,
+        "q_tile": 26,
+        "calls": 112
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/low/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 2,
+        "num_p": 132,
+        "roots_per_p": 25,
+        "blocks_x": 1,
+        "blocks_y": 3,
+        "threads": 192,
+        "q_tile": 18,
+        "calls": 112
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/low/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 0,
+        "num_p": 487166,
+        "roots_per_p": 1,
+        "blocks_x": 1903,
+        "blocks_y": 1,
+        "threads": 256,
+        "q_tile": 32,
+        "calls": 1
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/low/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 1,
+        "num_p": 34476,
+        "roots_per_p": 5,
+        "blocks_x": 135,
+        "blocks_y": 1,
+        "threads": 256,
+        "q_tile": 32,
+        "calls": 1
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/low/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 2,
+        "num_p": 132,
+        "roots_per_p": 25,
+        "blocks_x": 1,
+        "blocks_y": 2,
+        "threads": 192,
+        "q_tile": 16,
+        "calls": 1
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/middle/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 0,
+        "num_p": 487166,
+        "roots_per_p": 1,
+        "blocks_x": 1903,
+        "blocks_y": 1,
+        "threads": 256,
+        "q_tile": 52,
+        "calls": 58
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/middle/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 1,
+        "num_p": 34476,
+        "roots_per_p": 5,
+        "blocks_x": 135,
+        "blocks_y": 2,
+        "threads": 256,
+        "q_tile": 26,
+        "calls": 58
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/middle/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 2,
+        "num_p": 132,
+        "roots_per_p": 25,
+        "blocks_x": 1,
+        "blocks_y": 3,
+        "threads": 192,
+        "q_tile": 18,
+        "calls": 58
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/middle/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 0,
+        "num_p": 487166,
+        "roots_per_p": 1,
+        "blocks_x": 1903,
+        "blocks_y": 1,
+        "threads": 256,
+        "q_tile": 49,
+        "calls": 1
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/middle/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 1,
+        "num_p": 34476,
+        "roots_per_p": 5,
+        "blocks_x": 135,
+        "blocks_y": 2,
+        "threads": 256,
+        "q_tile": 25,
+        "calls": 1
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/middle/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 2,
+        "num_p": 132,
+        "roots_per_p": 25,
+        "blocks_x": 1,
+        "blocks_y": 3,
+        "threads": 192,
+        "q_tile": 17,
+        "calls": 1
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/high/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 0,
+        "num_p": 487166,
+        "roots_per_p": 1,
+        "blocks_x": 1903,
+        "blocks_y": 1,
+        "threads": 256,
+        "q_tile": 52,
+        "calls": 54
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/high/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 1,
+        "num_p": 34476,
+        "roots_per_p": 5,
+        "blocks_x": 135,
+        "blocks_y": 2,
+        "threads": 256,
+        "q_tile": 26,
+        "calls": 54
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/high/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 2,
+        "num_p": 132,
+        "roots_per_p": 25,
+        "blocks_x": 1,
+        "blocks_y": 3,
+        "threads": 192,
+        "q_tile": 18,
+        "calls": 54
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/high/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 0,
+        "num_p": 487166,
+        "roots_per_p": 1,
+        "blocks_x": 1903,
+        "blocks_y": 1,
+        "threads": 256,
+        "q_tile": 22,
+        "calls": 1
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/high/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 1,
+        "num_p": 34476,
+        "roots_per_p": 5,
+        "blocks_x": 135,
+        "blocks_y": 1,
+        "threads": 256,
+        "q_tile": 22,
+        "calls": 1
+      },
+      {
+        "sidecar": "stage23_bench/runs/20261020_as660_stage1_pilot/high/provenance.w0.jsonl",
+        "coefficient": 1,
+        "group": 2,
+        "num_p": 132,
+        "roots_per_p": 25,
+        "blocks_x": 1,
+        "blocks_y": 1,
+        "threads": 192,
+        "q_tile": 22,
+        "calls": 1
+      }
+    ],
+    "exposure": [
+      {
+        "N": "5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599",
+        "ad": "138600",
+        "q_min": 1,
+        "q_max": 268435455,
+        "aprog": 1,
+        "qroots": 5856
+      },
+      {
+        "N": "5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599",
+        "ad": "138600",
+        "q_min": 1879048192,
+        "q_max": 2147483647,
+        "aprog": 1,
+        "qroots": 1515
+      },
+      {
+        "N": "5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599",
+        "ad": "138600",
+        "q_min": 2147483648,
+        "q_max": 2415919103,
+        "aprog": 1,
+        "qroots": 1550
+      },
+      {
+        "N": "5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599",
+        "ad": "138600",
+        "q_min": 4026531840,
+        "q_max": 4294967295,
+        "aprog": 1,
+        "qroots": 2830
+      }
+    ]
+  }
+}

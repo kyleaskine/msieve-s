@@ -1,0 +1,2 @@
+timestamp, name, clocks.current.sm [MHz], clocks.current.memory [MHz], power.draw [W], temperature.gpu, utilization.gpu [%], memory.used [MiB]
+2026/10/20 12:00:59.368, NVIDIA GeForce RTX 5070, 2895 MHz, 13801 MHz, 185.90 W, 65, 83 %, 2512 MiB

@@ -1,0 +1,14 @@
+[
+  "stdbuf",
+  "-oL",
+  "/tmp/stage1-review-extra-20261020-v4/bin/msieve",
+  "-v",
+  "-t",
+  "1",
+  "-g",
+  "0",
+  "-np1",
+  "-nps",
+  "coeff_list=1 polydegree=5 collengine=gerbicz gpu_mem_mb=128 stage1_qmin=100000000 stage1_qmax=100200000 stage1_aprog=1 stage1_provenance=provenance",
+  "1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039"
+]

@@ -1,0 +1,30 @@
+
+
+Msieve v. 1.54 (SVN unknown)
+Tue Oct 20 18:58:04 2026
+random seeds: f322be98 a2ff344b
+factoring 1644061684274690124286767583350561442368249170888538754522083737301227220933982770673388315052923055029604368272393930492824942994791875344456870684687976039 (157 digits)
+no P-1/P+1/ECM available, skipping
+commencing number field sieve (157-digit input)
+commencing number field sieve polynomial selection
+setting degree to 5
+polynomial degree: 5
+max stage 1 norm: 7.12e+23
+max stage 2 norm: 3.18e+21
+min E-value: 1.58e-12
+poly select deadline: 871570
+reading leading coefficients from coeff_list.txt
+time limit set to 242.10 CPU-hours
+expecting poly E from 3.41e-12 to > 3.92e-12
+searching leading coefficients from 1 to 21561285
+using GPU 0 (NVIDIA GeForce RTX 5070)
+selected card has CUDA arch 12.0
+using Gerbicz GPU collision engine with bucket hashing
+setting max GPU mem use to 128.0 MB
+deadline: 8640000 CPU-seconds per coefficient
+reading leading coefficients from coeff_list.txt
+[2026-10-20 18:58:05] coeff 420 norm 7.12e+23 specialq 100000000 - 100200000 other 712666 - 1710400
+stage1 provenance I/O failed (File too large); stopping at batch boundaries and draining queued polynomial work; sidecar is incomplete
+found_array stats: batches 29 peak 1 saturated 0 total 2 cap 1000
+[2026-10-20 18:58:05] coeff 420: found 2 polys (2 total)
+stage1 provenance failure: queued polynomial work drained

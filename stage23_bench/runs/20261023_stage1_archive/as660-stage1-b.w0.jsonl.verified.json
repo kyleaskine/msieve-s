@@ -1,0 +1,44 @@
+{
+  "source": "as660-stage1-b.w0.jsonl",
+  "archive": "as660-stage1-b.w0.jsonl.zst",
+  "source_identity": {
+    "bytes": 13476191362,
+    "mtime_ns": 1792577794541655933,
+    "device": 2112,
+    "inode": 223296
+  },
+  "archive_identity": {
+    "bytes": 4483856979,
+    "mtime_ns": 1792577794541655933,
+    "device": 2112,
+    "inode": 380945
+  },
+  "source_sha256": "6d4cb74cc84fa9d6a7e436000268e8b148e9a8132497a42f719acbd0c1c3652e",
+  "archive_sha256": "47b1f65d4bb2ac055af24c9aef21308a5196da47896915520abd0027a81dcbcf",
+  "run": {
+    "type": "run",
+    "schema": 2,
+    "launch_records": "changes",
+    "flush_batches": 64,
+    "host_clock": "CLOCK_MONOTONIC_RAW",
+    "worker": 0,
+    "run": "as660-stage1-b",
+    "N": "5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599",
+    "degree": 5,
+    "engine": "gerbicz",
+    "gpu": "NVIDIA GeForce RTX 5070",
+    "args": "min_coeff=277200 high_coeff_mult=138600 num_polys=1414799 collengine=gerbicz stage1_provenance=as660-stage1-b",
+    "ptx_path": "/home/kylea/msieve-s/stage1_core.ptx",
+    "ptx_sha256": "5517a4f0270ee1258bae09a3243f8b442a175ca8d7751a9c4fbb24aa47a747d3",
+    "ptx_bytes": 232576,
+    "build": "Oct 20 2026 19:01:46",
+    "cuda_headers": 13040,
+    "capacity32": 50000000,
+    "capacity64": 35000000,
+    "found_capacity": 999
+  },
+  "verified_extracts": [
+    "stage23_bench/runs/20261021_as660_two_coefficients/second.w0.jsonl",
+    "stage23_bench/runs/20261021_as660_third_coefficient/third.w0.jsonl"
+  ]
+}

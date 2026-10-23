@@ -1,0 +1,1219 @@
+diff --git a/.gitignore b/.gitignore
+index 622eb18..26cbe9b 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -24,6 +24,7 @@ cub/built
+ # GPU profiler artifacts
+ *.nsys-rep
+ *.ncu-rep
++*.ncu-repz
+ *.sqlite
+ profile_*.log
+ trans_*.log
+@@ -55,6 +56,9 @@ nfs_config.ini
+ *.t
+ msieve.log
+ msieve.dat.*
++*.w[0-9]*.jsonl
++stage23_bench/runs/**/ledger.jsonl
++/as660.log
+ worktodo.ini
+ factor.log
+ *.ms
+diff --git a/Makefile b/Makefile
+index b425dd1..2a77bde 100644
+--- a/Makefile
++++ b/Makefile
+@@ -340,6 +340,9 @@ mpqs/sieve_core_generic_64k.qo: mpqs/sieve_core.c $(COMMON_HDR) $(QS_HDR)
+ 
+ # GPU build rules
+ 
++gnfs/poly/stage1/stage1_sieve_gpu.no: gnfs/poly/stage1/stage1_audit.h gnfs/poly/stage1/stage1_audit_sha256.h
++gnfs/poly/poly_skew.no gnfs/poly/poly_skew.o: gnfs/poly/stage1/stage1_audit.h
++
+ stage1_core.ptx: $(NFS_GPU_HDR)
+ 	$(NVCC) -arch $(CUDA_PTX_ARCH) -ptx -I. -Icub -Ignfs -Ignfs/poly/stage1 -o $@ $<
+ 
+diff --git a/POLYSELECT_OPTIMIZATION_NOTES.md b/POLYSELECT_OPTIMIZATION_NOTES.md
+index 0a5a81b..70e8a78 100644
+--- a/POLYSELECT_OPTIMIZATION_NOTES.md
++++ b/POLYSELECT_OPTIMIZATION_NOTES.md
+@@ -2,8 +2,193 @@
+ 
+ > **Consolidates four prior plan docs** (`POLYSELECT_OPTIMIZATION_NOTES.md` original, `TRANS_KERNEL_PLAN.md`, `TWO_LEVEL_SCATTER_PLAN.md`, `FUSED_TRANS_SCATTER_PLAN.md`). The full version history is in git; this file is the working reference going forward.
+ 
++## First complete C196 coefficient (2026-10-20)
++
++The user's AS660 search completed a_d=138600 and stopped at the coefficient
++boundary. The original `as660.ms`, `as660.log`, and `as660-stage1.w0.jsonl` are
++preserved. Analysis and isolated profiling live in
++`stage23_bench/runs/20261020_as660_first_coefficient/`.
++
++- The complete streaming audit reconstructed every returned collision and joined
++  all 185,201 raw outputs. It covered 2,502,772 batches and 130,144,102 q roots;
++  no missing endings, saturation, hash caps, or unmatched raw records occurred.
++  There were 1,043 match-arena fallbacks, which select the engine's existing
++  fallback path rather than censoring output.
++- There are 179,993 unique `(N,a_d,P,m)` identities: 5,208 repeat discoveries,
++  or 2.81% of output rows. Of the repeated identities, 3,385 occurred with more
++  than one q. Deduplicate downstream work while retaining every discovery.
++- Every returned hit passed the admission gate. The median `coeff/coeff_max`
++  was 0.000213713, the 99th percentile 0.000920289, and the maximum 0.001369096.
++  This is evidence that the gate is inactive for this geometry, not evidence
++  that changing `stage1_norm` (which also changes geometry) is harmless.
++- Full batches contain 52 q roots and three trans groups:
++  `(1903,1)/256`, `(135,2)/256`, and `(1,3)/192`. The last group still contains
++  only 132 p values with 25 roots each. The final partial batch searches 10 roots
++  with five progressions; the rest use one.
++- An isolated 57-batch Nsight Systems capture attributed 38.2% of summed kernel
++  time to scatter, 21.6% to bucket filtering, 27.0% to the two larger trans
++  groups, and 2.6% to the sparse trans group. Matched-value collection used
++  another 10.1%. Thus eliminating the sparse launch entirely would save only
++  about 2.6% of kernel time in this window. Kernel fractions are not end-to-end
++  speedup estimates.
++- Nsight Compute measured the dominant trans launch at 56 registers/thread,
++  63.64% achieved occupancy, 74.93% DRAM throughput, 74.37% compute throughput,
++  67.66% aggregate L2 hit rate, and no spills. The medium launch had 69.9%
++  long-scoreboard stalls. These are three sampled launches with unlocked clocks
++  and `--cache-control none`; aggregate L2 hit rate does not isolate the prefix
++  load. Keep the reports for a targeted follow-up.
++- The traced timeline has median batch spacing about 12.4 ms, whereas late
++  production batches were about 5.1 ms. Do not interpret its apparent idle
++  fraction as recoverable production overhead. Late production q generation
++  took about 29 microseconds/batch: overlapping that alone has a small ceiling.
++  CUDA event spans include host-mediated gaps and are not kernel busy time.
++- Five alternating logging-on/off pairs used a_d=138600,
++  q=2140000000..2150000000, fixed one progression, one worker, and the frozen
++  pilot binary/PTX (hash-identical to the user's current build). Timing ran from
++  the coefficient's start line to its completion line, with line-buffered
++  stdout, after one warm-up. Every run produced the same 432-polynomial multiset.
++  Pooled logging overhead was 2.71%, median paired overhead 2.93%, with pairs
++  ranging from 0.36% to 4.49%. This does not establish the <=1% goal. Retain
++  provenance for the research run; reducing repeated formatting/flush work is
++  a follow-up, with output parity and another paired measurement required.
++
++The auditor now has `--stream`, which retains active batches and candidates while
++binning q exposure into sixteenths of the uint32 range. The full audit took 155 s
++and peaked at 606 MiB RSS. Exact repeated-q/root detection is explicitly
++unavailable in this mode (`null`), rather than silently reported as zero. Eight
++CPU tests cover reconstruction, joins, streaming parity, retired-batch replay,
++incomplete batches, count mismatches, and hash-cap censorship. Reproduce with:
++
++```
++python3 stage23_bench/tools/stage1_provenance.py as660-stage1.w0.jsonl \
++  --raw as660.ms --stream --require-complete --ledger NEW-ledger.jsonl
++```
++
++`completed-corpus.json` records hashes of the original sidecar and saved
++`first-as660.ms` / `first-as660.log` snapshots. `analyze.py` writes `unique.ms`
++with one raw polynomial per candidate, checking that repeated identities have
++identical raw expansions. `first-analysis.json` contains discovery multiplicity,
++gate ratios, q exposure/yield bins, and all five timing pairs. Across 16 q bins,
++raw hit yields range from 1,399 to 1,445 per million searched q roots; these
++include repeat discoveries and do not measure downstream quality.
++
++Next: run common-setting CPU sopt on the deduplicated corpus and compare
++q-conditioned quality tails per searched
++q/root work. Raw hit yield alone cannot answer whether small q produces better
++polynomials. No launch heuristic, norm, or coefficient-family change has been
++made on the strength of this first corpus.
++
++For the user's next production invocation, start at `min_coeff=277200`, retain
++`high_coeff_mult=138600`, and choose a fresh provenance prefix. Stage 1 does not
++subtract old `.ms` rows from `num_polys`; `num_polys=1414799` requests the remainder
++of the original 1,600,000-output target (with the existing coefficient-boundary
++overshoot). Keeping `-s as660 -l as660.log` appends to the existing outputs. The
++per-run audit corpus must use the saved first-coefficient raw snapshot after
++that append, rather than trying to join new rows against the old sidecar.
++
++## Prefix fix and provenance implementation (2026-10-20)
++
++Implemented with authorization while the GPU was occupied. These are correctness
++results, not representative timing or overhead measurements. No C196 search was
++started during those implementation tests and no launch/metadata performance
++changes were included. The subsequent user-run search is recorded above.
++
++- Fixed the pp64 prefix narrowing load. The independent arithmetic regression
++  `stage23_bench/tests/stage1_prefix.cu` exercises prefixes exactly equal to 2^32,
++  repeated q roots, invalid trailing q, tile boundaries, and multiple offsets.
++  The old kernel gives 80 mismatches across 12 cases; the corrected kernel gives
++  zero. The source fix is isolated from the host instrumentation.
++- Added optional buffered per-worker JSONL, inclusive q-window controls, and a
++  fixed-progression control. The default search retains adaptive progressions.
++  The q factor base is initialized from the natural bound before intersecting
++  the requested window. Empty intersections are recorded and skipped.
++- Added independent CPU collision reconstruction and an identity ledger in
++  `stage23_bench/tools/stage1_provenance.py`. Rejected returned hits can be
++  reconstructed offline, without submitting them to production callbacks.
++  Raw outputs join by N/P/m; sopt joins through its printed raw input; ropt joins
++  require an exact translation/rotation from a linked sopt polynomial, including
++  sign changes. Ambiguous origins remain explicitly ambiguous. Preserve the
++  ledger's candidate_id on future submissions when possible.
++
++New GPU options (inside the existing whitespace-delimited NFS argument string):
++
++```
++stage1_provenance=/path/to/new-prefix
++stage1_qmin=100000000 stage1_qmax=100200000
++stage1_aprog=1
++```
++
++`stage1_provenance` creates `PREFIX.w0.jsonl` etc. Existing files are refused;
++use a fresh prefix for each process/replay. Parent directories must already exist.
++Omit q limits for the natural range. Bounds are inclusive, so adjacent windows
++are `[lo, mid-1]` and `[mid, hi]`. Values must fit 1..4294967295. `stage1_aprog`
++accepts 1..5; omit it for the existing adaptive policy. A fixed policy is required
++for split/unsplit candidate-set equivalence; otherwise boundary batches can add
++extra offsets. This is resumability at completed-window granularity, not an
++arbitrary interrupted-batch checkpoint. Replays need fresh output plus deduplication.
++
++Sidecar schema 1 records:
++
++- `run`: N, degree, worker/prefix identity, engine/GPU, arguments, build timestamp,
++  CUDA header version, capacities. Also archive source revision/diff, build command,
++  binary/PTX/DSO hashes, driver/toolkit versions, and intended sieving settings in
++  the experiment manifest; the sidecar build timestamp is not a source hash.
++- `coefficient`, `setup`, `batch`, `launch`: effective/configured bounds, p/q
++  windows, entries per q, every searched q/root (including no-hit work), progression
++  count, launch layout, and setup/q-generation costs. A q may span batches.
++- `hit`: exact collision integers, gate ratio, admission decision, and validated
++  original ad/P/m for admitted valid hits. Rejected-hit `valid` is null until
++  offline reconstruction. Callback submission does not guarantee raw expansion;
++  the optional raw-file join identifies actual expanded output.
++- `engine`, `batch_end`: candidate/match/cap/fallback counters, returned versus
++  total hits, saturation, CUDA event span, and host elapsed scopes. Event spans
++  include host-mediated gaps and are not active-kernel time. Fatal engine overflow
++  leaves an unfinished batch; keep the process log for its cause.
++- `coefficient_end`, `worker_end`: completion markers. Wait for process completion
++  and stage-2 queue drain before joining raw output. Missing endings or saturation
++  make the recorded population incomplete. Timing ends before the final log flush;
++  use external coefficient/process timing to measure total logging overhead.
++
++Example CPU audit after the process finishes:
++
++```
++python3 stage23_bench/tools/stage1_provenance.py /path/to/prefix.w*.jsonl \
++  --raw /path/to/search.ms --ledger /path/to/new-ledger.jsonl --require-complete
++```
++
++Optional `--sopt CADO_SOPT_OUTPUT` and `--ropt ROPT_OUTPUT` add downstream joins;
++`--ropt-format cado|msieve|poly` selects the root-optimized input format. Several
++files can be supplied by repeating these options. The ledger retains duplicate
++hit provenance. It does not infer q exposure or cost from successful hits alone.
++The audit is CPU-only but holds work/candidate indexes in memory; split large
++analyses by completed coefficient/window if necessary.
++
++Validation: CUDA build/PTX and CPU parser/reconstruction tests passed. The bounded
++GPU suite `stage23_bench/tests/stage1_integration.py` uses an isolated directory,
++128 MB batch-memory setting, and the saved c157 input. Logging on/off both found
++12 polynomials; split windows found 6+6 with exactly matching combined coverage
++(6,035 q roots), and sort/Gerbicz returned identical polynomial multisets.
++Multi-progression runs both found 8; adaptive batches, two workers, and an empty
++intersection passed. All 12 accepted hits independently reconstructed and joined
++to raw output, then to actual CADO effort-0 sopt output. One actual CADO
++ropteffort-0.1 output also joined through an exact transformation. Synthetic CPU cases cover
++rejected hits, truncated/saturated logs, and downstream multiplier/sign/translation
++changes. Results and reproducible commands are in
++`stage23_bench/runs/20261020_stage1_provenance/validation.json`.
++
++Still pending: quiet-device logging-overhead measurements, representative C196
++workloads, production-scale provenance/quality analysis, and performance tuning.
++The <=1% logging-overhead target has not been established on this shared GPU.
++
+ ## Profile and source audit (2026-10-19)
+ 
++The ordered implementation plan, provenance requirements, and proposed C196
++quality experiments are in
++[the execution roadmap](POLYSELECT_RANKING_IMPROVEMENT_PLAN.md#execution-roadmap-and-c196-search-2026-10-19).
++After the review, start with the isolated prefix-width correctness issue,
++provenance, and a representative C196 baseline. Use measured C196 launch shapes
++to select tuning targets; the c157 sparse-group finding is not a universal priority.
++
+ Read-only performance investigation of the saved reports and current production
+ source; no new GPU timings or kernel changes. The May conclusions below describe
+ the experiments performed then, not proof that these kernels cannot improve.
+@@ -51,8 +236,8 @@ SMs can work on this launch, with only one useful warp per block. The group's
+ time and about 6.3% of total kernel time. The earlier arena trace independently
+ shows 4.261 s for the same shape.
+ 
+-**First experiment:** increase q-axis subdivision specifically for this sparse
+-group, and test a warp-sized x block. There are 356 q records in a normal batch,
++**Candidate experiment:** increase q-axis subdivision for this sparse
++group, and test a warp-sized x block. There are 356 q records in a saved normal batch,
+ so considerably more independent q tiles are available. More tiles increase the
+ number of modular inversions and may split runs of equal q; benchmark that
+ tradeoff. This is different from the reverted *decrease-only* wave-alignment
+@@ -72,14 +257,22 @@ or **139.88 MB of 32-bit metadata capacity**. Nearly all valid slots are rewritt
+ every batch. The collision scan only fetches a slot's metadata after matching a
+ candidate; the May counters record roughly 2,826 matched values per batch.
+ 
+-**Experiment:** initialize all metadata slots once per coefficient/layout, then
+-use a Gerbicz trans variant that only writes roots. Initialize even slots whose
+-roots are zero in the first batch: gcd validity can change in later batches.
+-Refresh when the p arrays, shift, or arithmetic-progression layout changes, and
+-preserve the existing behavior for the sorting engine. This avoids a repeated
+-large store stream without fusing bucket scatter into the register-heavy trans
+-kernel. A later alternative is to reconstruct metadata only for matches using
+-the original index and a small per-entry p map; that is a larger interface change.
++**Preferred experiment after review:** reconstruct metadata only for matches.
++For global slot `tid`, `E = num_entries`, `Q = current batch root count`, and
++`plane = E*Q`, decode
++`q_index = (tid % plane) / E` and `p = p_of_entry[tid % E]`.
++The per-entry table follows the concatenated root-group layout, including repeated
++p values for their roots. It is about 393 KB for the saved 98,231 entries. This
++removes both the repeated store stream and the roughly 140 MB metadata buffer.
++Update both normal and fallback match paths and the host/DSO interface together;
++validate partial batches, progression planes, root groups, and sort behavior.
++
++One caveat to the review's small-change estimate: `sieve_kernel_trans_pp32_r64`
++uses `p_out` as prefix scratch as well as final metadata (`stage1_core.cu:299,314`).
++Removing the array for every Gerbicz kernel variant requires preserving or
++replacing that scratch use. The c157/C196 pp64 path uses `roots_out` instead.
++Pre-initialization remains a fallback experiment; it requires initialization of
++even initially invalid slots and refresh on layout/shift changes.
+ 
+ ### 3. Trans repeatedly reads its own prefix-product scratch
+ 
+@@ -102,7 +295,22 @@ expensive memory dependency:
+   a start root. Together these four sites account for about 96% of the captured
+   long-scoreboard samples.
+ 
+-**Experiments:** prefetch the next prefix while working on the current one;
++**First experiment within the launch sweep:** increase q subdivision. The saved
++dominant launch gives each thread about 119 q records; 48 SMs × 5 resident blocks
++× 224 threads × 119 prefixes × 8 bytes is about 51.2 MB, versus the GPU's 48 MiB
++L2. Twelve q tiles instead of three would reduce that nominal per-wave prefix
++footprint to about 12.9 MB. These are working-set estimates, not measured cache
++residency: other arrays, overlapping blocks, scheduling, and cache policy matter.
++Measure prefix-load L2 hits/traffic, DRAM traffic, and elapsed time for both
++variants. One capture or the 62.4% stall attribution alone cannot establish a
++speedup. Extra tiles also repeat modular inversions.
++
++The medium `(21,10–11)` launch has 210–231 blocks versus 192 resident blocks
++under a four-block/SM limit: test its possible partial-wave tail too. Treat this
++as one launch-heuristic sweep across groups, rather than hard-coding a fix for
++the old five-block group.
++
++**Subsequent experiments:** prefetch the next prefix while working on the current one;
+ investigate read-only/alias annotations for q and start-root inputs; consider
+ bounded q tiles that retain some prefixes on chip. Preserve the batch-inversion
+ algorithm and track registers: 56 to 64 registers would cross the five-block
+@@ -165,19 +373,45 @@ Nevertheless, keep invariant setup out of the batch loop, consider deferring
+ safe arena-success/overflow decisions to device code, and measure an unprofiled
+ run before deciding whether broader orchestration changes are worthwhile.
+ 
+-### Suggested experiment order
+-
+-1. Sparse 25-root-group q subdivision (clear underutilization, localized change).
+-2. Reuse p/q metadata on Gerbicz batches (large repeated write stream).
+-3. Filter block-size sweep with unchanged hash/convergence semantics.
+-4. Prefix-load prefetch/cache experiments, then bounded on-chip filter survivors.
+-5. Reduce host round trips where the preceding changes leave material overhead.
+-
+-Use fixed coefficients 420 and 60060, canonical polynomial-set parity, and both
+-unprofiled wall time and per-launch-shape timing. Capture the sparse group itself
+-with NCU; the existing detailed trans captures do not cover that five-block
+-launch. Include partial batches and `num_aprog_vals > 1` when validating metadata
+-reuse. None of the proposed speedups has been measured yet.
++The next batch's q roots are generated on the host after the preceding collision
++work and found-array synchronization. Measure that uncovered interval in the
++initial C196 baseline, alongside p setup and the upfront q-root count. Preparing
++the next batch concurrently may outrank kernel tuning if its measured share is
++large; it needs independent mutable state and buffers. Do not estimate an 18 s
++host gap by subtracting the 70 s instrumented kernel total from the unrelated
++88 s unprofiled run. Existing batch CUDA events span host-mediated launch gaps
++as well as GPU work; distinguish elapsed event spans from active GPU intervals.
++
++### Correctness and allocation findings from the review
++
++- `sieve_kernel_trans_pp64_r64` loads a 64-bit prefix into a `uint32` at
++  `stage1_core.cu:502`, then tests for zero. A nonzero prefix with zero low bits
++  is skipped incorrectly. Fix separately with a targeted arithmetic-reference
++  regression before setting the new parity baseline. The asserted rate of
++  about 0.6 occurrences per coefficient-420 run is unverified; output effects
++  should be measured, not assumed to be uniform across all roots in a tile.
++- Both sort scratch arrays are allocated even for Gerbicz
++  (`stage1_sieve_gpu.c:1707,1709`), but their uses are in the sort branch.
++  At single-worker caps, 50M × 4 plus 35M × 8 bytes is **480 MB decimal**.
++  Allocate/free them conditionally, preserving sort pointer-swapping and cleanup.
++  This saves capacity; it does not by itself demonstrate faster execution.
++
++### Revised experiment order
++
++1. Isolate and validate the prefix-width fix; establish corrected references.
++2. Add provenance/controlled q windows before a substantial C196 run.
++3. Measure C196 launch shapes and host/device costs; start the useful search.
++4. Sweep trans launch geometry and test index-derived metadata independently.
++   Remove sort-only scratch independently; prioritize host overlap if measured
++   uncovered work justifies it. Tune in gaps without contaminating benchmarks.
++5. Retain filter/prefetch experiments as follow-ups selected by remaining cost.
++
++Use c157 coefficients 420/60060 for regression diagnostics, plus representative
++C196 fixed work. The roadmap specifies >=5 interleaved A/B pairs, >=2% median
++coefficient-time improvement with a 95% interval favoring the variant, and
++investigation of >2% regressions. Measure startup separately. Require corrected
++canonical polynomial-set parity, including partial batches and multiple
++progressions. None of the proposed speedups has been measured yet.
+ 
+ ## Current state (2026-05-26)
+ 
+diff --git a/POLYSELECT_RANKING_IMPROVEMENT_PLAN.md b/POLYSELECT_RANKING_IMPROVEMENT_PLAN.md
+index 48dc294..c7c7030 100644
+--- a/POLYSELECT_RANKING_IMPROVEMENT_PLAN.md
++++ b/POLYSELECT_RANKING_IMPROVEMENT_PLAN.md
+@@ -12,6 +12,203 @@
+ > qualify conclusions 1 and 5, answer the `las` question under "Verify first", and move a
+ > modest lattice-aware calculator (workstream 1) earlier.
+ 
++## Execution roadmap and C196 search (2026-10-19)
++
++Revised after Claude's source review. The audits below and
++`POLYSELECT_OPTIMIZATION_NOTES.md` supply the evidence; they do not establish an
++optimal search policy. Implementation began on 2026-10-20: the prefix fix, optional
++provenance, q-window controls, and bounded correctness tests are now implemented.
++See the implementation record at the top of `POLYSELECT_OPTIMIZATION_NOTES.md`.
++The user has now completed AS660's first C196 coefficient (a_d=138600): 185,201
++outputs, 179,993 unique candidate identities, with a clean complete provenance
++audit. Representative C196 profiles and analysis artifacts are in
++`stage23_bench/runs/20261020_as660_first_coefficient/`; see the new record at the
++top of `POLYSELECT_OPTIMIZATION_NOTES.md`. Sopt/ropt quality comparisons remain
++pending. All returned collisions passed the admission gate, so this coefficient
++does not supply a rejected population for the admission sweep.
++
++**Order:** isolate the correctness issue → add provenance and controlled q windows
++→ measure a representative C196 pilot and start useful search work → tune kernels
++against that workload while analyzing quality offline → compare coefficient
++allocation and search geometry. Provenance is a prerequisite for a substantial
++C196 run; kernel optimization and the research conclusions are not.
++
++### 0. Isolate the prefix-width correctness issue
++
++- [x] Fix the narrowing load in `sieve_kernel_trans_pp64_r64`
++  (`stage1_core.cu:502`): a 64-bit prefix is assigned to `uint32` before testing
++  for zero. A nonzero prefix with zero low 32 bits is incorrectly skipped.
++- [x] Make this a separate correctness change, with a deterministic regression
++  case and an independent modular-arithmetic reference. Exercise trailing invalid
++  q entries and repeated q roots. Do not rely on a large random run to hit it.
++- [ ] Rebuild the PTX and establish corrected reference outputs before comparing
++  performance variants. Historical raw-set parity can legitimately change here;
++  classify differences using the arithmetic reference. The review's estimated
++  occurrence rate and exact extent of damage have not been measured.
++
++### 1. Preserve provenance and expose controlled q windows
++
++- [ ] Add optional buffered sidecar logging, keeping existing polynomial formats
++  usable. Record run/coefficient/batch IDs, source/build/GPU settings, exact N,
++  configured/effective bounds, p ranges, root-group sizes, q values/root counts
++  including no-hit work, progression counts, launch geometry, and timing scopes.
++- [ ] Log every **returned** found-array entry before the coefficient gate:
++  q, qroot, offset, p1, p2, `coeff/coeff_max`, and admission/validation status.
++  Save exact integer inputs as well as the floating gate value. Separate returned,
++  gate-passing, mathematically valid, and successfully expanded candidates.
++- [ ] For valid hits, retain original `(a_d, P, m)` / raw `(c_d, Y1, Y0)` identity
++  through sopt/ropt, including multiplier/sign changes. Deduplicate by raw identity
++  while retaining all discovery provenance. Preserve original unsorted output;
++  file position already gives approximate chronology, but neither it nor batch ID
++  implies ascending q.
++- [ ] Recover rejected candidates offline with the same `handle_collision`
++  validation, or use a separate audit path that never submits them to production
++  callbacks. This permits admission sweeps on one fixed-geometry collision corpus;
++  it does not make reconstruction, sopt, or ropt free. Record the later configured
++  `pol_expand` bound too, so it does not silently censor the audit population.
++- [ ] Log found-array saturation and collision-engine overflow/cap events. A
++  saturated found array truncates records; do not call such a corpus complete.
++  Rerun affected fixed work with sufficient capacity before using it as a complete
++  admission curve. Aggregate found/accepted counts alone do not identify causes.
++- [ ] Add explicit q magnitude windows using the existing factory reset bounds.
++  Specify disjoint inclusive ranges `[lo, hi-1]`, with wide arithmetic at the
++  UINT32_MAX endpoint. Preserve the original factor-base configuration; include
++  trivial q=1 only in its own window. Verify no missing or duplicated q/root work.
++- [ ] Control the partial-batch offset policy: window boundaries can increase
++  `num_aprog_vals`, so disjoint q ranges alone do not reproduce an unsplit search's
++  candidate set. For equivalence tests use a common fixed progression policy;
++  for production record boundary extras and account for repeated p-array setup.
++  Completed windows are resumable; interrupted windows need checkpoints or
++  explicit replay/deduplication, not an assumption that q traversal is sorted.
++- [ ] Verify candidate parity with logging on/off and measure logging overhead.
++  Target <=1% of coefficient elapsed time; if exceeded, buffer/batch further or
++  separate expensive rejected-candidate reconstruction from capture. Retain
++  essential provenance during production and make it optional for clean tuning.
++
++**Deliverable:** validated raw → sopt → ropt joins, collision and no-hit work
++records, and reproducible q work units. Batch time belongs to all its q values;
++do not invent per-q cost by dividing it among successful hits. Grouped windows
++provide a cleaner basis for productivity comparisons, including setup cost.
++
++A cheap CPU-only companion check can attempt q reconstruction from the 10,000
++random raw rows in each saved fixture. Factor |Y1| and enumerate admissible
++`P=q*p1*p2` decompositions using the original bounds, coprimality, and root
++conditions. Report unique/ambiguous/unresolved fractions before interpreting
++correlations: composite p factors overlap the allowed q factors, so uniqueness
++is not automatic. Recover root counts from N/a_d and the factory rules, not
++factorization alone. This lacks unsuccessful-work exposure, and a null result
++on c146/c161 is not a reason to omit C196 provenance.
++
++### 2. Measure C196 and start useful search work
++
++The user has a C196 available for a real search and authorizes experimental use.
++Its exact N and intended sieving configuration are not yet recorded; put them
++in the run manifest before execution. Smaller saved fixtures can validate tools
++while those inputs are pending.
++
++- [ ] Preserve the distributed reference policy: degree 5,
++  `min_coeff=high_coeff_mult=138600`, `num_polys=1600000`. These are reference
++  choices, not proven optimal. Use explicit `collengine=gerbicz` and fixed search
++  work for benchmarks; the raw-count target is not an equal-time budget.
++- [ ] Run an instrumented pilot at a_d=138600, sampling selected q windows across
++  the actual range. Nearby coefficient controls are 69300 and 277200. Choose
++  runtime/coverage after measuring setup and batch costs; an initial traversal
++  prefix is neither a low-q sample nor necessarily representative.
++- [ ] Confirm the printed effective norm and p/q bounds. The old c157 launch
++  shapes are not a C196 tuning specification. Under the automatic-bound/target
++  regime, a 196-digit N with a_d=138600 gives roughly p=5.3–14.0 million across
++  possible N values, versus roughly 0.19–0.49 million for c157/ad=420. Larger p
++  permits additional factor combinations and can change group sizes, entries
++  per q, batch depth, packing limits, and useful launch geometry. Measure them.
++- [ ] Capture a short Systems trace and representative NCU launches by shape,
++  separately from unprofiled timings. Measure p setup, q counting/generation,
++  trans/collision work, readback/host processing, and queue drain. Existing CUDA
++  event spans can include gaps between launches; distinguish them from the union
++  of active GPU intervals. Never subtract profiled kernel totals from a different
++  unprofiled wall-time run to estimate CPU overhead.
++- [ ] Time coefficients with a monotonic high-resolution clock, retaining both
++  process/setup time and coefficient elapsed time. Printed start/end timestamps
++  are a useful startup-free cross-check but coarse for small improvements.
++- [ ] Keep all valid experimental C196 candidates eligible for the real final
++  pool. Once capture and correctness checks pass, continue the reference search
++  with provenance; do not wait for kernel tuning or every quality question.
++
++**Deliverable:** a current C196 baseline, launch/cost distribution, and useful
++search corpus. Keep c157/ad420 and ad60060 as historical diagnostics and quick
++regression workloads where their inputs/build support remain available.
++
++### 3. Tune against the measured workload
++
++- [ ] Sweep the trans launch heuristic across all root groups: work per block,
++  q subdivision, and minimum x block size. Include sparse coverage, medium-group
++  wave tails, and the dominant group's prefix working set. Test extra q tiling
++  before more invasive prefetching. A second stream for a small group is an
++  alternative experiment, with disjoint writes and an explicit join before the
++  collision engine; concurrency and benefit are not guaranteed.
++- [ ] Prefer index-derived metadata on Gerbicz matches over a full initialized
++  metadata array. Build a per-entry p map once and decode q from the current
++  layout/plane size. Validate partial batches, multiple progressions, all root
++  groups, normal/fallback match paths, and the DSO interface. The `pp32_r64`
++  trans variant also uses `p_out` for prefix scratch: preserve or replace that
++  scratch before removing the buffer. Keep sorting behavior intact.
++- [ ] Independently stop allocating sort-only p/root scratch on Gerbicz and
++  update cleanup accordingly. At the maximum single-worker caps this saves
++  480 MB (decimal); actual savings depend on memory settings/thread count.
++  Keep batch capacity fixed for timing/parity comparisons before spending savings
++  on a different search layout.
++- [ ] If the C196 timeline shows material uncovered q-generation/host work,
++  prioritize preparing the next batch while the current batch executes. Use
++  separate factory/scratch state and safe buffer lifetimes. Choose this against
++  kernel work using measured recoverable time, not an assumed 80% utilization.
++- [ ] Benchmark variants separately before combining. Use >=5 interleaved A/B
++  pairs after warmup on identical work, no competing GPU job, and report paired
++  elapsed-time ratios with a 95% confidence interval. For a speed-only default
++  change require >=2% median coefficient-time improvement and an interval wholly
++  favoring the change; investigate/reject >2% regressions on retained workloads.
++  If inconclusive, extend measurement or leave the variant experimental. Memory
++  savings/correctness have separate acceptance criteria, not invented speedups.
++- [ ] Require canonical raw-set/count/duplicate parity against the corrected
++  baseline for performance-only changes, including partial batches and changing
++  gcd validity. Diagnose saturated outputs before interpreting parity failures.
++
++**Deliverable:** commands, environment, timings, correctness checks, and accepted
++or rejected variants under `stage23_bench/runs/`, linked from the GPU notes.
++
++### 4. Analyze q quality and admission from the corpus
++
++- [ ] Hold geometry fixed initially. Size-optimize pilot candidates with one
++  validated implementation/settings; record optimized norm, exp_E, projective
++  alpha, skew, and original P. Include an explicitly sampled population outside
++  the current admission gate, recording selection probabilities and censoring.
++- [ ] Analyze within each a_d against actual q magnitude, factors/root count,
++  and P. Report logarithmic/equal-count bins and exposure; output order is a
++  secondary diagnostic. Root-optimize strong candidates in every stratum plus
++  a reproducible stratified audit sample with common effort.
++- [ ] Compare fixed-threshold exceedances and final-score tails, not only means
++  or best-so-far curves. An offline threshold sweep covers the recorded collision
++  population only, not hits that different geometry would generate. Measure
++  useful candidates per time only where work attribution is valid.
++- [ ] Confirm apparent q trends on another coefficient and another N before
++  generalizing; test-sieve C196 finalists with the intended job's parameters.
++
++### 5. Compare coefficient allocation and independent geometry
++
++- [ ] Separate magnitude from divisibility using explicit coefficient lists in
++  overlapping bands. Compare near-matched 16M/17M and 18M/19M families, with M
++  containing neither 17 nor 19, across several pairs and numbers.
++- [ ] Use validated q windows to compare more coefficients shallowly versus fewer
++  deeply at equal total cost, including restart/setup and downstream work. Keep
++  exploration across families and rank by final-score progress, not raw hit count.
++- [ ] Sweep geometry separately from admission: effective B, p expansion, and q
++  coverage, using common permissive admission plus audit sampling as needed.
++  When the degree-5 automatic bound and target constraint apply, the q clipping
++  transition is B_auto/2.598. Include that point and values on both sides, plus
++  the reference B. Verify actual constraints first; this is a geometric transition,
++  not a proven quality optimum, and a configured bound may already be below it.
++- [ ] Change defaults only with improved final quality per total budget and
++  confirmation beyond C196. A post-collision filter saves downstream work, not
++  stage-1 work already spent; poor raw norm alone is not grounds to reject a seed.
++
+ ## Stage-1 geometry and quality audit (2026-10-19)
+ 
+ The hypothesis that a large stage-1/raw norm rules out an excellent final
+@@ -51,11 +248,28 @@ P_scale = B^2 / m0
+ 
+ When the GPU's `sqrt(0.5/target)` constraint selects base p_max, and before
+ integer rounding or clipping, base p_max scales as B^(-2/3) and q_max as
+-B^(10/3). Halving B changes q_max by about 10x and increases p_max by about 1.59x.
++B^(10/3). Halving B changes uncapped q_max by about 10x and increases p_max by about 1.59x.
+ A norm sweep changes which regions are searched, not merely which hits survive.
+ The automatic cap's comment refers to CPU constraints; it should not be assumed
+ to put the GPU q_max just below 2^32 in every regime.
+ 
++The review identifies a useful exact simplification in this constraint regime:
++
++```
++q_max_uncapped = 2 * B^(10/3) / m0^(7/3)
++B_auto = 1637.8 * m0^0.7
++q_max_uncapped(B_auto) = 2 * 1637.8^(10/3) = 1.0356974e11
++B_transition = B_auto / 2.5982558
++```
++
++Thus the automatic bound yields about 24.114 times UINT32_MAX before clipping,
++independent of N/a_d in this regime. Between B_transition and B_auto the numeric
++q ceiling stays clipped, while p shrinks as B rises and admission loosens. The
++actual q factory/root eligibility still depends on N/a_d. Crossing below the
++transition contracts q coverage. Verify the selected p constraint and configured
++bound before applying this result; it is a natural sweep point, not evidence of
++an optimal final-quality policy.
++
+ ### Check against saved raw, size-optimized, and root-optimized results
+ 
+ Reproducer: `stage23_bench/runs/20261019_stage1_audit/audit.py`, with
+diff --git a/demo.c b/demo.c
+index 8bbacb7..c005839 100644
+--- a/demo.c
++++ b/demo.c
+@@ -165,6 +165,12 @@ void print_usage(char *progname) {
+ 		 "   collstats=X     print Gerbicz collision summary stats\n"
+ 		 "   colldebug=X     print Gerbicz per-batch diagnostics\n"
+ 		 "   gpu_mem_mb=X    use X megabytes of GPU memory\n"
++		 "   stage1_provenance=X  write audit sidecars X.w<worker>.jsonl\n"
++		 "                       (new prefix required; no whitespace in X)\n"
++		 "   stage1_qmin=X   inclusive GPU special-q lower bound\n"
++		 "   stage1_qmax=X   inclusive GPU special-q upper bound\n"
++		 "   stage1_aprog=X  fixed offsets per progression (1..5);\n"
++		 "                   omit to retain adaptive partial batches\n"
+ #endif
+ 		 "   polydegree=X      select polynomials with degree X\n"
+ 		 "   min_coeff=X       minimum leading coefficient to search\n"
+diff --git a/gnfs/poly/poly_skew.c b/gnfs/poly/poly_skew.c
+index fb23a78..41cc093 100644
+--- a/gnfs/poly/poly_skew.c
++++ b/gnfs/poly/poly_skew.c
+@@ -13,6 +13,7 @@ $Id: poly_skew.c 1025 2018-08-19 02:20:28Z jasonp_sf $
+ --------------------------------------------------------------------*/
+ 
+ #include "poly_skew.h"
++#include "stage1/stage1_audit.h"
+ 
+ #define ROOTOPT_STAGE2_STEPS_ARG "rootopt_stage2_steps="
+ #define ROOTOPT_STAGE2_START_ARG "rootopt_stage2_start="
+@@ -173,6 +174,14 @@ void find_poly_core(msieve_obj *obj, mpz_t n,
+ 
+ 	if (obj->nfs_args != NULL) {
+ 		const char *tmp;
++		stage1_audit_options audit_options;
++
++		/* Validate before legacy comma/substr parsers can interpret a path. */
++		if (!stage1_audit_parse(obj->nfs_args, &audit_options)) {
++			fprintf(stderr, "invalid stage1 audit options (provenance prefixes "
++				"must not contain ',' or '=')\n");
++			exit(1);
++		}
+ 
+ 		tmp = strstr(obj->nfs_args, "min_coeff=");
+ 		if (tmp != NULL)
+diff --git a/gnfs/poly/stage1/stage1_core_gpu/stage1_core.cu b/gnfs/poly/stage1/stage1_core_gpu/stage1_core.cu
+index 8e2a9bc..97e9276 100644
+--- a/gnfs/poly/stage1/stage1_core_gpu/stage1_core.cu
++++ b/gnfs/poly/stage1/stage1_core_gpu/stage1_core.cu
+@@ -499,7 +499,8 @@ sieve_kernel_trans_pp64_r64(uint32 *p_array, uint32 num_p, uint64 *start_roots,
+ 
+ 	for (i--; i > start_i; i--) {
+ 
+-		uint32 curr_qq_prod = roots_out[qq_prod_offset];
++		/* A valid 64-bit prefix can have zero low 32 bits. */
++		uint64 curr_qq_prod = roots_out[qq_prod_offset];
+ 
+ 		if (curr_qq_prod > 0)
+ 			break;
+diff --git a/gnfs/poly/stage1/stage1_sieve_gpu.c b/gnfs/poly/stage1/stage1_sieve_gpu.c
+index acf3722..027e831 100644
+--- a/gnfs/poly/stage1/stage1_sieve_gpu.c
++++ b/gnfs/poly/stage1/stage1_sieve_gpu.c
+@@ -15,6 +15,8 @@ $Id: stage1_sieve_gpu.c 1056 2024-06-09 13:04:11Z brgladman $
+ #include <sort_engine.h> /* interface to GPU sorting library */
+ #include <collision_engine.h> /* interface to GPU collision library */
+ #include <stage1.h>
++#include "stage1_audit.h"
++#include "stage1_audit_sha256.h"
+ #include <stage1_core_gpu/stage1_core.h>
+ 
+ /* On an interactive terminal we can rewrite the progress line in
+@@ -515,6 +517,13 @@ typedef struct {
+ 
+ 	uint32 polys_found;
+ 
++	/* One buffered stream per worker; no cross-thread logging or callbacks. */
++	FILE *audit;
++	uint64 audit_coeff;
++	uint32 audit_batch;
++	float audit_gpu_ms;
++	uint32 (*audit_shapes)[6];
++
+ } device_thread_data_t;
+ 
+ typedef struct {
+@@ -535,6 +544,9 @@ typedef struct {
+ 	collision_engine_free_func collision_engine_free;
+ 	collision_engine_run_func collision_engine_run;
+ 
++	stage1_audit_options audit_options;
++	long audit_failed; /* atomic: request a batch-boundary stop, then drain */
++
+ 	uint32 use_collision_engine;
+ 	uint32 collision_bucket_hash;
+ 	uint32 collision_stats;
+@@ -555,6 +567,39 @@ typedef struct {
+ static device_data_t *g_active_gpu_device = NULL;
+ static int g_cleanup_in_progress = 0;
+ 
++static int audit_failed(device_data_t *d)
++{
++#if defined(WIN32) || defined(_WIN64)
++	return InterlockedCompareExchange(&d->audit_failed, 0, 0) != 0;
++#else
++	return __atomic_load_n(&d->audit_failed, __ATOMIC_RELAXED) != 0;
++#endif
++}
++
++static void audit_write_failed(device_data_t *d, device_thread_data_t *t)
++{
++	int saved_errno = errno;
++#if defined(WIN32) || defined(_WIN64)
++	InterlockedExchange(&d->audit_failed, 1);
++#else
++	__atomic_store_n(&d->audit_failed, 1, __ATOMIC_RELAXED);
++#endif
++	d->obj->flags |= MSIEVE_FLAG_STOP_SIEVING_SOFT;
++	fprintf(stderr, "stage1 provenance I/O failed (%s); stopping at batch boundaries "
++		"and draining queued polynomial work; sidecar is incomplete\n",
++		strerror(saved_errno ? saved_errno : EIO));
++	if (t->audit) {
++		fclose(t->audit); /* failure already reported; do not exit a worker */
++		t->audit = NULL;
++	}
++}
++
++static void audit_check(device_data_t *d, device_thread_data_t *t, int flush)
++{
++	if (t->audit && ((flush && !stage1_audit_flush(t->audit)) || ferror(t->audit)))
++		audit_write_failed(d, t);
++}
++
+ /*------------------------------------------------------------------------*/
+ /* Emergency GPU cleanup for ungraceful exits */
+ static void emergency_gpu_cleanup(void)
+@@ -678,9 +723,25 @@ check_found_array(poly_coeff_t *c, device_data_t *d,
+ 					(double)offset * q * q) /
+ 					(dp * dp);
+ 
+-		if (coeff <= c->coeff_max &&
+-		    handle_collision(c, (uint64)p1 * p2, q,
+-					qroot, offset) != 0) {
++		uint32 admitted = coeff <= c->coeff_max;
++		uint32 valid = admitted && handle_collision(c, (uint64)p1 * p2,
++				q, qroot, offset) != 0;
++
++		if (t->audit) {
++			fprintf(t->audit, "{\"type\":\"hit\",\"coefficient\":%" PRIu64
++				",\"batch\":%u,\"hit\":%u,\"q\":%u,\"qroot\":\"%" PRIu64
++				"\",\"offset\":\"%" PRId64 "\",\"p1\":%u,\"p2\":%u,"
++				"\"ratio\":%.17g,\"admitted\":%u,\"valid\":%s",
++				t->audit_coeff, t->audit_batch, i, q, qroot, offset,
++				p1, p2, coeff / c->coeff_max, admitted,
++				admitted ? (valid ? "true" : "false") : "null");
++			if (valid)
++				gmp_fprintf(t->audit, ",\"ad\":\"%Zd\",\"P\":\"%Zd\",\"m\":\"%Zd\"",
++					c->high_coeff, c->p, c->m);
++			fprintf(t->audit, "}\n");
++		}
++
++		if (valid) {
+ 
+ 			/* submit the hit to the stage 2 thread pool */
+ 
+@@ -822,6 +883,17 @@ handle_special_q_batch(msieve_obj *obj, device_data_t *d,
+ 		CUDA_TRY(cuFuncSetBlockShape(launch->kernel_func, 
+ 				size_x, 1, 1))
+ 
++		if (t->audit) {
++			uint32 shape[6] = {num_p, soa->num_roots, blocks_x, blocks_y, size_x, size_y};
++			if (memcmp(t->audit_shapes[i], shape, sizeof(shape))) {
++			fprintf(t->audit, "{\"type\":\"launch\",\"coefficient\":%" PRIu64
++				",\"batch\":%u,\"group\":%u,\"num_p\":%u,\"roots_per_p\":%u,"
++				"\"blocks_x\":%u,\"blocks_y\":%u,\"threads\":%u,\"q_tile\":%u}\n",
++				t->audit_coeff, t->audit_batch, i, num_p, soa->num_roots,
++				blocks_x, blocks_y, size_x, size_y);
++				memcpy(t->audit_shapes[i], shape, sizeof(shape));
++			}
++		}
+ 		CUDA_TRY(cuLaunchGridAsync(launch->kernel_func,
+ 				blocks_x, blocks_y, t->stream))
+ 
+@@ -853,6 +925,14 @@ handle_special_q_batch(msieve_obj *obj, device_data_t *d,
+ 		collision_data.stream = t->stream;
+ 
+ 		d->collision_engine_run(t->collision_engine, &collision_data);
++		if (t->audit)
++			fprintf(t->audit, "{\"type\":\"engine\",\"coefficient\":%" PRIu64
++				",\"batch\":%u,\"candidates\":%u,\"dedup\":%u,\"matches\":%u,"
++				"\"bucket_grows\":%u,\"hash_caps\":%u,\"arena_fallbacks\":%u}\n",
++				t->audit_coeff, t->audit_batch, collision_data.candidate_count,
++				collision_data.dedup_count, collision_data.value_match_count,
++				collision_data.bucket_grow_count, collision_data.hash_cap_count,
++				collision_data.match_arena_fallback_count);
+ 
+ 		if (d->collision_stats) {
+ 			int hi;
+@@ -919,6 +999,7 @@ handle_special_q_batch(msieve_obj *obj, device_data_t *d,
+ 	CUDA_TRY(cuEventSynchronize(t->end_event))
+ 	CUDA_TRY(cuEventElapsedTime(&elapsed_ms, 
+ 			t->start_event, t->end_event))
++	t->audit_gpu_ms = elapsed_ms;
+ 	if (elapsed_ms < 60000 && elapsed_ms > 0) {
+ 		/* this function should execute in under a second. If
+ 		   it takes a very long time, assume that the system
+@@ -926,7 +1007,7 @@ handle_special_q_batch(msieve_obj *obj, device_data_t *d,
+ 		t->gpu_elapsed += elapsed_ms / 1000;
+ 	}
+ 
+-	if (obj->flags & MSIEVE_FLAG_STOP_SIEVING)
++	if ((obj->flags & MSIEVE_FLAG_STOP_SIEVING) || audit_failed(d))
+ 		quit = 1;
+ 
+ 	return quit;
+@@ -978,6 +1059,9 @@ sieve_specialq(msieve_obj *obj,
+ 	uint64 done_qroots = 0;
+ 	time_t wall_start;
+ 	time_t last_progress;
++	double audit_start = t->audit ? stage1_audit_clock() : 0;
++	double audit_wall_start = t->audit ? stage1_audit_wall_clock() : 0;
++	double audit_setup_end;
+ 	int progress_shown = 0;
+ 	int inplace_progress = stdout_is_tty() && d->num_threads == 1;
+ 
+@@ -1003,6 +1087,21 @@ sieve_specialq(msieve_obj *obj,
+ 	t->found_saturated_batches = 0;
+ 	t->found_total = 0;
+ 	c->found_count = 0;
++	t->audit_coeff++;
++	t->audit_batch = 0;
++	free(t->audit_shapes);
++	t->audit_shapes = NULL;
++	if (t->audit) {
++		gmp_fprintf(t->audit, "{\"type\":\"coefficient\",\"coefficient\":%" PRIu64
++			",\"ad\":\"%Zd\",\"configured_norm\":%.17g,\"effective_norm\":%.17g,"
++			"\"m0\":%.17g,\"coeff_max\":%.17g,\"pmin\":%u,\"pmax\":%u,"
++			"\"qmin\":%u,\"qmax\":%u}\n", t->audit_coeff, c->high_coeff,
++			d->poly->norm_max, c->norm_max_effective, c->m0, c->coeff_max,
++			p_min, p_max, special_q_min, special_q_max);
++		audit_check(d, t, 1);
++	}
++	if (audit_failed(d))
++		return 1;
+ 
+ 	/* build all the arithmetic progressions */
+ 
+@@ -1014,8 +1113,15 @@ sieve_specialq(msieve_obj *obj,
+ 	}
+ 
+ 	p_soa_array_start(p_array, pp_is_64, t->stream);
+-	if (p_array->num_arrays == 0)
++	if (p_array->num_arrays == 0) {
++		if (t->audit) {
++			fprintf(t->audit, "{\"type\":\"coefficient_end\",\"coefficient\":%" PRIu64
++				",\"complete\":true,\"empty_p\":true,\"found\":0,\"seconds\":%.9f}\n",
++				t->audit_coeff, stage1_audit_clock()-audit_start);
++			audit_check(d, t, 1);
++		}
+ 		return 0;
++	}
+ 
+ 	for (i = j = 0; i < p_array->num_arrays; i++) {
+ 		p_soa_var_t *soa = p_array->soa[i];
+@@ -1024,6 +1130,8 @@ sieve_specialq(msieve_obj *obj,
+ 	}
+ 
+ 	t->num_entries = j;
++	if (t->audit)
++		t->audit_shapes = xcalloc(p_array->num_arrays, sizeof(*t->audit_shapes));
+ 
+ 	unused_bits = 1;
+ 	while (!(p_max & (1 << (31 - unused_bits))))
+@@ -1048,14 +1156,19 @@ sieve_specialq(msieve_obj *obj,
+ 
+ 	total_qroots = sieve_fb_count(q_fb, special_q_min,
+ 				special_q_max, degree, MAX_ROOTS);
+-	if (total_qroots != 0)
+-		total_qroots += q_array->num_specialq;
++	/* This factory is fb_only, so zero means empty rather than unknown. */
++	total_qroots += q_array->num_specialq;
+ 
+ 	/* handle special-q in batches */
+ 
+ 	sieve_fb_reset(q_fb, special_q_min,
+ 			special_q_max, degree, MAX_ROOTS);
+ 
++	audit_setup_end = t->audit ? stage1_audit_clock() : 0;
++	if (t->audit)
++		fprintf(t->audit, "{\"type\":\"setup\",\"coefficient\":%" PRIu64
++			",\"entries_per_q\":%u,\"qroots_total\":%" PRIu64 ",\"seconds\":%.9f}\n",
++			t->audit_coeff, t->num_entries, total_qroots, audit_setup_end-audit_start);
+ 	wall_start = last_progress = time(NULL);
+ 
+ 	while (!quit && !all_q_done) {
+@@ -1064,12 +1177,18 @@ sieve_specialq(msieve_obj *obj,
+ 		uint32 max_batch_size;
+ 		uint32 key_bits;
+ 		uint32 num_aprog_vals = 1;
++		double audit_batch_start = t->audit ? stage1_audit_clock() : 0;
++		double audit_generated, audit_prepared, audit_searched;
+ 
+ 		max_batch_size = pp_is_64 ? 
+ 				max_batch_specialq64 :
+ 				max_batch_specialq32;
+ 		max_batch_size = MIN(max_batch_size, 
+ 				(uint32)1 << unused_bits);
++		if (d->audit_options.aprog)
++			max_batch_size = MIN(max_batch_size,
++				stage1_audit_batch_limit(p_max, d->audit_options.aprog,
++					max_batch_specialq32, max_batch_specialq64));
+ 		if (max_batch_size == 0) {
+ 			printf("error: max_batch_size == 0\n");
+ 			exit(-1);
+@@ -1088,7 +1207,10 @@ sieve_specialq(msieve_obj *obj,
+ 
+ 		batch_size = MIN(max_batch_size, q_array->num_specialq);
+ 
+-		if (batch_size < max_batch_size / 3) {
++		if (d->audit_options.aprog) {
++			num_aprog_vals = d->audit_options.aprog;
++		}
++		else if (batch_size < max_batch_size / 3) {
+ 
+ 			/* current batch of q is too small to utilize 
+ 			   the card efficiently. Have each (p,q) pair
+@@ -1114,10 +1236,43 @@ sieve_specialq(msieve_obj *obj,
+ 		if (num_aprog_vals > 1)
+ 			key_bits++;
+ 
++		audit_generated = t->audit ? stage1_audit_clock() : 0;
++		t->audit_batch++;
++		if (t->audit) {
++			uint32 qi;
++			fprintf(t->audit, "{\"type\":\"batch\",\"coefficient\":%" PRIu64
++				",\"batch\":%u,\"qroots\":%u,\"aprog\":%u,\"key_bits\":%u,"
++				"\"shift\":%u,\"generation_seconds\":%.9f,\"roots\":[",
++				t->audit_coeff, t->audit_batch, batch_size, num_aprog_vals,
++				key_bits, 32-unused_bits, audit_generated-audit_batch_start);
++			for (qi=0; qi<batch_size; qi++)
++				fprintf(t->audit, "%s[%u,\"%" PRIu64 "\"]", qi ? "," : "",
++					q_array->specialq[qi].p, q_array->specialq[qi].root);
++			fprintf(t->audit, "]}\n");
++		}
++		audit_prepared = t->audit ? stage1_audit_clock() : 0;
+ 		quit = handle_special_q_batch(obj, d, t, batch_size, 
+ 				32 - unused_bits, key_bits, num_aprog_vals);
+ 
++		audit_searched = t->audit ? stage1_audit_clock() : 0;
+ 		check_found_array(c, d, t);
++		if (t->audit) {
++			uint32 found = t->found_array[0].p1;
++			double audit_checked = stage1_audit_clock();
++			fprintf(t->audit, "{\"type\":\"batch_end\",\"coefficient\":%" PRIu64
++				",\"batch\":%u,\"found_total\":%u,\"returned\":%u,\"saturated\":%s,"
++				"\"gpu_span_ms\":%.9g,\"audit_prepare_seconds\":%.9f,"
++				"\"search_seconds\":%.9f,\"readback_submit_seconds\":%.9f,"
++				"\"seconds\":%.9f}\n", t->audit_coeff, t->audit_batch,
++				found, MIN(found, FOUND_ARRAY_SIZE-1), found>=FOUND_ARRAY_SIZE ? "true":"false",
++				t->audit_gpu_ms, audit_prepared-audit_generated, audit_searched-audit_prepared,
++				audit_checked-audit_searched, audit_checked-audit_batch_start);
++			/* Buffer ordinary batches; inspect auto-flush errors every batch.
++			   A crash can lose this tail; missing endings make it incomplete. */
++			audit_check(d, t, t->audit_batch % 64 == 0);
++		}
++		if (audit_failed(d))
++			quit = 1;
+ 
+ 		specialq_array_nextbatch(q_array, batch_size);
+ 
+@@ -1317,6 +1472,15 @@ sieve_specialq(msieve_obj *obj,
+ 		fflush(stdout);
+ 	}
+ 
++	if (t->audit) {
++		fprintf(t->audit, "{\"type\":\"coefficient_end\",\"coefficient\":%" PRIu64
++			",\"complete\":%s,\"qroots_done\":%" PRIu64 ",\"found\":%u,"
++			"\"seconds\":%.9f,\"wall_seconds\":%.9f}\n",
++			t->audit_coeff, all_q_done && !q_array->num_specialq ? "true":"false",
++			done_qroots, c->found_count, stage1_audit_clock()-audit_start,
++			stage1_audit_wall_clock()-audit_wall_start);
++		audit_check(d, t, 1);
++	}
+ 	t->cumulative_elapsed += elapsed;
+ 	return quit;
+ }
+@@ -1341,7 +1505,7 @@ sieve_lattice_gpu_core(msieve_obj *obj,
+ 	   the coefficients already running are past this point and
+ 	   run to completion */
+ 
+-	if (obj->flags & MSIEVE_FLAG_STOP_SIEVING_SOFT)
++	if ((obj->flags & MSIEVE_FLAG_STOP_SIEVING_SOFT) || audit_failed(d))
+ 		return;
+ 
+ 	/* likewise skip queued coefficients once the num_polys= target
+@@ -1377,29 +1541,6 @@ sieve_lattice_gpu_core(msieve_obj *obj,
+ 	p_min = MAX(1, p_max / P_SCALE);
+ 	special_q_min = 1;
+ 
+-	/* set up the special q factory; special-q may have 
+-	   arbitrary factors, but many small factors are 
+-	   preferred since that will allow for many more roots
+-	   per special q, so we choose the factors to be as 
+-	   small as possible */
+-
+-	special_q_fb_max = MIN(200000, special_q_max);
+-	sieve_fb_init(t->sieve_q_fb, c,
+-			2, special_q_fb_max,
+-			1, degree,
+-			1);
+-
+-	/* because special-q can have any factors, we require that
+-	   the progressions we generate use p that have somewhat
+-	   large factors. This minimizes the chance that a given
+-	   special-q has factors in common with many progressions
+-	   in the set */
+-
+-	sieve_fb_init(t->sieve_p_fb, c, 
+-			100, 5000,
+-			1, degree,
+-		       	0);
+-
+ 	/* large search problems can be randomized so that
+ 	   multiple runs over the same range of leading
+ 	   a_d will likely generate different results */
+@@ -1427,6 +1568,43 @@ sieve_lattice_gpu_core(msieve_obj *obj,
+ 		special_q_min2 = special_q_min;
+ 		special_q_max2 = special_q_max;
+ 	}
++	special_q_min2 = MAX(special_q_min2, d->audit_options.qmin);
++	special_q_max2 = MIN(special_q_max2, d->audit_options.qmax);
++	if (special_q_min2 > special_q_max2) {
++		logprintf(obj, "stage1 q window does not intersect this coefficient's bounds\n");
++		if (t->audit) {
++			gmp_fprintf(t->audit, "{\"type\":\"coefficient_skip\",\"ad\":\"%Zd\","
++				"\"reason\":\"empty_q_intersection\",\"requested_qmin\":%u,"
++				"\"requested_qmax\":%u,\"natural_qmax\":%u}\n",
++				c->high_coeff, d->audit_options.qmin,
++				d->audit_options.qmax, special_q_max);
++			audit_check(d, t, 1);
++		}
++		return;
++	}
++	/* set up the special q factory; special-q may have
++	   arbitrary factors, but many small factors are
++	   preferred since that will allow for many more roots
++	   per special q, so we choose the factors to be as
++	   small as possible */
++
++	special_q_fb_max = MIN(200000, special_q_max);
++	sieve_fb_init(t->sieve_q_fb, c,
++			2, special_q_fb_max,
++			1, degree,
++			1);
++
++	/* because special-q can have any factors, we require that
++	   the progressions we generate use p that have somewhat
++	   large factors. This minimizes the chance that a given
++	   special-q has factors in common with many progressions
++	   in the set */
++
++	sieve_fb_init(t->sieve_p_fb, c,
++			100, 5000,
++			1, degree,
++			0);
++
+ #if 1
+ 	{
+ 		char timebuf[32];
+@@ -1636,6 +1814,61 @@ gpu_thread_data_init(void *data, int threadid)
+ 	uint32 i, j;
+ 	device_data_t *d = (device_data_t *)data;
+ 	device_thread_data_t *t = d->threads + threadid;
++	char *ptx_bytes = NULL;
++
++	if (d->audit_options.prefix[0]) {
++		char path[1100];
++		char ptx_path[4096], ptx_sha256[65];
++		FILE *ptx;
++		long ptx_size;
++#if defined(WIN32) || defined(_WIN64)
++		if (!_fullpath(ptx_path, "stage1_core.ptx", sizeof(ptx_path))) {
++#else
++		if (!realpath("stage1_core.ptx", ptx_path)) {
++#endif
++			perror("stage1 PTX path"); exit(1);
++		}
++		ptx = fopen(ptx_path, "rb");
++		if (!ptx || fseek(ptx, 0, SEEK_END) ||
++		    (ptx_size = ftell(ptx)) < 0 || fseek(ptx, 0, SEEK_SET)) {
++			perror("stage1 PTX read"); exit(1);
++		}
++		ptx_bytes = xmalloc((size_t)ptx_size + 1);
++		if (fread(ptx_bytes, 1, (size_t)ptx_size, ptx) != (size_t)ptx_size ||
++		    ferror(ptx)) {
++			perror("stage1 PTX read"); exit(1);
++		}
++		if (fclose(ptx)) { perror("stage1 PTX close"); exit(1); }
++		ptx_bytes[ptx_size] = 0;
++		stage1_audit_sha256(ptx_bytes, (size_t)ptx_size, ptx_sha256);
++		snprintf(path, sizeof(path), "%s.w%d.jsonl", d->audit_options.prefix, threadid);
++		t->audit = fopen(path, "wx");
++		if (!t->audit) { perror(path); exit(1); }
++		setvbuf(t->audit, NULL, _IOFBF, 1024*1024);
++		fprintf(t->audit, "{\"type\":\"run\",\"schema\":2,\"launch_records\":\"changes\","
++			"\"flush_batches\":64,\"host_clock\":\"%s\",\"worker\":%d,\"run\":",
++#if defined(WIN32) || defined(_WIN64)
++			"QueryPerformanceCounter",
++#else
++			"CLOCK_MONOTONIC",
++#endif
++			threadid);
++		stage1_audit_string(t->audit, d->audit_options.prefix);
++		gmp_fprintf(t->audit, ",\"N\":\"%Zd\",\"degree\":%u,\"engine\":\"%s\",\"gpu\":",
++			d->poly->N, d->poly->degree, d->use_collision_engine ? "gerbicz":"sort");
++		stage1_audit_string(t->audit, d->gpu_info->name);
++		fprintf(t->audit, ",\"args\":");
++		stage1_audit_string(t->audit, d->obj->nfs_args ? d->obj->nfs_args : "");
++		fprintf(t->audit, ",\"ptx_path\":");
++		stage1_audit_string(t->audit, ptx_path);
++		fprintf(t->audit, ",\"ptx_sha256\":\"%s\",\"ptx_bytes\":%ld",
++			ptx_sha256, ptx_size);
++		fprintf(t->audit, ",\"build\":\"%s %s\",\"cuda_headers\":%d,"
++			"\"capacity32\":%zu,\"capacity64\":%zu,\"found_capacity\":%u}\n",
++			__DATE__, __TIME__, CUDA_VERSION, d->max_sort_entries32,
++			d->max_sort_entries64, FOUND_ARRAY_SIZE-1);
++		audit_check(d, t, 1);
++	}
+ 
+ 	/* every thread needs its own context; making all
+ 	   threads share the same context causes problems
+@@ -1655,7 +1888,14 @@ gpu_thread_data_init(void *data, int threadid)
+ 
+ 	/* load GPU kernels */
+ 
+-	CUDA_TRY(cuModuleLoad(&t->gpu_module, "stage1_core.ptx"))
++	if (ptx_bytes) {
++		/* Load the bytes we hashed, even if the path is replaced meanwhile. */
++		CUDA_TRY(cuModuleLoadData(&t->gpu_module, ptx_bytes))
++		free(ptx_bytes);
++	}
++	else {
++		CUDA_TRY(cuModuleLoad(&t->gpu_module, "stage1_core.ptx"))
++	}
+ 
+ 	t->launch = (gpu_launch_t *)xmalloc(NUM_GPU_FUNCTIONS *
+ 				sizeof(gpu_launch_t));
+@@ -1754,11 +1994,22 @@ gpu_thread_data_free(void *data, int threadid)
+ 	CUDA_TRY(cuMemFree(t->gpu_found_array))
+ 
+ 	free(t->launch);
++	free(t->audit_shapes);
+ 
+ 	p_soa_array_free(t->p_array);
+ 	specialq_array_free(t->q_array);
+ 
+ 	CUDA_TRY(cuCtxDestroy(t->gpu_context))
++	t->gpu_context = NULL;
++	if (t->audit) {
++		fprintf(t->audit, "{\"type\":\"worker_end\"}\n");
++		audit_check(d, t, 1);
++		if (t->audit) {
++			FILE *audit = t->audit;
++			t->audit = NULL;
++			if (fclose(audit)) audit_write_failed(d, t);
++		}
++	}
+ }
+ 
+ /*------------------------------------------------------------------------*/
+@@ -1773,6 +2024,13 @@ gpu_data_init(msieve_obj *obj, poly_search_t *poly)
+ 	uint32 num_threads;
+ 	thread_control_t thread_control;
+ 
++	d = (device_data_t *)xcalloc(1, sizeof(device_data_t));
++	if (!stage1_audit_parse(obj->nfs_args, &d->audit_options)) {
++		fprintf(stderr, "invalid stage1 audit options: use stage1_provenance=PREFIX, "
++			"stage1_qmin/qmax in 1..4294967295, stage1_aprog in 1..5; "
++			"separate options with whitespace\n");
++		exit(1);
++	}
+ 	gpu_init(&gpu_config);
+ 	if (gpu_config.num_gpu == 0) {
+ 		printf("error: no CUDA-enabled GPUs found\n");
+@@ -1784,8 +2042,6 @@ gpu_data_init(msieve_obj *obj, poly_search_t *poly)
+ 		exit(-1);
+ 	}
+ 
+-	d = (device_data_t *)xcalloc(1, sizeof(device_data_t));
+-
+ 	d->obj = obj;
+ 	d->gpu_info = gpu_info = (gpu_info_t *)xmalloc(sizeof(gpu_info_t));
+ 	memcpy(gpu_info, gpu_config.info + obj->which_gpu,
+@@ -1893,6 +2149,7 @@ gpu_data_init(msieve_obj *obj, poly_search_t *poly)
+ void gpu_data_free(void *gpu_data)
+ {
+ 	device_data_t *d = (device_data_t *)gpu_data;
++	int failed;
+ 
+ 	if (!(d->obj->flags & MSIEVE_FLAG_STOP_SIEVING)) {
+ 		/* we're allowed to try to shut down gracefully */
+@@ -1905,6 +2162,7 @@ void gpu_data_free(void *gpu_data)
+ 	   after it's been freed */
+ 
+ 	threadpool_free(d->gpu_threadpool);
++	threadpool_drain(d->stage2_threadpool, 1);
+ 	threadpool_free(d->stage2_threadpool);
+ 
+ 	free(d->threads);
+@@ -1924,7 +2182,13 @@ void gpu_data_free(void *gpu_data)
+ 	if (g_active_gpu_device == d)
+ 		g_active_gpu_device = NULL;
+ 
++	failed = audit_failed(d);
+ 	free(d);
++	/* Worker pools have drained; stdio exit flushing now cannot race callbacks. */
++	if (failed) {
++		fprintf(stderr, "stage1 provenance failure: queued polynomial work drained\n");
++		exit(1);
++	}
+ }
+ 
+ /*------------------------------------------------------------------------*/

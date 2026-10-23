@@ -1,0 +1,135 @@
+{
+  "exposure_mode": "q_uint32_sixteenths",
+  "coefficients": [
+    {
+      "sidecar": "/tmp/stage1-review-extra-20261020-v3/pair1_on/provenance.w0.jsonl",
+      "parameters": {
+        "type": "coefficient",
+        "coefficient": 1,
+        "ad": "138600",
+        "configured_norm": 5.965531165413326e+29,
+        "effective_norm": 5.965531165413326e+29,
+        "m0": 1.3019223042029047e+38,
+        "coeff_max": 9.908406208865017e+26,
+        "pmin": 6835066,
+        "pmax": 16404160,
+        "qmin": 2140000000,
+        "qmax": 2142000000
+      },
+      "setup": {
+        "type": "setup",
+        "coefficient": 1,
+        "entries_per_q": 662846,
+        "qroots_total": 58930,
+        "seconds": 1.16968995
+      },
+      "ending": {
+        "type": "coefficient_end",
+        "coefficient": 1,
+        "complete": true,
+        "qroots_done": 58930,
+        "found": 86,
+        "seconds": 7.400190823,
+        "wall_seconds": 7.400190592
+      }
+    }
+  ],
+  "timing": [
+    {
+      "sidecar": "/tmp/stage1-review-extra-20261020-v3/pair1_on/provenance.w0.jsonl",
+      "coefficient": 1,
+      "batch_first": 1,
+      "generation_seconds": 0.322453568,
+      "batches": 1134,
+      "seconds": 6.223632883999996,
+      "audit_prepare_seconds": 0.013909471999999994,
+      "search_seconds": 5.802316839999998,
+      "readback_submit_seconds": 0.08495300399999992,
+      "gpu_span_seconds": 5.446848065600007
+    }
+  ],
+  "launches": [
+    {
+      "sidecar": "/tmp/stage1-review-extra-20261020-v3/pair1_on/provenance.w0.jsonl",
+      "coefficient": 1,
+      "group": 0,
+      "num_p": 487166,
+      "roots_per_p": 1,
+      "blocks_x": 1903,
+      "blocks_y": 1,
+      "threads": 256,
+      "q_tile": 52,
+      "calls": 1133
+    },
+    {
+      "sidecar": "/tmp/stage1-review-extra-20261020-v3/pair1_on/provenance.w0.jsonl",
+      "coefficient": 1,
+      "group": 1,
+      "num_p": 34476,
+      "roots_per_p": 5,
+      "blocks_x": 135,
+      "blocks_y": 2,
+      "threads": 256,
+      "q_tile": 26,
+      "calls": 1133
+    },
+    {
+      "sidecar": "/tmp/stage1-review-extra-20261020-v3/pair1_on/provenance.w0.jsonl",
+      "coefficient": 1,
+      "group": 2,
+      "num_p": 132,
+      "roots_per_p": 25,
+      "blocks_x": 1,
+      "blocks_y": 3,
+      "threads": 192,
+      "q_tile": 18,
+      "calls": 1133
+    },
+    {
+      "sidecar": "/tmp/stage1-review-extra-20261020-v3/pair1_on/provenance.w0.jsonl",
+      "coefficient": 1,
+      "group": 0,
+      "num_p": 487166,
+      "roots_per_p": 1,
+      "blocks_x": 1903,
+      "blocks_y": 1,
+      "threads": 256,
+      "q_tile": 14,
+      "calls": 1
+    },
+    {
+      "sidecar": "/tmp/stage1-review-extra-20261020-v3/pair1_on/provenance.w0.jsonl",
+      "coefficient": 1,
+      "group": 1,
+      "num_p": 34476,
+      "roots_per_p": 5,
+      "blocks_x": 135,
+      "blocks_y": 1,
+      "threads": 256,
+      "q_tile": 14,
+      "calls": 1
+    },
+    {
+      "sidecar": "/tmp/stage1-review-extra-20261020-v3/pair1_on/provenance.w0.jsonl",
+      "coefficient": 1,
+      "group": 2,
+      "num_p": 132,
+      "roots_per_p": 25,
+      "blocks_x": 1,
+      "blocks_y": 1,
+      "threads": 192,
+      "q_tile": 14,
+      "calls": 1
+    }
+  ],
+  "exposure": [
+    {
+      "N": "5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599",
+      "ad": "138600",
+      "q_min": 1879048192,
+      "q_max": 2147483647,
+      "aprog": 1,
+      "qroots": 58930
+    }
+  ]
+}

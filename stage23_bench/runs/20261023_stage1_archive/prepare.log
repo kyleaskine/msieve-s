@@ -1,0 +1,41 @@
+180180: independent full collision audit started
+180180: audit and compact readback passed: {'path': 'stage23_bench/runs/20261023_stage1_archive/180180.candidates.jsonl.zst', 'sha256': '2164bb855e9c1fa6327d98e178a55eb4f920d509219fdd04c80a4a754318fc46', 'bytes': 15034441, 'candidates': 161826, 'discoveries': 167046, 'raw_links': 167046}
+360360: independent full collision audit started
+360360: audit and compact readback passed: {'path': 'stage23_bench/runs/20261023_stage1_archive/360360.candidates.jsonl.zst', 'sha256': '957387f7995a9f20dd8843be4fae97b19f829d4a90e2e858c74c8b5d48477c49', 'bytes': 31224807, 'candidates': 335886, 'discoveries': 350615, 'raw_links': 350615}
+138600: compact provenance verified
+277200: compact provenance verified
+415800: compact provenance verified
+554400: compact provenance verified
+693000: compact provenance verified
+831600: compact provenance verified
+as660-stage1.w0.jsonl: log2 q exposure started
+as660-stage1.w0.jsonl: 2,000,000 records
+as660-stage1.w0.jsonl: 4,000,000 records
+as660-stage1.w0.jsonl: 6,000,000 records
+as660-stage1.w0.jsonl: 8,000,000 records
+as660-stage1.w0.jsonl: 10,000,000 records
+as660-stage1.w0.jsonl: 12,000,000 records
+as660-stage1.w0.jsonl: 14,000,000 records
+as660-stage1.w0.jsonl: exposure totals verified
+as660-stage1-b.w0.jsonl: log2 q exposure started
+as660-stage1-b.w0.jsonl: 2,000,000 records
+as660-stage1-b.w0.jsonl: 4,000,000 records
+as660-stage1-b.w0.jsonl: 6,000,000 records
+as660-stage1-b.w0.jsonl: 8,000,000 records
+as660-stage1-b.w0.jsonl: 10,000,000 records
+as660-stage1-b.w0.jsonl: 12,000,000 records
+as660-stage1-b.w0.jsonl: 14,000,000 records
+as660-stage1-b.w0.jsonl: 16,000,000 records
+as660-stage1-b.w0.jsonl: exposure totals verified
+as660-stage1-c.w0.jsonl: log2 q exposure started
+as660-stage1-c.w0.jsonl: 2,000,000 records
+as660-stage1-c.w0.jsonl: 4,000,000 records
+as660-stage1-c.w0.jsonl: 6,000,000 records
+as660-stage1-c.w0.jsonl: 8,000,000 records
+as660-stage1-c.w0.jsonl: 10,000,000 records
+as660-stage1-c.w0.jsonl: 12,000,000 records
+as660-stage1-c.w0.jsonl: 14,000,000 records
+as660-stage1-c.w0.jsonl: 16,000,000 records
+as660-stage1-c.w0.jsonl: 18,000,000 records
+as660-stage1-c.w0.jsonl: exposure totals verified
+Preparation complete

@@ -1,0 +1,8 @@
+{
+  "files": {
+    "msieve": "c8a15d35fb4de22378123a0330d34321e4955f8670bd448a0556dd31666096be",
+    "stage1_core.ptx": "5517a4f0270ee1258bae09a3243f8b442a175ca8d7751a9c4fbb24aa47a747d3",
+    "cub/sort_engine.so": "c5d9bdd33e5fc9d1418bfdb584eee7b8b3ad754b2269f7eee5bbbc2434f501df",
+    "cub/collision_engine.so": "0b49cb06884eee1d8f086b5ad022666c03869f8210142cde423e45b5339d204a"
+  }
+}

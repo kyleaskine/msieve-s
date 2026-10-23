@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "extracts": {
+    "stage23_bench/runs/20261021_as660_two_coefficients/second.w0.jsonl": {
+      "archive": "as660-stage1-b.w0.jsonl.zst",
+      "ranges": [
+        [
+          0,
+          4748715449
+        ]
+      ],
+      "sha256": "35b7b78fbba63f101f5fa9eaeadfea73609dc0b4442d0e8a5a56ca18de2a59f2",
+      "bytes": 4748715449
+    },
+    "stage23_bench/runs/20261021_as660_third_coefficient/third.w0.jsonl": {
+      "archive": "as660-stage1-b.w0.jsonl.zst",
+      "ranges": [
+        [
+          0,
+          791
+        ],
+        [
+          4748715449,
+          13476191362
+        ]
+      ],
+      "sha256": "6f50a4ca2e7a4c0025f9939d0963663fc48ded0cbcff62aeae6f0874f4a5e5cd",
+      "bytes": 8727476704
+    },
+    "stage23_bench/runs/20261022_as660_six_coefficients/554400/coefficient.w0.jsonl": {
+      "archive": "as660-stage1-c.w0.jsonl.zst",
+      "ranges": [
+        [
+          0,
+          790
+        ],
+        [
+          790,
+          4395296607
+        ]
+      ],
+      "sha256": "f5b6e94bd3f4bee792c5d6436d2f370599a101418adb3901e4ec4bf60357f431",
+      "bytes": 4395296607
+    },
+    "stage23_bench/runs/20261022_as660_six_coefficients/693000/coefficient.w0.jsonl": {
+      "archive": "as660-stage1-c.w0.jsonl.zst",
+      "ranges": [
+        [
+          0,
+          790
+        ],
+        [
+          4395296607,
+          10349991235
+        ]
+      ],
+      "sha256": "9598020b31eee44728d7d7a09c3b0aad3f749925f1495049ba66f5025370acf5",
+      "bytes": 5954695418
+    },
+    "stage23_bench/runs/20261022_as660_six_coefficients/831600/coefficient.w0.jsonl": {
+      "archive": "as660-stage1-c.w0.jsonl.zst",
+      "ranges": [
+        [
+          0,
+          790
+        ],
+        [
+          10349991235,
+          15733749668
+        ]
+      ],
+      "sha256": "a0ed5f076e5d305b3bad7822590f8af53b2f37c611216fdb3e41c355b35f34de",
+      "bytes": 5383759223
+    }
+  }
+}

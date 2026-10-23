@@ -1,0 +1,99 @@
+make: svnversion: No such file or directory
+gcc -O3 -fomit-frame-pointer -march=native -D_FILE_OFFSET_BITS=64 -DNDEBUG -D_LARGEFILE64_SOURCE -DVBITS=64  -Wall -W -DMSIEVE_SVN_VERSION="\"unknown\"" -I. -Iaprcl -Iinclude -Ignfs -Ignfs/poly -Ignfs/poly/stage1 -I"/usr/local/cuda/bin/..//include" -Icub -Imgpu -DHAVE_CUDA -Ignfs -c -o gnfs/poly/poly_skew.no gnfs/poly/poly_skew.c
+gcc -O3 -fomit-frame-pointer -march=native -D_FILE_OFFSET_BITS=64 -DNDEBUG -D_LARGEFILE64_SOURCE -DVBITS=64  -Wall -W -DMSIEVE_SVN_VERSION="\"unknown\"" -I. -Iaprcl -Iinclude -Ignfs -Ignfs/poly -Ignfs/poly/stage1 -I"/usr/local/cuda/bin/..//include" -Icub -Imgpu -DHAVE_CUDA -Ignfs -c -o gnfs/poly/stage1/stage1_sieve_gpu.no gnfs/poly/stage1/stage1_sieve_gpu.c
+In file included from gnfs/poly/poly.h:19,
+                 from gnfs/poly/poly_skew.h:18,
+                 from gnfs/poly/poly_skew.c:15:
+include/dd.h: In function ‘dd_precision_is_ieee’:
+include/dd.h:78:34: warning: bitwise comparison always evaluates to false [-Wtautological-compare]
+   78 |         return ((prec & ~0x0300) == 0x0200) ? 1 : 0;
+      |                                  ^~
+gnfs/poly/poly_skew.c: In function ‘sizeopt_callback’:
+gnfs/poly/poly_skew.c:90:37: warning: unused parameter ‘deg’ [-Wunused-parameter]
+   90 | static void sizeopt_callback(uint32 deg, mpz_t *alg_coeffs, mpz_t *rat_coeffs,
+      |                              ~~~~~~~^~~
+In file included from gnfs/poly/poly.h:19,
+                 from gnfs/poly/poly_skew.h:18,
+                 from gnfs/poly/stage1/stage1.h:23,
+                 from gnfs/poly/stage1/stage1_sieve_gpu.c:17:
+include/dd.h: In function ‘dd_precision_is_ieee’:
+include/dd.h:78:34: warning: bitwise comparison always evaluates to false [-Wtautological-compare]
+   78 |         return ((prec & ~0x0300) == 0x0200) ? 1 : 0;
+      |                                  ^~
+gnfs/poly/stage1/stage1_sieve_gpu.c: In function ‘stage1_hit_free’:
+gnfs/poly/stage1/stage1_sieve_gpu.c:660:33: warning: unused parameter ‘threadid’ [-Wunused-parameter]
+  660 | stage1_hit_free(void *data, int threadid)
+      |                             ~~~~^~~~~~~~
+gnfs/poly/stage1/stage1_sieve_gpu.c: In function ‘stage1_hit_run’:
+gnfs/poly/stage1/stage1_sieve_gpu.c:671:32: warning: unused parameter ‘threadid’ [-Wunused-parameter]
+  671 | stage1_hit_run(void *data, int threadid)
+      |                            ~~~~^~~~~~~~
+gnfs/poly/stage1/stage1_sieve_gpu.c: In function ‘handle_special_q_batch’:
+gnfs/poly/stage1/stage1_sieve_gpu.c:883:17: warning: ‘cuFuncSetBlockShape’ is deprecated [-Wdeprecated-declarations]
+  883 |                 CUDA_TRY(cuFuncSetBlockShape(launch->kernel_func,
+      |                 ^~~~~~~~
+In file included from cub/sort_engine.h:9,
+                 from gnfs/poly/stage1/stage1_sieve_gpu.c:15:
+/usr/local/cuda/bin/..//include/cuda.h:19893:36: note: declared here
+19893 | __CUDA_DEPRECATED CUresult CUDAAPI cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+gnfs/poly/stage1/stage1_sieve_gpu.c:897:17: warning: ‘cuLaunchGridAsync’ is deprecated [-Wdeprecated-declarations]
+  897 |                 CUDA_TRY(cuLaunchGridAsync(launch->kernel_func,
+      |                 ^~~~~~~~
+/usr/local/cuda/bin/..//include/cuda.h:20228:36: note: declared here
+20228 | __CUDA_DEPRECATED CUresult CUDAAPI cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, CUstream hStream);
+      |                                    ^~~~~~~~~~~~~~~~~
+gnfs/poly/stage1/stage1_sieve_gpu.c:994:17: warning: ‘cuLaunchGridAsync’ is deprecated [-Wdeprecated-declarations]
+  994 |                 CUDA_TRY(cuLaunchGridAsync(launch->kernel_func,
+      |                 ^~~~~~~~
+/usr/local/cuda/bin/..//include/cuda.h:20228:36: note: declared here
+20228 | __CUDA_DEPRECATED CUresult CUDAAPI cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, CUstream hStream);
+      |                                    ^~~~~~~~~~~~~~~~~
+gnfs/poly/stage1/stage1_sieve_gpu.c: In function ‘load_sort_engine’:
+gnfs/poly/stage1/stage1_sieve_gpu.c:1687:17: warning: extra tokens at end of #ifdef directive
+ 1687 | #ifdef _MSC_VER && _MSC_VER >= 1900
+      |                 ^~
+gnfs/poly/stage1/stage1_sieve_gpu.c: In function ‘gpu_thread_data_init’:
+gnfs/poly/stage1/stage1_sieve_gpu.c:1911:25: warning: ‘cuFuncSetBlockShape’ is deprecated [-Wdeprecated-declarations]
+ 1911 |                         CUDA_TRY(cuFuncSetBlockShape(launch->kernel_func,
+      |                         ^~~~~~~~
+/usr/local/cuda/bin/..//include/cuda.h:19893:36: note: declared here
+19893 | __CUDA_DEPRECATED CUresult CUDAAPI cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+gnfs/poly/stage1/stage1_sieve_gpu.c: In function ‘task_data_free’:
+gnfs/poly/stage1/stage1_sieve_gpu.c:2201:32: warning: unused parameter ‘threadid’ [-Wunused-parameter]
+ 2201 | task_data_free(void *data, int threadid)
+      |                            ~~~~^~~~~~~~
+gnfs/poly/stage1/stage1_sieve_gpu.c: In function ‘sieve_lattice_gpu’:
+gnfs/poly/stage1/stage1_sieve_gpu.c:2220:58: warning: unused parameter ‘poly’ [-Wunused-parameter]
+ 2220 | double sieve_lattice_gpu(msieve_obj *obj, poly_search_t *poly,
+      |                                           ~~~~~~~~~~~~~~~^~~~
+rm -f libmsieve.a
+ar r libmsieve.a aprcl/mpz_aprcl32.o common/filter/clique.o common/filter/filter.o common/filter/merge.o common/filter/merge_post.o common/filter/merge_pre.o common/filter/merge_util.o common/filter/singleton.o common/lanczos/lanczos.o common/lanczos/lanczos_io.o common/lanczos/lanczos_matmul.o common/lanczos/lanczos_pre.o common/lanczos/matmul_util.o common/lanczos/cpu/lanczos_matmul0.o common/lanczos/cpu/lanczos_matmul1.o common/lanczos/cpu/lanczos_matmul2.o common/lanczos/cpu/lanczos_vv.o common/smallfact/gmp_ecm.o common/smallfact/smallfact.o common/smallfact/squfof.o common/smallfact/tinyqs.o common/batch_factor.o common/cuda_xface.o common/dickman.o common/driver.o common/expr_eval.o common/hashtable.o common/integrate.o common/minimize.o common/minimize_global.o common/mp.o common/polyroot.o common/prime_delta.o common/prime_sieve.o common/savefile.o common/strtoll.o common/thread.o common/util.o mpqs/gf2.qo mpqs/mpqs.qo mpqs/poly.qo mpqs/relation.qo mpqs/sieve.qo mpqs/sqrt.qo mpqs/sieve_core_generic_32k.qo mpqs/sieve_core_generic_64k.qo gnfs/poly/poly.no gnfs/poly/poly_param.no gnfs/poly/poly_skew.no gnfs/poly/polyutil.no gnfs/poly/root_score.no gnfs/poly/size_score.no gnfs/poly/stage1/stage1.no gnfs/poly/stage1/stage1_roots.no gnfs/poly/stage2/optimize.no gnfs/poly/stage2/optimize_deg6.no gnfs/poly/stage2/root_sieve.no gnfs/poly/stage2/root_sieve_deg45_x.no gnfs/poly/stage2/root_sieve_deg5_xy.no gnfs/poly/stage2/root_sieve_deg6_x.no gnfs/poly/stage2/root_sieve_deg6_xy.no gnfs/poly/stage2/root_sieve_deg6_xyz.no gnfs/poly/stage2/root_sieve_line.no gnfs/poly/stage2/root_sieve_util.no gnfs/poly/stage2/stage2.no gnfs/filter/duplicate.no gnfs/filter/filter.no gnfs/filter/singleton.no gnfs/sieve/sieve_line.no gnfs/sieve/sieve_util.no gnfs/sqrt/sqrt.no gnfs/sqrt/sqrt_a.no gnfs/fb.no gnfs/ffpoly.no gnfs/gf2.no gnfs/gnfs.no gnfs/relation.no gnfs/poly/stage1/stage1_sieve_gpu.no gnfs/poly/stage1/stage1_sieve_gpu.no
+ar: creating libmsieve.a
+ranlib libmsieve.a
+gcc -O3 -fomit-frame-pointer -march=native -D_FILE_OFFSET_BITS=64 -DNDEBUG -D_LARGEFILE64_SOURCE -DVBITS=64  -Wall -W -DMSIEVE_SVN_VERSION="\"unknown\"" -I. -Iaprcl -Iinclude -Ignfs -Ignfs/poly -Ignfs/poly/stage1 -I"/usr/local/cuda/bin/..//include" -Icub -Imgpu -DHAVE_CUDA demo.c -o msieve  \
+		libmsieve.a -ldl -L"/usr/local/cuda/bin/..//lib64/stubs" -lcuda -lz -lgmp -lm -lpthread
+demo.c: In function ‘get_random_seeds’:
+demo.c:75:17: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+   75 |                 fread(&tmp_seed1, sizeof(uint32), (size_t)1, rand_device);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+demo.c:76:17: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+   76 |                 fread(&tmp_seed2, sizeof(uint32), (size_t)1, rand_device);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+demo.c: In function ‘main’:
+demo.c:494:55: warning: this statement may fall through [-Wimplicit-fallthrough=]
+  494 |                                                 flags |= MSIEVE_FLAG_NFS_LA_RESTART;
+      |                                                 ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+demo.c:495:41: note: here
+  495 |                                         case '2': /* fall through */
+      |                                         ^~~~
+demo.c:624:25: warning: ignoring return value of ‘fgets’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  624 |                         fgets(buf, (int)sizeof(buf), stdin);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+demo.c:644:25: warning: ignoring return value of ‘fgets’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  644 |                         fgets(buf, (int)sizeof(buf), infile);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+demo.c:591:33: warning: ‘__builtin_strncpy’ specified bound 500 equals destination size [-Wstringop-truncation]
+  591 |                                 strncpy(buf, argv[i], sizeof(buf));
+      |                                 ^

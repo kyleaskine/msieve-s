@@ -1,0 +1,20 @@
+{
+  "seconds": [
+    30.480670064,
+    29.760320593,
+    29.349206867
+  ],
+  "clock_order": [
+    "MONOTONIC",
+    "MONOTONIC_RAW",
+    "REALTIME"
+  ],
+  "discontinuities": [
+    {
+      "sample": 388,
+      "monotonic": 0.020132429,
+      "raw": 0.019658304,
+      "realtime": -1.111330111
+    }
+  ]
+}

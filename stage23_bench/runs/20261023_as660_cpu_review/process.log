@@ -1,0 +1,17 @@
+Frozen CPU reference hashes verified
+Scored pairs checked: 250000
+Scored pairs checked: 500000
+Scored pairs checked: 750000
+Scored pairs checked: 1000000
+Scored pairs checked: 1250000
+Scored pairs checked: 1500000
+Traceback (most recent call last):
+  File "/home/kylea/msieve-s/stage23_bench/runs/20261023_as660_cpu_review/analyze.py", line 177, in <module>
+    main()
+  File "/home/kylea/msieve-s/stage23_bench/runs/20261023_as660_cpu_review/analyze.py", line 160, in main
+    joined = [dict(polynomial=p, origins=origins(p)) for p in polys]
+                                         ^^^^^^^^^^
+  File "/home/kylea/msieve-s/stage23_bench/runs/20261023_as660_cpu_review/analyze.py", line 154, in origins
+    assert matches, poly
+           ^^^^^^^
+AssertionError: {'n': 5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599, 'Y0': -90981815437538456830820321103433873154, 'Y1': 244675933553037468732389, 'c0': -92055504536115977376307475844184537540722432, 'c1': 51501774023892413617567896265662422493, 'c2': 7515443175350055894495138680, 'c3': -430429431513526367903641, 'c4': -38944564848111900, 'c5': -41580000, 'skew': 11982575.421, 'lognorm': 60.75, 'alpha': -7.09, 'MurphyE': 6.944e-15}

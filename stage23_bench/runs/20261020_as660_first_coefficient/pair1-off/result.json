@@ -1,0 +1,10 @@
+{
+  "name": "pair1-off",
+  "logging": false,
+  "profiler": null,
+  "returncode": 0,
+  "process_seconds": 32.32611667402671,
+  "coefficient_seconds": 31.51392632999341,
+  "raw_count": 432,
+  "raw_set_sha256": "76121583c3ae5191d4839846de59e574ab8c7ba0ee1b57da47095a794cb7fedd"
+}

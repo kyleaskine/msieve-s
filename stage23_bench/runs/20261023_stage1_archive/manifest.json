@@ -1,0 +1,336 @@
+{
+  "schema": 1,
+  "archives": [
+    {
+      "source": "as660-stage1.w0.jsonl",
+      "archive": "as660-stage1.w0.jsonl.zst",
+      "source_identity": {
+        "bytes": 6807792245,
+        "mtime_ns": 1792510744696531042,
+        "device": 2112,
+        "inode": 247312
+      },
+      "archive_identity": {
+        "bytes": 1947515278,
+        "mtime_ns": 1792510744696531042,
+        "device": 2112,
+        "inode": 380944
+      },
+      "source_sha256": "13025f5afae7a466f0f9112087d965d788f0a65cdf6b41637a0ca27c32ddc7f6",
+      "archive_sha256": "bcd6d4f6b2dfa41b345aedc4569ef561c1c7b2f7e75d8f6e250ef0c80e9b5727",
+      "run": {
+        "type": "run",
+        "schema": 1,
+        "worker": 0,
+        "run": "as660-stage1",
+        "N": "5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599",
+        "degree": 5,
+        "engine": "gerbicz",
+        "gpu": "NVIDIA GeForce RTX 5070",
+        "args": "min_coeff=138600 high_coeff_mult=138600 num_polys=1600000 collengine=gerbicz stage1_provenance=as660-stage1",
+        "build": "Oct 20 2026 05:33:20",
+        "cuda_headers": 13040,
+        "capacity32": 50000000,
+        "capacity64": 35000000,
+        "found_capacity": 999
+      },
+      "verified_extracts": []
+    },
+    {
+      "source": "as660-stage1-b.w0.jsonl",
+      "archive": "as660-stage1-b.w0.jsonl.zst",
+      "source_identity": {
+        "bytes": 13476191362,
+        "mtime_ns": 1792577794541655933,
+        "device": 2112,
+        "inode": 223296
+      },
+      "archive_identity": {
+        "bytes": 4483856979,
+        "mtime_ns": 1792577794541655933,
+        "device": 2112,
+        "inode": 380945
+      },
+      "source_sha256": "6d4cb74cc84fa9d6a7e436000268e8b148e9a8132497a42f719acbd0c1c3652e",
+      "archive_sha256": "47b1f65d4bb2ac055af24c9aef21308a5196da47896915520abd0027a81dcbcf",
+      "run": {
+        "type": "run",
+        "schema": 2,
+        "launch_records": "changes",
+        "flush_batches": 64,
+        "host_clock": "CLOCK_MONOTONIC_RAW",
+        "worker": 0,
+        "run": "as660-stage1-b",
+        "N": "5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599",
+        "degree": 5,
+        "engine": "gerbicz",
+        "gpu": "NVIDIA GeForce RTX 5070",
+        "args": "min_coeff=277200 high_coeff_mult=138600 num_polys=1414799 collengine=gerbicz stage1_provenance=as660-stage1-b",
+        "ptx_path": "/home/kylea/msieve-s/stage1_core.ptx",
+        "ptx_sha256": "5517a4f0270ee1258bae09a3243f8b442a175ca8d7751a9c4fbb24aa47a747d3",
+        "ptx_bytes": 232576,
+        "build": "Oct 20 2026 19:01:46",
+        "cuda_headers": 13040,
+        "capacity32": 50000000,
+        "capacity64": 35000000,
+        "found_capacity": 999
+      },
+      "verified_extracts": [
+        "stage23_bench/runs/20261021_as660_two_coefficients/second.w0.jsonl",
+        "stage23_bench/runs/20261021_as660_third_coefficient/third.w0.jsonl"
+      ]
+    },
+    {
+      "source": "as660-stage1-c.w0.jsonl",
+      "archive": "as660-stage1-c.w0.jsonl.zst",
+      "source_identity": {
+        "bytes": 15733749668,
+        "mtime_ns": 1792669589812694952,
+        "device": 2112,
+        "inode": 416181
+      },
+      "archive_identity": {
+        "bytes": 5297898638,
+        "mtime_ns": 1792669589812694952,
+        "device": 2112,
+        "inode": 380963
+      },
+      "source_sha256": "15213e94d81729dfca6ce51878f97278cf5bb34cbbe510788c347979d378a3ea",
+      "archive_sha256": "8069f031f536ab13ffde8a4c11fbfbc0ae4bca6b7188ccdfa3b94ce525a8e123",
+      "run": {
+        "type": "run",
+        "schema": 2,
+        "launch_records": "changes",
+        "flush_batches": 64,
+        "host_clock": "CLOCK_MONOTONIC_RAW",
+        "worker": 0,
+        "run": "as660-stage1-c",
+        "N": "5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599",
+        "degree": 5,
+        "engine": "gerbicz",
+        "gpu": "NVIDIA GeForce RTX 5070",
+        "args": "min_coeff=554400 high_coeff_mult=138600 num_polys=943484 collengine=gerbicz stage1_provenance=as660-stage1-c",
+        "ptx_path": "/home/kylea/msieve-s/stage1_core.ptx",
+        "ptx_sha256": "5517a4f0270ee1258bae09a3243f8b442a175ca8d7751a9c4fbb24aa47a747d3",
+        "ptx_bytes": 232576,
+        "build": "Oct 20 2026 19:01:46",
+        "cuda_headers": 13040,
+        "capacity32": 50000000,
+        "capacity64": 35000000,
+        "found_capacity": 999
+      },
+      "verified_extracts": [
+        "stage23_bench/runs/20261022_as660_six_coefficients/554400/coefficient.w0.jsonl",
+        "stage23_bench/runs/20261022_as660_six_coefficients/693000/coefficient.w0.jsonl",
+        "stage23_bench/runs/20261022_as660_six_coefficients/831600/coefficient.w0.jsonl"
+      ]
+    },
+    {
+      "source": "as660-stage1-d.w0.jsonl",
+      "archive": "as660-stage1-d.w0.jsonl.zst",
+      "source_identity": {
+        "bytes": 5073763151,
+        "mtime_ns": 1792685073906227903,
+        "device": 2112,
+        "inode": 381620
+      },
+      "archive_identity": {
+        "bytes": 1677967167,
+        "mtime_ns": 1792685073906227903,
+        "device": 2112,
+        "inode": 227286
+      },
+      "source_sha256": "7ee400d5c3b50e6c464ab5d8a29f550bb7d995f591281ea3708933e8b4e559ce",
+      "archive_sha256": "8073ed0c9ef9651366942b3f3779d6491c13f00624ff3b9bbad890fe1831af1e",
+      "run": {
+        "type": "run",
+        "schema": 2,
+        "launch_records": "changes",
+        "flush_batches": 64,
+        "host_clock": "CLOCK_MONOTONIC_RAW",
+        "worker": 0,
+        "run": "as660-stage1-d",
+        "N": "5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599",
+        "degree": 5,
+        "engine": "gerbicz",
+        "gpu": "NVIDIA GeForce RTX 5070",
+        "args": "min_coeff=180180 high_coeff_mult=180180 num_polys=362555 collengine=gerbicz stage1_provenance=as660-stage1-d",
+        "ptx_path": "/home/kylea/msieve-s/stage1_core.ptx",
+        "ptx_sha256": "5517a4f0270ee1258bae09a3243f8b442a175ca8d7751a9c4fbb24aa47a747d3",
+        "ptx_bytes": 232576,
+        "build": "Oct 20 2026 19:01:46",
+        "cuda_headers": 13040,
+        "capacity32": 50000000,
+        "capacity64": 35000000,
+        "found_capacity": 999
+      },
+      "verified_extracts": []
+    },
+    {
+      "source": "as660-stage1-e.w0.jsonl",
+      "archive": "as660-stage1-e.w0.jsonl.zst",
+      "source_identity": {
+        "bytes": 9887039554,
+        "mtime_ns": 1792709560024993253,
+        "device": 2112,
+        "inode": 420505
+      },
+      "archive_identity": {
+        "bytes": 3264967488,
+        "mtime_ns": 1792709560024993253,
+        "device": 2112,
+        "inode": 380993
+      },
+      "source_sha256": "02ab72ce5c03d03ec2c719e0941835c5e5af561151251e50d5481292b428b3b2",
+      "archive_sha256": "256967a8fa81ab6f47a2f09baa592dc4fb136950a472f7d3781105bdcc852134",
+      "run": {
+        "type": "run",
+        "schema": 2,
+        "launch_records": "changes",
+        "flush_batches": 64,
+        "host_clock": "CLOCK_MONOTONIC_RAW",
+        "worker": 0,
+        "run": "as660-stage1-e",
+        "N": "5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599",
+        "degree": 5,
+        "engine": "gerbicz",
+        "gpu": "NVIDIA GeForce RTX 5070",
+        "args": "min_coeff=360360 high_coeff_mult=180180 num_polys=195509 collengine=gerbicz stage1_provenance=as660-stage1-e",
+        "ptx_path": "/home/kylea/msieve-s/stage1_core.ptx",
+        "ptx_sha256": "5517a4f0270ee1258bae09a3243f8b442a175ca8d7751a9c4fbb24aa47a747d3",
+        "ptx_bytes": 232576,
+        "build": "Oct 20 2026 19:01:46",
+        "cuda_headers": 13040,
+        "capacity32": 50000000,
+        "capacity64": 35000000,
+        "found_capacity": 999
+      },
+      "verified_extracts": []
+    }
+  ],
+  "extracts": [
+    {
+      "path": "stage23_bench/runs/20261021_as660_two_coefficients/second.w0.jsonl",
+      "source": "as660-stage1-b.w0.jsonl",
+      "ranges": [
+        [
+          0,
+          4748715449
+        ]
+      ],
+      "sha256": "35b7b78fbba63f101f5fa9eaeadfea73609dc0b4442d0e8a5a56ca18de2a59f2",
+      "identity": {
+        "bytes": 4748715449,
+        "mtime_ns": 1792576688694678411,
+        "device": 2112,
+        "inode": 379972
+      },
+      "snapshot": "stage23_bench/runs/20261021_as660_two_coefficients/snapshot.json"
+    },
+    {
+      "path": "stage23_bench/runs/20261021_as660_third_coefficient/third.w0.jsonl",
+      "source": "as660-stage1-b.w0.jsonl",
+      "ranges": [
+        [
+          0,
+          791
+        ],
+        [
+          4748715449,
+          13476191362
+        ]
+      ],
+      "sha256": "6f50a4ca2e7a4c0025f9939d0963663fc48ded0cbcff62aeae6f0874f4a5e5cd",
+      "identity": {
+        "bytes": 8727476704,
+        "mtime_ns": 1792578040638862074,
+        "device": 2112,
+        "inode": 2462
+      },
+      "snapshot": "stage23_bench/runs/20261021_as660_third_coefficient/snapshot.json"
+    },
+    {
+      "path": "stage23_bench/runs/20261022_as660_six_coefficients/554400/coefficient.w0.jsonl",
+      "source": "as660-stage1-c.w0.jsonl",
+      "ranges": [
+        [
+          0,
+          790
+        ],
+        [
+          790,
+          4395296607
+        ]
+      ],
+      "sha256": "f5b6e94bd3f4bee792c5d6436d2f370599a101418adb3901e4ec4bf60357f431",
+      "identity": {
+        "bytes": 4395296607,
+        "mtime_ns": 1792670736192171603,
+        "device": 2112,
+        "inode": 381708
+      },
+      "snapshot": "stage23_bench/runs/20261022_as660_six_coefficients/554400/snapshot.json"
+    },
+    {
+      "path": "stage23_bench/runs/20261022_as660_six_coefficients/693000/coefficient.w0.jsonl",
+      "source": "as660-stage1-c.w0.jsonl",
+      "ranges": [
+        [
+          0,
+          790
+        ],
+        [
+          4395296607,
+          10349991235
+        ]
+      ],
+      "sha256": "9598020b31eee44728d7d7a09c3b0aad3f749925f1495049ba66f5025370acf5",
+      "identity": {
+        "bytes": 5954695418,
+        "mtime_ns": 1792670761408240753,
+        "device": 2112,
+        "inode": 381714
+      },
+      "snapshot": "stage23_bench/runs/20261022_as660_six_coefficients/693000/snapshot.json"
+    },
+    {
+      "path": "stage23_bench/runs/20261022_as660_six_coefficients/831600/coefficient.w0.jsonl",
+      "source": "as660-stage1-c.w0.jsonl",
+      "ranges": [
+        [
+          0,
+          790
+        ],
+        [
+          10349991235,
+          15733749668
+        ]
+      ],
+      "sha256": "a0ed5f076e5d305b3bad7822590f8af53b2f37c611216fdb3e41c355b35f34de",
+      "identity": {
+        "bytes": 5383759223,
+        "mtime_ns": 1792670788530201244,
+        "device": 2112,
+        "inode": 381720
+      },
+      "snapshot": "stage23_bench/runs/20261022_as660_six_coefficients/831600/snapshot.json"
+    }
+  ],
+  "all_verified": true,
+  "removed": [
+    "as660-stage1.w0.jsonl",
+    "as660-stage1-b.w0.jsonl",
+    "as660-stage1-c.w0.jsonl",
+    "as660-stage1-d.w0.jsonl",
+    "as660-stage1-e.w0.jsonl",
+    "stage23_bench/runs/20261021_as660_two_coefficients/second.w0.jsonl",
+    "stage23_bench/runs/20261021_as660_third_coefficient/third.w0.jsonl",
+    "stage23_bench/runs/20261022_as660_six_coefficients/554400/coefficient.w0.jsonl",
+    "stage23_bench/runs/20261022_as660_six_coefficients/693000/coefficient.w0.jsonl",
+    "stage23_bench/runs/20261022_as660_six_coefficients/831600/coefficient.w0.jsonl"
+  ],
+  "original_bytes": 50978535980,
+  "archive_bytes": 16672205550,
+  "redundant_extract_bytes": 29209943401,
+  "reclaimed_bytes": 63516273831
+}

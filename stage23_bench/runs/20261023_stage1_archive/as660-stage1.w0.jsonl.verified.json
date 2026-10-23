@@ -1,0 +1,35 @@
+{
+  "source": "as660-stage1.w0.jsonl",
+  "archive": "as660-stage1.w0.jsonl.zst",
+  "source_identity": {
+    "bytes": 6807792245,
+    "mtime_ns": 1792510744696531042,
+    "device": 2112,
+    "inode": 247312
+  },
+  "archive_identity": {
+    "bytes": 1947515278,
+    "mtime_ns": 1792510744696531042,
+    "device": 2112,
+    "inode": 380944
+  },
+  "source_sha256": "13025f5afae7a466f0f9112087d965d788f0a65cdf6b41637a0ca27c32ddc7f6",
+  "archive_sha256": "bcd6d4f6b2dfa41b345aedc4569ef561c1c7b2f7e75d8f6e250ef0c80e9b5727",
+  "run": {
+    "type": "run",
+    "schema": 1,
+    "worker": 0,
+    "run": "as660-stage1",
+    "N": "5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599",
+    "degree": 5,
+    "engine": "gerbicz",
+    "gpu": "NVIDIA GeForce RTX 5070",
+    "args": "min_coeff=138600 high_coeff_mult=138600 num_polys=1600000 collengine=gerbicz stage1_provenance=as660-stage1",
+    "build": "Oct 20 2026 05:33:20",
+    "cuda_headers": 13040,
+    "capacity32": 50000000,
+    "capacity64": 35000000,
+    "found_capacity": 999
+  },
+  "verified_extracts": []
+}

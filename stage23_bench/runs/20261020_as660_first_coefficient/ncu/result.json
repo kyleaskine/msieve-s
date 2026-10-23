@@ -1,0 +1,10 @@
+{
+  "name": "ncu",
+  "logging": false,
+  "profiler": "ncu",
+  "returncode": 0,
+  "process_seconds": 7.098153411003295,
+  "coefficient_seconds": 5.057920509018004,
+  "raw_count": 2,
+  "raw_set_sha256": "c80ddbad05f46589d05d1336cd5324379a5441a2834e6e51142a9c56508034b0"
+}

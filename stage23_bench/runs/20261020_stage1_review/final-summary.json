@@ -1,0 +1,19 @@
+{
+  "pooled_logging_overhead_raw": 0.012734226095201917,
+  "pair_results": {
+    "logging_overhead_pairs": [
+      0.017873084710049003,
+      -0.00013770670005197605,
+      0.020661752289290458
+    ]
+  },
+  "all_pairs_same_raw": true,
+  "host_clock": "CLOCK_MONOTONIC_RAW",
+  "production_started": false,
+  "files": {
+    "msieve": "2b307dedb6777cb544940d277055cae59d631ec004c6a5dfda74fc308c519ef4",
+    "stage1_core.ptx": "5517a4f0270ee1258bae09a3243f8b442a175ca8d7751a9c4fbb24aa47a747d3",
+    "cub/sort_engine.so": "c5d9bdd33e5fc9d1418bfdb584eee7b8b3ad754b2269f7eee5bbbc2434f501df",
+    "cub/collision_engine.so": "0b49cb06884eee1d8f086b5ad022666c03869f8210142cde423e45b5339d204a"
+  }
+}

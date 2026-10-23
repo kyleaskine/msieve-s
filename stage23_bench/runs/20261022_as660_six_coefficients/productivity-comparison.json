@@ -1,0 +1,227 @@
+{
+  "coefficients": {
+    "138600": {
+      "seconds": 15725.546966864,
+      "clock": "CLOCK_MONOTONIC",
+      "comparable_timing": false,
+      "qroots_per_second": 8275.966634053011,
+      "entries_per_second": 5485691379.515502,
+      "thresholds": {
+        "56.0": {
+          "sample_count": 141,
+          "estimated_distinct_candidates_per_elapsed_hour": 580.9937612505186,
+          "approximate_wilson95": [
+            493.16927333013524,
+            684.1953544295442
+          ]
+        },
+        "57.0": {
+          "sample_count": 1112,
+          "estimated_distinct_candidates_per_elapsed_hour": 4582.021719933168,
+          "approximate_wilson95": [
+            4334.2479616980145,
+            4842.099694106909
+          ]
+        }
+      },
+      "fairness_diagnostic": {
+        "mean_rational_lognorm": 79.89254638778532,
+        "mean_log_skew": 15.739058010843856,
+        "q_high_minus_low_rational_lognorm": -0.09474151840856848,
+        "q_high_minus_low_exp_E_plus_rational": -0.18910150159416617
+      },
+      "input_sha256": {
+        "20261021_as660_two_coefficients/sopt-138600.out": "ebb3968ae94c0ce50628458f58993ab2bf7ee54e9a076f8b27d3436d5e84e749",
+        "20261021_as660_two_coefficients/scores-138600.jsonl": "227740eb660f6571a2fda1d3928ac964e3df7eb1930c0fc32a004d34d9f3d8e0"
+      }
+    },
+    "277200": {
+      "seconds": 10779.248365242,
+      "clock": "CLOCK_MONOTONIC_RAW",
+      "comparable_timing": true,
+      "qroots_per_second": 10010.07605947092,
+      "entries_per_second": 6208579504.593827,
+      "thresholds": {
+        "56.0": {
+          "sample_count": 110,
+          "estimated_distinct_candidates_per_elapsed_hour": 575.0041737590902,
+          "approximate_wilson95": [
+            477.5273143763759,
+            692.1129408133065
+          ]
+        },
+        "57.0": {
+          "sample_count": 1014,
+          "estimated_distinct_candidates_per_elapsed_hour": 5300.493019924706,
+          "approximate_wilson95": [
+            4999.181081619748,
+            5617.807572540216
+          ]
+        }
+      },
+      "fairness_diagnostic": {
+        "mean_rational_lognorm": 79.89702014391658,
+        "mean_log_skew": 15.452851661354629,
+        "q_high_minus_low_rational_lognorm": 0.017297252486741854,
+        "q_high_minus_low_exp_E_plus_rational": -0.031480151237502696
+      },
+      "input_sha256": {
+        "20261021_as660_two_coefficients/sopt-277200.out": "220253416216e92075a866218082b5cab1ecffc5e77e8eba8760ae6e3fd403fc",
+        "20261021_as660_two_coefficients/scores-277200.jsonl": "f9c43eadc7685c627fdb8b8d5c5297301f9dbc83e46e1a6e50fc692a91657444"
+      }
+    },
+    "415800": {
+      "seconds": 19677.31607431,
+      "clock": "CLOCK_MONOTONIC_RAW",
+      "comparable_timing": true,
+      "qroots_per_second": 10141.130743969989,
+      "entries_per_second": 6109544498.9662075,
+      "thresholds": {
+        "56.0": {
+          "sample_count": 109,
+          "estimated_distinct_candidates_per_elapsed_hour": 591.4442089586701,
+          "approximate_wilson95": [
+            490.7599959231925,
+            712.5110547922187
+          ]
+        },
+        "57.0": {
+          "sample_count": 932,
+          "estimated_distinct_candidates_per_elapsed_hour": 5057.119291279638,
+          "approximate_wilson95": [
+            4756.361984231838,
+            5374.829481218982
+          ]
+        }
+      },
+      "fairness_diagnostic": {
+        "mean_rational_lognorm": 79.900410980584,
+        "mean_log_skew": 15.283883930982341,
+        "q_high_minus_low_rational_lognorm": 0.039910522067444276,
+        "q_high_minus_low_exp_E_plus_rational": -0.04240497140131083
+      },
+      "input_sha256": {
+        "20261021_as660_third_coefficient/sopt-415800.out": "b440379f3e9ad56487b0cc5f85af8d1c4e944ed5c00f82a70bfd8f1780e16b0e",
+        "20261021_as660_third_coefficient/scores-415800.jsonl": "ebb9e8e2e546414f60d0ce7c0fe8e7669a684747b146b702c1a5c1f32f8ba656"
+      }
+    },
+    "554400": {
+      "seconds": 9298.420662954,
+      "clock": "CLOCK_MONOTONIC_RAW",
+      "comparable_timing": true,
+      "qroots_per_second": 10970.087792048156,
+      "entries_per_second": 6171782361.894085,
+      "thresholds": {
+        "56.0": {
+          "sample_count": 99,
+          "estimated_distinct_candidates_per_elapsed_hour": 563.5449405808329,
+          "approximate_wilson95": [
+            463.30065565918204,
+            685.2158320523556
+          ]
+        },
+        "57.0": {
+          "sample_count": 935,
+          "estimated_distinct_candidates_per_elapsed_hour": 5322.368883263421,
+          "approximate_wilson95": [
+            5006.37827611969,
+            5656.131201410054
+          ]
+        }
+      },
+      "fairness_diagnostic": {
+        "mean_rational_lognorm": 79.86910745094033,
+        "mean_log_skew": 15.231418151182423,
+        "q_high_minus_low_rational_lognorm": 0.036010563409476504,
+        "q_high_minus_low_exp_E_plus_rational": 0.014854782514703402
+      },
+      "input_sha256": {
+        "20261022_as660_six_coefficients/554400/sopt.out": "4b97fe82d0104521506e1dd896e97d79bc0bd95b0dc3f3258c28863663d493c1",
+        "20261022_as660_six_coefficients/554400/scores.jsonl": "f4b0ae18f8c00dbd9caad1fe126ae4b53855e78f2cbd3627572414cb25d99f25"
+      }
+    },
+    "693000": {
+      "seconds": 12276.689110059,
+      "clock": "CLOCK_MONOTONIC_RAW",
+      "comparable_timing": true,
+      "qroots_per_second": 11121.40494688668,
+      "entries_per_second": 6504186862.112472,
+      "thresholds": {
+        "56.0": {
+          "sample_count": 87,
+          "estimated_distinct_candidates_per_elapsed_hour": 558.6770259076013,
+          "approximate_wilson95": [
+            453.30315593596276,
+            688.2814672904575
+          ]
+        },
+        "57.0": {
+          "sample_count": 823,
+          "estimated_distinct_candidates_per_elapsed_hour": 5284.9562335857,
+          "approximate_wilson95": [
+            4949.27173854626,
+            5641.241399658043
+          ]
+        }
+      },
+      "fairness_diagnostic": {
+        "mean_rational_lognorm": 79.88723065665037,
+        "mean_log_skew": 15.105914333719781,
+        "q_high_minus_low_rational_lognorm": 0.09486884149305297,
+        "q_high_minus_low_exp_E_plus_rational": 0.04644865184803848
+      },
+      "input_sha256": {
+        "20261022_as660_six_coefficients/693000/sopt.out": "214bb465467bd0126b91b132c5ba1c8c3912d75731e4c58b083120493208ae3b",
+        "20261022_as660_six_coefficients/693000/scores.jsonl": "a96a171dc10d469bfaac9086a502c3a10dd6eae2c78aeff69855ae29f0d45736"
+      }
+    },
+    "831600": {
+      "seconds": 10669.505495903,
+      "clock": "CLOCK_MONOTONIC_RAW",
+      "comparable_timing": true,
+      "qroots_per_second": 11734.089555328928,
+      "entries_per_second": 6495428741.531439,
+      "thresholds": {
+        "56.0": {
+          "sample_count": 73,
+          "estimated_distinct_candidates_per_elapsed_hour": 470.4608964236888,
+          "approximate_wilson95": [
+            374.456383161103,
+            590.8524202139212
+          ]
+        },
+        "57.0": {
+          "sample_count": 851,
+          "estimated_distinct_candidates_per_elapsed_hour": 5484.4140117336865,
+          "approximate_wilson95": [
+            5142.1414289927425,
+            5847.222763883848
+          ]
+        }
+      },
+      "fairness_diagnostic": {
+        "mean_rational_lognorm": 79.8747905112235,
+        "mean_log_skew": 15.057865996888554,
+        "q_high_minus_low_rational_lognorm": -0.0235236178252336,
+        "q_high_minus_low_exp_E_plus_rational": -0.07496570940915603
+      },
+      "input_sha256": {
+        "20261022_as660_six_coefficients/831600/sopt.out": "9b273582c006c05cc3a73a285bcbe3fb419264c5258db88f3df83c4dbfc62512",
+        "20261022_as660_six_coefficients/831600/scores.jsonl": "999983d22b4118b7158f0292b0f9f74eeba9f79f88c9fb072853e4056fbaa97a"
+      }
+    }
+  },
+  "input_sha256": {
+    "comparison.json": "1ac96e7007d3c997d11b52febf931cea6ceadd9b8903b7c906ab5ce469edfca5",
+    "position-comparison.json": "a9dd5cc3c6c4c92420250748ee4d2dd7dad42860a9a65b42b917b174e70348b9"
+  },
+  "limitations": [
+    "Coefficient elapsed hours, including host and logging costs, not isolated GPU busy hours or full pipeline hours.",
+    "138600 used CLOCK_MONOTONIC under contention; later runs use CLOCK_MONOTONIC_RAW. Do not rank the first rate against later rates.",
+    "No speculative correction for first-run contention or clock drift is applied.",
+    "Wilson intervals reflect sample uncertainty conditional on measured time, not timing uncertainty or future-run variability.",
+    "Inclusive cutoffs use printed exp_E precision and were chosen after preliminary analysis.",
+    "Rational lognorm is an L2 diagnostic up to an additive constant, evaluated at the printed algebraic skew; it is not Murphy E.",
+    "Q-root throughput and entry throughput do not measure equal downstream quality or prove a causal coefficient effect."
+  ]
+}

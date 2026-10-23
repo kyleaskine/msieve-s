@@ -165,6 +165,12 @@ void print_usage(char *progname) {
 		 "   collstats=X     print Gerbicz collision summary stats\n"
 		 "   colldebug=X     print Gerbicz per-batch diagnostics\n"
 		 "   gpu_mem_mb=X    use X megabytes of GPU memory\n"
+		 "   stage1_provenance=X  write audit sidecars X.w<worker>.jsonl\n"
+		 "                       (new prefix required; no whitespace in X)\n"
+		 "   stage1_qmin=X   inclusive GPU special-q lower bound\n"
+		 "   stage1_qmax=X   inclusive GPU special-q upper bound\n"
+		 "   stage1_aprog=X  fixed offsets per progression (1..5);\n"
+		 "                   omit to retain adaptive partial batches\n"
 #endif
 		 "   polydegree=X      select polynomials with degree X\n"
 		 "   min_coeff=X       minimum leading coefficient to search\n"

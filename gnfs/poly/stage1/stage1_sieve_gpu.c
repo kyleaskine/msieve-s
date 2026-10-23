@@ -15,6 +15,8 @@ $Id: stage1_sieve_gpu.c 1056 2024-06-09 13:04:11Z brgladman $
 #include <sort_engine.h> /* interface to GPU sorting library */
 #include <collision_engine.h> /* interface to GPU collision library */
 #include <stage1.h>
+#include "stage1_audit.h"
+#include "stage1_audit_sha256.h"
 #include <stage1_core_gpu/stage1_core.h>
 
 /* On an interactive terminal we can rewrite the progress line in
@@ -515,6 +517,13 @@ typedef struct {
 
 	uint32 polys_found;
 
+	/* One buffered stream per worker; no cross-thread logging or callbacks. */
+	FILE *audit;
+	uint64 audit_coeff;
+	uint32 audit_batch;
+	float audit_gpu_ms;
+	uint32 (*audit_shapes)[6];
+
 } device_thread_data_t;
 
 typedef struct {
@@ -535,6 +544,9 @@ typedef struct {
 	collision_engine_free_func collision_engine_free;
 	collision_engine_run_func collision_engine_run;
 
+	stage1_audit_options audit_options;
+	long audit_failed; /* atomic: request a batch-boundary stop, then drain */
+
 	uint32 use_collision_engine;
 	uint32 collision_bucket_hash;
 	uint32 collision_stats;
@@ -554,6 +566,39 @@ typedef struct {
 /* Global tracking of active GPU contexts for emergency cleanup */
 static device_data_t *g_active_gpu_device = NULL;
 static int g_cleanup_in_progress = 0;
+
+static int audit_failed(device_data_t *d)
+{
+#if defined(WIN32) || defined(_WIN64)
+	return InterlockedCompareExchange(&d->audit_failed, 0, 0) != 0;
+#else
+	return __atomic_load_n(&d->audit_failed, __ATOMIC_RELAXED) != 0;
+#endif
+}
+
+static void audit_write_failed(device_data_t *d, device_thread_data_t *t)
+{
+	int saved_errno = errno;
+#if defined(WIN32) || defined(_WIN64)
+	InterlockedExchange(&d->audit_failed, 1);
+#else
+	__atomic_store_n(&d->audit_failed, 1, __ATOMIC_RELAXED);
+#endif
+	d->obj->flags |= MSIEVE_FLAG_STOP_SIEVING_SOFT;
+	fprintf(stderr, "stage1 provenance I/O failed (%s); stopping at batch boundaries "
+		"and draining queued polynomial work; sidecar is incomplete\n",
+		strerror(saved_errno ? saved_errno : EIO));
+	if (t->audit) {
+		fclose(t->audit); /* failure already reported; do not exit a worker */
+		t->audit = NULL;
+	}
+}
+
+static void audit_check(device_data_t *d, device_thread_data_t *t, int flush)
+{
+	if (t->audit && ((flush && !stage1_audit_flush(t->audit)) || ferror(t->audit)))
+		audit_write_failed(d, t);
+}
 
 /*------------------------------------------------------------------------*/
 /* Emergency GPU cleanup for ungraceful exits */
@@ -678,9 +723,25 @@ check_found_array(poly_coeff_t *c, device_data_t *d,
 					(double)offset * q * q) /
 					(dp * dp);
 
-		if (coeff <= c->coeff_max &&
-		    handle_collision(c, (uint64)p1 * p2, q,
-					qroot, offset) != 0) {
+		uint32 admitted = coeff <= c->coeff_max;
+		uint32 valid = admitted && handle_collision(c, (uint64)p1 * p2,
+				q, qroot, offset) != 0;
+
+		if (t->audit) {
+			fprintf(t->audit, "{\"type\":\"hit\",\"coefficient\":%" PRIu64
+				",\"batch\":%u,\"hit\":%u,\"q\":%u,\"qroot\":\"%" PRIu64
+				"\",\"offset\":\"%" PRId64 "\",\"p1\":%u,\"p2\":%u,"
+				"\"ratio\":%.17g,\"admitted\":%u,\"valid\":%s",
+				t->audit_coeff, t->audit_batch, i, q, qroot, offset,
+				p1, p2, coeff / c->coeff_max, admitted,
+				admitted ? (valid ? "true" : "false") : "null");
+			if (valid)
+				gmp_fprintf(t->audit, ",\"ad\":\"%Zd\",\"P\":\"%Zd\",\"m\":\"%Zd\"",
+					c->high_coeff, c->p, c->m);
+			fprintf(t->audit, "}\n");
+		}
+
+		if (valid) {
 
 			/* submit the hit to the stage 2 thread pool */
 
@@ -822,6 +883,17 @@ handle_special_q_batch(msieve_obj *obj, device_data_t *d,
 		CUDA_TRY(cuFuncSetBlockShape(launch->kernel_func, 
 				size_x, 1, 1))
 
+		if (t->audit) {
+			uint32 shape[6] = {num_p, soa->num_roots, blocks_x, blocks_y, size_x, size_y};
+			if (memcmp(t->audit_shapes[i], shape, sizeof(shape))) {
+			fprintf(t->audit, "{\"type\":\"launch\",\"coefficient\":%" PRIu64
+				",\"batch\":%u,\"group\":%u,\"num_p\":%u,\"roots_per_p\":%u,"
+				"\"blocks_x\":%u,\"blocks_y\":%u,\"threads\":%u,\"q_tile\":%u}\n",
+				t->audit_coeff, t->audit_batch, i, num_p, soa->num_roots,
+				blocks_x, blocks_y, size_x, size_y);
+				memcpy(t->audit_shapes[i], shape, sizeof(shape));
+			}
+		}
 		CUDA_TRY(cuLaunchGridAsync(launch->kernel_func,
 				blocks_x, blocks_y, t->stream))
 
@@ -853,6 +925,14 @@ handle_special_q_batch(msieve_obj *obj, device_data_t *d,
 		collision_data.stream = t->stream;
 
 		d->collision_engine_run(t->collision_engine, &collision_data);
+		if (t->audit)
+			fprintf(t->audit, "{\"type\":\"engine\",\"coefficient\":%" PRIu64
+				",\"batch\":%u,\"candidates\":%u,\"dedup\":%u,\"matches\":%u,"
+				"\"bucket_grows\":%u,\"hash_caps\":%u,\"arena_fallbacks\":%u}\n",
+				t->audit_coeff, t->audit_batch, collision_data.candidate_count,
+				collision_data.dedup_count, collision_data.value_match_count,
+				collision_data.bucket_grow_count, collision_data.hash_cap_count,
+				collision_data.match_arena_fallback_count);
 
 		if (d->collision_stats) {
 			int hi;
@@ -919,6 +999,7 @@ handle_special_q_batch(msieve_obj *obj, device_data_t *d,
 	CUDA_TRY(cuEventSynchronize(t->end_event))
 	CUDA_TRY(cuEventElapsedTime(&elapsed_ms, 
 			t->start_event, t->end_event))
+	t->audit_gpu_ms = elapsed_ms;
 	if (elapsed_ms < 60000 && elapsed_ms > 0) {
 		/* this function should execute in under a second. If
 		   it takes a very long time, assume that the system
@@ -926,7 +1007,7 @@ handle_special_q_batch(msieve_obj *obj, device_data_t *d,
 		t->gpu_elapsed += elapsed_ms / 1000;
 	}
 
-	if (obj->flags & MSIEVE_FLAG_STOP_SIEVING)
+	if ((obj->flags & MSIEVE_FLAG_STOP_SIEVING) || audit_failed(d))
 		quit = 1;
 
 	return quit;
@@ -978,6 +1059,9 @@ sieve_specialq(msieve_obj *obj,
 	uint64 done_qroots = 0;
 	time_t wall_start;
 	time_t last_progress;
+	double audit_start = t->audit ? stage1_audit_clock() : 0;
+	double audit_wall_start = t->audit ? stage1_audit_wall_clock() : 0;
+	double audit_setup_end;
 	int progress_shown = 0;
 	int inplace_progress = stdout_is_tty() && d->num_threads == 1;
 
@@ -1003,6 +1087,21 @@ sieve_specialq(msieve_obj *obj,
 	t->found_saturated_batches = 0;
 	t->found_total = 0;
 	c->found_count = 0;
+	t->audit_coeff++;
+	t->audit_batch = 0;
+	free(t->audit_shapes);
+	t->audit_shapes = NULL;
+	if (t->audit) {
+		gmp_fprintf(t->audit, "{\"type\":\"coefficient\",\"coefficient\":%" PRIu64
+			",\"ad\":\"%Zd\",\"configured_norm\":%.17g,\"effective_norm\":%.17g,"
+			"\"m0\":%.17g,\"coeff_max\":%.17g,\"pmin\":%u,\"pmax\":%u,"
+			"\"qmin\":%u,\"qmax\":%u}\n", t->audit_coeff, c->high_coeff,
+			d->poly->norm_max, c->norm_max_effective, c->m0, c->coeff_max,
+			p_min, p_max, special_q_min, special_q_max);
+		audit_check(d, t, 1);
+	}
+	if (audit_failed(d))
+		return 1;
 
 	/* build all the arithmetic progressions */
 
@@ -1014,8 +1113,15 @@ sieve_specialq(msieve_obj *obj,
 	}
 
 	p_soa_array_start(p_array, pp_is_64, t->stream);
-	if (p_array->num_arrays == 0)
+	if (p_array->num_arrays == 0) {
+		if (t->audit) {
+			fprintf(t->audit, "{\"type\":\"coefficient_end\",\"coefficient\":%" PRIu64
+				",\"complete\":true,\"empty_p\":true,\"found\":0,\"seconds\":%.9f}\n",
+				t->audit_coeff, stage1_audit_clock()-audit_start);
+			audit_check(d, t, 1);
+		}
 		return 0;
+	}
 
 	for (i = j = 0; i < p_array->num_arrays; i++) {
 		p_soa_var_t *soa = p_array->soa[i];
@@ -1024,6 +1130,8 @@ sieve_specialq(msieve_obj *obj,
 	}
 
 	t->num_entries = j;
+	if (t->audit)
+		t->audit_shapes = xcalloc(p_array->num_arrays, sizeof(*t->audit_shapes));
 
 	unused_bits = 1;
 	while (!(p_max & (1 << (31 - unused_bits))))
@@ -1048,14 +1156,19 @@ sieve_specialq(msieve_obj *obj,
 
 	total_qroots = sieve_fb_count(q_fb, special_q_min,
 				special_q_max, degree, MAX_ROOTS);
-	if (total_qroots != 0)
-		total_qroots += q_array->num_specialq;
+	/* This factory is fb_only, so zero means empty rather than unknown. */
+	total_qroots += q_array->num_specialq;
 
 	/* handle special-q in batches */
 
 	sieve_fb_reset(q_fb, special_q_min,
 			special_q_max, degree, MAX_ROOTS);
 
+	audit_setup_end = t->audit ? stage1_audit_clock() : 0;
+	if (t->audit)
+		fprintf(t->audit, "{\"type\":\"setup\",\"coefficient\":%" PRIu64
+			",\"entries_per_q\":%u,\"qroots_total\":%" PRIu64 ",\"seconds\":%.9f}\n",
+			t->audit_coeff, t->num_entries, total_qroots, audit_setup_end-audit_start);
 	wall_start = last_progress = time(NULL);
 
 	while (!quit && !all_q_done) {
@@ -1064,12 +1177,18 @@ sieve_specialq(msieve_obj *obj,
 		uint32 max_batch_size;
 		uint32 key_bits;
 		uint32 num_aprog_vals = 1;
+		double audit_batch_start = t->audit ? stage1_audit_clock() : 0;
+		double audit_generated, audit_prepared, audit_searched;
 
 		max_batch_size = pp_is_64 ? 
 				max_batch_specialq64 :
 				max_batch_specialq32;
 		max_batch_size = MIN(max_batch_size, 
 				(uint32)1 << unused_bits);
+		if (d->audit_options.aprog)
+			max_batch_size = MIN(max_batch_size,
+				stage1_audit_batch_limit(p_max, d->audit_options.aprog,
+					max_batch_specialq32, max_batch_specialq64));
 		if (max_batch_size == 0) {
 			printf("error: max_batch_size == 0\n");
 			exit(-1);
@@ -1088,7 +1207,10 @@ sieve_specialq(msieve_obj *obj,
 
 		batch_size = MIN(max_batch_size, q_array->num_specialq);
 
-		if (batch_size < max_batch_size / 3) {
+		if (d->audit_options.aprog) {
+			num_aprog_vals = d->audit_options.aprog;
+		}
+		else if (batch_size < max_batch_size / 3) {
 
 			/* current batch of q is too small to utilize 
 			   the card efficiently. Have each (p,q) pair
@@ -1114,10 +1236,43 @@ sieve_specialq(msieve_obj *obj,
 		if (num_aprog_vals > 1)
 			key_bits++;
 
+		audit_generated = t->audit ? stage1_audit_clock() : 0;
+		t->audit_batch++;
+		if (t->audit) {
+			uint32 qi;
+			fprintf(t->audit, "{\"type\":\"batch\",\"coefficient\":%" PRIu64
+				",\"batch\":%u,\"qroots\":%u,\"aprog\":%u,\"key_bits\":%u,"
+				"\"shift\":%u,\"generation_seconds\":%.9f,\"roots\":[",
+				t->audit_coeff, t->audit_batch, batch_size, num_aprog_vals,
+				key_bits, 32-unused_bits, audit_generated-audit_batch_start);
+			for (qi=0; qi<batch_size; qi++)
+				fprintf(t->audit, "%s[%u,\"%" PRIu64 "\"]", qi ? "," : "",
+					q_array->specialq[qi].p, q_array->specialq[qi].root);
+			fprintf(t->audit, "]}\n");
+		}
+		audit_prepared = t->audit ? stage1_audit_clock() : 0;
 		quit = handle_special_q_batch(obj, d, t, batch_size, 
 				32 - unused_bits, key_bits, num_aprog_vals);
 
+		audit_searched = t->audit ? stage1_audit_clock() : 0;
 		check_found_array(c, d, t);
+		if (t->audit) {
+			uint32 found = t->found_array[0].p1;
+			double audit_checked = stage1_audit_clock();
+			fprintf(t->audit, "{\"type\":\"batch_end\",\"coefficient\":%" PRIu64
+				",\"batch\":%u,\"found_total\":%u,\"returned\":%u,\"saturated\":%s,"
+				"\"gpu_span_ms\":%.9g,\"audit_prepare_seconds\":%.9f,"
+				"\"search_seconds\":%.9f,\"readback_submit_seconds\":%.9f,"
+				"\"seconds\":%.9f}\n", t->audit_coeff, t->audit_batch,
+				found, MIN(found, FOUND_ARRAY_SIZE-1), found>=FOUND_ARRAY_SIZE ? "true":"false",
+				t->audit_gpu_ms, audit_prepared-audit_generated, audit_searched-audit_prepared,
+				audit_checked-audit_searched, audit_checked-audit_batch_start);
+			/* Buffer ordinary batches; inspect auto-flush errors every batch.
+			   A crash can lose this tail; missing endings make it incomplete. */
+			audit_check(d, t, t->audit_batch % 64 == 0);
+		}
+		if (audit_failed(d))
+			quit = 1;
 
 		specialq_array_nextbatch(q_array, batch_size);
 
@@ -1317,6 +1472,15 @@ sieve_specialq(msieve_obj *obj,
 		fflush(stdout);
 	}
 
+	if (t->audit) {
+		fprintf(t->audit, "{\"type\":\"coefficient_end\",\"coefficient\":%" PRIu64
+			",\"complete\":%s,\"qroots_done\":%" PRIu64 ",\"found\":%u,"
+			"\"seconds\":%.9f,\"wall_seconds\":%.9f}\n",
+			t->audit_coeff, all_q_done && !q_array->num_specialq ? "true":"false",
+			done_qroots, c->found_count, stage1_audit_clock()-audit_start,
+			stage1_audit_wall_clock()-audit_wall_start);
+		audit_check(d, t, 1);
+	}
 	t->cumulative_elapsed += elapsed;
 	return quit;
 }
@@ -1341,7 +1505,7 @@ sieve_lattice_gpu_core(msieve_obj *obj,
 	   the coefficients already running are past this point and
 	   run to completion */
 
-	if (obj->flags & MSIEVE_FLAG_STOP_SIEVING_SOFT)
+	if ((obj->flags & MSIEVE_FLAG_STOP_SIEVING_SOFT) || audit_failed(d))
 		return;
 
 	/* likewise skip queued coefficients once the num_polys= target
@@ -1377,29 +1541,6 @@ sieve_lattice_gpu_core(msieve_obj *obj,
 	p_min = MAX(1, p_max / P_SCALE);
 	special_q_min = 1;
 
-	/* set up the special q factory; special-q may have 
-	   arbitrary factors, but many small factors are 
-	   preferred since that will allow for many more roots
-	   per special q, so we choose the factors to be as 
-	   small as possible */
-
-	special_q_fb_max = MIN(200000, special_q_max);
-	sieve_fb_init(t->sieve_q_fb, c,
-			2, special_q_fb_max,
-			1, degree,
-			1);
-
-	/* because special-q can have any factors, we require that
-	   the progressions we generate use p that have somewhat
-	   large factors. This minimizes the chance that a given
-	   special-q has factors in common with many progressions
-	   in the set */
-
-	sieve_fb_init(t->sieve_p_fb, c, 
-			100, 5000,
-			1, degree,
-		       	0);
-
 	/* large search problems can be randomized so that
 	   multiple runs over the same range of leading
 	   a_d will likely generate different results */
@@ -1427,6 +1568,43 @@ sieve_lattice_gpu_core(msieve_obj *obj,
 		special_q_min2 = special_q_min;
 		special_q_max2 = special_q_max;
 	}
+	special_q_min2 = MAX(special_q_min2, d->audit_options.qmin);
+	special_q_max2 = MIN(special_q_max2, d->audit_options.qmax);
+	if (special_q_min2 > special_q_max2) {
+		logprintf(obj, "stage1 q window does not intersect this coefficient's bounds\n");
+		if (t->audit) {
+			gmp_fprintf(t->audit, "{\"type\":\"coefficient_skip\",\"ad\":\"%Zd\","
+				"\"reason\":\"empty_q_intersection\",\"requested_qmin\":%u,"
+				"\"requested_qmax\":%u,\"natural_qmax\":%u}\n",
+				c->high_coeff, d->audit_options.qmin,
+				d->audit_options.qmax, special_q_max);
+			audit_check(d, t, 1);
+		}
+		return;
+	}
+	/* set up the special q factory; special-q may have
+	   arbitrary factors, but many small factors are
+	   preferred since that will allow for many more roots
+	   per special q, so we choose the factors to be as
+	   small as possible */
+
+	special_q_fb_max = MIN(200000, special_q_max);
+	sieve_fb_init(t->sieve_q_fb, c,
+			2, special_q_fb_max,
+			1, degree,
+			1);
+
+	/* because special-q can have any factors, we require that
+	   the progressions we generate use p that have somewhat
+	   large factors. This minimizes the chance that a given
+	   special-q has factors in common with many progressions
+	   in the set */
+
+	sieve_fb_init(t->sieve_p_fb, c,
+			100, 5000,
+			1, degree,
+			0);
+
 #if 1
 	{
 		char timebuf[32];
@@ -1636,6 +1814,56 @@ gpu_thread_data_init(void *data, int threadid)
 	uint32 i, j;
 	device_data_t *d = (device_data_t *)data;
 	device_thread_data_t *t = d->threads + threadid;
+	char *ptx_bytes = NULL;
+
+	if (d->audit_options.prefix[0]) {
+		char path[1100];
+		char ptx_path[4096], ptx_sha256[65];
+		FILE *ptx;
+		long ptx_size;
+#if defined(WIN32) || defined(_WIN64)
+		if (!_fullpath(ptx_path, "stage1_core.ptx", sizeof(ptx_path))) {
+#else
+		if (!realpath("stage1_core.ptx", ptx_path)) {
+#endif
+			perror("stage1 PTX path"); exit(1);
+		}
+		ptx = fopen(ptx_path, "rb");
+		if (!ptx || fseek(ptx, 0, SEEK_END) ||
+		    (ptx_size = ftell(ptx)) < 0 || fseek(ptx, 0, SEEK_SET)) {
+			perror("stage1 PTX read"); exit(1);
+		}
+		ptx_bytes = xmalloc((size_t)ptx_size + 1);
+		if (fread(ptx_bytes, 1, (size_t)ptx_size, ptx) != (size_t)ptx_size ||
+		    ferror(ptx)) {
+			perror("stage1 PTX read"); exit(1);
+		}
+		if (fclose(ptx)) { perror("stage1 PTX close"); exit(1); }
+		ptx_bytes[ptx_size] = 0;
+		stage1_audit_sha256(ptx_bytes, (size_t)ptx_size, ptx_sha256);
+		snprintf(path, sizeof(path), "%s.w%d.jsonl", d->audit_options.prefix, threadid);
+		t->audit = fopen(path, "wx");
+		if (!t->audit) { perror(path); exit(1); }
+		setvbuf(t->audit, NULL, _IOFBF, 1024*1024);
+		fprintf(t->audit, "{\"type\":\"run\",\"schema\":2,\"launch_records\":\"changes\","
+			"\"flush_batches\":64,\"host_clock\":\"%s\",\"worker\":%d,\"run\":",
+			STAGE1_AUDIT_CLOCK_NAME, threadid);
+		stage1_audit_string(t->audit, d->audit_options.prefix);
+		gmp_fprintf(t->audit, ",\"N\":\"%Zd\",\"degree\":%u,\"engine\":\"%s\",\"gpu\":",
+			d->poly->N, d->poly->degree, d->use_collision_engine ? "gerbicz":"sort");
+		stage1_audit_string(t->audit, d->gpu_info->name);
+		fprintf(t->audit, ",\"args\":");
+		stage1_audit_string(t->audit, d->obj->nfs_args ? d->obj->nfs_args : "");
+		fprintf(t->audit, ",\"ptx_path\":");
+		stage1_audit_string(t->audit, ptx_path);
+		fprintf(t->audit, ",\"ptx_sha256\":\"%s\",\"ptx_bytes\":%ld",
+			ptx_sha256, ptx_size);
+		fprintf(t->audit, ",\"build\":\"%s %s\",\"cuda_headers\":%d,"
+			"\"capacity32\":%zu,\"capacity64\":%zu,\"found_capacity\":%u}\n",
+			__DATE__, __TIME__, CUDA_VERSION, d->max_sort_entries32,
+			d->max_sort_entries64, FOUND_ARRAY_SIZE-1);
+		audit_check(d, t, 1);
+	}
 
 	/* every thread needs its own context; making all
 	   threads share the same context causes problems
@@ -1655,7 +1883,14 @@ gpu_thread_data_init(void *data, int threadid)
 
 	/* load GPU kernels */
 
-	CUDA_TRY(cuModuleLoad(&t->gpu_module, "stage1_core.ptx"))
+	if (ptx_bytes) {
+		/* Load the bytes we hashed, even if the path is replaced meanwhile. */
+		CUDA_TRY(cuModuleLoadData(&t->gpu_module, ptx_bytes))
+		free(ptx_bytes);
+	}
+	else {
+		CUDA_TRY(cuModuleLoad(&t->gpu_module, "stage1_core.ptx"))
+	}
 
 	t->launch = (gpu_launch_t *)xmalloc(NUM_GPU_FUNCTIONS *
 				sizeof(gpu_launch_t));
@@ -1754,11 +1989,22 @@ gpu_thread_data_free(void *data, int threadid)
 	CUDA_TRY(cuMemFree(t->gpu_found_array))
 
 	free(t->launch);
+	free(t->audit_shapes);
 
 	p_soa_array_free(t->p_array);
 	specialq_array_free(t->q_array);
 
 	CUDA_TRY(cuCtxDestroy(t->gpu_context))
+	t->gpu_context = NULL;
+	if (t->audit) {
+		fprintf(t->audit, "{\"type\":\"worker_end\"}\n");
+		audit_check(d, t, 1);
+		if (t->audit) {
+			FILE *audit = t->audit;
+			t->audit = NULL;
+			if (fclose(audit)) audit_write_failed(d, t);
+		}
+	}
 }
 
 /*------------------------------------------------------------------------*/
@@ -1773,6 +2019,13 @@ gpu_data_init(msieve_obj *obj, poly_search_t *poly)
 	uint32 num_threads;
 	thread_control_t thread_control;
 
+	d = (device_data_t *)xcalloc(1, sizeof(device_data_t));
+	if (!stage1_audit_parse(obj->nfs_args, &d->audit_options)) {
+		fprintf(stderr, "invalid stage1 audit options: use stage1_provenance=PREFIX, "
+			"stage1_qmin/qmax in 1..4294967295, stage1_aprog in 1..5; "
+			"separate options with whitespace\n");
+		exit(1);
+	}
 	gpu_init(&gpu_config);
 	if (gpu_config.num_gpu == 0) {
 		printf("error: no CUDA-enabled GPUs found\n");
@@ -1783,8 +2036,6 @@ gpu_data_init(msieve_obj *obj, poly_search_t *poly)
 			"or is not CUDA-enabled\n", obj->which_gpu);
 		exit(-1);
 	}
-
-	d = (device_data_t *)xcalloc(1, sizeof(device_data_t));
 
 	d->obj = obj;
 	d->gpu_info = gpu_info = (gpu_info_t *)xmalloc(sizeof(gpu_info_t));
@@ -1893,6 +2144,7 @@ gpu_data_init(msieve_obj *obj, poly_search_t *poly)
 void gpu_data_free(void *gpu_data)
 {
 	device_data_t *d = (device_data_t *)gpu_data;
+	int failed;
 
 	if (!(d->obj->flags & MSIEVE_FLAG_STOP_SIEVING)) {
 		/* we're allowed to try to shut down gracefully */
@@ -1905,6 +2157,7 @@ void gpu_data_free(void *gpu_data)
 	   after it's been freed */
 
 	threadpool_free(d->gpu_threadpool);
+	threadpool_drain(d->stage2_threadpool, 1);
 	threadpool_free(d->stage2_threadpool);
 
 	free(d->threads);
@@ -1924,7 +2177,13 @@ void gpu_data_free(void *gpu_data)
 	if (g_active_gpu_device == d)
 		g_active_gpu_device = NULL;
 
+	failed = audit_failed(d);
 	free(d);
+	/* Worker pools have drained; stdio exit flushing now cannot race callbacks. */
+	if (failed) {
+		fprintf(stderr, "stage1 provenance failure: queued polynomial work drained\n");
+		exit(1);
+	}
 }
 
 /*------------------------------------------------------------------------*/

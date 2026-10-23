@@ -1,0 +1,2149 @@
+/*--------------------------------------------------------------------
+This source distribution is placed in the public domain by its author,
+Jason Papadopoulos. You may use it for any purpose, free of charge,
+without having to notify anyone. I disclaim any responsibility for any
+errors.
+
+Optionally, please be nice and tell me if you find this source to be
+useful. Again optionally, if you add to the functionality present here
+please consider making those additions public too, so that others may 
+benefit from your work.	
+
+$Id: stage1_sieve_gpu.c 1056 2024-06-09 13:04:11Z brgladman $
+--------------------------------------------------------------------*/
+
+#include <sort_engine.h> /* interface to GPU sorting library */
+#include <collision_engine.h> /* interface to GPU collision library */
+#include <stage1.h>
+#include "stage1_audit.h"
+#include <stage1_core_gpu/stage1_core.h>
+
+/* On an interactive terminal we can rewrite the progress line in
+   place with '\r'; when stdout is redirected (or several GPU threads
+   share it) we fall back to plain newline-terminated lines so logs
+   stay readable and threads don't clobber each other's updates. */
+#if defined(WIN32) || defined(_WIN64)
+	#include <io.h>
+	#define stdout_is_tty() (_isatty(_fileno(stdout)) != 0)
+#else
+	#define stdout_is_tty() (isatty(fileno(stdout)) != 0)
+#endif
+
+/* GPU collision search; this code looks for self-collisions
+   among arithmetic progressions, by finding k1 and k2 such that
+   for two arithmetic progressions r1+k*p1^2 and r2+k*p2^2 we
+   have
+
+      r1 + k1*p1^2 = r2 + k2*p2^2
+
+   such that
+      - p1 and p2 are coprime and < 2^32
+      - the value where they coincide is of size smaller
+        than a fixed bound
+
+   This code uses a sort routine to find collisions across all the
+   p1 and p2 in the set simultaneously. We further use a 'special-q'
+   formulation where all the inputs to the sort routine are
+   constrained to fall on a third arithmetic progression r3 + k*q^2
+   for some k. We choose a given q and for each of its roots run the
+   complete sort. This is analogous to lattice sieving across the
+   interval.
+   
+   This allows us to choose q so that the sort problem is of
+   reasonable size but the collisions found are still over the
+   original, impractically large range. */
+
+enum {
+	GPU_TRANS_PP32_R32 = 0,
+	GPU_TRANS_PP32_R64,
+	GPU_TRANS_PP64_R64,
+	GPU_FINAL_32,
+	GPU_FINAL_64,
+	NUM_GPU_FUNCTIONS /* must be last */
+};
+
+static const char * gpu_kernel_names[] =
+{
+	"sieve_kernel_trans_pp32_r32",
+	"sieve_kernel_trans_pp32_r64",
+	"sieve_kernel_trans_pp64_r64",
+	"sieve_kernel_final_32",
+	"sieve_kernel_final_64",
+};
+
+/* gpu_kernel_args_idx maps each GPU function to its arg-list row,
+   replacing the old `(i / 3)` shortcut. Kept generalized after the
+   fused-trans spike was reverted — pure infrastructure, no behavior
+   change vs the original shortcut at the current 5 functions, but
+   forward-compatible if more kernels need different signatures. */
+enum {
+	GPU_ARGS_TRANS = 0,
+	GPU_ARGS_FINAL,
+};
+
+static const uint8 gpu_kernel_args_idx[NUM_GPU_FUNCTIONS] = {
+	GPU_ARGS_TRANS,  /* GPU_TRANS_PP32_R32 */
+	GPU_ARGS_TRANS,  /* GPU_TRANS_PP32_R64 */
+	GPU_ARGS_TRANS,  /* GPU_TRANS_PP64_R64 */
+	GPU_ARGS_FINAL,  /* GPU_FINAL_32 */
+	GPU_ARGS_FINAL,  /* GPU_FINAL_64 */
+};
+
+static const gpu_arg_type_list_t gpu_kernel_args[] =
+{
+	/* GPU_ARGS_TRANS: sieve_kernel_trans_pp{32|64}_r{32|64} (12 args) */
+	{ 12,
+		{
+		  GPU_ARG_PTR,
+		  GPU_ARG_UINT32,
+		  GPU_ARG_PTR,
+		  GPU_ARG_UINT32,
+		  GPU_ARG_PTR,
+		  GPU_ARG_PTR,
+		  GPU_ARG_PTR,
+		  GPU_ARG_UINT32,
+		  GPU_ARG_UINT32,
+		  GPU_ARG_UINT32,
+		  GPU_ARG_UINT32,
+		  GPU_ARG_UINT32,
+		}
+	},
+	/* GPU_ARGS_FINAL: sieve_kernel_final_{32|64} (6 args) */
+	{ 6,
+		{
+		  GPU_ARG_PTR,
+		  GPU_ARG_PTR,
+		  GPU_ARG_UINT32,
+		  GPU_ARG_PTR,
+		  GPU_ARG_PTR,
+		  GPU_ARG_UINT32,
+		}
+	},
+};
+
+/*------------------------------------------------------------------------*/
+
+typedef struct {
+	uint32 num_roots;
+	uint32 num_p;
+	uint32 num_p_alloc;
+
+	uint32 *p;
+	uint64 *start_roots;
+
+	CUdeviceptr dev_p;
+	CUdeviceptr dev_start_roots;
+
+	union { 
+		uint64 *roots64;
+		uint32 *roots32;
+		void *roots;
+	} r;
+
+} p_soa_var_t;
+
+#define MAX_P_SOA_ARRAYS 5
+
+typedef struct {
+	uint32 num_arrays;
+	uint32 max_arrays;
+	uint32 max_p_roots;
+	uint32 pp_is_64;
+
+	p_soa_var_t start_soa[MAX_P_SOA_ARRAYS];
+	p_soa_var_t *soa[MAX_P_SOA_ARRAYS];
+} p_soa_array_t;
+
+static p_soa_array_t *
+p_soa_array_init(uint32 degree)
+{
+	uint32 i;
+	p_soa_array_t *s = (p_soa_array_t *)xcalloc(1, 
+					sizeof(p_soa_array_t));
+	p_soa_var_t *start_soa = s->start_soa;
+
+	switch (degree) {
+	case 4:
+		s->max_arrays = 3;
+		start_soa[0].num_roots = 2;
+		start_soa[1].num_roots = 4;
+		start_soa[2].num_roots = 8;
+		break;
+
+	case 5:
+		s->max_arrays = 3;
+		start_soa[0].num_roots = 1;
+		start_soa[1].num_roots = 5;
+		start_soa[2].num_roots = 25;
+		break;
+
+	case 6:
+		s->max_arrays = 5;
+		start_soa[0].num_roots = 2;
+		start_soa[1].num_roots = 4;
+		start_soa[2].num_roots = 6;
+		start_soa[3].num_roots = 12;
+		start_soa[4].num_roots = 36;
+		break;
+
+	case 7: /* ;) */
+		s->max_arrays = 3;
+		start_soa[0].num_roots = 1;
+		start_soa[1].num_roots = 7;
+		start_soa[2].num_roots = 49;
+		break;
+	}
+	s->max_p_roots = start_soa[s->max_arrays - 1].num_roots;
+
+	for (i = 0; i < s->max_arrays; i++) {
+		p_soa_var_t *soa = s->start_soa + i;
+
+		soa->num_p = 0;
+		soa->num_p_alloc = 256;
+		soa->p = (uint32 *)xmalloc(soa->num_p_alloc * sizeof(uint32));
+		soa->start_roots = (uint64 *)xmalloc(soa->num_roots *
+					soa->num_p_alloc * sizeof(uint64));
+		soa->r.roots = xmalloc(soa->num_roots *
+					soa->num_p_alloc * sizeof(uint64));
+		CUDA_TRY(cuMemAlloc(&soa->dev_p, 
+					soa->num_p_alloc * 
+					sizeof(uint32)))
+		CUDA_TRY(cuMemAlloc(&soa->dev_start_roots, 
+					soa->num_p_alloc *
+					soa->num_roots * sizeof(uint64)))
+	}
+
+	return s;
+}
+
+static void
+p_soa_array_free(p_soa_array_t *s)
+{
+	uint32 i;
+
+	for (i = 0; i < s->max_arrays; i++) {
+		p_soa_var_t *soa = s->start_soa + i;
+
+		free(soa->p);
+		free(soa->start_roots);
+		free(soa->r.roots);
+		CUDA_TRY(cuMemFree(soa->dev_p))
+		CUDA_TRY(cuMemFree(soa->dev_start_roots))
+	}
+
+	free(s);
+}
+
+static void
+p_soa_array_reset(p_soa_array_t *s)
+{
+	uint32 i;
+
+	s->num_arrays = 0;
+	s->pp_is_64 = 0;
+	for (i = 0; i < s->max_arrays; i++)
+		s->start_soa[i].num_p = 0;
+}
+
+static void
+p_soa_array_start(p_soa_array_t *s, uint32 pp_is_64,
+		  CUstream stream)
+{
+	uint32 i, j, k, m;
+	uint32 root_bytes = pp_is_64 ? sizeof(uint64) : sizeof(uint32);
+
+	for (i = j = 0; i < s->max_arrays; i++) {
+		p_soa_var_t *soa = s->start_soa + i;
+		uint32 num_p = soa->num_p;
+		uint32 num_roots = soa->num_roots;
+		uint64 *rs = soa->start_roots;
+		void *root_array = soa->r.roots;
+
+		if (num_p * num_roots < 50)
+			continue;
+
+		if (pp_is_64) {
+
+			if (num_roots == 1) {
+				root_array = rs;
+			}
+			else {
+				uint64 *rd = soa->r.roots64;
+
+				for (k = 0; k < num_p; k++) {
+					uint64 *rd2 = rd;
+
+					for (m = 0; m < num_roots; m++) {
+						*rd2 = rs[m];
+						rd2 += num_p;
+					}
+					rs += num_roots;
+					rd++;
+				}
+			}
+		}
+		else {
+			uint32 *rd = soa->r.roots32;
+
+			for (k = 0; k < num_p; k++) {
+				uint32 *rd2 = rd;
+
+				for (m = 0; m < num_roots; m++) {
+					*rd2 = (uint32)rs[m];
+					rd2 += num_p;
+				}
+				rs += num_roots;
+				rd++;
+			}
+		}
+
+		CUDA_TRY(cuMemcpyHtoDAsync(soa->dev_p, 
+				soa->p,
+				num_p * sizeof(uint32),
+				stream))
+		CUDA_TRY(cuMemcpyHtoDAsync(soa->dev_start_roots, 
+				root_array,
+				num_p * num_roots * root_bytes,
+				stream))
+		s->soa[j++] = soa;
+	}
+	s->num_arrays = j;
+	s->pp_is_64 = pp_is_64;
+}
+
+static void
+store_p_soa(uint32 p, uint32 num_roots, uint64 *roots, void *extra)
+{
+	uint32 i, j;
+	p_soa_array_t *s = (p_soa_array_t *)extra;
+
+	for (i = 0; i < s->max_arrays; i++) {
+
+		p_soa_var_t *soa = s->start_soa + i;
+		uint32 num_p;
+
+		if (soa->num_roots != num_roots)
+			continue;
+
+		num_p = soa->num_p;
+
+		if (soa->num_p_alloc == num_p) {
+			soa->num_p_alloc *= 2;
+			soa->p = (uint32 *)xrealloc(soa->p, soa->num_p_alloc *
+							sizeof(uint32));
+			soa->start_roots = (uint64 *)xrealloc(soa->start_roots,
+						soa->num_p_alloc *
+						num_roots *
+						sizeof(uint64));
+			soa->r.roots = xrealloc(soa->r.roots,
+						soa->num_p_alloc *
+						num_roots *
+						sizeof(uint64));
+
+			CUDA_TRY(cuMemFree(soa->dev_p))
+			CUDA_TRY(cuMemFree(soa->dev_start_roots))
+			CUDA_TRY(cuMemAlloc(&soa->dev_p, 
+					soa->num_p_alloc * 
+					sizeof(uint32)))
+			CUDA_TRY(cuMemAlloc(&soa->dev_start_roots, 
+					soa->num_p_alloc *
+					soa->num_roots * sizeof(uint64)))
+		}
+
+		soa->p[num_p] = p;
+		for (j = 0; j < num_roots; j++)
+			soa->start_roots[num_p * num_roots + j] = roots[j];
+		soa->num_p++;
+		return;
+	}
+}
+
+/*------------------------------------------------------------------------*/
+
+typedef struct {
+	uint32 num_specialq;
+	uint32 max_specialq;
+	specialq_t *specialq;
+	CUdeviceptr dev_q;
+} specialq_array_t;
+
+static specialq_array_t *
+specialq_array_init(void)
+{
+	specialq_array_t *q_array = (specialq_array_t *)xcalloc(1,
+					sizeof(specialq_array_t));
+
+	q_array->max_specialq = 512;
+	q_array->specialq = (specialq_t *)xmalloc(q_array->max_specialq *
+						sizeof(specialq_t));
+	CUDA_TRY(cuMemAlloc(&q_array->dev_q,
+				q_array->max_specialq * 
+				sizeof(specialq_t)))
+	return q_array;
+}
+
+static void
+specialq_array_free(specialq_array_t *q_array)
+{
+	CUDA_TRY(cuMemFree(q_array->dev_q))
+	free(q_array->specialq);
+	free(q_array);
+}
+
+static void
+specialq_array_reset(specialq_array_t *q_array)
+{
+	q_array->num_specialq = 0;
+}
+
+static void
+specialq_array_nextbatch(specialq_array_t *q_array, 
+			uint32 num_removed)
+{
+	uint32 new_size;
+
+	if (num_removed >= q_array->num_specialq) {
+		q_array->num_specialq = 0;
+		return;
+	}
+
+	new_size = q_array->num_specialq - num_removed;
+	memmove(q_array->specialq, 
+		q_array->specialq + num_removed,
+		new_size * sizeof(specialq_t));
+	q_array->num_specialq = new_size;
+}
+
+static void
+specialq_array_start(specialq_array_t *q_array, 
+			uint32 num_specialq,
+			CUstream stream)
+{
+	CUDA_TRY(cuMemcpyHtoDAsync(q_array->dev_q,
+			q_array->specialq,
+			num_specialq * sizeof(specialq_t),
+			stream))
+}
+
+static void
+store_specialq(uint32 q, uint32 num_roots, uint64 *roots, void *extra)
+{
+	uint32 i;
+	uint64 q2 = (uint64)q * q;
+	specialq_array_t *q_array = (specialq_array_t *)extra;
+
+	if (q_array->num_specialq + num_roots >= q_array->max_specialq) {
+
+		q_array->max_specialq *= 2;
+		q_array->specialq = (specialq_t *)xrealloc(
+						q_array->specialq,
+						q_array->max_specialq *
+						sizeof(specialq_t));
+		CUDA_TRY(cuMemFree(q_array->dev_q))
+		CUDA_TRY(cuMemAlloc(&q_array->dev_q,
+					q_array->max_specialq * 
+					sizeof(specialq_t)))
+	}
+
+	for (i = 0; i < num_roots; i++) {
+		specialq_t *s = q_array->specialq + 
+				q_array->num_specialq + i;
+
+		s->p = q;
+		s->pp = q2;
+		s->root = roots[i];
+	}
+
+	q_array->num_specialq += num_roots;
+}
+
+typedef struct {
+
+	CUcontext gpu_context;
+	CUmodule gpu_module;
+
+	void *sieve_p_fb;
+	void *sieve_q_fb;
+
+	p_soa_array_t *p_array;
+	specialq_array_t *q_array;
+
+	CUstream stream;
+
+	uint32 num_entries;
+
+	gpu_launch_t *launch;
+
+	CUdeviceptr gpu_p_array;
+	CUdeviceptr gpu_p_array_scratch;
+
+	CUdeviceptr gpu_root_array;
+	CUdeviceptr gpu_root_array_scratch;
+
+	CUdeviceptr gpu_found_array;
+	found_t *found_array;
+
+	void * sort_engine;
+	void * collision_engine;
+
+	CUevent start_event;
+	CUevent end_event;
+	double gpu_elapsed;
+	double cumulative_elapsed;
+
+	uint32 collision_batches;
+	uint32 collision_bucket_max;
+	uint32 collision_bucket_grows;
+	uint32 collision_hash_caps;
+	uint32 collision_arena_attempts;
+	uint32 collision_arena_fallbacks;
+	uint32 collision_arena_capacity_skips;
+	uint64 collision_candidates;
+	uint64 collision_dedup;
+	uint64 collision_value_matches;
+	uint64 collision_filter_iters_hist[102];
+	double collision_engine_ms;
+
+	uint32 found_peak;
+	uint32 found_batches;
+	uint32 found_saturated_batches;
+	uint64 found_total;
+
+	/* cumulative number of stage-1 polynomials this worker has found
+	   across all leading coefficients. Unlike the found_* stats above
+	   it is NOT reset per coefficient; each worker owns its own count,
+	   so the running total is the sum over threads (see sieve_specialq) */
+
+	uint32 polys_found;
+
+	/* One buffered stream per worker; no cross-thread logging or callbacks. */
+	FILE *audit;
+	uint64 audit_coeff;
+	uint32 audit_batch;
+	float audit_gpu_ms;
+
+} device_thread_data_t;
+
+typedef struct {
+
+	msieve_obj *obj;
+
+	poly_search_t *poly;
+
+	gpu_info_t *gpu_info;
+
+	libhandle_t sort_engine_handle;
+	sort_engine_init_func sort_engine_init;
+	sort_engine_free_func sort_engine_free;
+	sort_engine_run_func sort_engine_run;
+
+	libhandle_t collision_engine_handle;
+	collision_engine_init_func collision_engine_init;
+	collision_engine_free_func collision_engine_free;
+	collision_engine_run_func collision_engine_run;
+
+	stage1_audit_options audit_options;
+
+	uint32 use_collision_engine;
+	uint32 collision_bucket_hash;
+	uint32 collision_stats;
+	uint32 collision_debug;
+
+	size_t max_sort_entries32;
+	size_t max_sort_entries64;
+
+	uint32 num_threads;
+	device_thread_data_t *threads;
+
+	struct threadpool *gpu_threadpool;
+	struct threadpool *stage2_threadpool;
+
+} device_data_t;
+
+/* Global tracking of active GPU contexts for emergency cleanup */
+static device_data_t *g_active_gpu_device = NULL;
+static int g_cleanup_in_progress = 0;
+
+/*------------------------------------------------------------------------*/
+/* Emergency GPU cleanup for ungraceful exits */
+static void emergency_gpu_cleanup(void)
+{
+	uint32 i;
+	device_data_t *d = g_active_gpu_device;
+
+	/* Prevent re-entrance if cleanup is already running
+	   (e.g., if a CUDA error occurs during cleanup) */
+	if (g_cleanup_in_progress || d == NULL)
+		return;
+
+	g_cleanup_in_progress = 1;
+
+	/* Try to clean up all GPU contexts.
+	   This may fail if the GPU is in a bad state,
+	   but it's better than leaving resources allocated.
+	   We ignore errors here since we're already exiting */
+
+	if (d->threads != NULL) {
+		for (i = 0; i < d->num_threads; i++) {
+			device_thread_data_t *t = d->threads + i;
+
+			if (t->gpu_context != NULL) {
+				/* Push context to current thread for synchronization */
+				cuCtxPushCurrent(t->gpu_context);
+
+				/* Synchronize to ensure all GPU work is complete.
+				   Ignore errors - best effort cleanup only */
+				cuCtxSynchronize();
+
+				/* Pop and destroy the context */
+				cuCtxPopCurrent(NULL);
+				cuCtxDestroy(t->gpu_context);
+				t->gpu_context = NULL;
+			}
+		}
+	}
+
+	g_active_gpu_device = NULL;
+	g_cleanup_in_progress = 0;
+}
+
+/*------------------------------------------------------------------------*/
+/* infrastructure for submitting stage 1 hits to the stage 2 thread pool */
+
+typedef struct {
+	stage1_callback_t callback;
+	void *callback_data;
+
+	mpz_t ad;
+	mpz_t p;
+	mpz_t m;
+
+} stage1_hit_data_t;
+
+static void
+stage1_hit_free(void *data, int threadid)
+{
+	stage1_hit_data_t *hit_data = (stage1_hit_data_t *)data;
+
+	mpz_clear(hit_data->ad);
+	mpz_clear(hit_data->p);
+	mpz_clear(hit_data->m);
+	free(hit_data);
+}
+
+static void
+stage1_hit_run(void *data, int threadid)
+{
+	stage1_hit_data_t *hit_data = (stage1_hit_data_t *)data;
+
+	hit_data->callback(hit_data->ad,
+			   hit_data->p,
+			   hit_data->m,
+			   hit_data->callback_data);
+}
+
+static void
+check_found_array(poly_coeff_t *c, device_data_t *d,
+			device_thread_data_t *t)
+{
+	uint32 i;
+	uint32 found_array_size;
+	found_t *found_array = t->found_array;
+
+	CUDA_TRY(cuMemcpyDtoHAsync(found_array, t->gpu_found_array,
+			FOUND_ARRAY_SIZE * sizeof(found_t), t->stream))
+
+	/* we have to synchronize now */
+
+	CUDA_TRY(cuStreamSynchronize(t->stream))
+
+	t->found_batches++;
+	if (found_array[0].p1 > t->found_peak)
+		t->found_peak = found_array[0].p1;
+	if (found_array[0].p1 >= FOUND_ARRAY_SIZE)
+		t->found_saturated_batches++;
+	t->found_total += found_array[0].p1;
+
+	found_array_size = MIN(FOUND_ARRAY_SIZE - 1,
+				found_array[0].p1);
+
+	if (found_array_size == 0)
+		return;
+
+	/* clear only the first element */
+	CUDA_TRY(cuMemsetD8Async(t->gpu_found_array, 0, 
+				sizeof(found_t), t->stream))
+
+	for (i = 1; i <= found_array_size; i++) {
+		found_t *found = found_array + i;
+		uint32 p1 = found->p1;
+		uint32 p2 = found->p2;
+		uint32 q = found->q;
+		uint64 qroot = found->qroot;
+		int64 offset = found->offset;
+
+		double dp = (double)q * p1 * p2;
+		double coeff = c->m0 * fabs((double)qroot + 
+					(double)offset * q * q) /
+					(dp * dp);
+
+		uint32 admitted = coeff <= c->coeff_max;
+		uint32 valid = admitted && handle_collision(c, (uint64)p1 * p2,
+				q, qroot, offset) != 0;
+
+		if (t->audit) {
+			fprintf(t->audit, "{\"type\":\"hit\",\"coefficient\":%" PRIu64
+				",\"batch\":%u,\"hit\":%u,\"q\":%u,\"qroot\":\"%" PRIu64
+				"\",\"offset\":\"%" PRId64 "\",\"p1\":%u,\"p2\":%u,"
+				"\"ratio\":%.17g,\"admitted\":%u,\"valid\":%s",
+				t->audit_coeff, t->audit_batch, i, q, qroot, offset,
+				p1, p2, coeff / c->coeff_max, admitted,
+				admitted ? (valid ? "true" : "false") : "null");
+			if (valid)
+				gmp_fprintf(t->audit, ",\"ad\":\"%Zd\",\"P\":\"%Zd\",\"m\":\"%Zd\"",
+					c->high_coeff, c->p, c->m);
+			fprintf(t->audit, "}\n");
+		}
+
+		if (valid) {
+
+			/* submit the hit to the stage 2 thread pool */
+
+			task_control_t task_control;
+			stage1_hit_data_t *hit_data = (stage1_hit_data_t *)
+						xmalloc(sizeof(stage1_hit_data_t));
+
+			/* count the poly here (on this coefficient's own
+			   worker thread) rather than on the stage-2 pool, so
+			   the per-coefficient tally is attributable and needs
+			   no locking */
+
+			c->found_count++;
+
+			hit_data->callback = d->poly->callback;
+			hit_data->callback_data = d->poly->callback_data;
+			mpz_init_set(hit_data->ad, c->high_coeff);
+			mpz_init_set(hit_data->p, c->p);
+			mpz_init_set(hit_data->m, c->m);
+
+			task_control.init = NULL;
+			task_control.run = stage1_hit_run;
+			task_control.shutdown = stage1_hit_free;
+			task_control.data = hit_data;
+
+			threadpool_add_task(d->stage2_threadpool,
+						&task_control, 1);
+		}
+	}
+}
+
+#define MAX_SPECIAL_Q ((uint32)(-1))
+#define MAX_OTHER ((uint32)1 << 27)
+
+/*------------------------------------------------------------------------*/
+static uint32
+handle_special_q_batch(msieve_obj *obj, device_data_t *d, 
+			device_thread_data_t *t, uint32 num_specialq,
+		       	uint32 shift, uint32 key_bits, uint32 num_aprog_vals)
+{
+	uint32 i, j;
+	uint32 quit = 0;
+	p_soa_array_t *p_array = t->p_array;
+	specialq_array_t *q_array = t->q_array;
+	uint32 num_blocks;
+	gpu_arg_t gpu_args[GPU_MAX_KERNEL_ARGS];
+	sort_data_t sort_data;
+	gpu_launch_t *launch;
+	uint32 num_q, curr_q;
+	uint32 root_bytes = (key_bits > 32) ? sizeof(uint64) : sizeof(uint32);
+	float elapsed_ms;
+
+	CUDA_TRY(cuEventRecord(t->start_event, t->stream))
+
+	specialq_array_start(q_array, num_specialq, t->stream);
+
+	/* The trans kernel fully writes plane 0 when num_aprog_vals == 1
+	   (zero-qq_prod slots get cols 1..num_roots-1 zeroed inside the
+	   first/second loops at stage1_core.cu — and col 0 zeroed too in
+	   the pp32_r64 variant). Planes 1..num_aprog_vals-1 still need
+	   pre-clearing because the inner aprog loop is skipped for
+	   zero-qq_prod slots. */
+	if (num_aprog_vals > 1) {
+		CUDA_TRY(cuMemsetD8Async(t->gpu_root_array, 0,
+				num_specialq * t->num_entries *
+				num_aprog_vals * root_bytes,
+				t->stream))
+	}
+
+	for (i = num_q = curr_q = 0; i < num_specialq; i++) {
+		if (q_array->specialq[i].p != curr_q) {
+			num_q++;
+			curr_q = q_array->specialq[i].p;
+		}
+	}
+
+	for (i = j = 0; i < p_array->num_arrays; i++) {
+		p_soa_var_t *soa = p_array->soa[i];
+		uint32 num_p = soa->num_p;
+		uint32 blocks_x, blocks_y;
+		uint32 size_x, size_y;
+		uint32 total_blocks;
+
+		if (p_array->pp_is_64)
+			launch = t->launch + GPU_TRANS_PP64_R64;
+		else if (root_bytes == sizeof(uint64))
+			launch = t->launch + GPU_TRANS_PP32_R64;
+		else
+			launch = t->launch + GPU_TRANS_PP32_R32;
+
+		/* perform a block decomposition so that all the
+		   soa's generate blocks with about the same amount
+		   of arithmetic. There is a modular multiply for
+		   each root and a modular inverse for each (p,q) pair, 
+		   which we count as 3 multiplies */
+
+		total_blocks = (3 * num_p * num_q +
+			        num_p * soa->num_roots * num_specialq) /
+				50000;
+		total_blocks = MIN(total_blocks, 1000);
+		total_blocks = MAX(total_blocks, 1);
+
+		/* choose the number of threads per block to be
+		   - a multiple of the warp size between 128 and 256
+		   - that can generate the desired number of blocks
+		     so the whole dataset is covered, while maximizing
+		     the size of the blocks on the borders */
+
+		size_x = MIN(256, launch->threads_per_block);
+		while (1) {
+
+			blocks_x = (num_p + size_x - 1) / size_x;
+			blocks_y = (total_blocks + blocks_x - 1) / blocks_x;
+			size_y = (num_specialq + blocks_y - 1) / blocks_y;
+
+			if (size_x == 128 ||
+			    blocks_x * size_x - num_p <= size_x / 3)
+				break;
+
+			size_x -= d->gpu_info->warp_size;
+		}
+
+		gpu_args[0].ptr_arg = (void *)(size_t)soa->dev_p;
+		gpu_args[1].uint32_arg = num_p;
+		gpu_args[2].ptr_arg = (void *)(size_t)soa->dev_start_roots;
+		gpu_args[3].uint32_arg = soa->num_roots;
+		gpu_args[4].ptr_arg = (void *)(size_t)(
+				t->gpu_p_array + j * sizeof(uint32));
+		gpu_args[5].ptr_arg = (void *)(size_t)(
+				t->gpu_root_array + j * root_bytes);
+		gpu_args[6].ptr_arg = (void *)(size_t)q_array->dev_q;
+		gpu_args[7].uint32_arg = num_specialq;
+		gpu_args[8].uint32_arg = size_y;
+		gpu_args[9].uint32_arg = t->num_entries;
+		gpu_args[10].uint32_arg = shift;
+		gpu_args[11].uint32_arg = num_aprog_vals;
+		gpu_launch_set(launch, gpu_args);
+
+		CUDA_TRY(cuFuncSetBlockShape(launch->kernel_func, 
+				size_x, 1, 1))
+
+		if (t->audit)
+			fprintf(t->audit, "{\"type\":\"launch\",\"coefficient\":%" PRIu64
+				",\"batch\":%u,\"group\":%u,\"num_p\":%u,\"roots_per_p\":%u,"
+				"\"blocks_x\":%u,\"blocks_y\":%u,\"threads\":%u,\"q_tile\":%u}\n",
+				t->audit_coeff, t->audit_batch, i, num_p, soa->num_roots,
+				blocks_x, blocks_y, size_x, size_y);
+		CUDA_TRY(cuLaunchGridAsync(launch->kernel_func,
+				blocks_x, blocks_y, t->stream))
+
+		j += num_p * soa->num_roots;
+	}
+
+	if (d->use_collision_engine) {
+
+		collision_data_t collision_data;
+
+		if (key_bits < COLLISION_ENGINE_MIN_KEY_BITS) {
+			printf("error: Gerbicz collision engine needs at least "
+				"%u key bits\n", COLLISION_ENGINE_MIN_KEY_BITS);
+			exit(-1);
+		}
+
+		collision_data.keys_in = t->gpu_root_array;
+		collision_data.data_in = t->gpu_p_array;
+		collision_data.q_batch = q_array->dev_q;
+		collision_data.found_array = t->gpu_found_array;
+		collision_data.num_elements = num_specialq *
+				t->num_entries * num_aprog_vals;
+		collision_data.key_bits = key_bits;
+		collision_data.root_bytes = root_bytes;
+		collision_data.shift = shift;
+		collision_data.bucket_hash = d->collision_bucket_hash;
+		collision_data.debug = d->collision_debug;
+		collision_data.collect_stats = d->collision_stats;
+		collision_data.stream = t->stream;
+
+		d->collision_engine_run(t->collision_engine, &collision_data);
+		if (t->audit)
+			fprintf(t->audit, "{\"type\":\"engine\",\"coefficient\":%" PRIu64
+				",\"batch\":%u,\"candidates\":%u,\"dedup\":%u,\"matches\":%u,"
+				"\"bucket_grows\":%u,\"hash_caps\":%u,\"arena_fallbacks\":%u}\n",
+				t->audit_coeff, t->audit_batch, collision_data.candidate_count,
+				collision_data.dedup_count, collision_data.value_match_count,
+				collision_data.bucket_grow_count, collision_data.hash_cap_count,
+				collision_data.match_arena_fallback_count);
+
+		if (d->collision_stats) {
+			int hi;
+			t->collision_batches++;
+				t->collision_bucket_max = MAX(t->collision_bucket_max,
+						collision_data.bucket_max);
+				t->collision_bucket_grows += collision_data.bucket_grow_count;
+				t->collision_hash_caps += collision_data.hash_cap_count;
+				t->collision_arena_attempts +=
+						collision_data.match_arena_attempt_count;
+				t->collision_arena_fallbacks +=
+						collision_data.match_arena_fallback_count;
+				t->collision_arena_capacity_skips +=
+						collision_data.match_arena_capacity_skip_count;
+				t->collision_candidates += collision_data.candidate_count;
+				t->collision_dedup += collision_data.dedup_count;
+				t->collision_value_matches += collision_data.value_match_count;
+				for (hi = 0; hi < 102; hi++)
+					t->collision_filter_iters_hist[hi] +=
+						collision_data.filter_iters_hist[hi];
+				t->collision_engine_ms += collision_data.elapsed_ms;
+			}
+	}
+	else {
+		sort_data.keys_in = t->gpu_root_array;
+		sort_data.keys_in_scratch = t->gpu_root_array_scratch;
+		sort_data.data_in = t->gpu_p_array;
+		sort_data.data_in_scratch = t->gpu_p_array_scratch;
+		sort_data.num_elements = num_specialq * t->num_entries * num_aprog_vals;
+		sort_data.num_arrays = 1;
+		sort_data.key_bits = key_bits;
+		sort_data.stream = t->stream;
+		d->sort_engine_run(t->sort_engine, &sort_data);
+
+		/* the sort engine may have swapped the input arrays */
+		t->gpu_p_array = sort_data.data_in;
+		t->gpu_p_array_scratch = sort_data.data_in_scratch;
+		t->gpu_root_array = sort_data.keys_in;
+		t->gpu_root_array_scratch = sort_data.keys_in_scratch;
+
+		if (root_bytes == sizeof(uint64))
+			launch = t->launch + GPU_FINAL_64;
+		else
+			launch = t->launch + GPU_FINAL_32;
+
+		gpu_args[0].ptr_arg = (void *)(size_t)(t->gpu_p_array);
+		gpu_args[1].ptr_arg = (void *)(size_t)(t->gpu_root_array);
+		gpu_args[2].uint32_arg = num_specialq * t->num_entries * num_aprog_vals;
+		gpu_args[3].ptr_arg = (void *)(size_t)q_array->dev_q;
+		gpu_args[4].ptr_arg = (void *)(size_t)(t->gpu_found_array);
+		gpu_args[5].uint32_arg = shift;
+		gpu_launch_set(launch, gpu_args);
+
+		num_blocks = 1 + (num_specialq * t->num_entries *
+				num_aprog_vals - 1) /
+				launch->threads_per_block;
+		num_blocks = MIN(num_blocks, 1000);
+
+		CUDA_TRY(cuLaunchGridAsync(launch->kernel_func,
+					num_blocks, 1, t->stream))
+	}
+
+	CUDA_TRY(cuEventRecord(t->end_event, t->stream))
+	CUDA_TRY(cuEventSynchronize(t->end_event))
+	CUDA_TRY(cuEventElapsedTime(&elapsed_ms, 
+			t->start_event, t->end_event))
+	t->audit_gpu_ms = elapsed_ms;
+	if (elapsed_ms < 60000 && elapsed_ms > 0) {
+		/* this function should execute in under a second. If
+		   it takes a very long time, assume that the system
+		   was in hibernation and don't let it count. */
+		t->gpu_elapsed += elapsed_ms / 1000;
+	}
+
+	if (obj->flags & MSIEVE_FLAG_STOP_SIEVING)
+		quit = 1;
+
+	return quit;
+}
+
+/*------------------------------------------------------------------------*/
+/* format the current local time as "YYYY-MM-DD HH:MM:SS" into buf.
+   localtime() shares a static struct tm, so use the reentrant variant
+   since several GPU worker threads may format timestamps concurrently */
+
+static void
+format_local_time(char *buf, size_t len)
+{
+	time_t now = time(NULL);
+	struct tm tm_buf;
+
+#if defined(WIN32) || defined(_WIN64)
+	localtime_s(&tm_buf, &now);
+#else
+	localtime_r(&now, &tm_buf);
+#endif
+	strftime(buf, len, "%Y-%m-%d %H:%M:%S", &tm_buf);
+}
+
+/*------------------------------------------------------------------------*/
+static uint32
+sieve_specialq(msieve_obj *obj,
+		poly_coeff_t *c, device_data_t *d,
+		device_thread_data_t *t,
+		uint32 special_q_min, uint32 special_q_max,
+		uint32 p_min, uint32 p_max, 
+		uint32 max_aprog_vals, double deadline)
+{
+	uint32 i, j;
+	uint32 quit = 0;
+	uint32 all_q_done = 0;
+	uint32 degree = d->poly->degree;
+	p_soa_array_t *p_array = t->p_array;
+	void *p_fb = t->sieve_p_fb;
+	specialq_array_t *q_array = t->q_array;
+	void *q_fb = t->sieve_q_fb;
+	double cpu_start_time = get_cpu_time();
+	uint32 unused_bits;
+	uint32 pp_is_64 = (p_max >= 65536);
+	uint32 max_batch_specialq32;
+	uint32 max_batch_specialq64;
+	double elapsed = 0;
+	uint64 total_qroots;
+	uint64 done_qroots = 0;
+	time_t wall_start;
+	time_t last_progress;
+	double audit_start = t->audit ? stage1_audit_clock() : 0;
+	double audit_setup_end;
+	int progress_shown = 0;
+	int inplace_progress = stdout_is_tty() && d->num_threads == 1;
+
+	t->gpu_elapsed = 0;
+	t->collision_batches = 0;
+	t->collision_bucket_max = 0;
+	t->collision_bucket_grows = 0;
+	t->collision_hash_caps = 0;
+	t->collision_arena_attempts = 0;
+	t->collision_arena_fallbacks = 0;
+	t->collision_arena_capacity_skips = 0;
+	t->collision_candidates = 0;
+	t->collision_dedup = 0;
+	t->collision_value_matches = 0;
+	{
+		int hi;
+		for (hi = 0; hi < 102; hi++)
+			t->collision_filter_iters_hist[hi] = 0;
+	}
+	t->collision_engine_ms = 0;
+	t->found_peak = 0;
+	t->found_batches = 0;
+	t->found_saturated_batches = 0;
+	t->found_total = 0;
+	c->found_count = 0;
+	t->audit_coeff++;
+	t->audit_batch = 0;
+	if (t->audit) {
+		gmp_fprintf(t->audit, "{\"type\":\"coefficient\",\"coefficient\":%" PRIu64
+			",\"ad\":\"%Zd\",\"configured_norm\":%.17g,\"effective_norm\":%.17g,"
+			"\"m0\":%.17g,\"coeff_max\":%.17g,\"pmin\":%u,\"pmax\":%u,"
+			"\"qmin\":%u,\"qmax\":%u}\n", t->audit_coeff, c->high_coeff,
+			d->poly->norm_max, c->norm_max_effective, c->m0, c->coeff_max,
+			p_min, p_max, special_q_min, special_q_max);
+		stage1_audit_flush(t->audit);
+	}
+
+	/* build all the arithmetic progressions */
+
+	p_soa_array_reset(p_array);
+	sieve_fb_reset(p_fb, p_min, p_max, 1, p_array->max_p_roots);
+	while (sieve_fb_next(p_fb, c, store_p_soa,
+			p_array) != P_SEARCH_DONE) {
+		;
+	}
+
+	p_soa_array_start(p_array, pp_is_64, t->stream);
+	if (p_array->num_arrays == 0) {
+		if (t->audit) {
+			fprintf(t->audit, "{\"type\":\"coefficient_end\",\"coefficient\":%" PRIu64
+				",\"complete\":true,\"empty_p\":true,\"found\":0,\"seconds\":%.9f}\n",
+				t->audit_coeff, stage1_audit_clock()-audit_start);
+			stage1_audit_flush(t->audit);
+		}
+		return 0;
+	}
+
+	for (i = j = 0; i < p_array->num_arrays; i++) {
+		p_soa_var_t *soa = p_array->soa[i];
+
+		j += soa->num_p * soa->num_roots;
+	}
+
+	t->num_entries = j;
+
+	unused_bits = 1;
+	while (!(p_max & (1 << (31 - unused_bits))))
+		unused_bits++;
+
+	max_batch_specialq32 = d->max_sort_entries32 / t->num_entries;
+	max_batch_specialq64 = d->max_sort_entries64 / t->num_entries;
+
+	/* account for 'trivial' special-q */
+
+	specialq_array_reset(q_array);
+
+	if (special_q_min == 1) {
+		uint64 trivroots[1] = { 0 };
+
+		store_specialq(1, 1, trivroots, q_array);
+	}
+
+	/* count the special-q roots in the range up front, so
+	   that progress and an ETA can be reported as batches
+	   complete; include any trivial special-q already stored */
+
+	total_qroots = sieve_fb_count(q_fb, special_q_min,
+				special_q_max, degree, MAX_ROOTS);
+	/* This factory is fb_only, so zero means empty rather than unknown. */
+	total_qroots += q_array->num_specialq;
+
+	/* handle special-q in batches */
+
+	sieve_fb_reset(q_fb, special_q_min,
+			special_q_max, degree, MAX_ROOTS);
+
+	audit_setup_end = t->audit ? stage1_audit_clock() : 0;
+	if (t->audit)
+		fprintf(t->audit, "{\"type\":\"setup\",\"coefficient\":%" PRIu64
+			",\"entries_per_q\":%u,\"qroots_total\":%" PRIu64 ",\"seconds\":%.9f}\n",
+			t->audit_coeff, t->num_entries, total_qroots, audit_setup_end-audit_start);
+	wall_start = last_progress = time(NULL);
+
+	while (!quit && !all_q_done) {
+
+		uint32 batch_size;
+		uint32 max_batch_size;
+		uint32 key_bits;
+		uint32 num_aprog_vals = 1;
+		double audit_batch_start = t->audit ? stage1_audit_clock() : 0;
+		double audit_generated, audit_searched;
+
+		max_batch_size = pp_is_64 ? 
+				max_batch_specialq64 :
+				max_batch_specialq32;
+		max_batch_size = MIN(max_batch_size, 
+				(uint32)1 << unused_bits);
+		if (d->audit_options.aprog)
+			max_batch_size = MIN(max_batch_size,
+				max_batch_specialq64 / d->audit_options.aprog);
+		if (max_batch_size == 0) {
+			printf("error: max_batch_size == 0\n");
+			exit(-1);
+		}
+
+		while (q_array->num_specialq < max_batch_size) {
+			if (sieve_fb_next(q_fb, c,
+				store_specialq, q_array) == P_SEARCH_DONE) {
+
+				all_q_done = 1;
+				break;
+			}
+		}
+		if (q_array->num_specialq == 0)
+			continue;
+
+		batch_size = MIN(max_batch_size, q_array->num_specialq);
+
+		if (d->audit_options.aprog) {
+			num_aprog_vals = d->audit_options.aprog;
+		}
+		else if (batch_size < max_batch_size / 3) {
+
+			/* current batch of q is too small to utilize 
+			   the card efficiently. Have each (p,q) pair
+			   generate multiple offsets, centered about 0 */
+
+			num_aprog_vals = max_batch_size / batch_size;
+			num_aprog_vals = MIN(num_aprog_vals, max_aprog_vals);
+
+			/* if we were set up for 32-bit sort keys but
+			   now require 64-bit sort keys, make sure to 
+			   respect the 64-bit special-q limit */
+
+			key_bits = 1 + ceil(log((double)p_max * p_max *
+					((num_aprog_vals + 1) / 2)) / M_LN2);
+
+			if (key_bits > 32)
+				num_aprog_vals = MIN(max_batch_size,
+				        max_batch_specialq64) / batch_size;
+		}
+
+		key_bits = ceil(log((double)p_max * p_max *
+				((num_aprog_vals + 1) / 2)) / M_LN2);
+		if (num_aprog_vals > 1)
+			key_bits++;
+
+		audit_generated = t->audit ? stage1_audit_clock() : 0;
+		t->audit_batch++;
+		if (t->audit) {
+			uint32 qi;
+			fprintf(t->audit, "{\"type\":\"batch\",\"coefficient\":%" PRIu64
+				",\"batch\":%u,\"qroots\":%u,\"aprog\":%u,\"key_bits\":%u,"
+				"\"shift\":%u,\"generation_seconds\":%.9f,\"roots\":[",
+				t->audit_coeff, t->audit_batch, batch_size, num_aprog_vals,
+				key_bits, 32-unused_bits, audit_generated-audit_batch_start);
+			for (qi=0; qi<batch_size; qi++)
+				fprintf(t->audit, "%s[%u,\"%" PRIu64 "\"]", qi ? "," : "",
+					q_array->specialq[qi].p, q_array->specialq[qi].root);
+			fprintf(t->audit, "]}\n");
+			/* A failed engine leaves a begun batch without a batch_end record. */
+			stage1_audit_flush(t->audit);
+		}
+		quit = handle_special_q_batch(obj, d, t, batch_size, 
+				32 - unused_bits, key_bits, num_aprog_vals);
+
+		audit_searched = t->audit ? stage1_audit_clock() : 0;
+		check_found_array(c, d, t);
+		if (t->audit) {
+			uint32 found = t->found_array[0].p1;
+			fprintf(t->audit, "{\"type\":\"batch_end\",\"coefficient\":%" PRIu64
+				",\"batch\":%u,\"found_total\":%u,\"returned\":%u,\"saturated\":%s,"
+				"\"gpu_span_ms\":%.9g,\"search_seconds\":%.9f,\"readback_submit_seconds\":%.9f,"
+				"\"seconds\":%.9f}\n", t->audit_coeff, t->audit_batch,
+				found, MIN(found, FOUND_ARRAY_SIZE-1), found>=FOUND_ARRAY_SIZE ? "true":"false",
+				t->audit_gpu_ms, audit_searched-audit_generated,
+				stage1_audit_clock()-audit_searched, stage1_audit_clock()-audit_batch_start);
+			stage1_audit_flush(t->audit);
+		}
+
+		specialq_array_nextbatch(q_array, batch_size);
+
+		elapsed = get_cpu_time() - cpu_start_time + t->gpu_elapsed;
+		if (elapsed > deadline)
+			quit = 1;
+
+		/* report progress and an ETA for this coefficient,
+		   based on the fraction of special-q roots completed
+		   and the wall time spent on them so far */
+
+		done_qroots += batch_size;
+
+		if (!quit && total_qroots != 0 &&
+		    done_qroots < total_qroots) {
+
+			time_t now = time(NULL);
+
+			if (now - last_progress >= 60) {
+
+				double done_frac = (double)done_qroots /
+							total_qroots;
+				uint32 eta_sec = (uint32)((now - wall_start) *
+						(1.0 / done_frac - 1.0) + 0.5);
+
+				if (inplace_progress) {
+					/* rewrite the same line in place
+					   (leading '\r', no newline) so
+					   progress updates don't scroll;
+					   trailing spaces clear any leftovers
+					   from a longer previous line */
+
+					gmp_printf("\rcoeff %Zd: %.1f%% done, "
+							"ETA %uh%02um    ",
+							c->high_coeff,
+							100.0 * done_frac,
+							eta_sec / 3600,
+							(eta_sec % 3600) / 60);
+					progress_shown = 1;
+				}
+				else {
+					gmp_printf("coeff %Zd: %.1f%% done, "
+							"ETA %uh%02um\n",
+							c->high_coeff,
+							100.0 * done_frac,
+							eta_sec / 3600,
+							(eta_sec % 3600) / 60);
+				}
+				fflush(stdout);
+				last_progress = now;
+			}
+		}
+	}
+
+	/* the in-place progress line has no trailing newline, so
+	   finish it off before any further output for this coeff */
+
+	if (progress_shown) {
+		printf("\n");
+		fflush(stdout);
+	}
+
+		if (d->collision_stats && t->collision_batches != 0) {
+			int hi;
+			uint64 *all_hist = t->collision_filter_iters_hist;
+			uint64 *zero_hist = all_hist + 21;
+			uint64 *cap_hist = all_hist + 42;
+			uint64 hist_total = 0;
+			char buf_all[256], buf_zero[256];
+			char buf_cap[256], buf_conv[256];
+			char *p_all = buf_all, *p_zero = buf_zero;
+			char *p_cap = buf_cap, *p_conv = buf_conv;
+			for (hi = 0; hi < 21; hi++)
+				hist_total += all_hist[hi];
+			buf_all[0] = buf_zero[0] = buf_cap[0] = buf_conv[0] = '\0';
+			for (hi = 0; hi < 21; hi++) {
+				uint64 total = all_hist[hi];
+				uint64 zero = zero_hist[hi];
+				uint64 cap = cap_hist[hi];
+				uint64 conv = (total >= zero + cap) ?
+					(total - zero - cap) : 0;
+				if (total)
+					p_all += snprintf(p_all,
+						buf_all + sizeof(buf_all) - p_all,
+						"%s%d=%" PRIu64,
+						(p_all == buf_all) ? "" : " ",
+						hi, total);
+				if (zero)
+					p_zero += snprintf(p_zero,
+						buf_zero + sizeof(buf_zero) - p_zero,
+						"%s%d=%" PRIu64,
+						(p_zero == buf_zero) ? "" : " ",
+						hi, zero);
+				if (cap)
+					p_cap += snprintf(p_cap,
+						buf_cap + sizeof(buf_cap) - p_cap,
+						"%s%d=%" PRIu64,
+						(p_cap == buf_cap) ? "" : " ",
+						hi, cap);
+				if (conv)
+					p_conv += snprintf(p_conv,
+						buf_conv + sizeof(buf_conv) - p_conv,
+						"%s%d=%" PRIu64,
+						(p_conv == buf_conv) ? "" : " ",
+						hi, conv);
+			}
+			logprintf(obj, "collision stats: batches %u engine %.3fs "
+					"max_bucket %u candidates %" PRIu64 " "
+					"dedup %" PRIu64 " matched %" PRIu64 " "
+					"grows %u hash_caps %u arena_attempts %u "
+					"arena_fallbacks %u arena_capacity_skips %u\n",
+					t->collision_batches,
+					t->collision_engine_ms / 1000.0,
+					t->collision_bucket_max,
+					t->collision_candidates,
+					t->collision_dedup,
+					t->collision_value_matches,
+					t->collision_bucket_grows,
+					t->collision_hash_caps,
+					t->collision_arena_attempts,
+					t->collision_arena_fallbacks,
+					t->collision_arena_capacity_skips);
+			logprintf(obj, "filter iters total (%" PRIu64 " stops): %s\n",
+					hist_total, buf_all);
+			logprintf(obj, "filter iters zero (cnt==0): %s\n", buf_zero);
+			logprintf(obj, "filter iters converged: %s\n", buf_conv);
+			logprintf(obj, "filter iters cap (hit MAX): %s\n", buf_cap);
+			{
+				static const char *cat_labels[3] = {
+					"fast  (it<=3)",
+					"medium(it== 4)",
+					"slow  (it>=5)"
+				};
+				static const uint32 bin_lo[13] = {
+					1, 2, 4, 8, 16, 32, 64, 128,
+					256, 512, 1024, 2048, 4096
+				};
+				int cat;
+				char buf_size[256];
+				for (cat = 0; cat < 3; cat++) {
+					uint64 *seg =
+						t->collision_filter_iters_hist +
+						63 + cat * 13;
+					char *p = buf_size;
+					int bi;
+					buf_size[0] = '\0';
+					for (bi = 0; bi < 13; bi++) {
+						if (seg[bi] == 0)
+							continue;
+						p += snprintf(p,
+							buf_size + sizeof(buf_size) - p,
+							"%s%u+=%" PRIu64,
+							(p == buf_size) ? "" : " ",
+							bin_lo[bi], seg[bi]);
+					}
+					logprintf(obj,
+						"filter bucket-size %s: %s\n",
+						cat_labels[cat], buf_size);
+				}
+			}
+		}
+
+	if (t->found_batches != 0) {
+		logprintf(obj, "found_array stats: batches %u peak %u "
+				"saturated %u total %" PRIu64 " cap %u\n",
+				t->found_batches, t->found_peak,
+				t->found_saturated_batches,
+				t->found_total, FOUND_ARRAY_SIZE);
+	}
+
+	/* fold this coefficient's finds into this worker's running total.
+	   Each worker owns its own polys_found, so that accumulation never
+	   races; the grand total is the sum across workers. */
+
+	t->polys_found += c->found_count;
+	{
+		uint32 i, total = 0;
+		char timebuf[32];
+
+		for (i = 0; i < d->num_threads; i++)
+			total += d->threads[i].polys_found;
+
+		/* publish the grand total for the main thread's num_polys=
+		   stop check and the display. With several workers this is a
+		   plain cross-thread store of a word-sized advisory value: a
+		   concurrent publish could momentarily lose an update, so only
+		   ever advance it. The num_polys= stop is already approximate
+		   (in-flight coefficients overshoot the target), so a total
+		   that trails by at most one coefficient is harmless. */
+
+		if (total > d->poly->poly_count)
+			d->poly->poly_count = total;
+
+		format_local_time(timebuf, sizeof(timebuf));
+		gmp_printf("[%s] coeff %Zd: found %u polys (%u total)\n",
+				timebuf, c->high_coeff, c->found_count, total);
+		fflush(stdout);
+	}
+
+	if (t->audit) {
+		fprintf(t->audit, "{\"type\":\"coefficient_end\",\"coefficient\":%" PRIu64
+			",\"complete\":%s,\"qroots_done\":%" PRIu64 ",\"found\":%u,\"seconds\":%.9f}\n",
+			t->audit_coeff, all_q_done && !q_array->num_specialq ? "true":"false",
+			done_qroots, c->found_count, stage1_audit_clock()-audit_start);
+		stage1_audit_flush(t->audit);
+	}
+	t->cumulative_elapsed += elapsed;
+	return quit;
+}
+
+/*------------------------------------------------------------------------*/
+static void
+sieve_lattice_gpu_core(msieve_obj *obj,
+		poly_coeff_t *c, device_data_t *d, 
+		device_thread_data_t *t, double deadline)
+{
+	uint32 degree = d->poly->degree;
+	uint32 num_pieces;
+	uint32 p_min, p_max;
+	uint32 special_q_min, special_q_max;
+	uint32 special_q_min2, special_q_max2;
+	uint32 special_q_fb_max;
+	double target = c->coeff_max / c->m0;
+	uint32 max_aprog_vals = ceil(2 * P_SCALE);
+
+	/* if a soft stop was requested, don't begin a leading
+	   coefficient that is still only queued on the threadpool;
+	   the coefficients already running are past this point and
+	   run to completion */
+
+	if (obj->flags & MSIEVE_FLAG_STOP_SIEVING_SOFT)
+		return;
+
+	/* likewise skip queued coefficients once the num_polys= target
+	   has been reached; the ones already in flight finish and drain */
+
+	if (d->poly->target_poly_count &&
+	    d->poly->poly_count >= d->poly->target_poly_count)
+		return;
+
+	/* Kleinjung shows that the third-to-largest algebraic
+	   polynomial coefficient is of size approximately
+
+	             (correction to m0) * m0
+		    --------------------------
+		    (leading rational coeff)^2
+	
+	   We have a bound 'coeff_max' on what this number is 
+	   supposed to be, and we know m0 and an upper bound on 
+	   the size of the leading rational coefficient P. Let 
+	   P = p1*p2*q, where p1 and p2 are drawn from a fixed
+	   set of candidates, and q (the 'special-q') is arbitrary
+	   except that gcd(q,p1,p2)=1. Then the correction 'C' to 
+	   m0 is < max(p1,p2)^2 */
+	   
+	p_max = MIN(MAX_OTHER, sqrt(c->p_size_max));
+	p_max = MIN(p_max, sqrt(0.5 / target));
+
+	special_q_max = MIN(MAX_SPECIAL_Q, 
+			    c->p_size_max / p_max / p_max);
+	special_q_max = MAX(special_q_max, 1);
+	
+	p_max *= 64;
+	p_min = MAX(1, p_max / P_SCALE);
+	special_q_min = 1;
+
+	/* set up the special q factory; special-q may have 
+	   arbitrary factors, but many small factors are 
+	   preferred since that will allow for many more roots
+	   per special q, so we choose the factors to be as 
+	   small as possible */
+
+	special_q_fb_max = MIN(200000, special_q_max);
+	sieve_fb_init(t->sieve_q_fb, c,
+			2, special_q_fb_max,
+			1, degree,
+			1);
+
+	/* because special-q can have any factors, we require that
+	   the progressions we generate use p that have somewhat
+	   large factors. This minimizes the chance that a given
+	   special-q has factors in common with many progressions
+	   in the set */
+
+	sieve_fb_init(t->sieve_p_fb, c, 
+			100, 5000,
+			1, degree,
+		       	0);
+
+	/* large search problems can be randomized so that
+	   multiple runs over the same range of leading
+	   a_d will likely generate different results */
+
+	num_pieces = 1;
+	if (special_q_max - special_q_min > 500000)
+		num_pieces = MIN(50, (double)special_q_max * p_max
+				/ log(special_q_max) / log(p_max)
+				/ 3e10);
+
+	if (num_pieces > 51) { /* randomize the special_q range */
+		uint32 piece_length = (special_q_max - special_q_min)
+				/ num_pieces;
+		uint32 piece = get_rand(&obj->seed1, &obj->seed2)
+				% num_pieces;
+#if 1
+		printf("randomizing rational coefficient: "
+			"using piece #%u of %u\n",
+			piece + 1, num_pieces);
+#endif
+		special_q_min2 = special_q_min + piece * piece_length;
+		special_q_max2 = special_q_min2 + piece_length;
+	}
+	else {
+		special_q_min2 = special_q_min;
+		special_q_max2 = special_q_max;
+	}
+	special_q_min2 = MAX(special_q_min2, d->audit_options.qmin);
+	special_q_max2 = MIN(special_q_max2, d->audit_options.qmax);
+	if (special_q_min2 > special_q_max2) {
+		logprintf(obj, "stage1 q window does not intersect this coefficient's bounds\n");
+		if (t->audit) {
+			gmp_fprintf(t->audit, "{\"type\":\"coefficient_skip\",\"ad\":\"%Zd\","
+				"\"reason\":\"empty_q_intersection\",\"requested_qmin\":%u,"
+				"\"requested_qmax\":%u,\"natural_qmax\":%u}\n",
+				c->high_coeff, d->audit_options.qmin,
+				d->audit_options.qmax, special_q_max);
+			stage1_audit_flush(t->audit);
+		}
+		return;
+	}
+#if 1
+	{
+		char timebuf[32];
+
+		format_local_time(timebuf, sizeof(timebuf));
+		gmp_printf("[%s] coeff %Zd norm %.2e "
+				"specialq %u - %u other %u - %u\n",
+				timebuf, c->high_coeff, c->norm_max_effective,
+				special_q_min2, special_q_max2,
+				p_min, p_max);
+	}
+#endif
+	sieve_specialq(obj, c, d, t,
+			special_q_min2, special_q_max2, p_min, p_max,
+			max_aprog_vals, deadline);
+}
+
+/*------------------------------------------------------------------------*/
+static void
+read_collision_engine_args(msieve_obj *obj, device_data_t *d)
+{
+	d->use_collision_engine = 0;
+	d->collision_bucket_hash = 1;
+	d->collision_stats = 0;
+	d->collision_debug = 0;
+
+	if (obj->nfs_args != NULL) {
+		char *tmp = strstr(obj->nfs_args, "collengine=");
+
+		if (tmp != NULL) {
+			tmp += 11;
+			if (strncmp(tmp, "gerbicz", 7) == 0)
+				d->use_collision_engine = 1;
+		}
+
+		tmp = strstr(obj->nfs_args, "collhash=");
+		if (tmp != NULL)
+			d->collision_bucket_hash = strtoul(tmp + 9, NULL, 10) != 0;
+
+		tmp = strstr(obj->nfs_args, "collstats=");
+		if (tmp != NULL)
+			d->collision_stats = strtoul(tmp + 10, NULL, 10) != 0;
+
+		tmp = strstr(obj->nfs_args, "colldebug=");
+		if (tmp != NULL)
+			d->collision_debug = strtoul(tmp + 10, NULL, 10) != 0;
+	}
+}
+
+/*------------------------------------------------------------------------*/
+static void
+load_sort_engine(msieve_obj *obj, device_data_t *d)
+{
+	char libname[256];
+	#if defined(WIN32) || defined(_WIN64)
+	const char *suffix = ".dll";
+	#else
+	const char *suffix = ".so";
+	#endif
+
+	sprintf(libname, "cub/sort_engine%s", suffix);
+
+	/* override from input args */
+
+	if (obj->nfs_args != NULL) {
+		char *tmp = strstr(obj->nfs_args, "sortlib=");
+
+		if (tmp != NULL) {
+			uint32 i;
+			for (i = 0, tmp += 8; i < sizeof(libname) - 1; i++) {
+				if (*tmp == 0 || isspace(*tmp))
+					break;
+
+				libname[i] = *tmp++;
+			}
+			libname[i] = 0;
+		}
+	}
+
+#ifdef _MSC_VER && _MSC_VER >= 1900
+/*  convert the sort engine file path to an absolute path using
+    backslash directory separators  */
+	char libpath[256], *p, *q;
+	int len;
+
+	_getcwd(libpath, 256);
+	len = strlen(libpath);
+	p = libpath + len;
+	if(*(p - 1) != '\\')
+	{
+		*p++ = '\\';
+		len++;
+	}
+	q = libname - 1;
+	while(*++q && len < 256)
+	{
+		*p++ = (*q != '/' ? *q : '\\');
+		len++;
+	}
+	if(len < 256) {
+		*p++ = 0;
+	}
+	else {
+		printf("error: buffer overflow in %s at line %d\n", __FILE__, __LINE__);
+		exit(-1);
+	}
+
+	if(_access_s(libpath, 0)) {
+		printf("error: GPU sort engine not found at \"%s\"\n", libpath);
+		exit(-1);
+	}
+
+	d->sort_engine_handle = load_dynamic_lib(libpath);
+	if(d->sort_engine_handle == NULL) {
+		printf("error: cannot load GPU sort engine from \"%s\" (check dependencies)\n", libpath);
+		exit(-1);
+}
+#else
+	d->sort_engine_handle = load_dynamic_lib(libname);
+	if(d->sort_engine_handle == NULL) {
+		printf("error: failed to load GPU sorting engine from \"%s\"\n", libname);
+		exit(-1);
+	}
+#endif
+	/* the sort engine uses the same CUDA context */
+
+	d->sort_engine_init = get_lib_symbol(
+					d->sort_engine_handle,
+					"sort_engine_init");
+	d->sort_engine_free = get_lib_symbol(
+					d->sort_engine_handle,
+					"sort_engine_free");
+	d->sort_engine_run = get_lib_symbol(
+					d->sort_engine_handle,
+					"sort_engine_run");
+	if (d->sort_engine_init == NULL ||
+	    d->sort_engine_free == NULL ||
+	    d->sort_engine_run == NULL) {
+		printf("error: cannot find GPU sorting function\n");
+		exit(-1);
+	}
+}
+
+
+/*------------------------------------------------------------------------*/
+static void
+load_collision_engine(msieve_obj *obj, device_data_t *d)
+{
+	char libname[256];
+	#if defined(WIN32) || defined(_WIN64)
+	const char *suffix = ".dll";
+	#else
+	const char *suffix = ".so";
+	#endif
+
+	sprintf(libname, "cub/collision_engine%s", suffix);
+
+	if (obj->nfs_args != NULL) {
+		char *tmp = strstr(obj->nfs_args, "colllib=");
+
+		if (tmp != NULL) {
+			uint32 i;
+			for (i = 0, tmp += 8; i < sizeof(libname) - 1; i++) {
+				if (*tmp == 0 || isspace(*tmp))
+					break;
+
+				libname[i] = *tmp++;
+			}
+			libname[i] = 0;
+		}
+	}
+
+	d->collision_engine_handle = load_dynamic_lib(libname);
+	if(d->collision_engine_handle == NULL) {
+		printf("error: failed to load GPU collision engine from \"%s\"\n",
+				libname);
+		printf("       the Gerbicz collision engine requires a Volta or newer "
+				"GPU (compute capability 7.0+) and is not built for "
+				"CUDA<70.\n");
+		printf("       omit \"collengine=gerbicz\" to use the default sort "
+				"engine, or rebuild with CUDA>=70.\n");
+		exit(-1);
+	}
+
+	d->collision_engine_init = get_lib_symbol(
+					d->collision_engine_handle,
+					"collision_engine_init");
+	d->collision_engine_free = get_lib_symbol(
+					d->collision_engine_handle,
+					"collision_engine_free");
+	d->collision_engine_run = get_lib_symbol(
+					d->collision_engine_handle,
+					"collision_engine_run");
+	if (d->collision_engine_init == NULL ||
+	    d->collision_engine_free == NULL ||
+	    d->collision_engine_run == NULL) {
+		printf("error: cannot find GPU collision function\n");
+		exit(-1);
+	}
+}
+
+
+/*------------------------------------------------------------------------*/
+static void
+gpu_thread_data_init(void *data, int threadid)
+{
+	uint32 i, j;
+	device_data_t *d = (device_data_t *)data;
+	device_thread_data_t *t = d->threads + threadid;
+
+	if (d->audit_options.prefix[0]) {
+		char path[1100];
+		snprintf(path, sizeof(path), "%s.w%d.jsonl", d->audit_options.prefix, threadid);
+		t->audit = fopen(path, "wx");
+		if (!t->audit) { perror(path); exit(1); }
+		setvbuf(t->audit, NULL, _IOFBF, 1024*1024);
+		fprintf(t->audit, "{\"type\":\"run\",\"schema\":1,\"worker\":%d,\"run\":", threadid);
+		stage1_audit_string(t->audit, d->audit_options.prefix);
+		gmp_fprintf(t->audit, ",\"N\":\"%Zd\",\"degree\":%u,\"engine\":\"%s\",\"gpu\":",
+			d->poly->N, d->poly->degree, d->use_collision_engine ? "gerbicz":"sort");
+		stage1_audit_string(t->audit, d->gpu_info->name);
+		fprintf(t->audit, ",\"args\":");
+		stage1_audit_string(t->audit, d->obj->nfs_args ? d->obj->nfs_args : "");
+		fprintf(t->audit, ",\"build\":\"%s %s\",\"cuda_headers\":%d,"
+			"\"capacity32\":%zu,\"capacity64\":%zu,\"found_capacity\":%u}\n",
+			__DATE__, __TIME__, CUDA_VERSION, d->max_sort_entries32,
+			d->max_sort_entries64, FOUND_ARRAY_SIZE-1);
+		stage1_audit_flush(t->audit);
+	}
+
+	/* every thread needs its own context; making all
+	   threads share the same context causes problems
+	   with the sort engine, because apparently it
+	   changes the GPU cache size on the fly */
+
+#if CUDA_VERSION >= 13000
+	CUDA_TRY(cuCtxCreate(&t->gpu_context,
+			NULL,
+			CU_CTX_BLOCKING_SYNC,
+			d->gpu_info->device_handle))
+#else
+	CUDA_TRY(cuCtxCreate(&t->gpu_context,
+			CU_CTX_BLOCKING_SYNC,
+			d->gpu_info->device_handle))
+#endif
+
+	/* load GPU kernels */
+
+	CUDA_TRY(cuModuleLoad(&t->gpu_module, "stage1_core.ptx"))
+
+	t->launch = (gpu_launch_t *)xmalloc(NUM_GPU_FUNCTIONS *
+				sizeof(gpu_launch_t));
+
+	for (i = 0; i < NUM_GPU_FUNCTIONS; i++) {
+		gpu_launch_t *launch = t->launch + i;
+
+		gpu_launch_init(t->gpu_module, gpu_kernel_names[i],
+				gpu_kernel_args + gpu_kernel_args_idx[i], launch);
+
+		if (i == GPU_FINAL_32 || i == GPU_FINAL_64) {
+			/* performance of the cleanup functions is not
+			   that sensitive to the block shape; set it
+			   once up front */
+
+			launch->threads_per_block =
+					MIN(256, launch->threads_per_block);
+			CUDA_TRY(cuFuncSetBlockShape(launch->kernel_func,
+					launch->threads_per_block, 1, 1))
+		}
+	}
+
+	/* threads each send a stream of kernel calls */
+
+	CUDA_TRY(cuStreamCreate(&t->stream, 0))
+
+	/* set up found array */
+
+	CUDA_TRY(cuMemAlloc(&t->gpu_found_array, sizeof(found_t) *
+			FOUND_ARRAY_SIZE))
+	t->found_array = (found_t *)xmalloc(sizeof(found_t) * 
+			FOUND_ARRAY_SIZE);
+
+	CUDA_TRY(cuMemsetD8(t->gpu_found_array, 0, sizeof(found_t)))
+
+	/* set up root generation arrays */
+
+	t->sieve_p_fb = sieve_fb_alloc();
+	t->sieve_q_fb = sieve_fb_alloc();
+
+	t->p_array = p_soa_array_init(d->poly->degree);
+	t->q_array = specialq_array_init();
+
+	i = sizeof(uint32) * MAX(d->max_sort_entries32, d->max_sort_entries64);
+	j = MAX(d->max_sort_entries32 * sizeof(uint32),
+	        d->max_sort_entries64 * sizeof(uint64));
+
+	CUDA_TRY(cuMemAlloc(&t->gpu_p_array, i))
+	CUDA_TRY(cuMemAlloc(&t->gpu_p_array_scratch, i))
+	CUDA_TRY(cuMemAlloc(&t->gpu_root_array, j))
+	CUDA_TRY(cuMemAlloc(&t->gpu_root_array_scratch, j))
+
+	if (d->use_collision_engine)
+		t->collision_engine = d->collision_engine_init();
+	else
+		t->sort_engine = d->sort_engine_init();
+
+	CUDA_TRY(cuEventCreate(&t->start_event, CU_EVENT_BLOCKING_SYNC))
+	CUDA_TRY(cuEventCreate(&t->end_event, CU_EVENT_BLOCKING_SYNC))
+}
+
+
+/*------------------------------------------------------------------------*/
+static void
+gpu_thread_data_free(void *data, int threadid)
+{
+	device_data_t *d = (device_data_t *)data;
+	device_thread_data_t *t = d->threads + threadid;
+
+	/* Synchronize context before destroying to ensure all GPU work completes.
+	   This is critical to prevent GPU resources from persisting after cleanup.
+	   Note: cuCtxSynchronize() takes no arguments and operates on current context */
+	CUDA_TRY(cuCtxPushCurrent(t->gpu_context))
+	CUDA_TRY(cuCtxSynchronize())
+	CUDA_TRY(cuCtxPopCurrent(NULL))
+
+	CUDA_TRY(cuEventDestroy(t->start_event))
+	CUDA_TRY(cuEventDestroy(t->end_event))
+
+	if (d->use_collision_engine)
+		d->collision_engine_free(t->collision_engine);
+	else
+		d->sort_engine_free(t->sort_engine);
+
+	CUDA_TRY(cuMemFree(t->gpu_p_array))
+	CUDA_TRY(cuMemFree(t->gpu_p_array_scratch))
+	CUDA_TRY(cuMemFree(t->gpu_root_array))
+	CUDA_TRY(cuMemFree(t->gpu_root_array_scratch))
+
+	sieve_fb_free(t->sieve_p_fb);
+	sieve_fb_free(t->sieve_q_fb);
+
+	CUDA_TRY(cuStreamDestroy(t->stream))
+
+	free(t->found_array);
+	CUDA_TRY(cuMemFree(t->gpu_found_array))
+
+	free(t->launch);
+
+	p_soa_array_free(t->p_array);
+	specialq_array_free(t->q_array);
+
+	CUDA_TRY(cuCtxDestroy(t->gpu_context))
+	if (t->audit) {
+		fprintf(t->audit, "{\"type\":\"worker_end\"}\n");
+		stage1_audit_flush(t->audit);
+		if (fclose(t->audit)) { perror("stage1 provenance close"); exit(1); }
+		t->audit = NULL;
+	}
+}
+
+/*------------------------------------------------------------------------*/
+void *
+gpu_data_init(msieve_obj *obj, poly_search_t *poly)
+{
+	device_data_t *d;
+	gpu_config_t gpu_config;
+	gpu_info_t *gpu_info;
+	size_t gpu_mem;
+
+	uint32 num_threads;
+	thread_control_t thread_control;
+
+	d = (device_data_t *)xcalloc(1, sizeof(device_data_t));
+	if (!stage1_audit_parse(obj->nfs_args, &d->audit_options)) {
+		fprintf(stderr, "invalid stage1 audit options: use stage1_provenance=PREFIX, "
+			"stage1_qmin/qmax in 1..4294967295, stage1_aprog in 1..5; "
+			"separate options with whitespace\n");
+		exit(1);
+	}
+	gpu_init(&gpu_config);
+	if (gpu_config.num_gpu == 0) {
+		printf("error: no CUDA-enabled GPUs found\n");
+		exit(-1);
+	}
+	if (obj->which_gpu >= (uint32)gpu_config.num_gpu) {
+		printf("error: GPU %u does not exist "
+			"or is not CUDA-enabled\n", obj->which_gpu);
+		exit(-1);
+	}
+
+	d->obj = obj;
+	d->gpu_info = gpu_info = (gpu_info_t *)xmalloc(sizeof(gpu_info_t));
+	memcpy(gpu_info, gpu_config.info + obj->which_gpu,
+			sizeof(gpu_info_t)); 
+
+	logprintf(obj, "using GPU %u (%s)\n", obj->which_gpu, gpu_info->name);
+	logprintf(obj, "selected card has CUDA arch %d.%d\n",
+			gpu_info->compute_version_major,
+			gpu_info->compute_version_minor);
+
+	read_collision_engine_args(obj, d);
+	if (d->use_collision_engine) {
+		logprintf(obj, "using Gerbicz GPU collision engine%s%s%s\n",
+				d->collision_bucket_hash ? " with bucket hashing" : "",
+				d->collision_stats ? " with stats" : "",
+				d->collision_debug ? " with debug diagnostics" : "");
+		load_collision_engine(obj, d);
+	}
+	else {
+		load_sort_engine(obj, d);
+	}
+
+	/* a single transformed array will not have enough
+	   elements for the GPU to sort efficiently; instead,
+	   we batch multiple arrays together and sort the
+	   entire batch. Array elements get their array number
+	   added into unused bits above each p, so the number
+	   of such unused bits is one limit on the batch size.
+	   Another limit is the amount of RAM on the card;
+	   we try to use less than 30% of it. Finally, we top
+	   out at a few ten millions of elements, which is far 
+	   into asymptotically optimal throughput territory 
+	   for all current GPUs
+	
+	   The sizing below assumes we can batch as many special-Q
+	   as we want. However, for small degree-5 problems the 
+	   number of special-Q available is too small to efficiently 
+	   use the card. In that case, we will compensate later by 
+	   making each arithmetic progression contribute multiple 
+	   offsets */
+
+	gpu_mem = 0.3 * d->gpu_info->global_mem_size;
+	if (obj->nfs_args != NULL) {
+
+		char *tmp = strstr(obj->nfs_args, "gpu_mem_mb=");
+		if (tmp != NULL) {
+			size_t m = strtoul(tmp + 11, NULL, 10);
+
+			gpu_mem = MIN(d->gpu_info->global_mem_size,
+					m * 1048576);
+			gpu_mem = MAX(10 * 1048576, gpu_mem);
+			logprintf(obj, "setting max GPU mem use to %.1lf MB\n",
+					(double)gpu_mem / 1048576);
+		}
+	}
+
+	d->max_sort_entries32 = MIN(50000000, gpu_mem /
+				 (2 * (sizeof(uint32) + 
+				       sizeof(uint32))));
+
+	d->max_sort_entries64 = MIN(35000000, gpu_mem /
+				 (2 * (sizeof(uint32) + 
+				       sizeof(uint64))));
+
+	/* account for multiple threads; we allocate a thread pool
+	   with a number of threads requested, where each thread
+	   deals with a single leading coefficient. We also allocate
+	   another thread pool with a single thread, that runs stage
+	   2. Eventually the latter can be made more concurrent.  
+	 
+	   Each GPU thread gets an equal share of the total memory
+	   used on the card. The GPU thread pool should only accumulate
+	   a few leading coefficients at a time, but the stage 2 thread
+	   pool should have a deeper queue of work */
+
+	d->poly = poly;
+	num_threads = MAX(1, obj->num_threads);
+	d->num_threads = num_threads = MIN(4, num_threads);
+	d->max_sort_entries32 /= num_threads;
+	d->max_sort_entries64 /= num_threads;
+	d->threads = (device_thread_data_t *)xcalloc(num_threads,
+					sizeof(device_thread_data_t));
+
+	thread_control.init = gpu_thread_data_init;
+	thread_control.shutdown = gpu_thread_data_free;
+	thread_control.data = d;
+	d->gpu_threadpool = threadpool_init(num_threads,
+					MAX(10, num_threads),
+					&thread_control);
+
+	thread_control.init = NULL;
+	thread_control.shutdown = NULL;
+	thread_control.data = NULL;
+	d->stage2_threadpool = threadpool_init(1, 1000, &thread_control);
+
+	/* Register emergency cleanup handler and set global pointer.
+	   This ensures GPU resources are cleaned up even on ungraceful exit */
+	g_active_gpu_device = d;
+	atexit(emergency_gpu_cleanup);
+
+	return d;
+}
+
+/*------------------------------------------------------------------------*/
+void gpu_data_free(void *gpu_data)
+{
+	device_data_t *d = (device_data_t *)gpu_data;
+
+	if (!(d->obj->flags & MSIEVE_FLAG_STOP_SIEVING)) {
+		/* we're allowed to try to shut down gracefully */
+
+		threadpool_drain(d->gpu_threadpool, 1);
+	}
+
+	/* shut down the GPU threadpool first, since
+	   we don't want it feeding the stage 2 threadpool
+	   after it's been freed */
+
+	threadpool_free(d->gpu_threadpool);
+	threadpool_free(d->stage2_threadpool);
+
+	free(d->threads);
+
+	if (d->use_collision_engine)
+		unload_dynamic_lib(d->collision_engine_handle);
+	else
+		unload_dynamic_lib(d->sort_engine_handle);
+
+	free(d->gpu_info);
+
+	/* Unregister global pointer so atexit handler won't
+	   try to clean up already-freed resources.
+	   Note: We don't call cudaDeviceReset() here because we're using
+	   the CUDA driver API (cuCtxDestroy handles cleanup). Device reset
+	   is primarily a runtime API feature and is not needed here. */
+	if (g_active_gpu_device == d)
+		g_active_gpu_device = NULL;
+
+	free(d);
+}
+
+/*------------------------------------------------------------------------*/
+/* infrastructure for submitting new leading
+   coeffs to the GPU thread pool */
+
+typedef struct {
+	msieve_obj *obj;
+	poly_coeff_t *c;
+	device_data_t *d;
+	uint32 deadline;
+} task_data_t;
+
+static void
+task_data_free(void *data, int threadid)
+{
+	task_data_t *task_data = (task_data_t *)data;
+
+	poly_coeff_free(task_data->c);
+	free(task_data);
+}
+
+static void
+task_data_run(void *data, int threadid)
+{
+	task_data_t *task_data = (task_data_t *)data;
+
+	sieve_lattice_gpu_core(task_data->obj, task_data->c, task_data->d,
+				task_data->d->threads + threadid,
+				task_data->deadline);
+}
+
+/* external entry point */
+double sieve_lattice_gpu(msieve_obj *obj, poly_search_t *poly,
+			poly_coeff_t *c, void *gpu_data,
+			double deadline)
+{
+	/* submit a leading coefficient asynchronously to the
+	   GPU thread pool; we copy the coefficient so the input
+	   one can be overwritten by calling code */
+
+	uint32 i;
+	task_control_t task_control;
+	task_data_t *task_data = (task_data_t *)xmalloc(sizeof(task_data_t));
+	device_data_t *d = (device_data_t *)gpu_data;
+	poly_coeff_t *c2 = poly_coeff_init();
+	double cumulative_elapsed = 0;
+
+	poly_coeff_copy(c2, c);
+
+	task_data->obj = obj;
+	task_data->c = c2;
+	task_data->d = d;
+	task_data->deadline = deadline;
+
+	task_control.init = NULL;
+	task_control.run = task_data_run;
+	task_control.shutdown = task_data_free;
+	task_control.data = task_data;
+
+	threadpool_add_task(d->gpu_threadpool, &task_control, 1);
+
+	/* return total time spent by all stage 1 threads */
+
+	for (i = 0; i < d->num_threads; i++)
+		cumulative_elapsed += d->threads[i].cumulative_elapsed;
+
+	return cumulative_elapsed;
+}

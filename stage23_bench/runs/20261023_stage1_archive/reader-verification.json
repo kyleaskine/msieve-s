@@ -1,0 +1,11 @@
+{
+  "whole_archive": {
+    "bytes": 6807792245,
+    "sha256": "13025f5afae7a466f0f9112087d965d788f0a65cdf6b41637a0ca27c32ddc7f6"
+  },
+  "virtual_extract": {
+    "bytes": 8727476704,
+    "sha256": "6f50a4ca2e7a4c0025f9939d0963663fc48ded0cbcff62aeae6f0874f4a5e5cd",
+    "original_path": "stage23_bench/runs/20261021_as660_third_coefficient/third.w0.jsonl"
+  }
+}

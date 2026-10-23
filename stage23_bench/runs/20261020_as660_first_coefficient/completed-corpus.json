@@ -1,0 +1,17 @@
+{
+  "reference_manifest": "../20261020_as660_stage1_pilot/manifest.json",
+  "files": {
+    "stage23_bench/runs/20261020_as660_first_coefficient/first-as660.ms": {
+      "sha256": "6b82614cf7ea353cc0ad09c88c7a131812b04920132a4a07e5e01fc52424c388",
+      "bytes": 84472946
+    },
+    "stage23_bench/runs/20261020_as660_first_coefficient/first-as660.log": {
+      "sha256": "0fe61329f2d56a8de6f09f8d5e12ce2bf1233db30b8bbe3104a109f92ec508b9",
+      "bytes": 1627
+    },
+    "as660-stage1.w0.jsonl": {
+      "sha256": "13025f5afae7a466f0f9112087d965d788f0a65cdf6b41637a0ca27c32ddc7f6",
+      "bytes": 6807792245
+    }
+  }
+}

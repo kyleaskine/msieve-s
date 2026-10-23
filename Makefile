@@ -340,6 +340,9 @@ mpqs/sieve_core_generic_64k.qo: mpqs/sieve_core.c $(COMMON_HDR) $(QS_HDR)
 
 # GPU build rules
 
+gnfs/poly/stage1/stage1_sieve_gpu.no: gnfs/poly/stage1/stage1_audit.h gnfs/poly/stage1/stage1_audit_sha256.h
+gnfs/poly/poly_skew.no gnfs/poly/poly_skew.o: gnfs/poly/stage1/stage1_audit.h
+
 stage1_core.ptx: $(NFS_GPU_HDR)
 	$(NVCC) -arch $(CUDA_PTX_ARCH) -ptx -I. -Icub -Ignfs -Ignfs/poly/stage1 -o $@ $<
 

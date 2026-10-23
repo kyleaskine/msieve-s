@@ -1,0 +1,354 @@
+{
+  "138600": {
+    "returned_hits": 185201,
+    "unique_candidates": 179993,
+    "repeat_discoveries": 5208,
+    "repeat_fraction": 0.02812079848380948,
+    "admitted_hits": 185201,
+    "qroots": 130144102,
+    "hits_per_million_qroots": 1423.0456636444424,
+    "unique_per_million_qroots": 1383.0284833038381,
+    "gate_ratio_max": 0.0013690961212541124,
+    "coefficient": {
+      "sidecar": "as660-stage1.w0.jsonl",
+      "parameters": {
+        "type": "coefficient",
+        "coefficient": 1,
+        "ad": "138600",
+        "configured_norm": 5.965531165413326e+29,
+        "effective_norm": 5.965531165413326e+29,
+        "m0": 1.3019223042029047e+38,
+        "coeff_max": 9.908406208865017e+26,
+        "pmin": 6835066,
+        "pmax": 16404160,
+        "qmin": 1,
+        "qmax": 4294967295
+      },
+      "setup": {
+        "type": "setup",
+        "coefficient": 1,
+        "entries_per_q": 662846,
+        "qroots_total": 130144102,
+        "seconds": 4.50513994
+      },
+      "ending": {
+        "type": "coefficient_end",
+        "coefficient": 1,
+        "complete": true,
+        "qroots_done": 130144102,
+        "found": 185201,
+        "seconds": 15725.546966864
+      }
+    },
+    "sopt": {
+      "n": 10000,
+      "mean": 58.592472,
+      "best": 53.34,
+      "q01": 55.86,
+      "q10": 56.95,
+      "median": 58.27
+    },
+    "q_bins": [
+      {
+        "bin": 0,
+        "qroots": 36748056,
+        "raw_hits": 52366,
+        "hits_per_million_qroots": 1425.0005496889414,
+        "sample": {
+          "n": 2733,
+          "mean": 58.65201609952433,
+          "best": 54.54,
+          "q01": 55.9564,
+          "q10": 56.99000000000001,
+          "median": 58.38
+        }
+      },
+      {
+        "bin": 1,
+        "qroots": 32477300,
+        "raw_hits": 46393,
+        "hits_per_million_qroots": 1428.4746576839823,
+        "sample": {
+          "n": 2493,
+          "mean": 58.54603289209788,
+          "best": 54.8,
+          "q01": 55.8984,
+          "q10": 56.96,
+          "median": 58.2
+        }
+      },
+      {
+        "bin": 2,
+        "qroots": 31021010,
+        "raw_hits": 44160,
+        "hits_per_million_qroots": 1423.5513285995523,
+        "sample": {
+          "n": 2375,
+          "mean": 58.61098105263158,
+          "best": 53.34,
+          "q01": 55.797399999999996,
+          "q10": 56.94,
+          "median": 58.28
+        }
+      },
+      {
+        "bin": 3,
+        "qroots": 29897736,
+        "raw_hits": 42282,
+        "hits_per_million_qroots": 1414.2207958488898,
+        "sample": {
+          "n": 2338,
+          "mean": 58.55765611633875,
+          "best": 54.88,
+          "q01": 55.7837,
+          "q10": 56.876999999999995,
+          "median": 58.22
+        }
+      }
+    ],
+    "chronology_bins": [
+      {
+        "bin": 0,
+        "sample": {
+          "n": 2465,
+          "mean": 58.611257606490874,
+          "best": 54.54,
+          "q01": 55.929199999999994,
+          "q10": 56.98,
+          "median": 58.31
+        }
+      },
+      {
+        "bin": 1,
+        "sample": {
+          "n": 2439,
+          "mean": 58.602751127511276,
+          "best": 54.7,
+          "q01": 55.79,
+          "q10": 56.91,
+          "median": 58.3
+        }
+      },
+      {
+        "bin": 2,
+        "sample": {
+          "n": 2547,
+          "mean": 58.578570867687475,
+          "best": 54.41,
+          "q01": 55.8246,
+          "q10": 56.926,
+          "median": 58.27
+        }
+      },
+      {
+        "bin": 3,
+        "sample": {
+          "n": 2549,
+          "mean": 58.578360141231855,
+          "best": 53.34,
+          "q01": 55.919200000000004,
+          "q10": 56.968,
+          "median": 58.2
+        }
+      }
+    ],
+    "sampled_identities_spanning_q_bins": 61,
+    "sampled_identities_spanning_chronology_bins": 0
+  },
+  "277200": {
+    "returned_hits": 161745,
+    "unique_candidates": 156518,
+    "repeat_discoveries": 5227,
+    "repeat_fraction": 0.03231630034931528,
+    "admitted_hits": 161745,
+    "qroots": 107901096,
+    "hits_per_million_qroots": 1499.0116504469984,
+    "unique_per_million_qroots": 1450.5691397240303,
+    "gate_ratio_max": 0.0013523407586496271,
+    "coefficient": {
+      "sidecar": "/home/kylea/msieve-s/stage23_bench/runs/20261021_as660_two_coefficients/second.w0.jsonl",
+      "parameters": {
+        "type": "coefficient",
+        "coefficient": 1,
+        "ad": "277200",
+        "configured_norm": 5.965531165413326e+29,
+        "effective_norm": 5.965531165413326e+29,
+        "m0": 1.1333891952916266e+38,
+        "coeff_max": 1.0377015589063738e+27,
+        "pmin": 6231706,
+        "pmax": 14956096,
+        "qmin": 1,
+        "qmax": 4294967295
+      },
+      "setup": {
+        "type": "setup",
+        "coefficient": 1,
+        "entries_per_q": 620233,
+        "qroots_total": 107901096,
+        "seconds": 1.321271879
+      },
+      "ending": {
+        "type": "coefficient_end",
+        "coefficient": 1,
+        "complete": true,
+        "qroots_done": 107901096,
+        "found": 161745,
+        "seconds": 10779.248365242,
+        "wall_seconds": 10779.482614279
+      }
+    },
+    "sopt": {
+      "n": 10000,
+      "mean": 58.597948,
+      "best": 54.41,
+      "q01": 55.98,
+      "q10": 57.0,
+      "median": 58.28
+    },
+    "q_bins": [
+      {
+        "bin": 0,
+        "qroots": 30690281,
+        "raw_hits": 45984,
+        "hits_per_million_qroots": 1498.3245021445061,
+        "sample": {
+          "n": 2911,
+          "mean": 58.59734455513569,
+          "best": 54.9,
+          "q01": 55.961,
+          "q10": 56.97,
+          "median": 58.3
+        }
+      },
+      {
+        "bin": 1,
+        "qroots": 27135005,
+        "raw_hits": 40535,
+        "hits_per_million_qroots": 1493.8268852355102,
+        "sample": {
+          "n": 2396,
+          "mean": 58.609607679465775,
+          "best": 54.7,
+          "q01": 55.999,
+          "q10": 57.01,
+          "median": 58.3
+        }
+      },
+      {
+        "bin": 2,
+        "qroots": 25448845,
+        "raw_hits": 38066,
+        "hits_per_million_qroots": 1495.7849757032195,
+        "sample": {
+          "n": 2271,
+          "mean": 58.635495376486126,
+          "best": 54.41,
+          "q01": 56.074,
+          "q10": 57.04,
+          "median": 58.31
+        }
+      },
+      {
+        "bin": 3,
+        "qroots": 24626965,
+        "raw_hits": 37160,
+        "hits_per_million_qroots": 1508.9151261635366,
+        "sample": {
+          "n": 2338,
+          "mean": 58.54856715141146,
+          "best": 54.47,
+          "q01": 55.9837,
+          "q10": 56.99,
+          "median": 58.22
+        }
+      }
+    ],
+    "chronology_bins": [
+      {
+        "bin": 0,
+        "sample": {
+          "n": 2478,
+          "mean": 58.556307506053265,
+          "best": 54.9,
+          "q01": 55.9854,
+          "q10": 56.99,
+          "median": 58.23
+        }
+      },
+      {
+        "bin": 1,
+        "sample": {
+          "n": 2558,
+          "mean": 58.62163799843628,
+          "best": 54.7,
+          "q01": 56.1085,
+          "q10": 57.03,
+          "median": 58.325
+        }
+      },
+      {
+        "bin": 2,
+        "sample": {
+          "n": 2545,
+          "mean": 58.574601178781926,
+          "best": 54.8,
+          "q01": 55.9944,
+          "q10": 56.95,
+          "median": 58.22
+        }
+      },
+      {
+        "bin": 3,
+        "sample": {
+          "n": 2419,
+          "mean": 58.640115750310045,
+          "best": 54.41,
+          "q01": 55.91,
+          "q10": 57.02,
+          "median": 58.38
+        }
+      }
+    ],
+    "sampled_identities_spanning_q_bins": 84,
+    "sampled_identities_spanning_chronology_bins": 0
+  },
+  "bootstrap_second_minus_first": {
+    "mean": {
+      "estimate": 0.005476000000001591,
+      "percentile95": [
+        -0.03254045000000367,
+        0.041753675000000885
+      ]
+    },
+    "median": {
+      "estimate": 0.00999999999999801,
+      "percentile95": [
+        -0.05000000000000426,
+        0.06512499999999768
+      ]
+    },
+    "q01": {
+      "estimate": 0.11999999999999744,
+      "percentile95": [
+        0.020097500000006364,
+        0.21024500000000057
+      ]
+    },
+    "q10": {
+      "estimate": 0.04999999999999716,
+      "percentile95": [
+        0.009749999999998074,
+        0.10000000000000142
+      ]
+    }
+  },
+  "interpretation": [
+    "Lower sopt exp_E is better; it is not final root-optimized Murphy E.",
+    "Uniform SHA-256 samples of 10,000 distinct identities per coefficient, same CPU sopt effort 0.",
+    "Q bins are equal-width quarters of the uint32 q range; chronology bins are quarters of batch traversal.",
+    "Q/chronology tables exclude identities discovered across multiple bins; all remain in the overall comparison.",
+    "Raw hit yields include repeat discoveries and measure yield, not polynomial quality.",
+    "Bootstrap intervals are descriptive; exploratory bins and best observed scores do not establish an optimum.",
+    "Runtime is not a controlled comparison: first run had contention, and host duration clocks differ."
+  ]
+}

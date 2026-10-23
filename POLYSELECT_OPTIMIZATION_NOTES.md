@@ -2,7 +2,193 @@
 
 > **Consolidates four prior plan docs** (`POLYSELECT_OPTIMIZATION_NOTES.md` original, `TRANS_KERNEL_PLAN.md`, `TWO_LEVEL_SCATTER_PLAN.md`, `FUSED_TRANS_SCATTER_PLAN.md`). The full version history is in git; this file is the working reference going forward.
 
+## Current conclusions (2026-10-23)
+
+The CPU pipeline is complete on **1,687,829 distinct candidates across eight
+coefficients**, including 180180 and 360360. The full output passed resultant
+checks; the top-1,000 effort-50 inputs joined exactly, and all 300 CADO ropt
+outputs plus the top 10 from each msieve pass have verified origin proofs.
+The best reported CADO result comes from **831600** (Murphy E 1.071e-14,
+1.07531957e-14 in the saved skewopt report); the msieve winner comes from
+**360360** (1.046e-14). The CADO winner's audited discovery has q=3,685,044,133,
+about 94.6% through that coefficient's batch traversal.
+
+Full scoring revises the 831600 <=56 yield from the sampled 470/hour to
+**591/hour**. The new 360360 run gives **697/hour** and 71 of the global top 300
+effort-0 seeds; 180180 gives **594/hour**, close to 277200's 586/hour. These are
+observed stage-1 elapsed-hour rates, not estimates of isolated GPU speed or
+proof of a general coefficient policy. The first timing remains unsuitable
+for direct comparisons. The GPU workflow is running separately and includes
+CPU/GPU rescoring under common job parameters; no new GPU work was started here.
+
+See the [completed CPU review](stage23_bench/runs/20261023_as660_cpu_review/README.md)
+for exact tail counts, top-300 origins, proofs, settings, and limitations. The
+subsequent archive work completed the full collision audits for 180180 and
+360360: all 517,661 new returned hits reconstruct and join to raw output, with
+no saturation, hash caps, or unmatched rows. All eight coefficients are now
+audited: 1,755,106 raw outputs / 1,687,829 distinct identities. Outside-sopt-cutoff
+controls remain pending. The October 22 proposal to launch full CPU scoring/ropt below
+is now superseded by the user's completed pipeline.
+
+The [archive and compact research index](stage23_bench/runs/20261023_stage1_archive/README.md)
+retain all candidate discoveries in 149.45 MiB and logarithmic exposure for
+1,141,047,425 searched q-root occurrences. All candidate IDs were recomputed
+from N/ad/P/m during readback. Full sidecars are losslessly preserved as zstd
+archives; the manifest records hashes, reconstruction ranges, and cleanup state.
+The main auditor supports compressed originals and archived extracted paths.
+Cleanup is complete: five verified archives occupy 15.527 GiB; the five original
+files and five redundant extracts were removed, reclaiming about 59.0 GiB after
+accounting for compact provenance. All ten old paths resolve through the archive
+reader after deletion. GPU work and polynomial inputs/results were untouched.
+
+| Question | Current evidence | Consequence |
+|---|---|---|
+| Corpus integrity | All eight coefficients independently collision-audited and CPU-scored; 1,687,829 distinct identities | Use the compact provenance and exposure index for further analysis |
+| Coefficient productivity | Full-corpus cutoff rates are available; 360360 leads the observed <=56 and <=57 rates | Promising family; no established general allocation optimum |
+| Final quality | CPU selection/ropt complete; CADO winner originates from 831600, msieve winner from 360360 | Await common-parameter CPU/GPU comparison; retain outside-cutoff controls as a research task |
+| Q magnitude | Larger linear q quarters have slightly better algebraic exp_E on average; log2 exposure is now saved for all eight coefficients | Join final scores to the saved logarithmic bins; do not change q coverage yet |
+| Discovery order | No detected mean-score deterioration across traversal quarters | No demonstrated quality-based early stopping rule |
+| Admission norm | First-six maximum returned gate ratio 0.00136953; all eight coefficients' returned hits pass | No rejected population here; changing norm also changes geometry |
+| Stage-1 speed | Representative C196 profiles exist; no launch/metadata speed change accepted | Reprofile and benchmark only with an available, uncontended GPU |
+
+### October 22 review: sample-based elapsed-time normalization
+
+Claude's per-hour table is reproduced exactly by
+`stage23_bench/runs/20261022_as660_six_coefficients/compare_productivity.py`;
+inputs, hashes, rational-side diagnostics, and results are saved in
+`productivity-comparison.json` there. Rate is
+`distinct_count * sampled_fraction * 3600 / recorded_stage1_seconds`.
+These are recorded stage-1 elapsed hours, including host work and logging within
+that timing scope, not isolated GPU-busy hours or total stage-1/2/3 pipeline cost.
+
+| a_d | q roots/s | Estimated exp_E <=56 / elapsed hour (95%) | Estimated exp_E <=57 / elapsed hour |
+|---|---:|---:|---:|
+| 138600* | 8,276 | 581 (493–684) | 4,582 |
+| 277200 | 10,010 | 575 (478–692) | 5,300 |
+| 415800 | 10,141 | 591 (491–713) | 5,057 |
+| 554400 | 10,970 | 564 (463–685) | 5,322 |
+| 693000 | 11,121 | 559 (453–688) | 5,285 |
+| 831600 | 11,734 | 470 (374–591) | 5,484 |
+
+*The first coefficient used CLOCK_MONOTONIC under contention; later coefficients
+use CLOCK_MONOTONIC_RAW. Do not rank the first rate against the others or treat
+an extrapolated ~670/hour as a corrected measurement. Clock effects and contention
+cannot be separated from these totals. Later nominal entry throughput spans
+6.11–6.50 billion entries/s (entries/q times q roots/s), explaining much of the
+q-root rate increase as entry counts fall. Wilson intervals include only sample
+uncertainty conditional on the recorded times. They omit timing uncertainty and
+variation between future runs; overlapping intervals are not an equivalence test.
+
+The earlier statement that extra candidate density does not compensate for the
+quality shift applies **per q root**, not per elapsed hour. At <=57 there is no
+monotone loss with increasing a_d; at <=56 the later estimates overlap widely.
+The 831600 point estimate is lower at <=56 but does not establish a reliable loser.
+These exploratory cutoffs use printed score precision and are not final Murphy E.
+
+### Score interpretation and next work
+
+The local CADO `polyselect/auxiliary.c:211` defines algebraic exp_E as lognorm
+plus expected rotation gain; `:350` and `:363` include projective alpha in that
+gain. Do not add current alpha or projective alpha again. Claude's temporary
+`alpha.py` has a stale contrary comment and its exp_E+alpha column is not a
+corrected score. The rational L2 diagnostic at the printed algebraic skew
+reproduces: coefficient means range 79.869–79.900, with differences from 138600
+between -0.0234 and +0.0079. This supports first-order comparability, not exact
+equality of final sieving quality. Within q bins, adding this diagnostic reverses
+the high-minus-low mean sign for 554400 and 693000. The sum itself is not Murphy E.
+
+Next score all 1,190,117 distinct candidates using the same frozen CPU sopt binary,
+explicit effort 0, and candidate IDs. Report exact observed tail counts, elapsed-hour
+yields, and origins of the global top 300, with deterministic handling of rounded
+score ties. Full scoring removes subsampling uncertainty for this corpus, not
+uncertainty about future coefficients. The current C196 samples took roughly
+98–191 s per 10,000 on one low-priority worker: budget roughly 3–6 serial hours
+before overhead, not the unverified C184 runtime. A few CPU workers may reduce
+wall time, but reserve CPU capacity for the active stage-1 producer. The generic
+`dedupe_and_sopt.sh` does not explicitly fix effort or retain these audit IDs;
+use an isolated, identity-preserving run rather than its default output paths.
+
+Then run broad/deep root optimization on the top seeds with common Murphy-E
+parameters and explicit parent IDs. For research, supplement the global top 300
+with a fixed per-coefficient quota and a stratified control sample outside that
+cutoff, including q strata. Top-300 origins alone mix corpus size, runtime, and
+score selection and cannot settle allocation or measure missed finalists.
+Keep polynomial selection for the real C196 and inference about search policy
+as distinct outputs of the same experiment. Full scoring/ropt have not started.
+
+The user's 180180 run is a useful new coefficient: it is 13/10 times 138600,
+replacing one factor of 2 and one of 5 with 13. Size and divisibility both change;
+it is not an isolated factorial comparison. Audit its completed output and apply
+the same scoring pipeline. Add log2 q bins (q=1 separate), with searched-root
+exposure from the sidecars and explicit multiple-discovery attribution. Neither
+the present linear-quarter association nor log bins within q<=2^32 justify an
+extrapolation beyond that clip or predict the B_transition norm-sweep result.
+Once the GPU is available, time identical fixed 138600 work without contention
+using the current clock, retaining setup separately and matching q/workload shape.
+
+### Correctness and artifact handling
+
+The shutdown drain applies to **all GPU stage-1 runs**, including runs without
+provenance and graceful Ctrl-C shutdown. `gpu_data_free` now drains queued stage-2
+tasks after stopping the GPU producer; `threadpool_free` alone discards queued
+tasks. This can extend graceful shutdown while preserving pending polynomial
+expansion. It does not guarantee survival of SIGKILL or a second forced interrupt.
+The earlier review log mentioned the drain but did not make its default-path scope
+clear. Keep three logical commits when preparing changes: prefix correctness,
+stage-2 shutdown correctness, then provenance/q-window/aprog instrumentation.
+No commits were made as part of this review.
+
+Per-run narratives now live in their run-directory READMEs, linked below. Original
+production files and analysis snapshots remain intact; no compression or deletion
+was performed. There is currently ample free disk space. If reclaiming storage,
+compress only closed artifacts, verify decompression hashes, and update readers
+and manifests before removing redundant copies; preserve active production files.
+This review used only saved CPU results and source; it did not touch the GPU run.
+
+## Six complete C196 coefficients (2026-10-22)
+
+All six completed coefficients passed the audit: 1,237,445 outputs and 1,190,117 distinct identities. The 60,000-candidate sopt sample is complete; elapsed-time normalization supersedes interpreting per-q yield as productivity.
+
+[Full run record](stage23_bench/runs/20261022_as660_six_coefficients/README.md).
+
+## Third complete C196 coefficient (2026-10-21)
+
+The third coefficient passed reconstruction and output joins; its 10,000-candidate CPU sample completed.
+
+[Full run record](stage23_bench/runs/20261021_as660_third_coefficient/README.md).
+
+## Second complete C196 coefficient and CPU quality samples (2026-10-21)
+
+The second coefficient passed the audit. Frozen CPU sopt samples for the first two coefficients preserve exact candidate identities.
+
+[Full run record](stage23_bench/runs/20261021_as660_two_coefficients/README.md).
+
+## Provenance code-review follow-up (2026-10-20)
+
+All 15 review items were checked and addressed or qualified. Schema 2, runtime PTX hashing, RAW timing, bounded streaming, and graceful error handling passed the documented regressions. The <=1% logging-overhead goal remains unproven.
+
+[Full run record](stage23_bench/runs/20261020_stage1_review/README.md).
+
+## First complete C196 coefficient (2026-10-20)
+
+The first complete coefficient and representative GPU profiles are archived. Its elapsed time is affected by contention and the older clock; it is not a clean performance baseline.
+
+[Full run record](stage23_bench/runs/20261020_as660_first_coefficient/README.md).
+
+## Prefix fix and provenance implementation (2026-10-20)
+
+The prefix fix, optional provenance, q windows, and fixed-progression controls passed arithmetic, parser, and bounded GPU checks. Later review fixes and production results supersede the original pending-work list.
+
+[Full run record](stage23_bench/runs/20261020_stage1_provenance/README.md).
+
 ## Profile and source audit (2026-10-19)
+
+The ordered implementation plan, provenance requirements, and proposed C196
+quality experiments are in
+[the execution roadmap](POLYSELECT_RANKING_IMPROVEMENT_PLAN.md#execution-roadmap-and-c196-search-2026-10-19).
+After the review, start with the isolated prefix-width correctness issue,
+provenance, and a representative C196 baseline. Use measured C196 launch shapes
+to select tuning targets; the c157 sparse-group finding is not a universal priority.
 
 Read-only performance investigation of the saved reports and current production
 source; no new GPU timings or kernel changes. The May conclusions below describe
@@ -51,8 +237,8 @@ SMs can work on this launch, with only one useful warp per block. The group's
 time and about 6.3% of total kernel time. The earlier arena trace independently
 shows 4.261 s for the same shape.
 
-**First experiment:** increase q-axis subdivision specifically for this sparse
-group, and test a warp-sized x block. There are 356 q records in a normal batch,
+**Candidate experiment:** increase q-axis subdivision for this sparse
+group, and test a warp-sized x block. There are 356 q records in a saved normal batch,
 so considerably more independent q tiles are available. More tiles increase the
 number of modular inversions and may split runs of equal q; benchmark that
 tradeoff. This is different from the reverted *decrease-only* wave-alignment
@@ -72,14 +258,22 @@ or **139.88 MB of 32-bit metadata capacity**. Nearly all valid slots are rewritt
 every batch. The collision scan only fetches a slot's metadata after matching a
 candidate; the May counters record roughly 2,826 matched values per batch.
 
-**Experiment:** initialize all metadata slots once per coefficient/layout, then
-use a Gerbicz trans variant that only writes roots. Initialize even slots whose
-roots are zero in the first batch: gcd validity can change in later batches.
-Refresh when the p arrays, shift, or arithmetic-progression layout changes, and
-preserve the existing behavior for the sorting engine. This avoids a repeated
-large store stream without fusing bucket scatter into the register-heavy trans
-kernel. A later alternative is to reconstruct metadata only for matches using
-the original index and a small per-entry p map; that is a larger interface change.
+**Preferred experiment after review:** reconstruct metadata only for matches.
+For global slot `tid`, `E = num_entries`, `Q = current batch root count`, and
+`plane = E*Q`, decode
+`q_index = (tid % plane) / E` and `p = p_of_entry[tid % E]`.
+The per-entry table follows the concatenated root-group layout, including repeated
+p values for their roots. It is about 393 KB for the saved 98,231 entries. This
+removes both the repeated store stream and the roughly 140 MB metadata buffer.
+Update both normal and fallback match paths and the host/DSO interface together;
+validate partial batches, progression planes, root groups, and sort behavior.
+
+One caveat to the review's small-change estimate: `sieve_kernel_trans_pp32_r64`
+uses `p_out` as prefix scratch as well as final metadata (`stage1_core.cu:299,314`).
+Removing the array for every Gerbicz kernel variant requires preserving or
+replacing that scratch use. The c157/C196 pp64 path uses `roots_out` instead.
+Pre-initialization remains a fallback experiment; it requires initialization of
+even initially invalid slots and refresh on layout/shift changes.
 
 ### 3. Trans repeatedly reads its own prefix-product scratch
 
@@ -102,7 +296,22 @@ expensive memory dependency:
   a start root. Together these four sites account for about 96% of the captured
   long-scoreboard samples.
 
-**Experiments:** prefetch the next prefix while working on the current one;
+**First experiment within the launch sweep:** increase q subdivision. The saved
+dominant launch gives each thread about 119 q records; 48 SMs × 5 resident blocks
+× 224 threads × 119 prefixes × 8 bytes is about 51.2 MB, versus the GPU's 48 MiB
+L2. Twelve q tiles instead of three would reduce that nominal per-wave prefix
+footprint to about 12.9 MB. These are working-set estimates, not measured cache
+residency: other arrays, overlapping blocks, scheduling, and cache policy matter.
+Measure prefix-load L2 hits/traffic, DRAM traffic, and elapsed time for both
+variants. One capture or the 62.4% stall attribution alone cannot establish a
+speedup. Extra tiles also repeat modular inversions.
+
+The medium `(21,10–11)` launch has 210–231 blocks versus 192 resident blocks
+under a four-block/SM limit: test its possible partial-wave tail too. Treat this
+as one launch-heuristic sweep across groups, rather than hard-coding a fix for
+the old five-block group.
+
+**Subsequent experiments:** prefetch the next prefix while working on the current one;
 investigate read-only/alias annotations for q and start-root inputs; consider
 bounded q tiles that retain some prefixes on chip. Preserve the batch-inversion
 algorithm and track registers: 56 to 64 registers would cross the five-block
@@ -165,19 +374,45 @@ Nevertheless, keep invariant setup out of the batch loop, consider deferring
 safe arena-success/overflow decisions to device code, and measure an unprofiled
 run before deciding whether broader orchestration changes are worthwhile.
 
-### Suggested experiment order
+The next batch's q roots are generated on the host after the preceding collision
+work and found-array synchronization. Measure that uncovered interval in the
+initial C196 baseline, alongside p setup and the upfront q-root count. Preparing
+the next batch concurrently may outrank kernel tuning if its measured share is
+large; it needs independent mutable state and buffers. Do not estimate an 18 s
+host gap by subtracting the 70 s instrumented kernel total from the unrelated
+88 s unprofiled run. Existing batch CUDA events span host-mediated launch gaps
+as well as GPU work; distinguish elapsed event spans from active GPU intervals.
 
-1. Sparse 25-root-group q subdivision (clear underutilization, localized change).
-2. Reuse p/q metadata on Gerbicz batches (large repeated write stream).
-3. Filter block-size sweep with unchanged hash/convergence semantics.
-4. Prefix-load prefetch/cache experiments, then bounded on-chip filter survivors.
-5. Reduce host round trips where the preceding changes leave material overhead.
+### Correctness and allocation findings from the review
 
-Use fixed coefficients 420 and 60060, canonical polynomial-set parity, and both
-unprofiled wall time and per-launch-shape timing. Capture the sparse group itself
-with NCU; the existing detailed trans captures do not cover that five-block
-launch. Include partial batches and `num_aprog_vals > 1` when validating metadata
-reuse. None of the proposed speedups has been measured yet.
+- `sieve_kernel_trans_pp64_r64` loads a 64-bit prefix into a `uint32` at
+  `stage1_core.cu:502`, then tests for zero. A nonzero prefix with zero low bits
+  is skipped incorrectly. Fix separately with a targeted arithmetic-reference
+  regression before setting the new parity baseline. The asserted rate of
+  about 0.6 occurrences per coefficient-420 run is unverified; output effects
+  should be measured, not assumed to be uniform across all roots in a tile.
+- Both sort scratch arrays are allocated even for Gerbicz
+  (`stage1_sieve_gpu.c:1707,1709`), but their uses are in the sort branch.
+  At single-worker caps, 50M × 4 plus 35M × 8 bytes is **480 MB decimal**.
+  Allocate/free them conditionally, preserving sort pointer-swapping and cleanup.
+  This saves capacity; it does not by itself demonstrate faster execution.
+
+### Revised experiment order
+
+1. Isolate and validate the prefix-width fix; establish corrected references.
+2. Add provenance/controlled q windows before a substantial C196 run.
+3. Measure C196 launch shapes and host/device costs; start the useful search.
+4. Sweep trans launch geometry and test index-derived metadata independently.
+   Remove sort-only scratch independently; prioritize host overlap if measured
+   uncovered work justifies it. Tune in gaps without contaminating benchmarks.
+5. Retain filter/prefetch experiments as follow-ups selected by remaining cost.
+
+Use c157 coefficients 420/60060 for regression diagnostics, plus representative
+C196 fixed work. The roadmap specifies >=5 interleaved A/B pairs, >=2% median
+coefficient-time improvement with a 95% interval favoring the variant, and
+investigation of >2% regressions. Measure startup separately. Require corrected
+canonical polynomial-set parity, including partial batches and multiple
+progressions. None of the proposed speedups has been measured yet.
 
 ## Current state (2026-05-26)
 

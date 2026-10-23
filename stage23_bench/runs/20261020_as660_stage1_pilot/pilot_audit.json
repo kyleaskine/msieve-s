@@ -1,0 +1,18 @@
+{
+  "counts": {
+    "batches": 227,
+    "qroots": 11751,
+    "returned_hits": 20,
+    "admitted_hits": 20,
+    "valid_hits": 20,
+    "unique_candidates": 20,
+    "repeated_qroot_work": 0,
+    "unmatched_raw": 0,
+    "unmatched_sopt": 0,
+    "unmatched_ropt": 0,
+    "raw_links": 20,
+    "sopt_links": 20,
+    "ropt_links": 0
+  },
+  "incomplete": []
+}

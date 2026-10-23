@@ -1,0 +1,5 @@
+{
+  "complete": true,
+  "note": "q=1 has bin 0; each bin b>=1 covers [2^b,2^(b+1)-1]. Exposure counts searched roots, not only hits. No per-q time is inferred.",
+  "candidates": 1687829
+}

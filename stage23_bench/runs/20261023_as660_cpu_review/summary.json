@@ -1,0 +1,193 @@
+{
+  "total_pairs": 1687829,
+  "distinct_identities": 1687829,
+  "duplicate_identity_counts": {},
+  "top_counts": {
+    "100": {
+      "360360": 26,
+      "415800": 21,
+      "831600": 8,
+      "277200": 4,
+      "138600": 13,
+      "554400": 9,
+      "180180": 6,
+      "693000": 13
+    },
+    "300": {
+      "360360": 71,
+      "415800": 52,
+      "831600": 29,
+      "277200": 20,
+      "138600": 43,
+      "554400": 21,
+      "180180": 33,
+      "693000": 31
+    },
+    "1000": {
+      "360360": 216,
+      "415800": 175,
+      "831600": 96,
+      "277200": 104,
+      "138600": 137,
+      "554400": 74,
+      "180180": 107,
+      "693000": 91
+    }
+  },
+  "top300_cutoff": 54.4,
+  "top1000_cutoff": 54.85,
+  "top1000_cutoff_tie_population": 27,
+  "header_counts": {
+    "raw": 1687829,
+    "opt": 1687829
+  },
+  "coefficients": {
+    "138600": {
+      "count": 179993,
+      "minimum": 52.96,
+      "thresholds": {
+        "54": 13,
+        "55": 187,
+        "56": 2313,
+        "57": 20242
+      },
+      "seconds": 15725.546966864,
+      "per_elapsed_hour": {
+        "54": 2.9760491065025825,
+        "55": 42.809321762767915,
+        "56": 529.5078141031133,
+        "57": 4633.937385678867
+      }
+    },
+    "180180": {
+      "count": 161826,
+      "minimum": 53.22,
+      "thresholds": {
+        "54": 6,
+        "55": 166,
+        "56": 2034,
+        "57": 18490
+      },
+      "seconds": 12332.393956659,
+      "per_elapsed_hour": {
+        "54": 1.7514847543721925,
+        "55": 48.45774487096399,
+        "56": 593.7533317321733,
+        "57": 5397.49218472364
+      }
+    },
+    "277200": {
+      "count": 156518,
+      "minimum": 52.72,
+      "thresholds": {
+        "54": 4,
+        "55": 144,
+        "56": 1755,
+        "57": 16063
+      },
+      "seconds": 10779.248365242,
+      "per_elapsed_hour": {
+        "54": 1.335900195641954,
+        "55": 48.09240704311034,
+        "56": 586.1262108379074,
+        "57": 5364.641210649177
+      }
+    },
+    "360360": {
+      "count": 335886,
+      "minimum": 52.46,
+      "thresholds": {
+        "54": 27,
+        "55": 334,
+        "56": 4227,
+        "57": 37951
+      },
+      "seconds": 21826.794492836,
+      "per_elapsed_hour": {
+        "54": 4.45324209342343,
+        "55": 55.08825404457133,
+        "56": 697.1797899592904,
+        "57": 6259.444099537504
+      }
+    },
+    "415800": {
+      "count": 296586,
+      "minimum": 52.66,
+      "thresholds": {
+        "54": 21,
+        "55": 252,
+        "56": 3040,
+        "57": 28051
+      },
+      "seconds": 19677.31607431,
+      "per_elapsed_hour": {
+        "54": 3.8419873784870817,
+        "55": 46.10384854184498,
+        "56": 556.1734109809871,
+        "57": 5131.980378759102
+      }
+    },
+    "554400": {
+      "count": 147028,
+      "minimum": 53.08,
+      "thresholds": {
+        "54": 9,
+        "55": 110,
+        "56": 1434,
+        "57": 13703
+      },
+      "seconds": 9298.420662954,
+      "per_elapsed_hour": {
+        "54": 3.4844627033368587,
+        "55": 42.58787748522827,
+        "56": 555.1910573983395,
+        "57": 5305.288047091663
+      }
+    },
+    "693000": {
+      "count": 218988,
+      "minimum": 53.49,
+      "thresholds": {
+        "54": 14,
+        "55": 131,
+        "56": 1773,
+        "57": 17210
+      },
+      "seconds": 12276.689110059,
+      "per_elapsed_hour": {
+        "54": 4.105341395238589,
+        "55": 38.41426591258965,
+        "56": 519.9121638398584,
+        "57": 5046.637529432579
+      }
+    },
+    "831600": {
+      "count": 191004,
+      "minimum": 52.7,
+      "thresholds": {
+        "54": 8,
+        "55": 136,
+        "56": 1751,
+        "57": 16680
+      },
+      "seconds": 10669.505495903,
+      "per_elapsed_hour": {
+        "54": 2.6992816125413643,
+        "55": 45.88778741320319,
+        "56": 590.8052629449911,
+        "57": 5628.002162148745
+      }
+    }
+  },
+  "resopt_input_sha256": "1a4401db5b58ad99b47a553a268a27cc520eefdc30e02b3fd9fa33463bda7191",
+  "frozen_manifest_sha256": "218a45d8f2724f754a04e14d3c5b4568df45a8cccd61fbca56f2928cad53c865",
+  "interpretation": [
+    "Counts are exact for printed CPU effort-0 scores in this saved corpus, not future-search expectations.",
+    "Top sets use printed exp_E then original concatenated output order to break ties.",
+    "Original coefficient comes from the printed raw input, not optimized c5.",
+    "First coefficient timing has contention and a different clock. Other rates use recorded stage-1 elapsed seconds, not GPU busy time.",
+    "The two new sidecars were checked for completed endings only; a full independent collision audit remains pending.",
+    "CPU root optimization used sopt-selected seeds; it is not an unbiased comparison of coefficient populations.",
+    "Scores from different evaluators/settings must be rescored together before a definitive CPU/GPU comparison."
+  ]
+}

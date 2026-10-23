@@ -1,0 +1,255 @@
+{
+  "q": {
+    "per_coefficient": {
+      "138600": {
+        "first_n": 2733,
+        "last_n": 2338,
+        "first_mean": 58.65201609952433,
+        "last_mean": 58.55765611633875,
+        "mean_difference": -0.09435998318558347,
+        "first_median": 58.38,
+        "last_median": 58.22
+      },
+      "277200": {
+        "first_n": 2911,
+        "last_n": 2338,
+        "first_mean": 58.59734455513569,
+        "last_mean": 58.54856715141146,
+        "mean_difference": -0.04877740372423034,
+        "first_median": 58.3,
+        "last_median": 58.22
+      },
+      "415800": {
+        "first_n": 2918,
+        "last_n": 2233,
+        "first_mean": 58.68883139136395,
+        "last_mean": 58.60651589789521,
+        "mean_difference": -0.0823154934687409,
+        "first_median": 58.38,
+        "last_median": 58.29
+      },
+      "554400": {
+        "first_n": 2635,
+        "last_n": 2393,
+        "first_mean": 58.663199240986714,
+        "last_mean": 58.642043460091934,
+        "mean_difference": -0.021155780894780207,
+        "first_median": 58.38,
+        "last_median": 58.32
+      },
+      "693000": {
+        "first_n": 2864,
+        "last_n": 2316,
+        "first_mean": 58.73972416201117,
+        "last_mean": 58.69130397236615,
+        "mean_difference": -0.048420189645021594,
+        "first_median": 58.504999999999995,
+        "last_median": 58.37
+      },
+      "831600": {
+        "first_n": 2755,
+        "last_n": 2282,
+        "first_mean": 58.67680580762251,
+        "last_mean": 58.625363716038564,
+        "mean_difference": -0.05144209158394375,
+        "first_median": 58.4,
+        "last_median": 58.33
+      }
+    },
+    "equally_weighted_mean_difference": -0.05774515708371671,
+    "stratified_bootstrap95": [
+      -0.08769808029504272,
+      -0.029111871120843076
+    ]
+  },
+  "chronology": {
+    "per_coefficient": {
+      "138600": {
+        "first_n": 2465,
+        "last_n": 2549,
+        "first_mean": 58.611257606490874,
+        "last_mean": 58.578360141231855,
+        "mean_difference": -0.03289746525901904,
+        "first_median": 58.31,
+        "last_median": 58.2
+      },
+      "277200": {
+        "first_n": 2478,
+        "last_n": 2419,
+        "first_mean": 58.556307506053265,
+        "last_mean": 58.640115750310045,
+        "mean_difference": 0.08380824425677957,
+        "first_median": 58.23,
+        "last_median": 58.38
+      },
+      "415800": {
+        "first_n": 2425,
+        "last_n": 2572,
+        "first_mean": 58.656841237113404,
+        "last_mean": 58.647041213063765,
+        "mean_difference": -0.009800024049638978,
+        "first_median": 58.35,
+        "last_median": 58.31
+      },
+      "554400": {
+        "first_n": 2456,
+        "last_n": 2537,
+        "first_mean": 58.65144951140065,
+        "last_mean": 58.66309420575483,
+        "mean_difference": 0.011644694354181695,
+        "first_median": 58.36,
+        "last_median": 58.37
+      },
+      "693000": {
+        "first_n": 2452,
+        "last_n": 2530,
+        "first_mean": 58.69891924959217,
+        "last_mean": 58.66250988142293,
+        "mean_difference": -0.036409368169245226,
+        "first_median": 58.394999999999996,
+        "last_median": 58.394999999999996
+      },
+      "831600": {
+        "first_n": 2435,
+        "last_n": 2514,
+        "first_mean": 58.67200821355236,
+        "last_mean": 58.68115354017502,
+        "mean_difference": 0.00914532662265799,
+        "first_median": 58.42,
+        "last_median": 58.425
+      }
+    },
+    "equally_weighted_mean_difference": 0.004248567959286002,
+    "stratified_bootstrap95": [
+      -0.02393793296833184,
+      0.03941347095606966
+    ]
+  },
+  "exploratory_threshold_yield": {
+    "56.0": {
+      "138600": {
+        "sample_count_at_or_below": 141,
+        "sample_size": 10000,
+        "estimated_candidates_per_million_qroots": 19.500701614584116,
+        "approximate_wilson95": [
+          16.552926186319972,
+          22.96460021205306
+        ]
+      },
+      "277200": {
+        "sample_count_at_or_below": 110,
+        "sample_size": 10000,
+        "estimated_candidates_per_million_qroots": 15.956260536964331,
+        "approximate_wilson95": [
+          13.251295537375862,
+          19.20600737978053
+        ]
+      },
+      "415800": {
+        "sample_count_at_or_below": 109,
+        "sample_size": 10000,
+        "estimated_candidates_per_million_qroots": 16.200368794353963,
+        "approximate_wilson95": [
+          13.44250700749856,
+          19.516535427764587
+        ]
+      },
+      "554400": {
+        "sample_count_at_or_below": 99,
+        "sample_size": 10000,
+        "estimated_candidates_per_million_qroots": 14.269736417781841,
+        "approximate_wilson95": [
+          11.731412638764967,
+          17.350611474925813
+        ]
+      },
+      "693000": {
+        "sample_count_at_or_below": 87,
+        "sample_size": 10000,
+        "estimated_candidates_per_million_qroots": 13.953998032915322,
+        "approximate_wilson95": [
+          11.322089602608571,
+          17.19111006052279
+        ]
+      },
+      "831600": {
+        "sample_count_at_or_below": 73,
+        "sample_size": 10000,
+        "estimated_candidates_per_million_qroots": 11.137087519548102,
+        "approximate_wilson95": [
+          8.864399875144768,
+          13.987081955336587
+        ]
+      }
+    },
+    "57.0": {
+      "138600": {
+        "sample_count_at_or_below": 1112,
+        "sample_size": 10000,
+        "estimated_candidates_per_million_qroots": 153.7927673433868,
+        "approximate_wilson95": [
+          145.4763921092224,
+          162.52212608894615
+        ]
+      },
+      "277200": {
+        "sample_count_at_or_below": 1014,
+        "sample_size": 10000,
+        "estimated_candidates_per_million_qroots": 147.08771076801668,
+        "approximate_wilson95": [
+          138.7263596511012,
+          155.89313150192717
+        ]
+      },
+      "415800": {
+        "sample_count_at_or_below": 932,
+        "sample_size": 10000,
+        "estimated_candidates_per_million_qroots": 138.52058455355865,
+        "approximate_wilson95": [
+          130.2824798972468,
+          147.22304907815646
+        ]
+      },
+      "554400": {
+        "sample_count_at_or_below": 935,
+        "sample_size": 10000,
+        "estimated_candidates_per_million_qroots": 134.76973283460626,
+        "approximate_wilson95": [
+          126.7684141291478,
+          143.22105581380202
+        ]
+      },
+      "693000": {
+        "sample_count_at_or_below": 823,
+        "sample_size": 10000,
+        "estimated_candidates_per_million_qroots": 132.0016135757392,
+        "approximate_wilson95": [
+          123.61726883585864,
+          140.9004983982424
+        ]
+      },
+      "831600": {
+        "sample_count_at_or_below": 851,
+        "sample_size": 10000,
+        "estimated_candidates_per_million_qroots": 129.83097916623882,
+        "approximate_wilson95": [
+          121.72845728077543,
+          138.41964797223338
+        ]
+      }
+    }
+  },
+  "interpretation": [
+    "Last minus first quarter; lower exp_E is better. Each of the six coefficients gets equal weight.",
+    "Only candidates whose discoveries all belong to one quarter enter that quarter.",
+    "Bootstrap independently resamples candidates within each coefficient/quarter; 400 resamples.",
+    "Intervals describe sample uncertainty for these six fixed coefficients, not variation across future coefficients.",
+    "Exploratory associations, without multiplicity correction or a causal claim about q magnitude.",
+    "Mean-score comparisons do not establish equality of extreme tails or final root-optimized quality.",
+    "Chronology is batch traversal order, not q magnitude or elapsed wall time.",
+    "Exploratory sopt thresholds 56.0 and 57.0 were selected after seeing preliminary summaries; comparisons are not confirmatory.",
+    "Threshold yield multiplies the uniform distinct-candidate sample fraction by full-corpus distinct candidates per million q roots.",
+    "Wilson intervals approximate sample uncertainty using a binomial model; finite-population correction is omitted.",
+    "Threshold yield is not a runtime-normalized or final Murphy-E productivity measure."
+  ]
+}

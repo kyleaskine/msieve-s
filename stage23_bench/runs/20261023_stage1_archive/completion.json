@@ -1,0 +1,58 @@
+{
+  "old_paths_checked": [
+    {
+      "original": "as660-stage1.w0.jsonl",
+      "archive": "as660-stage1.w0.jsonl.zst",
+      "header_matches": true
+    },
+    {
+      "original": "as660-stage1-b.w0.jsonl",
+      "archive": "as660-stage1-b.w0.jsonl.zst",
+      "header_matches": true
+    },
+    {
+      "original": "as660-stage1-c.w0.jsonl",
+      "archive": "as660-stage1-c.w0.jsonl.zst",
+      "header_matches": true
+    },
+    {
+      "original": "as660-stage1-d.w0.jsonl",
+      "archive": "as660-stage1-d.w0.jsonl.zst",
+      "header_matches": true
+    },
+    {
+      "original": "as660-stage1-e.w0.jsonl",
+      "archive": "as660-stage1-e.w0.jsonl.zst",
+      "header_matches": true
+    },
+    {
+      "original": "stage23_bench/runs/20261021_as660_two_coefficients/second.w0.jsonl",
+      "archive": "as660-stage1-b.w0.jsonl.zst",
+      "header_matches": true
+    },
+    {
+      "original": "stage23_bench/runs/20261021_as660_third_coefficient/third.w0.jsonl",
+      "archive": "as660-stage1-b.w0.jsonl.zst",
+      "header_matches": true
+    },
+    {
+      "original": "stage23_bench/runs/20261022_as660_six_coefficients/554400/coefficient.w0.jsonl",
+      "archive": "as660-stage1-c.w0.jsonl.zst",
+      "header_matches": true
+    },
+    {
+      "original": "stage23_bench/runs/20261022_as660_six_coefficients/693000/coefficient.w0.jsonl",
+      "archive": "as660-stage1-c.w0.jsonl.zst",
+      "header_matches": true
+    },
+    {
+      "original": "stage23_bench/runs/20261022_as660_six_coefficients/831600/coefficient.w0.jsonl",
+      "archive": "as660-stage1-c.w0.jsonl.zst",
+      "header_matches": true
+    }
+  ],
+  "compact_bytes": 156714075,
+  "reclaimed_after_compact_bytes": 63359559756,
+  "archive_bytes": 16672205550,
+  "removed_files": 10
+}

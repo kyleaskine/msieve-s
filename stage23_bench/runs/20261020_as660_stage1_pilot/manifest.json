@@ -1,0 +1,56 @@
+{
+  "N": "5184281399253289650048739249977954636146648649154841032402503084170431558255812545256336207539389418586138434817233665795611460490353001750238696972875487153701880925292975881156462568098217049599",
+  "digits": 196,
+  "start_number": 660,
+  "input_source": "/home/kylea/msieve-s/worktodo.ini",
+  "input_sha256": "99adde9b4a4af4fb5c19278e25cd75821d7096c76c5ebcea562a09902ae3b423",
+  "revision": "e781bc97016d6ea2ff0a964eaa4a7b8fe5b3c8a7",
+  "reference": {
+    "degree": 5,
+    "min_coeff": 138600,
+    "high_coeff_mult": 138600,
+    "num_polys": 1600000
+  },
+  "pilot": {
+    "coefficient": 138600,
+    "windows": {
+      "low": [
+        1,
+        100000
+      ],
+      "middle": [
+        2147433648,
+        2147533647
+      ],
+      "high": [
+        4294867296,
+        4294967295
+      ]
+    },
+    "aprog": 1,
+    "gpu_mem_mb": 1024,
+    "workers": 1
+  },
+  "purpose": "Geometry/provenance pilot; every valid candidate retained. Not a quality ranking or controlled speed benchmark.",
+  "files": {
+    "bin/msieve": "d1371343316ebd9b6e4e5dc482ef0b1506d3d194713dbaba4043a4ca59637583",
+    "bin/stage1_core.ptx": "5517a4f0270ee1258bae09a3243f8b442a175ca8d7751a9c4fbb24aa47a747d3",
+    "bin/cub/collision_engine.so": "0b49cb06884eee1d8f086b5ad022666c03869f8210142cde423e45b5339d204a",
+    "bin/cub/sort_engine.so": "c5d9bdd33e5fc9d1418bfdb584eee7b8b3ad754b2269f7eee5bbbc2434f501df",
+    "source/Makefile": "f19d3d0c5b75a3b92aece7297ae42166e1a90a65971df85cefc5a7aa2987b911",
+    "source/working-tree.patch": "91d6129047e1616ce85e13de4527a4d1c331ef2bcfbdfdb08d122e5ecf41cfa5",
+    "source/cub/collision_engine.cu": "9e628b8be41549aa77fc874001446c29ff8b7990e098699a836579dffd9bce6f",
+    "source/cub/collision_engine.h": "711edfb9918c8f3397e13474a009fbe47614834bd05bf7a6705ebe53eb6cf7bc",
+    "source/gnfs/poly/poly_param.c": "ee31f3dbc24bd41cf88abbdd8d56c7b465b9fa0f8322cc6d98de3144d2f50444",
+    "source/gnfs/poly/stage1/stage1_roots.c": "f606285d0361b81b646e97e214ba3954aff38408985a0a3013d14a2f0e4960dc",
+    "source/gnfs/poly/stage1/stage1.c": "8ffd759b3498d77dd02463b6154cb19361f5fac0004d219e36cdb8d3818e1bad",
+    "source/gnfs/poly/stage1/stage1_sieve_gpu.c": "443224f9bed450344ebf6bdcf4b7ba1e11356b79289c7c6119fdd11bd2f93c7d",
+    "source/gnfs/poly/stage1/stage1_audit.h": "c6d3e892d8f70281b2be67d54bcaefafed880faeb3c99bc3bdb4955b45593b58",
+    "source/gnfs/poly/stage1/stage1_core_gpu/cuda_intrinsics.h": "0fb39a2c5c9ffcc8d2d55f6c3aee349dd831c3e3487fd7166fb64f73a4a05812",
+    "source/gnfs/poly/stage1/stage1_core_gpu/stage1_core.cu": "fd2fb38fec082c63de4034a42838bb213d611dfdff209e44444e8aa92b5c2fd4",
+    "source/gnfs/poly/stage1/stage1_core_gpu/stage1_core.h": "7ef34e2d11299caaeca6849e0e87e46b84c6c15143ab31e7fbd2a2b99fd8fdde",
+    "tools/stage1_provenance.py": "2bbb8f6772221a336aec38475c4055bcc1fc91a585b75a17df39891119d3f95e",
+    "tools/polyfmt.py": "ce6374220844beeefd73fd393f22c810661b959134ac5622641bf47f54600725"
+  },
+  "created": 1792490912.7821321
+}

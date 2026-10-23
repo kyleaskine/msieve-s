@@ -13,6 +13,7 @@ $Id: poly_skew.c 1025 2018-08-19 02:20:28Z jasonp_sf $
 --------------------------------------------------------------------*/
 
 #include "poly_skew.h"
+#include "stage1/stage1_audit.h"
 
 #define ROOTOPT_STAGE2_STEPS_ARG "rootopt_stage2_steps="
 #define ROOTOPT_STAGE2_START_ARG "rootopt_stage2_start="
@@ -173,6 +174,14 @@ void find_poly_core(msieve_obj *obj, mpz_t n,
 
 	if (obj->nfs_args != NULL) {
 		const char *tmp;
+		stage1_audit_options audit_options;
+
+		/* Validate before legacy comma/substr parsers can interpret a path. */
+		if (!stage1_audit_parse(obj->nfs_args, &audit_options)) {
+			fprintf(stderr, "invalid stage1 audit options (provenance prefixes "
+				"must not contain ',' or '=')\n");
+			exit(1);
+		}
 
 		tmp = strstr(obj->nfs_args, "min_coeff=");
 		if (tmp != NULL)

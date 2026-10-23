@@ -1,0 +1,379 @@
+{
+  "windows": {
+    "low": {
+      "status": {
+        "state": "validated",
+        "returncode": 0,
+        "process_seconds": 2.6793927709950367
+      },
+      "coefficient": {
+        "type": "coefficient",
+        "coefficient": 1,
+        "ad": "138600",
+        "configured_norm": 5.965531165413326e+29,
+        "effective_norm": 5.965531165413326e+29,
+        "m0": 1.3019223042029047e+38,
+        "coeff_max": 9.908406208865017e+26,
+        "pmin": 6835066,
+        "pmax": 16404160,
+        "qmin": 1,
+        "qmax": 100000
+      },
+      "setup": {
+        "type": "setup",
+        "coefficient": 1,
+        "entries_per_q": 662846,
+        "qroots_total": 5856,
+        "seconds": 1.197382586
+      },
+      "counts": {
+        "batches": 113,
+        "qroots": 5856,
+        "returned_hits": 7,
+        "admitted_hits": 7,
+        "valid_hits": 7,
+        "unique_candidates": 7,
+        "repeated_qroot_work": 0,
+        "unmatched_raw": 0,
+        "unmatched_sopt": 0,
+        "unmatched_ropt": 0,
+        "raw_links": 7,
+        "sopt_links": 0,
+        "ropt_links": 0
+      },
+      "q_batch_sizes": {
+        "52": 112,
+        "32": 1
+      },
+      "shapes": [
+        {
+          "group": 0,
+          "num_p": 487166,
+          "roots_per_p": 1,
+          "grid": [
+            1903,
+            1
+          ],
+          "threads": 256,
+          "q_tile": 52,
+          "calls": 112
+        },
+        {
+          "group": 1,
+          "num_p": 34476,
+          "roots_per_p": 5,
+          "grid": [
+            135,
+            2
+          ],
+          "threads": 256,
+          "q_tile": 26,
+          "calls": 112
+        },
+        {
+          "group": 2,
+          "num_p": 132,
+          "roots_per_p": 25,
+          "grid": [
+            1,
+            3
+          ],
+          "threads": 192,
+          "q_tile": 18,
+          "calls": 112
+        },
+        {
+          "group": 0,
+          "num_p": 487166,
+          "roots_per_p": 1,
+          "grid": [
+            1903,
+            1
+          ],
+          "threads": 256,
+          "q_tile": 32,
+          "calls": 1
+        },
+        {
+          "group": 1,
+          "num_p": 34476,
+          "roots_per_p": 5,
+          "grid": [
+            135,
+            1
+          ],
+          "threads": 256,
+          "q_tile": 32,
+          "calls": 1
+        },
+        {
+          "group": 2,
+          "num_p": 132,
+          "roots_per_p": 25,
+          "grid": [
+            1,
+            2
+          ],
+          "threads": 192,
+          "q_tile": 16,
+          "calls": 1
+        }
+      ],
+      "gate_ratio_range": [
+        6.124310783214754e-05,
+        0.0004140987535166388
+      ]
+    },
+    "middle": {
+      "status": {
+        "state": "validated",
+        "returncode": 0,
+        "process_seconds": 2.6854254259960726
+      },
+      "coefficient": {
+        "type": "coefficient",
+        "coefficient": 1,
+        "ad": "138600",
+        "configured_norm": 5.965531165413326e+29,
+        "effective_norm": 5.965531165413326e+29,
+        "m0": 1.3019223042029047e+38,
+        "coeff_max": 9.908406208865017e+26,
+        "pmin": 6835066,
+        "pmax": 16404160,
+        "qmin": 2147433648,
+        "qmax": 2147533647
+      },
+      "setup": {
+        "type": "setup",
+        "coefficient": 1,
+        "entries_per_q": 662846,
+        "qroots_total": 3065,
+        "seconds": 1.33046215
+      },
+      "counts": {
+        "batches": 59,
+        "qroots": 3065,
+        "returned_hits": 8,
+        "admitted_hits": 8,
+        "valid_hits": 8,
+        "unique_candidates": 8,
+        "repeated_qroot_work": 0,
+        "unmatched_raw": 0,
+        "unmatched_sopt": 0,
+        "unmatched_ropt": 0,
+        "raw_links": 8,
+        "sopt_links": 0,
+        "ropt_links": 0
+      },
+      "q_batch_sizes": {
+        "52": 58,
+        "49": 1
+      },
+      "shapes": [
+        {
+          "group": 0,
+          "num_p": 487166,
+          "roots_per_p": 1,
+          "grid": [
+            1903,
+            1
+          ],
+          "threads": 256,
+          "q_tile": 52,
+          "calls": 58
+        },
+        {
+          "group": 1,
+          "num_p": 34476,
+          "roots_per_p": 5,
+          "grid": [
+            135,
+            2
+          ],
+          "threads": 256,
+          "q_tile": 26,
+          "calls": 58
+        },
+        {
+          "group": 2,
+          "num_p": 132,
+          "roots_per_p": 25,
+          "grid": [
+            1,
+            3
+          ],
+          "threads": 192,
+          "q_tile": 18,
+          "calls": 58
+        },
+        {
+          "group": 0,
+          "num_p": 487166,
+          "roots_per_p": 1,
+          "grid": [
+            1903,
+            1
+          ],
+          "threads": 256,
+          "q_tile": 49,
+          "calls": 1
+        },
+        {
+          "group": 1,
+          "num_p": 34476,
+          "roots_per_p": 5,
+          "grid": [
+            135,
+            2
+          ],
+          "threads": 256,
+          "q_tile": 25,
+          "calls": 1
+        },
+        {
+          "group": 2,
+          "num_p": 132,
+          "roots_per_p": 25,
+          "grid": [
+            1,
+            3
+          ],
+          "threads": 192,
+          "q_tile": 17,
+          "calls": 1
+        }
+      ],
+      "gate_ratio_range": [
+        1.4228166622399719e-05,
+        0.0006570723807835288
+      ]
+    },
+    "high": {
+      "status": {
+        "state": "validated",
+        "returncode": 0,
+        "process_seconds": 3.8663160400028573
+      },
+      "coefficient": {
+        "type": "coefficient",
+        "coefficient": 1,
+        "ad": "138600",
+        "configured_norm": 5.965531165413326e+29,
+        "effective_norm": 5.965531165413326e+29,
+        "m0": 1.3019223042029047e+38,
+        "coeff_max": 9.908406208865017e+26,
+        "pmin": 6835066,
+        "pmax": 16404160,
+        "qmin": 4294867296,
+        "qmax": 4294967295
+      },
+      "setup": {
+        "type": "setup",
+        "coefficient": 1,
+        "entries_per_q": 662846,
+        "qroots_total": 2830,
+        "seconds": 1.956764952
+      },
+      "counts": {
+        "batches": 55,
+        "qroots": 2830,
+        "returned_hits": 5,
+        "admitted_hits": 5,
+        "valid_hits": 5,
+        "unique_candidates": 5,
+        "repeated_qroot_work": 0,
+        "unmatched_raw": 0,
+        "unmatched_sopt": 0,
+        "unmatched_ropt": 0,
+        "raw_links": 5,
+        "sopt_links": 0,
+        "ropt_links": 0
+      },
+      "q_batch_sizes": {
+        "52": 54,
+        "22": 1
+      },
+      "shapes": [
+        {
+          "group": 0,
+          "num_p": 487166,
+          "roots_per_p": 1,
+          "grid": [
+            1903,
+            1
+          ],
+          "threads": 256,
+          "q_tile": 52,
+          "calls": 54
+        },
+        {
+          "group": 1,
+          "num_p": 34476,
+          "roots_per_p": 5,
+          "grid": [
+            135,
+            2
+          ],
+          "threads": 256,
+          "q_tile": 26,
+          "calls": 54
+        },
+        {
+          "group": 2,
+          "num_p": 132,
+          "roots_per_p": 25,
+          "grid": [
+            1,
+            3
+          ],
+          "threads": 192,
+          "q_tile": 18,
+          "calls": 54
+        },
+        {
+          "group": 0,
+          "num_p": 487166,
+          "roots_per_p": 1,
+          "grid": [
+            1903,
+            1
+          ],
+          "threads": 256,
+          "q_tile": 22,
+          "calls": 1
+        },
+        {
+          "group": 1,
+          "num_p": 34476,
+          "roots_per_p": 5,
+          "grid": [
+            135,
+            1
+          ],
+          "threads": 256,
+          "q_tile": 22,
+          "calls": 1
+        },
+        {
+          "group": 2,
+          "num_p": 132,
+          "roots_per_p": 25,
+          "grid": [
+            1,
+            1
+          ],
+          "threads": 192,
+          "q_tile": 22,
+          "calls": 1
+        }
+      ],
+      "gate_ratio_range": [
+        7.974160376756034e-05,
+        0.0003125538503089923
+      ]
+    }
+  },
+  "unique_polynomials": 20,
+  "corpus": "pilot_candidates.ms",
+  "caution": "Small stratified pilot; shared-device state not controlled; no q-quality conclusion."
+}

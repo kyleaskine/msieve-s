@@ -1,0 +1,9 @@
+{
+  "binary": "/home/kylea/msieve-s/stage23_bench/runs/20261021_as660_two_coefficients/bin/sopt",
+  "binary_sha256": "093413e1f8909f1c882513adfdbfdf4fa87501f7c6344eec5e574dc7618f9704",
+  "effort": 0,
+  "threads": 1,
+  "sample_count": 10000,
+  "sample_sha256": "a0a3dff10b3f1b4d8cd46849bf814295f2a1c1bae7b7ed48349bc4e72ac0d0d0",
+  "selection": "10,000 lexicographically smallest SHA-256 candidate IDs; one raw per identity"
+}
