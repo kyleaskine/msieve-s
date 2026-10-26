@@ -19,7 +19,7 @@ struct MurphyCell {
     template <int L>
     void refine(const cio_poly &seed, const s23::RsizePoly<L> &size,
                 int64_t u, int64_t v, int64_t t, double lognorm, double alpha,
-                const MurphyConfig &config)
+                const MurphyConfig &config, MurphyEvaluator *evaluator = nullptr)
     {
         // Nonfinite proxy metrics and fixed-width overflows predate MurphyE.
         // Exclude them as before, without turning a good seed into a failed run.
@@ -27,7 +27,7 @@ struct MurphyCell {
             !s23::rs_written_poly(poly, seed, size, u, v, t, content))
             return;
         attempted = true;
-        result = murphy_refine(poly, config);
+        result = murphy_refine(poly, config, evaluator, evaluator ? &alpha : nullptr);
         long total;
         if (__builtin_add_overflow((long)t, result.translation, &total))
             result.valid = false;

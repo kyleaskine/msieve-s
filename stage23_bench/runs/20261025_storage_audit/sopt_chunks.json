@@ -1,0 +1,15 @@
+{
+  "chunks": [
+    "sopt_output/sopt_chunk_00.out",
+    "sopt_output/sopt_chunk_01.out",
+    "sopt_output/sopt_chunk_02.out",
+    "sopt_output/sopt_chunk_03.out",
+    "sopt_output/sopt_chunk_04.out",
+    "sopt_output/sopt_chunk_05.out",
+    "sopt_output/sopt_chunk_06.out",
+    "sopt_output/sopt_chunk_07.out"
+  ],
+  "joined_sha256": "bfca886bdc9d8542fc4be233ade79bb1ed06eaa9d52b674364940f3ac51d0209",
+  "output_sha256": "bfca886bdc9d8542fc4be233ade79bb1ed06eaa9d52b674364940f3ac51d0209",
+  "identical": true
+}

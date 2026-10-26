@@ -124,6 +124,14 @@ alpha_screen_exact_size = false
 alpha_screen_gpu = false
 # Expensive CPU oracle for GPU screen validation, not timing runs.
 alpha_screen_check = false
+# Experimental full-bound alpha/translation refinement on CUDA (all searches).
+# Requires full-refine-gpu-v1; near-tied translations may differ from CPU.
+refine_gpu = false
+refine_check = false
+# CUDA MurphyE quadrature in the final full-pool translation/skew search.
+# Requires murphy-gpu-v1. Search control and exact GMP translations remain host.
+murphy_gpu = false
+murphy_check = false
 keep = 200
 score_top = 32
 finalists = 32

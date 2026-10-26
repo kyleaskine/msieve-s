@@ -6,6 +6,32 @@ directories that do not last: `stage23_gpu/build/` (deleted by `make clean`) and
 `pipeline_results/` (moved to `previous/` and later deleted by the next pipeline run).
 They take the run directory as an argument; each file's docstring or header says how.
 
+- `20261026_review/README.md`: audit/fallback/resume review resolutions and
+  reproduction of host, CUDA fault/state and 26-pool parity checks. Compact
+  record: `../data/gpu_refinement/review_20261026.json`.
+
+- `20261025_c179/inspect.py --source-dir CPU_RESULTS --run-dir NEW_DIRECTORY`:
+  inspects the msieve-original-only winner, verifies common seed inputs, locates
+  equivalent rotations across all four output sets, independently rescores a
+  documented shortlist, and runs four CPU coverage plans. No GPU search.
+  Fixtures and compact results: `../data/c179/ropt_coverage/`.
+
+- `20261025_root_coverage/`: 90 CPU plans, thirty proposal-rank audits and 27
+  paired GPU searches on the optimized dense baseline, followed by independent
+  MurphyE/lattice scoring of every export. Shows proposal losses on C192/C197
+  and significant class-modeling overhead; defaults stay unchanged. All scripts
+  require `--run-dir`; `archive.py` also requires a fresh `--archive-dir`.
+  Full artifacts: `stage23_gpu/runs/20261025_root_coverage/`; compact results
+  and seeds: `../data/root_coverage/20261025/`. See its README for reproduction.
+
+- `20261023_gpu_refine/run.py --run-dir NEW_DIRECTORY`: freezes binaries and
+  copies the existing 25-case saved-pool corpus plus C192's winning depth pool;
+  audits full CUDA alpha/translation refinement on 167,936 candidates and 5,200
+  exports. Then compares CPU/CUDA MurphyE on 16 C208 and 16 C192 finalists with
+  warmup, three alternating repetitions, and independent 256k-angle scoring.
+  Requires the saved pools referenced by `20261018_gpu_screen/run.py` and the
+  completed C192 run. Compact record: `../data/gpu_refinement/20261023.json`.
+
 - `20261010_c185_c168b/`: the C185 and second C168 breadth runs (2026-10-10), made in
   `stage23_gpu/build/runs_20261010/{c185,c168}`: `prepare.py` (seeds from the CPU
   pipeline's `best300_msieve.ms` plus content seeds), `run_breadth.sh`, `score.py`,
@@ -105,3 +131,21 @@ They take the run directory as an argument; each file's docstring or header says
   unchanged. `run.py driver-screen-check --workers 2` also selects two workers.
   Full artifacts: `stage23_gpu/runs/20261019_c192/`; compact evidence:
   `data/c192/ropt_coverage/`.
+- `20261024_c197/`: production check of both new GPU paths after shared CPU
+  initial sopt. Freezes CPU references, runs GPU resopt and independent root
+  searches, audits all depth pools and sampled MurphyE cells, and compares CPU
+  and GPU winners under standard MurphyE and the provisional job lattice.
+  `validate_winners.py --run-dir RUN` rechecks the small model gap with fixed
+  skews and denser samples. Compact results: `data/c197/gpu_ropt/`.
+- `20261024_root_sieve/`: profiler-guided root-sieve optimization. Isolated
+  thread-layout and table-lookup experiments precede exact CPU/GPU hit checks,
+  memory/race checks and three alternating full C197 depth comparisons against
+  frozen binaries and the original production pools/exports. `validate.py`
+  takes `--run-dir`; its phases are `checks`, `sanitize`, `block-sizes`, and
+  `timings`. Full artifacts: `stage23_gpu/runs/20261024_root_sieve/`.
+- `20261025_storage_audit/`: storage inventory followed by authorized cleanup.
+  Deleted all 101 manifested files (38.0 GiB) and pruned 2,247 unreachable Git
+  objects (8.2 GiB); the execution and integrity checks are recorded in
+  `cleanup_result.json` and `deletion_result.json`. Removed preprocessing indexes
+  and sorted intermediates must be rebuilt before a full driver resume; retained
+  seeds/pools support direct replay. Original `.zst` archives were preserved.

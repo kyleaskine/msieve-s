@@ -1,0 +1,52 @@
+{
+  "pipeline": {
+    "returncode": 0,
+    "wall_seconds": 3376.8053485800046
+  },
+  "preprocessing": {
+    "returncode": 0,
+    "wall_seconds": 221.38369739695918
+  },
+  "resopt_seconds": 74.79243180499179,
+  "phases": {
+    "breadth": {
+      "seeds": 314,
+      "batches": 20,
+      "seed_process_seconds_sum": 2203.168716,
+      "logged_component_seconds_sum": {
+        "size_model": 516.78,
+        "sieve": 1622.11,
+        "refine": 60.45
+      },
+      "wall_span_estimate_seconds": 1119.7408063411713
+    },
+    "depth": {
+      "seeds": 16,
+      "batches": 2,
+      "seed_process_seconds_sum": 3435.89702,
+      "logged_component_seconds_sum": {
+        "size_model": 36.16,
+        "sieve": 3395.69,
+        "refine": 3.84
+      },
+      "wall_span_estimate_seconds": 1766.1501994132996
+    },
+    "murphy": {
+      "seeds": 4,
+      "batches": 2,
+      "seed_process_seconds_sum": 320.130358,
+      "logged_component_seconds_sum": {
+        "size_model": 0.0,
+        "sieve": 0,
+        "refine": 319.59000000000003
+      },
+      "wall_span_estimate_seconds": 160.33523559570312
+    }
+  },
+  "cpu_ranking_seconds": {
+    "breadth": 227.47824129305081,
+    "depth": 8.571009032020811,
+    "final": 13.621403070981614
+  },
+  "note": "Pipeline includes GPU resopt, searches, scoring and bookkeeping; excludes initial CPU sopt, the separate import, and later audits. Phase wall spans are estimates from batch completion log mtimes minus recorded process durations. Seed/component sums overlap across workers and must not be added as wall time. This is not a matched CPU/GPU speedup."
+}

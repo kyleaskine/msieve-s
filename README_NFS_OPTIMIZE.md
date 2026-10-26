@@ -50,8 +50,10 @@ cado_build_dir = $HOME/cado-nfs/build/YOUR-BUILD-DIR
 The GPU mode runs degree-5 size and root optimization from raw stage-1 output.
 Build its tools once with `make -C stage23_gpu s23_sopt s23_ropt CUDA=120`
 (choose the CUDA architecture for your device). The host scorer builds on demand
-using the configured CADO libraries. Size modeling, exact-alpha reranking,
-MurphyE scoring and content-seed generation still use the CPU.
+using the configured CADO libraries. Full alpha/translation refinement and
+MurphyE quadrature have opt-in CUDA paths described below. Search size modeling,
+content-seed generation, independent final/lattice scoring and MurphyE search
+control still use the CPU.
 
 One command from raw polynomials to a final polynomial:
 
@@ -130,6 +132,18 @@ Screening is off by default; changing its policy requires a new run directory.
 Blank screen Boolean configuration values mean false. Runs predating these
 options keep screening disabled when resumed, regardless of the global config.
 
+For experimental full GPU refinement, add `--refine-gpu`; add `--murphy-gpu`
+to use CUDA quadrature in the final full-pool MurphyE search. The former applies
+to breadth, depth and final refinement; the latter only to the MurphyE phase.
+`--refine-check` and `--murphy-check` add expensive CPU audits. The GPU modes
+require `full-refine-gpu-v1` and `murphy-gpu-v1` respectively and a new run
+directory when changing those numerical modes. Audit switches can change on
+resume; they apply to work that executes, while valid checkpoints remain reused.
+To audit completed outputs, explicitly replay their saved pools. All default to false, including on old-run
+resume. CUDA resource failures retry on CPU and are reported. Independent final
+scoring continues to use the frozen host scorer. See
+[`stage23_gpu/README.md`](stage23_gpu/README.md) for numerical and migration limits.
+
 Every run stores its own preprocessing files, inputs, frozen executables,
 command logs and verified checkpoints. No CPU pipeline output rotation is used.
 Paths are relative to this repository unless absolute. The default run directory
@@ -149,7 +163,8 @@ bytes into `RUN/inputs/` before preprocessing; a live source is read only up to
 its initial byte length, and the snapshot must contain complete polynomial blocks.
 Resuming uses that snapshot. Use a new run directory to consume more input or
 change search/scoring settings. Execution settings (`--device`, `--threads`,
-`--workers`, `--launch`, `--slice`, `--ropt-batch-size`) can change on resume. Logs record actual
+`--workers`, `--launch`, `--slice`, `--ropt-batch-size`, `--refine-check`,
+`--murphy-check`) can change on resume. Logs record actual
 commands, and `execution.json` saves the latest execution settings.
 
 Source hashes are provenance. Explicit per-stage schema versions determine

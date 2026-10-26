@@ -21,7 +21,61 @@ poly by poly; the ropt of M2 is our own design.)
 Speed alone is not the motivation. The CPU pipeline takes about 2 h, while stage 1 takes
 about 24 h on a rented 5090.
 
-## Current status (updated 2026-10-18)
+## Current status (updated 2026-10-26)
+
+The October 26 review fixes make MurphyE audits fail immediately on invalid
+device integrals or alpha disagreement, cancel remaining work across workers,
+and reset transient failures/statistics between batch jobs. CPU and CUDA MurphyE
+now use the same canonical CADO alpha; all final size/translation results are
+canonicalized on the host even without checks. These conservative safeguards
+restore host work, so the earlier refinement component speedups do not establish
+the current performance. Audit flags can change on resume without invalidating
+completed numerical checkpoints. The lossless root-sieve kernel is unchanged.
+
+Root-sieve grouped lookups now accelerate the same search without changing
+candidate selection. Three alternating full-depth C197 comparisons give
+1.88–1.89x sieve throughput and 1.84–1.86x process speedup on the RTX 5070.
+All twelve runs reproduce their original pools and exports byte for byte.
+Short blocks and resource-limited cases retain the scalar kernel. Direct
+CPU/GPU bit checks, the host/CUDA regressions and memory/race checks pass.
+These are one-process component timings, not a new full-pipeline measurement.
+See the October 25 root optimization record and
+`stage23_bench/data/root_sieve/20261025.json`.
+
+The first coverage/timing pilot against that faster baseline is complete:
+90 CPU plans and 27 GPU searches. On C192, 32 classes take essentially the
+same time as dense breadth but lose 14.1% standard MurphyE and about 8.5% in
+the provisional lattice model. C197's overall winner is preserved, while
+its s0001 control loses about 12% MurphyE. Early root-only proposal truncation
+excludes good size/root combinations; class planning can also dominate runtime.
+Next: bounded size-aware proposals with u-class diversity, followed by matched
+time/quality tests on independent seeds. Dense remains the default. This is
+a diagnostic pilot, not a full-pipeline or test-sieve comparison. See
+`stage23_bench/runs/20261025_root_coverage/README.md`.
+
+The new full GPU refinement paths also pass a production C197 check after a
+shared CPU initial sopt pass: all 1,000 resopt outputs and 3,200 audited depth
+exports match CPU, with no GPU fallback in 314 breadth/16 depth/four MurphyE
+searches. The independent GPU search finds the CPU winner's rotation family;
+quality is effectively tied (standard MurphyE -0.0103%, provisional lattice
+model +0.0567–0.0938% across denser sample streams). Pipeline wall time is
+56m 17s, about 48m 6s in breadth/depth searches. Dense root sieving is the
+leading measured speed target on this job; equal-time coverage validation of
+selective residue classes remains necessary before changing defaults. Initial
+CPU sopt was shared, and there is no matched full CPU timing or test sieve.
+See `stage23_bench/data/c197/gpu_ropt/README.md`.
+
+The next numerical migration now has opt-in implementations: `-refine-gpu`
+runs full-bound algebraic alpha and the final integer-translation size search
+on CUDA; `-murphy-gpu` runs accurate MurphyE quadrature on CUDA with batched
+initial skew evaluation. The driver forwards both with historical-default,
+capability and resume checks. On 26 saved pools (167,936 candidates), all 5,200
+exports match CPU bytes. Across three alternating bounded C192/C208 runs,
+full refinement plus MurphyE takes median 1.280 s versus 4.350 s CPU, with
+matching independent 256k-angle best scores. These are component measurements,
+not whole-pipeline speedups. Host MurphyE search control/GMP translations,
+rational alpha, and lattice/independent scoring still need migration. See the
+October 23 execution record in `ROPT_OPTIMIZATION_PLAN.md`.
 
 The next root-search implementation is tracked in
 [`ROPT_OPTIMIZATION_PLAN.md`](ROPT_OPTIMIZATION_PLAN.md): a reproducible loss

@@ -1,0 +1,46 @@
+{
+  "audit_date": "2026-10-25",
+  "scope": "/home/kylea/msieve-s",
+  "cleanup_candidate_GiB": 37.9961051940918,
+  "groups_GiB": {
+    "legacy_sorted": 2.2728919982910156,
+    "preprocess_derived": 23.991687774658203,
+    "cpu_sopt_scratch": 1.9349899291992188,
+    "old_profiler": 0.8956947326660156,
+    "verified_duplicate": 8.900840759277344
+  },
+  "keep": [
+    "stage23_bench/data (6.6 MiB)",
+    "source and scripts",
+    "saved seeds and root-search pools",
+    "results, score summaries, logs, provenance and frozen binaries",
+    "one canonical raw input and initial unsorted sopt result per retained job",
+    "AS660 compact candidate archives and research index"
+  ],
+  "cold_archive": {
+    "paths": "as660-stage1*.w0.jsonl.zst",
+    "GiB": 15.52720139734447,
+    "use": "Only lossless source for full collision reconstruction and per-root/batch details; compact candidate/exposure data suffice for routine stage-1 quality and q-bin studies."
+  },
+  "optional": [
+    {
+      "category": "AS660 derived ledgers",
+      "GiB": 1.47,
+      "condition": "Rebuildable while lossless original .zst archives are retained; old analysis scripts use these paths."
+    },
+    {
+      "category": "Unreachable Git objects",
+      "GiB": 8.224427714012563,
+      "condition": "Not reachable from refs/reflogs or the index; 7.965 GiB younger than the usual 14-day pruning grace. Separate repository maintenance, not a file-deletion list."
+    }
+  ],
+  "warning": "Preprocessing caches are required by full-driver resume. Rebuild preprocess before resuming those runs after cleanup. Root-pool replays use the retained seeds/pools directly.",
+  "current_root_inputs": "Current worktodo/pipeline_results are a newer completed job and were excluded.",
+  "sibling_backup": {
+    "path": "/home/kylea/msieve-s-backup",
+    "GiB": 6.1396331787109375,
+    "condition": "Referenced by old reproduction scripts; not included in cleanup candidates."
+  },
+  "executed": true,
+  "execution_report": "cleanup_result.json"
+}

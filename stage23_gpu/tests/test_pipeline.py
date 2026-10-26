@@ -61,6 +61,7 @@ if '-capabilities' in args:
         if not (base / 'old-batch').exists(): print('ropt-batch-events-v1')
         if not (base / 'no-screen').exists():
             print('alpha-screen-v1 alpha-screen-exact-size-v1 alpha-screen-gpu-v1')
+            print('full-refine-gpu-v1 murphy-gpu-v1')
 elif '-batch' in args:
     jobs = Path(opt('-batch')).read_text().splitlines()
     assert jobs.pop(0) == 'S23_ROPT_BATCH 1'
@@ -589,11 +590,43 @@ else:
                         '--alpha-screen', '4096,500')
         self.assertFalse(any('-inputpolys' in c for c in self.calls()))
 
+    def test_gpu_refinement_forwarding_resume_and_capabilities(self):
+        run = self.base / 'refinement'
+        flags = ['--refine-gpu', '--refine-check', '--murphy-gpu', '--murphy-check']
+        self.invoke('all', run, '--input', self.raw, *self.params(), *flags)
+        calls = self.calls()
+        searches = [c for c in calls if '-search ' in c]
+        self.assertTrue(searches)
+        for call in searches:
+            self.assertIn('-refine-gpu -refine-check', call)
+            self.assertEqual('-murphy-gpu -murphy-check' in call, '-murphy ' in call)
+        self.invoke('pipeline', run)
+        self.assertEqual(calls, self.calls())
+        self.invoke('pipeline', run, '--no-murphy-check', '--no-refine-check')
+        self.assertEqual(calls, self.calls())
+        execution = driver.read_json(run / 'execution.json')
+        self.assertFalse(execution['murphy_check'])
+        self.assertFalse(execution['refine_check'])
+        self.invoke('pipeline', run, '--murphy-check', '--refine-check')
+        self.assertEqual(calls, self.calls())
+        # Audit switches are boolean argv entries, unlike valued execution flags.
+        self.assertEqual(driver.semantic_parameters({'argv': ['tool', '-refine-check', '-t', '2',
+                          '-murphy-check', '-refine', '200']}),
+                         {'argv': ['tool', '-refine', '200']})
+        for flag in ('--refine-check', '--murphy-check'):
+            with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+                self.invoke('all', self.base / 'invalid-refine', '--input', self.raw, *self.params(), flag)
+        (self.base / 'no-screen').touch()
+        before = self.calls()
+        with self.assertRaisesRegex(ValueError, 'full-refine-gpu-v1'):
+            self.invoke('all', self.base / 'unsupported-refine', '--input', self.raw, *self.params(), '--refine-gpu')
+        self.assertFalse(any('-inputpolys' in c for c in self.calls()[len(before):]))
+
     def test_old_checkpoint_ignores_absent_neutral_screen_options(self):
         run = self.base / 'old'
         self.invoke('all', run, '--input', self.raw, *self.params())
         settings = driver.read_json(run / 'settings.json')
-        for name in driver.SCREEN_OPTIONS:
+        for name in driver.ROPT_OPTIONS:
             settings.pop(name)
         driver.write_json(run / 'settings.json', settings)
         marker = run / 'checkpoints/pipeline_settings.json'
@@ -601,7 +634,8 @@ else:
         record['outputs']['settings.json'] = driver.digest(run / 'settings.json')
         driver.write_json(marker, record)
         self.config.write_text(self.config.read_text() + '[gpu]\nalpha_screen=4096,500\n'
-                               'alpha_screen_exact_size=true\nalpha_screen_gpu=true\nalpha_screen_check=true\n')
+                               'alpha_screen_exact_size=true\nalpha_screen_gpu=true\nalpha_screen_check=true\n'
+                               'refine_gpu=true\nrefine_check=true\nmurphy_gpu=true\nmurphy_check=true\n')
         before = self.calls()
         self.invoke('pipeline', run)
         self.assertEqual(before, self.calls())
@@ -610,7 +644,7 @@ else:
 
     def test_blank_screen_config_is_false_and_help_and_report_work(self):
         self.config.write_text(self.config.read_text() + '[gpu]\n' +
-                               ''.join(key + '=\n' for key in driver.SCREEN_OPTIONS))
+                               ''.join(key + '=\n' for key in driver.ROPT_OPTIONS))
         run = self.base / 'blanks'
         self.invoke('all', run, '--input', self.raw, *self.params())
         self.invoke('report', run)
@@ -618,7 +652,7 @@ else:
             driver.parser(['--config', str(self.config), '--help'])
         self.assertEqual(result.exception.code, 0)
         settings = driver.read_json(run / 'settings.json')
-        for key, option in driver.SCREEN_OPTIONS.items():
+        for key, option in driver.ROPT_OPTIONS.items():
             self.assertEqual(settings[key], option['default'])
 
     def test_sqlite_uri_reserved_characters_and_frozen_input_repair(self):

@@ -1,0 +1,16 @@
+{
+  "summary.json": "48f1d6ab513cc1a1aae9e992aa4f478a10b4642a16172bf376922e2d789d2dc4",
+  "msieve_winner.poly": "6d4de73e02ffbd0d5bbef8a95b9e9a6f5855d7b3ac2e2eed2475c1d146289941",
+  "binaries.json": "7f2ac8004d45d371593f82aedd6518bb044018dd4baf205fa57a0a12492c225b",
+  "cado_inv_best.poly": "678d8c1cd29cde61a0e54c169ce24c4e345142222fda9f039015df2a7f2c74ed",
+  "prepared.json": "544843a4d1b2accea1d997079f3e8597a1ac4fb29578dc2d9c4c27afd5d7054f",
+  "seed.poly": "3ab948156cf317c5df12fb30e842efc7624037465960c22a4bda3981a0f2ee9f",
+  "msieve_orig_best.poly": "47871b62167f5c3f374d81cd12e86f2c2d347ad7479eff06c8ad4d386b911bdb",
+  "msieve_inv_best.poly": "a653b869d6a7f25ad413b086bbc78109876b9ff7c3e64dc9f67775b1983d8196",
+  "proposal_audit.json": "25ceb246122a7505bc4c853546fef44b17eb5ac3a49be3700965528f22ddbd72",
+  "screen.json": "aa526018f733decbbf3849258d371b92c3785fe1b04eb08affcb77190dd16699",
+  "plans.json": "4635e4bf465c432b8d6827429f5b5d32f6fe7bfc052ad6faff1f2b557875a8cd",
+  "cado_orig_best.poly": "a4ba8a2e6e9443c1d86f9a5f83d7060cbe8c2e2199575486aced7d638a1adf8f",
+  "shortlist.json": "79bcec63c27530c2a62fdbf29ff87c6d2d5d4fa041c0f6d7bb96d1ed7702b1b2",
+  "seed_inv.poly": "01788e96d5f5a32d7b42c7e1f0021fc9c5dd2be91d3e3d7801a066cd06a267dd"
+}

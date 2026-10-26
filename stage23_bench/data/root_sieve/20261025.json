@@ -1,0 +1,908 @@
+{
+  "started": "2026-10-24",
+  "completed": "2026-10-25",
+  "gpu": "NVIDIA GeForce RTX 5070, sm_120",
+  "implementation": "Four adjacent selected cells per aligned float4 shared lookup; unchanged block boundaries, sum order, top K and search policy.",
+  "baseline": {
+    "binary_sha256": {
+      "s23_ropt": "813b3e6064abbe4af1928159553bcad0a257103a385766a9474649245dc4e816",
+      "s23_ropt_cpu": "3bcc3ff985bc8782705024dc312bb00cefcd3fcbaab3e1abbd79a4d9b5a6c673"
+    },
+    "source_sha256": "e3f4be07a0a94bf44cfcc621cc65706b4cd4626f02b60e4975409cc6e54cd225"
+  },
+  "optimized_provenance": {
+    "bin/nt512_cpt8": "3d4e7dea36dd6eb579b66c9c648f09ce66148d4b79f77fe2f57d7c7c54a7ef51",
+    "bin/tables_nt256_cpt32": "608c5e2ae027315a360208d4732913230ad0f5a50302d888ecdc850425204e9a",
+    "bin/vector4": "68c5e68cfce2ac3605f3756676bd06d62ed37ead9bbc8c99f65b26f1d95edf36",
+    "bin/tables_nt384_cpt16": "48285c382bbaf3cd3390bb375388f75f5d6fff32b824be58dcbc650c8280d162",
+    "bin/nt512_cpt16": "1ae045ba7920959462c855eab87188e7db2f98b3abdc8261dccacc0d71dcfc84",
+    "bin/s23_ropt_cpu": "3bcc3ff985bc8782705024dc312bb00cefcd3fcbaab3e1abbd79a4d9b5a6c673",
+    "bin/s23_ropt": "813b3e6064abbe4af1928159553bcad0a257103a385766a9474649245dc4e816",
+    "bin/nt384_cpt16": "21a803aa224e8902029bc2d677a5366d52fc2e4bcc79cb96eadd913181826ac4",
+    "bin/optimized": "d1a4efd2cd2471eba04678e8752a6d0b40b56c85959d069b860af074aeb678ce",
+    "bin/tables_nt512_cpt16": "7105c6c6d1430dae242731b484dc8fc8408c1e80609435e2302c983a3bc3eecc",
+    "bin/new_test_rsieve_gpu": "a76fd723badb33cb8e00ec470b81e30106c102aefb95e52c8df17c62eed50d18",
+    "bin/new_s23_ropt_cpu": "3bcc3ff985bc8782705024dc312bb00cefcd3fcbaab3e1abbd79a4d9b5a6c673",
+    "stage23_gpu/tools/s23_ropt.cu": "1690c3685361db4fe77ff1b120bea7f2bff7c63a83877c181c6fe7c71ba3c507",
+    "stage23_gpu/tools/rsieve_cuda.h": "9e3d01dd4e416237fb1f026b4534c56bd6b7706776c786b08677ac266ffb78c5",
+    "stage23_gpu/tests/test_rsieve_gpu.cu": "049d7da3e39f35674c8e4d98b1a604d860326fde6a8611f1f763eb49a0c8a4fe"
+  },
+  "correctness": {
+    "exact_hit_comparisons": 28672,
+    "records": [
+      {
+        "command": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/new_test_rsieve_gpu",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261024_c197_gpu/seeds/s0005.poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c168/content/s0051.poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c168/content/s0068.poly",
+          "/home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0222.poly"
+        ],
+        "seconds": 9.077580087992828,
+        "returncode": 0,
+        "log_sha256": "917ed0910c5f9a4934d8ee3834f58c32d2781ea52c7f6653a6495f9b358d33db"
+      },
+      {
+        "command": [
+          "/usr/bin/python3",
+          "/home/kylea/msieve-s/stage23_gpu/tests/test_ropt_class.py"
+        ],
+        "seconds": 15.174555676989257,
+        "returncode": 0,
+        "log_sha256": "c52cd466e43ccd09c5c7c22967a98f57f7e9f38dbbae6df79fb97237cfb4c4b7"
+      },
+      {
+        "command": [
+          "/usr/bin/python3",
+          "/home/kylea/msieve-s/stage23_gpu/tests/test_ropt_classes.py"
+        ],
+        "seconds": 11.782723259995691,
+        "returncode": 0,
+        "log_sha256": "c4dacac6ffeb11fe368023cea386d2c96be3682a7d1f202e519f64773e14cb5f"
+      },
+      {
+        "command": [
+          "/usr/bin/python3",
+          "/home/kylea/msieve-s/stage23_gpu/tests/test_ropt_scan.py"
+        ],
+        "seconds": 42.62684383697342,
+        "returncode": 0,
+        "log_sha256": "09b854ad5c2c70142688ae26a3896cc0e0ace7812d48427774d489c8b8db516d"
+      },
+      {
+        "command": [
+          "/usr/bin/python3",
+          "/home/kylea/msieve-s/stage23_gpu/tests/test_ropt_trace.py"
+        ],
+        "seconds": 14.814649841981009,
+        "returncode": 0,
+        "log_sha256": "cde3ee590cb51b0d749f4561cd1c7eb128f25d42553587874d837509ea263600"
+      },
+      {
+        "command": [
+          "/usr/bin/python3",
+          "/home/kylea/msieve-s/stage23_gpu/tests/test_ropt_batch.py"
+        ],
+        "seconds": 7.340014021960087,
+        "returncode": 0,
+        "log_sha256": "9f8cac49ba638ed617d8cc5c9a69c4086c9ec94b89ae8fc2fc70558aa4756f6d"
+      },
+      {
+        "command": [
+          "/usr/bin/python3",
+          "/home/kylea/msieve-s/stage23_gpu/tests/test_refinement_gpu.py"
+        ],
+        "seconds": 17.157182110007852,
+        "returncode": 0,
+        "log_sha256": "e6b774aa0d9b00c2c5fb92d82ea9f7b390da51f57aefbb60f7ffba71cb00cbcc"
+      }
+    ]
+  },
+  "host_suite": {
+    "command": "make -C stage23_gpu test",
+    "result": "all expected test commands completed successfully in saved log",
+    "log_sha256": "8e1343555ab02eda7a8af2439ed3ee410c0de0e73cfe24ad22ffa73809e5bba6"
+  },
+  "sanitizers": {
+    "memcheck": {
+      "command": [
+        "compute-sanitizer",
+        "--tool",
+        "memcheck",
+        "--error-exitcode",
+        "99",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/new_test_rsieve_gpu",
+        "/home/kylea/msieve-s/stage23_bench/data/c168/content/s0051.poly"
+      ],
+      "seconds": 2.032277079000039,
+      "returncode": 0,
+      "log_sha256": "b8368400ce48b7ae3755d012a5e92e0c7ddc46a0f98e4ece620316343dc1cce0"
+    },
+    "racecheck": {
+      "command": [
+        "compute-sanitizer",
+        "--tool",
+        "racecheck",
+        "--error-exitcode",
+        "99",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/new_test_rsieve_gpu",
+        "/home/kylea/msieve-s/stage23_bench/data/c168/content/s0051.poly"
+      ],
+      "seconds": 132.32230379499998,
+      "returncode": 0,
+      "log_sha256": "9741f072894a0413195e6cee75a8661267de316e86bc4bc023f1689933ab01e6"
+    }
+  },
+  "block_sizes": {
+    "16": {
+      "medians": {
+        "baseline": 1.1,
+        "optimized": 0.56
+      },
+      "speedup": 1.9642857142857142
+    },
+    "18": {
+      "medians": {
+        "baseline": 0.59,
+        "optimized": 0.35
+      },
+      "speedup": 1.6857142857142857
+    },
+    "20": {
+      "medians": {
+        "baseline": 0.5,
+        "optimized": 0.28
+      },
+      "speedup": 1.7857142857142856
+    }
+  },
+  "full_depth": {
+    "repeats": 3,
+    "seeds": {
+      "s0005": {
+        "medians": {
+          "baseline": {
+            "seconds": 64.43163801499986,
+            "sieve_seconds": 62.27
+          },
+          "optimized": {
+            "seconds": 34.987961981000126,
+            "sieve_seconds": 32.9
+          }
+        },
+        "sieve_speedup": 1.8927051671732524,
+        "process_speedup": 1.841537327895487
+      },
+      "s0001": {
+        "medians": {
+          "baseline": {
+            "seconds": 110.05285250999998,
+            "sieve_seconds": 108.37
+          },
+          "optimized": {
+            "seconds": 59.28520847500022,
+            "sieve_seconds": 57.55
+          }
+        },
+        "sieve_speedup": 1.883058210251955,
+        "process_speedup": 1.8563290125969245
+      }
+    },
+    "production_hashes": {
+      "s0005": {
+        ".poly": "58dc0617b839d3653c71a9428f818a055588a9748909ae1f7462097a3865dbaa",
+        ".pool": "f3dd2f871f85260c9ba102dea4ef254a755e2eaf26f3d75d9828fc04414d3b19"
+      },
+      "s0001": {
+        ".poly": "2760a5bcf9cf368956a7dbcc126286fe65f868e961ba22e3b97c989652a34253",
+        ".pool": "0f6b01e766cbcde92d2ff16a0dc8b009630b269ef113a9ad84d0e31c8b593dbc"
+      }
+    },
+    "note": "Alternating full depth searches, one GPU process and two CPU threads. Both modes match the original production pools and exports exactly. Does not measure an entire pipeline."
+  },
+  "records": [
+    {
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/s23_ropt",
+        "-poly",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_c197_gpu/seeds/s0005.poly",
+        "-search",
+        "-budget",
+        "3.0",
+        "-maxcells",
+        "6000000000000.0",
+        "-aw",
+        "1.3",
+        "-rerank",
+        "4096",
+        "-top",
+        "3",
+        "-refine",
+        "200",
+        "-t",
+        "2",
+        "-dev",
+        "0",
+        "-launch",
+        "30",
+        "-maxlines",
+        "1000",
+        "-umax",
+        "20000",
+        "-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/0_s0005_baseline.poly",
+        "-pool-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/0_s0005_baseline.pool",
+        "-refine-gpu"
+      ],
+      "seconds": 62.61031023199996,
+      "returncode": 0,
+      "log_sha256": "13abf6ddef6b651261c2ddc3e2793950af138a86110c8428e2ae5f1bfa35addf",
+      "seed": "s0005",
+      "mode": "baseline",
+      "repetition": 0,
+      "cells": 2060000000000.0,
+      "sieve_seconds": 60.59,
+      "model_seconds": 1.81,
+      "refine_seconds": 0.13,
+      "vector_launches": 0,
+      "scalar_launches": null,
+      "identical_production_pool": true,
+      "identical_production_exports": true
+    },
+    {
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/optimized",
+        "-poly",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_c197_gpu/seeds/s0005.poly",
+        "-search",
+        "-budget",
+        "3.0",
+        "-maxcells",
+        "6000000000000.0",
+        "-aw",
+        "1.3",
+        "-rerank",
+        "4096",
+        "-top",
+        "3",
+        "-refine",
+        "200",
+        "-t",
+        "2",
+        "-dev",
+        "0",
+        "-launch",
+        "30",
+        "-maxlines",
+        "1000",
+        "-umax",
+        "20000",
+        "-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/0_s0005_optimized.poly",
+        "-pool-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/0_s0005_optimized.pool",
+        "-refine-gpu"
+      ],
+      "seconds": 34.47399076900001,
+      "returncode": 0,
+      "log_sha256": "7d700cd9a6ed919dcccd3bc1a7f2507c6f96af8591fc300fd1520138e367d722",
+      "seed": "s0005",
+      "mode": "optimized",
+      "repetition": 0,
+      "cells": 2060000000000.0,
+      "sieve_seconds": 32.37,
+      "model_seconds": 1.86,
+      "refine_seconds": 0.13,
+      "vector_launches": 1916,
+      "scalar_launches": 0,
+      "identical_production_pool": true,
+      "identical_production_exports": true
+    },
+    {
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/optimized",
+        "-poly",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_c197_gpu/seeds/s0001.poly",
+        "-search",
+        "-budget",
+        "3.0",
+        "-maxcells",
+        "6000000000000.0",
+        "-aw",
+        "1.3",
+        "-rerank",
+        "4096",
+        "-top",
+        "3",
+        "-refine",
+        "200",
+        "-t",
+        "2",
+        "-dev",
+        "0",
+        "-launch",
+        "30",
+        "-maxlines",
+        "1000",
+        "-umax",
+        "20000",
+        "-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/0_s0001_optimized.poly",
+        "-pool-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/0_s0001_optimized.pool",
+        "-refine-gpu"
+      ],
+      "seconds": 58.83362062499998,
+      "returncode": 0,
+      "log_sha256": "fcaf4e1cd7c24f51274415162a9484c320d66b4a28da0c5f3d1e84812eadea5f",
+      "seed": "s0001",
+      "mode": "optimized",
+      "repetition": 0,
+      "cells": 3620000000000.0,
+      "sieve_seconds": 57.09,
+      "model_seconds": 1.48,
+      "refine_seconds": 0.13,
+      "vector_launches": 3374,
+      "scalar_launches": 0,
+      "identical_production_pool": true,
+      "identical_production_exports": true
+    },
+    {
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/s23_ropt",
+        "-poly",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_c197_gpu/seeds/s0001.poly",
+        "-search",
+        "-budget",
+        "3.0",
+        "-maxcells",
+        "6000000000000.0",
+        "-aw",
+        "1.3",
+        "-rerank",
+        "4096",
+        "-top",
+        "3",
+        "-refine",
+        "200",
+        "-t",
+        "2",
+        "-dev",
+        "0",
+        "-launch",
+        "30",
+        "-maxlines",
+        "1000",
+        "-umax",
+        "20000",
+        "-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/0_s0001_baseline.poly",
+        "-pool-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/0_s0001_baseline.pool",
+        "-refine-gpu"
+      ],
+      "seconds": 110.05285250999998,
+      "returncode": 0,
+      "log_sha256": "8367f92c45e61ed3376aba1746bb3ab9c5dc3b46e65de23ae619f6d6df36e58b",
+      "seed": "s0001",
+      "mode": "baseline",
+      "repetition": 0,
+      "cells": 3620000000000.0,
+      "sieve_seconds": 108.37,
+      "model_seconds": 1.44,
+      "refine_seconds": 0.14,
+      "vector_launches": 0,
+      "scalar_launches": null,
+      "identical_production_pool": true,
+      "identical_production_exports": true
+    },
+    {
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/optimized",
+        "-poly",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_c197_gpu/seeds/s0005.poly",
+        "-search",
+        "-budget",
+        "3.0",
+        "-maxcells",
+        "6000000000000.0",
+        "-aw",
+        "1.3",
+        "-rerank",
+        "4096",
+        "-top",
+        "3",
+        "-refine",
+        "200",
+        "-t",
+        "2",
+        "-dev",
+        "0",
+        "-launch",
+        "30",
+        "-maxlines",
+        "1000",
+        "-umax",
+        "20000",
+        "-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/1_s0005_optimized.poly",
+        "-pool-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/1_s0005_optimized.pool",
+        "-refine-gpu"
+      ],
+      "seconds": 36.70551912199994,
+      "returncode": 0,
+      "log_sha256": "72e42bd17bf5fa065e29455ae60ad6fbf9878d5361263d5bc9578c6c2b22c5d7",
+      "seed": "s0005",
+      "mode": "optimized",
+      "repetition": 1,
+      "cells": 2060000000000.0,
+      "sieve_seconds": 34.54,
+      "model_seconds": 1.94,
+      "refine_seconds": 0.14,
+      "vector_launches": 1916,
+      "scalar_launches": 0,
+      "identical_production_pool": true,
+      "identical_production_exports": true
+    },
+    {
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/s23_ropt",
+        "-poly",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_c197_gpu/seeds/s0005.poly",
+        "-search",
+        "-budget",
+        "3.0",
+        "-maxcells",
+        "6000000000000.0",
+        "-aw",
+        "1.3",
+        "-rerank",
+        "4096",
+        "-top",
+        "3",
+        "-refine",
+        "200",
+        "-t",
+        "2",
+        "-dev",
+        "0",
+        "-launch",
+        "30",
+        "-maxlines",
+        "1000",
+        "-umax",
+        "20000",
+        "-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/1_s0005_baseline.poly",
+        "-pool-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/1_s0005_baseline.pool",
+        "-refine-gpu"
+      ],
+      "seconds": 65.54042806299992,
+      "returncode": 0,
+      "log_sha256": "9384d7ed825247cc1fe9eafdf6c0f4492733d7cd87f1ff0ec0a041b1ade70a30",
+      "seed": "s0005",
+      "mode": "baseline",
+      "repetition": 1,
+      "cells": 2060000000000.0,
+      "sieve_seconds": 63.5,
+      "model_seconds": 1.79,
+      "refine_seconds": 0.14,
+      "vector_launches": 0,
+      "scalar_launches": null,
+      "identical_production_pool": true,
+      "identical_production_exports": true
+    },
+    {
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/s23_ropt",
+        "-poly",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_c197_gpu/seeds/s0001.poly",
+        "-search",
+        "-budget",
+        "3.0",
+        "-maxcells",
+        "6000000000000.0",
+        "-aw",
+        "1.3",
+        "-rerank",
+        "4096",
+        "-top",
+        "3",
+        "-refine",
+        "200",
+        "-t",
+        "2",
+        "-dev",
+        "0",
+        "-launch",
+        "30",
+        "-maxlines",
+        "1000",
+        "-umax",
+        "20000",
+        "-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/1_s0001_baseline.poly",
+        "-pool-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/1_s0001_baseline.pool",
+        "-refine-gpu"
+      ],
+      "seconds": 115.42728807200001,
+      "returncode": 0,
+      "log_sha256": "3e4786cb393df4d1ce11557a79718d40e2a3b444160e393158675da43ad98756",
+      "seed": "s0001",
+      "mode": "baseline",
+      "repetition": 1,
+      "cells": 3620000000000.0,
+      "sieve_seconds": 113.66,
+      "model_seconds": 1.51,
+      "refine_seconds": 0.13,
+      "vector_launches": 0,
+      "scalar_launches": null,
+      "identical_production_pool": true,
+      "identical_production_exports": true
+    },
+    {
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/optimized",
+        "-poly",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_c197_gpu/seeds/s0001.poly",
+        "-search",
+        "-budget",
+        "3.0",
+        "-maxcells",
+        "6000000000000.0",
+        "-aw",
+        "1.3",
+        "-rerank",
+        "4096",
+        "-top",
+        "3",
+        "-refine",
+        "200",
+        "-t",
+        "2",
+        "-dev",
+        "0",
+        "-launch",
+        "30",
+        "-maxlines",
+        "1000",
+        "-umax",
+        "20000",
+        "-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/1_s0001_optimized.poly",
+        "-pool-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/1_s0001_optimized.pool",
+        "-refine-gpu"
+      ],
+      "seconds": 64.91428070799998,
+      "returncode": 0,
+      "log_sha256": "d31474f009c01808a5ea2537bee657b3208626cf1e0a3068fbaaf101b02873aa",
+      "seed": "s0001",
+      "mode": "optimized",
+      "repetition": 1,
+      "cells": 3620000000000.0,
+      "sieve_seconds": 62.94,
+      "model_seconds": 1.75,
+      "refine_seconds": 0.13,
+      "vector_launches": 3374,
+      "scalar_launches": 0,
+      "identical_production_pool": true,
+      "identical_production_exports": true
+    },
+    {
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/s23_ropt",
+        "-poly",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_c197_gpu/seeds/s0005.poly",
+        "-search",
+        "-budget",
+        "3.0",
+        "-maxcells",
+        "6000000000000.0",
+        "-aw",
+        "1.3",
+        "-rerank",
+        "4096",
+        "-top",
+        "3",
+        "-refine",
+        "200",
+        "-t",
+        "2",
+        "-dev",
+        "0",
+        "-launch",
+        "30",
+        "-maxlines",
+        "1000",
+        "-umax",
+        "20000",
+        "-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/2_s0005_baseline.poly",
+        "-pool-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/2_s0005_baseline.pool",
+        "-refine-gpu"
+      ],
+      "seconds": 64.43163801499986,
+      "returncode": 0,
+      "log_sha256": "7936b00fc2caecef6f25bf55c2936a9742b41876da83daa0c82eccb69348969e",
+      "seed": "s0005",
+      "mode": "baseline",
+      "repetition": 2,
+      "cells": 2060000000000.0,
+      "sieve_seconds": 62.27,
+      "model_seconds": 1.91,
+      "refine_seconds": 0.13,
+      "vector_launches": 0,
+      "scalar_launches": null,
+      "identical_production_pool": true,
+      "identical_production_exports": true
+    },
+    {
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/optimized",
+        "-poly",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_c197_gpu/seeds/s0005.poly",
+        "-search",
+        "-budget",
+        "3.0",
+        "-maxcells",
+        "6000000000000.0",
+        "-aw",
+        "1.3",
+        "-rerank",
+        "4096",
+        "-top",
+        "3",
+        "-refine",
+        "200",
+        "-t",
+        "2",
+        "-dev",
+        "0",
+        "-launch",
+        "30",
+        "-maxlines",
+        "1000",
+        "-umax",
+        "20000",
+        "-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/2_s0005_optimized.poly",
+        "-pool-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/2_s0005_optimized.pool",
+        "-refine-gpu"
+      ],
+      "seconds": 34.987961981000126,
+      "returncode": 0,
+      "log_sha256": "8aa476afdd478cd7a8b2ccd637e311b55e81c7087fc750c982fac80ff420d439",
+      "seed": "s0005",
+      "mode": "optimized",
+      "repetition": 2,
+      "cells": 2060000000000.0,
+      "sieve_seconds": 32.9,
+      "model_seconds": 1.84,
+      "refine_seconds": 0.13,
+      "vector_launches": 1916,
+      "scalar_launches": 0,
+      "identical_production_pool": true,
+      "identical_production_exports": true
+    },
+    {
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/optimized",
+        "-poly",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_c197_gpu/seeds/s0001.poly",
+        "-search",
+        "-budget",
+        "3.0",
+        "-maxcells",
+        "6000000000000.0",
+        "-aw",
+        "1.3",
+        "-rerank",
+        "4096",
+        "-top",
+        "3",
+        "-refine",
+        "200",
+        "-t",
+        "2",
+        "-dev",
+        "0",
+        "-launch",
+        "30",
+        "-maxlines",
+        "1000",
+        "-umax",
+        "20000",
+        "-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/2_s0001_optimized.poly",
+        "-pool-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/2_s0001_optimized.pool",
+        "-refine-gpu"
+      ],
+      "seconds": 59.28520847500022,
+      "returncode": 0,
+      "log_sha256": "ed4c8fc21924d662f31455bbc5863a8763257e907568a264eaa026153fcb5c0f",
+      "seed": "s0001",
+      "mode": "optimized",
+      "repetition": 2,
+      "cells": 3620000000000.0,
+      "sieve_seconds": 57.55,
+      "model_seconds": 1.49,
+      "refine_seconds": 0.12,
+      "vector_launches": 3374,
+      "scalar_launches": 0,
+      "identical_production_pool": true,
+      "identical_production_exports": true
+    },
+    {
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/bin/s23_ropt",
+        "-poly",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_c197_gpu/seeds/s0001.poly",
+        "-search",
+        "-budget",
+        "3.0",
+        "-maxcells",
+        "6000000000000.0",
+        "-aw",
+        "1.3",
+        "-rerank",
+        "4096",
+        "-top",
+        "3",
+        "-refine",
+        "200",
+        "-t",
+        "2",
+        "-dev",
+        "0",
+        "-launch",
+        "30",
+        "-maxlines",
+        "1000",
+        "-umax",
+        "20000",
+        "-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/2_s0001_baseline.poly",
+        "-pool-out",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve/full_depth/2_s0001_baseline.pool",
+        "-refine-gpu"
+      ],
+      "seconds": 107.94488947899981,
+      "returncode": 0,
+      "log_sha256": "6b4fc8af11ffa246408b784998a0c7141f12372197e65b2c643bcaae4b54911f",
+      "seed": "s0001",
+      "mode": "baseline",
+      "repetition": 2,
+      "cells": 3620000000000.0,
+      "sieve_seconds": 106.19,
+      "model_seconds": 1.54,
+      "refine_seconds": 0.12,
+      "vector_launches": 0,
+      "scalar_launches": null,
+      "identical_production_pool": true,
+      "identical_production_exports": true
+    }
+  ],
+  "preliminary_layouts": {
+    "repeats": 5,
+    "cases": {
+      "c197_dense": {
+        "median_seconds": {
+          "baseline": 1.02,
+          "nt384_cpt16": 1.22,
+          "nt512_cpt16": 1.27,
+          "nt512_cpt8": 1.54
+        },
+        "speedup": {
+          "baseline": 1.0,
+          "nt384_cpt16": 0.8360655737704918,
+          "nt512_cpt16": 0.8031496062992126,
+          "nt512_cpt8": 0.6623376623376623
+        }
+      },
+      "c208_strided": {
+        "median_seconds": {
+          "baseline": 1.06,
+          "nt384_cpt16": 1.24,
+          "nt512_cpt16": 1.3,
+          "nt512_cpt8": 1.66
+        },
+        "speedup": {
+          "baseline": 1.0,
+          "nt384_cpt16": 0.8548387096774194,
+          "nt512_cpt16": 0.8153846153846154,
+          "nt512_cpt8": 0.6385542168674699
+        }
+      },
+      "c168_short_blocks": {
+        "median_seconds": {
+          "baseline": 0.03,
+          "nt384_cpt16": 0.03,
+          "nt512_cpt16": 0.04,
+          "nt512_cpt8": 0.04
+        },
+        "speedup": {
+          "baseline": 1.0,
+          "nt384_cpt16": 1.0,
+          "nt512_cpt16": 0.75,
+          "nt512_cpt8": 0.75
+        }
+      }
+    },
+    "note": "Isolated windows, rotated mode order, one warmup per mode. All 128 printed hits agree. Sieve timers are rounded to 0.01 s. Each process time includes CUDA startup."
+  },
+  "preliminary_grouped_lookups": {
+    "repeats": 3,
+    "cases": {
+      "c197_dense": {
+        "median_seconds": {
+          "baseline": 1.06,
+          "tables_nt256_cpt32": 1.03,
+          "tables_nt384_cpt16": 1.23,
+          "vector4": 0.59
+        },
+        "speedup": {
+          "baseline": 1.0,
+          "tables_nt256_cpt32": 1.029126213592233,
+          "tables_nt384_cpt16": 0.8617886178861789,
+          "vector4": 1.7966101694915255
+        }
+      },
+      "c208_strided": {
+        "median_seconds": {
+          "baseline": 1.1,
+          "tables_nt256_cpt32": 1.05,
+          "tables_nt384_cpt16": 1.31,
+          "vector4": 0.6
+        },
+        "speedup": {
+          "baseline": 1.0,
+          "tables_nt256_cpt32": 1.0476190476190477,
+          "tables_nt384_cpt16": 0.8396946564885497,
+          "vector4": 1.8333333333333335
+        }
+      },
+      "c168_short_blocks": {
+        "median_seconds": {
+          "baseline": 0.05,
+          "tables_nt256_cpt32": 0.08,
+          "tables_nt384_cpt16": 0.07,
+          "vector4": 0.07
+        },
+        "speedup": {
+          "baseline": 1.0,
+          "tables_nt256_cpt32": 0.625,
+          "tables_nt384_cpt16": 0.7142857142857143,
+          "vector4": 0.7142857142857143
+        }
+      }
+    },
+    "note": "Isolated windows, rotated mode order, one warmup per mode. All 128 printed hits agree. Sieve timers are rounded to 0.01 s. Each process time includes CUDA startup."
+  },
+  "profiler_logs": {
+    "ncu_baseline.txt": "bf98f0161ebf51fbc4c7ed41beb773d30c72c4e98550e7fc35a1bc6bae932eb4",
+    "ncu_workload.txt": "58036538770185f64b95e435e1b63f6453c53ab713a6e234417b9c35f1c8945d"
+  },
+  "resource_policy": {
+    "vector_threads": 1024,
+    "dynamic_shared_bytes": 77776,
+    "max_table_rows": 1024,
+    "optional_device_cache_bytes": 20180992,
+    "min_average_selected_cells": 65536,
+    "scalar_fallbacks": [
+      "short blocks",
+      "insufficient device resources",
+      "more than 1024 unique u rows in a launch",
+      "optional cache allocation failure"
+    ]
+  },
+  "note": "Three alternating repetitions per complete C197 depth seed, one GPU process, two host threads. All runs reproduce the original 4096-cell pools and 200 exports exactly. This is a root-search component result, not a measured whole-pipeline speedup.",
+  "run_directory": "/home/kylea/msieve-s/stage23_gpu/runs/20261024_root_sieve"
+}

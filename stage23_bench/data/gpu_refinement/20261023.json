@@ -1,0 +1,556 @@
+{
+  "binaries": {
+    "cpu": {
+      "path": "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/bin/s23_ropt_cpu",
+      "sha256": "3bcc3ff985bc8782705024dc312bb00cefcd3fcbaab3e1abbd79a4d9b5a6c673"
+    },
+    "gpu": {
+      "path": "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/bin/s23_ropt",
+      "sha256": "193dbcecd4c87fd049d6ba0838180482e02ee19ee2f8ef9fec6915e376b4d52f"
+    },
+    "scorer": {
+      "path": "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/bin/cado_murphy",
+      "sha256": "3db4195375d134592178b9df4db0d26d48574262fb0e5187d4ba0dde57c1d7c1"
+    }
+  },
+  "source_sha256": {
+    "/home/kylea/msieve-s/stage23_bench/data/c208/ropt_coverage/s0010.poly": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_loss_trace/wide_pool/seed10_pool65536.pool": "c0f4f8672d786a6bcc66ed4c7eaeef71065ef55bfedf115c874f121c447a7082",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0001.poly": "20adbd1366896eeff81e6bf75e4274a7dd4e11e1c37e2cd1e928748855a30afe",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0001.pool": "b204c4460855482a1596d1508648c79dd9684ec8604df7666b331885489362bf",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0002.poly": "09be753594edaf7ab7b303c6fe61b594db24e9691bbca01b5b4b7cf0fabda1a0",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0002.pool": "9c00213f2037bf8c6d24d6b751d40a6f0cda7b79eab4820cc7abff346dfac6ea",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0003.poly": "7f176cd1860f49884a67e1316bdee14d06ed9cc2c44a6a204c490c317534c630",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0003.pool": "63ee8181319ed3a7a0626f002a2462754a74aef231acf9f09128f0d237c26781",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0005.poly": "4717a373e07f39b012f9cbbc6648b9bfd9b0720ed78542004481e68bf466db66",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0005.pool": "05648c1a7bcd3b311cd2e6d44c75196b2de6fd0a8cf1a5a722b1e7e58e98f2ff",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0006.poly": "7069f3e44c3993ed8b4d903bf1166d30a6f0e7b034e8ed08aed71d2476c11941",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0006.pool": "83494dfa45aa40139427abf589072d22a71e083e2f5a65c945f19a021bc48511",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0008.poly": "339b42561e1bb8f8c506c6688d3d388fedcfcbc89c1a6acb87a00cc6781725dc",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0008.pool": "39eb0da2eb2c44e24b17b043b3ab9e05dea03ea9acbf7a4bbed3043b8070f31d",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0009.poly": "9cb8df7004762f8f130e2ebe18106a0f959b61bc2f500c224d9683acd2e9acd2",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0009.pool": "22d6e3fe47f08786042fc1f3f346003f86d84598f8e728cf3a207f12024363b9",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0016.poly": "84a220dbb84497e6d74373cd2813379d5170363031a7d0c29de2c14135fec26c",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0016.pool": "10fd8644b5090040dcf6176cb26117d3a3f8dd9d1a33acced9362d23c8cf0c40",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0034.poly": "50656d2f0d250424f6057dea71690cde57a21801023ff31a73607182fe64bebc",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0034.pool": "9c59fda1f490de23afcb9c7fd7dd2eeb18b9cfcc8b02ec6c41781a7f79a4eaf5",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0045.poly": "061d3d1eb7c2ef1f9f3e9b82d328873ffe65bd4d99c60b534c182da7d15635ab",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0045.pool": "73dce21e1986a3ab3ac8a26f7cf6549efde3f0d0dfde508bc73f84daec433b33",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0046.poly": "1df374e3c5f34f7e5790230741d54ed5c876ce3f3df77f546eb183fd04a48522",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0046.pool": "4905a72f53a3a55c9ce55487695be2e5ba19b03ef9906a1ceeac778f6c4bc7c4",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0055.poly": "b1e3702400cf3a65083c43cfb6e0436e0e4128b8373922f3fabd49f2e259da7e",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0055.pool": "e68af5d3aca062b3d060b95ba43967d112c7d5207fa27ed498175cd0188f4d9e",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0086.poly": "c0b19603cd7755580295a7599b3c43ff37cce95010b3991e4bc0f5d40d19f240",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0086.pool": "ccf7a0791d8ace7647ae4494fa1c4a117821b93f64211d64b1a607b8a9c1a24a",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0094.poly": "416ace3065629e1163ff86d75f950808a96a345c95cde939826027424b1cdf9a",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0094.pool": "e73550e71b12528375ed8032caa4ceb59687d5ee2ae6cdc04deb57d4d10e9bbc",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0119.poly": "6fa101396e3a65c41fd70e751585629dddf3e98d927293d342dc93c5da258548",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0119.pool": "d813502baa83f856a30fd393fca193a4517eb91ae6943901ec710722f3e4441d",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/seeds/s0179.poly": "f2d0a98313800124154f7e23ea7049e1f0e32d06600aeb26600dc4b4b53c1eb2",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261016_c171/depth/s0179.pool": "d986ad9468e901b5ca018957587182e419a744b8ad7180312d5b12623afa3fa8",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/seeds/s0003.poly": "3cff893f5676f8580d8a24c4a4de96d967833ede37a0a6b52772e2ac55c5d703",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/depth/s0003.pool": "d19f86cbbe0e215077d1d6aeaae4f701f4f561495b4ffce84546d37faf43466d",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/seeds/s0008.poly": "5e93b125b59c98137afdc0e76266cc45a548514018ae9d77830e9aa3fddf1e9a",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/depth/s0008.pool": "cf60f81ceef587e0deca10ccc72e3d3a96a5d6ea6c7e37eeb89f2af8511f103a",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/seeds/s0010.poly": "c966e920bd77b325118c3ff3bb352011ada0bbe9d4feda53a87a1873a6db7fa5",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/depth/s0010.pool": "d59abe8fbfcfaf204f3fd2da8faca165002988713f08e3b616f49cf2fd68f022",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/seeds/s0014.poly": "76ac9e410779783f6d523b7a250b60577866261f0359a773b817366daf821f17",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c147/depth/s0014.pool": "5cf3d672dbdcc5642792535001de41af1aa3b028c9ce3c1de259c8597a528adb",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/seeds/s0004.poly": "d9b0cb8363b8d60efed66210bae6119f6e24841a2542f589caf9c2d914b08243",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/depth/s0004.pool": "f5acb7f74396cb7573f21648efb46ffe531f750ba7b9bdd1baa45969036bda87",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/seeds/s0006.poly": "05ef1b33cd89f4124bd6959fb18e9a075a4d493882ed0aa096ac30ebbf87c52c",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/depth/s0006.pool": "f5a917f91d0feefd11ac4ea5309c6e57810b2e871dfd8ff401fa784641d0dc38",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/seeds/s0008.poly": "933c7036a1200776dbb69b0dc9365def907361f91bd14a6c320695d5aa0d028f",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/depth/s0008.pool": "5e0fccdb3a4320b75a0e2ed2c5f21097ba9de8b6afa12b8358267e16a0ee4d8c",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/seeds/s0009.poly": "f5f22931ced5f26bd3cd9be9085229f32f48e0c992e4fc65a3bc0fe7b6e16ec7",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261015_local/c166/depth/s0009.pool": "f68ffa09dc4d1db4eb90e93a286ddfdff0471e2cdec652769258133b58b5d733",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261019_c192/seeds/s0012.poly": "a4bcdd47f5143966730e841e35b504008ac36d3b500e45c3925ff833e0141405",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261019_c192/depth/s0012.pool": "fb702cc32410bd84d47403cf8e7a8ead7db13726f53a222f023b8c7f11da60ee"
+  },
+  "corpus": [
+    {
+      "tag": "c208",
+      "candidates": 65536,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "553cc5ebebf56f6fe84e98d37eba7bab46d4095fb42f6e3fd632b8d1c9c8f31a",
+      "gpu_sha256": "553cc5ebebf56f6fe84e98d37eba7bab46d4095fb42f6e3fd632b8d1c9c8f31a",
+      "max_dL": 0.0,
+      "max_dA": 7.1054273576e-15,
+      "max_dkey": 1.42108547152e-14,
+      "different_translations": 3
+    },
+    {
+      "tag": "c171_s0001",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "c52633020bf53f76c006bbfcba3efd4ac10a38279c9dd7715b59ad3e7e549243",
+      "gpu_sha256": "c52633020bf53f76c006bbfcba3efd4ac10a38279c9dd7715b59ad3e7e549243",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c171_s0002",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "41324b8f6cbfa7cd0ac857b2fedf3cc26a8ec78f2b30544a5f484df5f6b8a5f8",
+      "gpu_sha256": "41324b8f6cbfa7cd0ac857b2fedf3cc26a8ec78f2b30544a5f484df5f6b8a5f8",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c171_s0003",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "6b89da3f138c9501ce37188166a3d3986570f5918ddb91b66dfdd5de49664a93",
+      "gpu_sha256": "6b89da3f138c9501ce37188166a3d3986570f5918ddb91b66dfdd5de49664a93",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c171_s0005",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "8cc132c876b4fa5e6be54eb1465785411ec7db57fb80c3eb5c8cba3a3b685886",
+      "gpu_sha256": "8cc132c876b4fa5e6be54eb1465785411ec7db57fb80c3eb5c8cba3a3b685886",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c171_s0006",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "c25272f3f05947f7de25768ed1fbb93921e2738cd0faf50ee5bfda5248300ce2",
+      "gpu_sha256": "c25272f3f05947f7de25768ed1fbb93921e2738cd0faf50ee5bfda5248300ce2",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c171_s0008",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "2883982410160f33815def6593e8e1875e4b35da0d5a7ac08e6f338c48c61df2",
+      "gpu_sha256": "2883982410160f33815def6593e8e1875e4b35da0d5a7ac08e6f338c48c61df2",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c171_s0009",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "11cd933c80cf7d11a14d39b8acc204a30d736270a8f2627134fc9e0f99941848",
+      "gpu_sha256": "11cd933c80cf7d11a14d39b8acc204a30d736270a8f2627134fc9e0f99941848",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c171_s0016",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "fe155a8432338f81798b056c258dfbffdcac4f7b9770d0287063338916643720",
+      "gpu_sha256": "fe155a8432338f81798b056c258dfbffdcac4f7b9770d0287063338916643720",
+      "max_dL": 0.0,
+      "max_dA": 4.4408920985e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 1
+    },
+    {
+      "tag": "c171_s0034",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "f3c968ecbd4736231f53b7d0d451239a4c85456cae99c7a871c85edf85a7a73d",
+      "gpu_sha256": "f3c968ecbd4736231f53b7d0d451239a4c85456cae99c7a871c85edf85a7a73d",
+      "max_dL": 0.0,
+      "max_dA": 4.4408920985e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c171_s0045",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "91614b95a9dabf3672024acc78f46cfcf1b8386c49858f5c6f6aa4f1a0312979",
+      "gpu_sha256": "91614b95a9dabf3672024acc78f46cfcf1b8386c49858f5c6f6aa4f1a0312979",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c171_s0046",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "2957bf3148a3c372c3f30e9d69396054b4d219aebd9a607eca34c4b9fab3da96",
+      "gpu_sha256": "2957bf3148a3c372c3f30e9d69396054b4d219aebd9a607eca34c4b9fab3da96",
+      "max_dL": 0.0,
+      "max_dA": 4.4408920985e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c171_s0055",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "047428b91c3fe84777662afe3bc4c5ba0bf7f864ab9da3cd018fb565f1908070",
+      "gpu_sha256": "047428b91c3fe84777662afe3bc4c5ba0bf7f864ab9da3cd018fb565f1908070",
+      "max_dL": 0.0,
+      "max_dA": 4.4408920985e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c171_s0086",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "cf7e57df3b19ed58d993897e853fcefba7300f127dcb48ef2d13ee840b84ae58",
+      "gpu_sha256": "cf7e57df3b19ed58d993897e853fcefba7300f127dcb48ef2d13ee840b84ae58",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c171_s0094",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "b55fb2edb0c2c42823cc98fd4a8f65aa7408cdf113ab88acc8b6054928e83aed",
+      "gpu_sha256": "b55fb2edb0c2c42823cc98fd4a8f65aa7408cdf113ab88acc8b6054928e83aed",
+      "max_dL": 0.0,
+      "max_dA": 4.4408920985e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c171_s0119",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "ae08be62a8473887699be3a59d745f182d9bd2153900367fa243cee281b02777",
+      "gpu_sha256": "ae08be62a8473887699be3a59d745f182d9bd2153900367fa243cee281b02777",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c171_s0179",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "d4ea46f929ed416d43a6c737c15ddbf88b2eac45c89dd5f55f505532b599aa55",
+      "gpu_sha256": "d4ea46f929ed416d43a6c737c15ddbf88b2eac45c89dd5f55f505532b599aa55",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c147_s0003",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "b411d6006dc4aceb0c8da84dbf927ad2ff1d4fa61f96f083586fd983d30f0336",
+      "gpu_sha256": "b411d6006dc4aceb0c8da84dbf927ad2ff1d4fa61f96f083586fd983d30f0336",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c147_s0008",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "07a3630aee1c539357b4812677e45e4ad65cd26fecb33bbb51a1e1569a827303",
+      "gpu_sha256": "07a3630aee1c539357b4812677e45e4ad65cd26fecb33bbb51a1e1569a827303",
+      "max_dL": 0.0,
+      "max_dA": 4.4408920985e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c147_s0010",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "4b51d9415395b567c7d0159f9b4e90732756b942eb8ffc3a1f8161ceab5f3c14",
+      "gpu_sha256": "4b51d9415395b567c7d0159f9b4e90732756b942eb8ffc3a1f8161ceab5f3c14",
+      "max_dL": 0.0,
+      "max_dA": 4.4408920985e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c147_s0014",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "40291787f2e8f288939802dede66813b6d3bde90174c1d66a203371de9b3abab",
+      "gpu_sha256": "40291787f2e8f288939802dede66813b6d3bde90174c1d66a203371de9b3abab",
+      "max_dL": 0.0,
+      "max_dA": 4.4408920985e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c166_s0004",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "99be029f572939f575b91e946ac8d1eecd6ba6e81d6e672eb8c3aed73e178cb2",
+      "gpu_sha256": "99be029f572939f575b91e946ac8d1eecd6ba6e81d6e672eb8c3aed73e178cb2",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c166_s0006",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "fb8abfe45ba4607d0d4f970f213590fa82e469afd28f71cc75ee72bc066ce02b",
+      "gpu_sha256": "fb8abfe45ba4607d0d4f970f213590fa82e469afd28f71cc75ee72bc066ce02b",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c166_s0008",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "22b43e9637b27a39096ba30c54f9062b45a17af97d263942a684b05872aec486",
+      "gpu_sha256": "22b43e9637b27a39096ba30c54f9062b45a17af97d263942a684b05872aec486",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c166_s0009",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "5b96e83d618a5e1f8be5d4b998ce7a6007111fb0ca992c20105ef5ff0aae4d5d",
+      "gpu_sha256": "5b96e83d618a5e1f8be5d4b998ce7a6007111fb0ca992c20105ef5ff0aae4d5d",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    },
+    {
+      "tag": "c192",
+      "candidates": 4096,
+      "retained": 200,
+      "byte_identical": true,
+      "cpu_sha256": "6957edcd68a267e0d2e0908a79b1ba023c25772d3780f4c95ea5a5bc460820d3",
+      "gpu_sha256": "6957edcd68a267e0d2e0908a79b1ba023c25772d3780f4c95ea5a5bc460820d3",
+      "max_dL": 0.0,
+      "max_dA": 3.5527136788e-15,
+      "max_dkey": 7.1054273576e-15,
+      "different_translations": 0
+    }
+  ],
+  "murphy": [
+    {
+      "label": "murphy_cpu_0",
+      "mode": "cpu",
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/bin/s23_ropt_cpu",
+        "-batch",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/murphy_cpu_0/jobs.tsv"
+      ],
+      "wall_seconds": 4.347973119991366,
+      "phase_seconds": 4.28,
+      "manifest_sha256": "7a3e7aab69fd294f5d1b307da591e2a40de8593790b64e6942755f379008cc24",
+      "log_sha256": "b51d6af25b64c2ad024c0ecdb409ab77cae5c705d420dbee1b2cff644c1eb529"
+    },
+    {
+      "label": "murphy_gpu_0",
+      "mode": "gpu",
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/bin/s23_ropt",
+        "-batch",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/murphy_gpu_0/jobs.tsv"
+      ],
+      "wall_seconds": 1.279533258988522,
+      "phase_seconds": 0.81,
+      "manifest_sha256": "d65ea4ed25151c0e4e14d0c6a622383e3ef4f7ae2af8f8de610ffc03d2845772",
+      "log_sha256": "c325b359b0f87c637f3cd841558ec9be91149c610bbebebc06a4c99379ae7bee"
+    },
+    {
+      "label": "murphy_gpu_1",
+      "mode": "gpu",
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/bin/s23_ropt",
+        "-batch",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/murphy_gpu_1/jobs.tsv"
+      ],
+      "wall_seconds": 1.280165854957886,
+      "phase_seconds": 0.74,
+      "manifest_sha256": "a27776c354d4f7dc6fc491e39188cc25faeb0dc012f4333b61c16abd54f702f0",
+      "log_sha256": "855067275d92befb809e95993220f5c7a0ec4acdafc63697ccba148b420d94ba"
+    },
+    {
+      "label": "murphy_cpu_1",
+      "mode": "cpu",
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/bin/s23_ropt_cpu",
+        "-batch",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/murphy_cpu_1/jobs.tsv"
+      ],
+      "wall_seconds": 4.34985294402577,
+      "phase_seconds": 4.32,
+      "manifest_sha256": "ca32bf0ea56c94a127cf7aeabda609287d6b85be05e22ef01515ae56880e8130",
+      "log_sha256": "4d70a5c588565b4971161cfe86a3c70642d90f108a8031d8ab9f8d9e84b8b07a"
+    },
+    {
+      "label": "murphy_cpu_2",
+      "mode": "cpu",
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/bin/s23_ropt_cpu",
+        "-batch",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/murphy_cpu_2/jobs.tsv"
+      ],
+      "wall_seconds": 4.4979478400200605,
+      "phase_seconds": 4.449999999999999,
+      "manifest_sha256": "73ffed67b3b30c97d1a434baac046b65f154c18296b75e3561101e90ba8b4a5c",
+      "log_sha256": "8b86e1c8930c4c18021ee1cb3c312cb05d068901d414ed359672b4504a0acaf2"
+    },
+    {
+      "label": "murphy_gpu_2",
+      "mode": "gpu",
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/bin/s23_ropt",
+        "-batch",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/murphy_gpu_2/jobs.tsv"
+      ],
+      "wall_seconds": 1.2859012720291503,
+      "phase_seconds": 0.8400000000000001,
+      "manifest_sha256": "5508bf01b6bf1141d8f1cb1ddfdf1150b7cbde632b0f9e26e3890c2e0034751b",
+      "log_sha256": "ecba73c722ba0f1eff1192b032f411051cc03435be8ed8e14498cef50c5ff363"
+    }
+  ],
+  "note": "Full-alpha corpus audit and bounded CPU/CUDA MurphyE comparison.\n\nUses copied saved pools, never searches new rotation space. The 25-case screen\ncorpus is refined at full bound without screening, plus C192's winning pool.\nMurphy timing uses the top 16 exact-alpha cells from C208 and C192, two CPU\nthreads, and persistent processes. Timings are component measurements only.\n",
+  "alpha_timings": [
+    {
+      "label": "alpha_cpu",
+      "mode": "cpu",
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/bin/s23_ropt_cpu",
+        "-batch",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/alpha_cpu/jobs.tsv"
+      ],
+      "wall_seconds": 51.07768038997892,
+      "phase_seconds": 50.58,
+      "manifest_sha256": "8e8783564e1b555ed09fa575ed0b78eec784aea7d3d90eb943cf2a8bd7244b89",
+      "log_sha256": "2d269a26028df7d95a2eb3188388a4ca7db74ffdeccc8f75048e28ccc58adc7b"
+    },
+    {
+      "label": "alpha_gpu",
+      "mode": "gpu",
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/bin/s23_ropt",
+        "-batch",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/alpha_gpu/jobs.tsv"
+      ],
+      "wall_seconds": 5.975730054022279,
+      "phase_seconds": 4.83,
+      "manifest_sha256": "39598f9d95f28b3ee9a7d87210fff0d02272c1afb9e801a4a0b5ffc87c547ba2",
+      "log_sha256": "9dd38a00b33ddb276f7adf76625368c3bcebb0da978c6d13c45f197f91e2d03a"
+    }
+  ],
+  "independent_256k": [
+    {
+      "tag": "c208",
+      "cpu": 1.146412e-08,
+      "gpu": 1.146412e-08,
+      "ratio": 1.0
+    },
+    {
+      "tag": "c192",
+      "cpu": 1.19486e-08,
+      "gpu": 1.19486e-08,
+      "ratio": 1.0
+    }
+  ],
+  "murphy_median_seconds": {
+    "cpu": 4.34985294402577,
+    "gpu": 1.280165854957886
+  },
+  "sources_unchanged": true,
+  "regressions": {
+    "host_suite": {
+      "log": "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/regressions/s23_gpu_refine_host_suite.log",
+      "sha256": "d93e1b31d739ce5a4a07b9ccdc24e46559aaba29dea49386286b72e1a50405ba",
+      "test_counts": [
+        3,
+        4,
+        41,
+        5,
+        5,
+        3,
+        5,
+        6,
+        6,
+        8,
+        5
+      ],
+      "passed": true
+    },
+    "gpu_refinement_and_screen": {
+      "log": "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/regressions/s23_gpu_refine_all_gpu_tests.log",
+      "sha256": "641be123e996778cc7f71d222417ebb26484e8af344f4b4463e41e5d74daf99f",
+      "test_counts": [
+        12
+      ],
+      "passed": true
+    },
+    "gpu_batch": {
+      "log": "/home/kylea/msieve-s/stage23_gpu/runs/20261023_gpu_refine/regressions/s23_gpu_refine_batch_tests.log",
+      "sha256": "3cfad9b2181cedd28d2709d9dfe7184be32054e48abe15e79bde04af7c400dfa",
+      "test_counts": [
+        8
+      ],
+      "passed": true
+    }
+  },
+  "midsearch_fallback_regression": {
+    "cases": 5,
+    "failures": 0,
+    "command": "stage23_gpu/build/test_murphy_cell stage23_bench/data/c181/translation/gpu.poly"
+  },
+  "max_gpu_murphy_audit_relative_error": 1.37258611854e-14,
+  "alpha_gpu_cpu_fallbacks": 0,
+  "murphy_speedup": 3.397882334683007
+}

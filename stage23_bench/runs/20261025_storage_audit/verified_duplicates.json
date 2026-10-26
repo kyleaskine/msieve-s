@@ -1,0 +1,395 @@
+[
+  {
+    "sha256": "e12a51275bdfa0a7ed40ba84adc171274af2e01e8fee5ccd191899b0aef58a68",
+    "bytes": 104270648,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261013_backups/c187/cpu/msieve_ropt_orig.p",
+        "bytes": 104270648,
+        "allocated": 104275968,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 319470,
+        "sha256": "e12a51275bdfa0a7ed40ba84adc171274af2e01e8fee5ccd191899b0aef58a68"
+      },
+      {
+        "path": "stage23_gpu/runs/20261013_backups/c187/cpu_reference/msieve_ropt_orig.p",
+        "bytes": 104270648,
+        "allocated": 104275968,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 72901,
+        "sha256": "e12a51275bdfa0a7ed40ba84adc171274af2e01e8fee5ccd191899b0aef58a68"
+      }
+    ]
+  },
+  {
+    "sha256": "6cdaebfbe249769d5619c5a98fbeca452a9b56b52ce55db8073592352e09ae6d",
+    "bytes": 104249246,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261013_backups/c187/cpu/msieve_ropt_inv.p",
+        "bytes": 104249246,
+        "allocated": 104255488,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 319471,
+        "sha256": "6cdaebfbe249769d5619c5a98fbeca452a9b56b52ce55db8073592352e09ae6d"
+      },
+      {
+        "path": "stage23_gpu/runs/20261013_backups/c187/cpu_reference/msieve_ropt_inv.p",
+        "bytes": 104249246,
+        "allocated": 104255488,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 72905,
+        "sha256": "6cdaebfbe249769d5619c5a98fbeca452a9b56b52ce55db8073592352e09ae6d"
+      }
+    ]
+  },
+  {
+    "sha256": "1362d329902641eb663e425dd27d167848201048cbef3ba5e7754d6320471a80",
+    "bytes": 546072639,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261017_c181/inputs/source.raw",
+        "bytes": 546072639,
+        "allocated": 546078720,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 383368,
+        "sha256": "1362d329902641eb663e425dd27d167848201048cbef3ba5e7754d6320471a80"
+      },
+      {
+        "path": "backup_20261019_064859/msieve.dat.ms",
+        "bytes": 546072639,
+        "allocated": 546078720,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 13337,
+        "sha256": "1362d329902641eb663e425dd27d167848201048cbef3ba5e7754d6320471a80"
+      }
+    ]
+  },
+  {
+    "sha256": "b837a0589ab6ceb06da66e356dd0940fffbee805913456c1d9080ef584905bda",
+    "bytes": 2053838159,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261024_c197_gpu/preprocess/cado_sopt_unsorted.txt",
+        "bytes": 2053838159,
+        "allocated": 2053844992,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 498041,
+        "sha256": "b837a0589ab6ceb06da66e356dd0940fffbee805913456c1d9080ef584905bda"
+      },
+      {
+        "path": "stage23_gpu/runs/20261024_c197_gpu/inputs/source.sopt",
+        "bytes": 2053838159,
+        "allocated": 2053844992,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 498034,
+        "sha256": "b837a0589ab6ceb06da66e356dd0940fffbee805913456c1d9080ef584905bda"
+      },
+      {
+        "path": "backup_20261024_143924/cado_sopt_unsorted.txt",
+        "bytes": 2053838159,
+        "allocated": 2053849088,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 501401,
+        "sha256": "b837a0589ab6ceb06da66e356dd0940fffbee805913456c1d9080ef584905bda"
+      }
+    ]
+  },
+  {
+    "sha256": "5a236ade07e47f7763f6eac14e908d8e8ac338e34c580ff40d0e3cb88b33a8df",
+    "bytes": 423769535,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261024_c197_gpu/preprocess/cado_results_sorted.ms",
+        "bytes": 423769535,
+        "allocated": 423776256,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 498048,
+        "sha256": "5a236ade07e47f7763f6eac14e908d8e8ac338e34c580ff40d0e3cb88b33a8df"
+      },
+      {
+        "path": "backup_20261024_143924/cado_results_sorted.ms",
+        "bytes": 423769535,
+        "allocated": 423772160,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 501402,
+        "sha256": "5a236ade07e47f7763f6eac14e908d8e8ac338e34c580ff40d0e3cb88b33a8df"
+      }
+    ]
+  },
+  {
+    "sha256": "bbedb5cbe5273198563315671f4a78520c5fd3bfde4f92de55f6e93d354ccf27",
+    "bytes": 108344738,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261024_c197_gpu/cpu_reference/msieve_ropt_orig.p",
+        "bytes": 108344738,
+        "allocated": 108351488,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 497985,
+        "sha256": "bbedb5cbe5273198563315671f4a78520c5fd3bfde4f92de55f6e93d354ccf27"
+      },
+      {
+        "path": "backup_20261024_143924/pipeline_results/msieve_ropt_orig.p",
+        "bytes": 108344738,
+        "allocated": 108347392,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 501413,
+        "sha256": "bbedb5cbe5273198563315671f4a78520c5fd3bfde4f92de55f6e93d354ccf27"
+      }
+    ]
+  },
+  {
+    "sha256": "9276363403ca39cb3ff99b61bb971070cfb7f6fd8e3b7cfec905683e1b19245d",
+    "bytes": 108405024,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261024_c197_gpu/cpu_reference/msieve_ropt_inv.p",
+        "bytes": 108405024,
+        "allocated": 108408832,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 497987,
+        "sha256": "9276363403ca39cb3ff99b61bb971070cfb7f6fd8e3b7cfec905683e1b19245d"
+      },
+      {
+        "path": "backup_20261024_143924/pipeline_results/msieve_ropt_inv.p",
+        "bytes": 108405024,
+        "allocated": 108408832,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 501414,
+        "sha256": "9276363403ca39cb3ff99b61bb971070cfb7f6fd8e3b7cfec905683e1b19245d"
+      }
+    ]
+  },
+  {
+    "sha256": "9b682b889212b797a3f1a917725a63de68dac696cf4f5aaecf2ad59cec42401e",
+    "bytes": 769540825,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261022_three_jobs/c196/inputs/source.raw",
+        "bytes": 769540825,
+        "allocated": 769548288,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 313758,
+        "sha256": "9b682b889212b797a3f1a917725a63de68dac696cf4f5aaecf2ad59cec42401e"
+      },
+      {
+        "path": "backup_20261024_071318/msieve.dat.deduped.ms",
+        "bytes": 769540825,
+        "allocated": 769548288,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 497010,
+        "sha256": "9b682b889212b797a3f1a917725a63de68dac696cf4f5aaecf2ad59cec42401e"
+      }
+    ]
+  },
+  {
+    "sha256": "b42c01f68a58830cb1d879c20450ef6c703c182c9dff7a639260ef3338000d37",
+    "bytes": 2056339261,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261022_three_jobs/c196/cpu_reference/cado_sopt_unsorted.txt",
+        "bytes": 2056339261,
+        "allocated": 2056347648,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 344690,
+        "sha256": "b42c01f68a58830cb1d879c20450ef6c703c182c9dff7a639260ef3338000d37"
+      },
+      {
+        "path": "backup_20261024_071318/cado_sopt_unsorted.txt",
+        "bytes": 2056339261,
+        "allocated": 2056343552,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 497012,
+        "sha256": "b42c01f68a58830cb1d879c20450ef6c703c182c9dff7a639260ef3338000d37"
+      }
+    ]
+  },
+  {
+    "sha256": "47a036332421f4882a52358a26d27157af571201fc9d7c96c9541e3f56e0ab67",
+    "bytes": 108243679,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261022_three_jobs/c196/cpu_reference/msieve_ropt_orig.p",
+        "bytes": 108243679,
+        "allocated": 108249088,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 344686,
+        "sha256": "47a036332421f4882a52358a26d27157af571201fc9d7c96c9541e3f56e0ab67"
+      },
+      {
+        "path": "backup_20261024_071318/pipeline_results/msieve_ropt_orig.p",
+        "bytes": 108243679,
+        "allocated": 108249088,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 497025,
+        "sha256": "47a036332421f4882a52358a26d27157af571201fc9d7c96c9541e3f56e0ab67"
+      }
+    ]
+  },
+  {
+    "sha256": "35ef1829592ae42e5bac51707e0330615f84f7d8f0fd7abe80f68135d6988dd8",
+    "bytes": 108266223,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261022_three_jobs/c196/cpu_reference/msieve_ropt_inv.p",
+        "bytes": 108266223,
+        "allocated": 108273664,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 344685,
+        "sha256": "35ef1829592ae42e5bac51707e0330615f84f7d8f0fd7abe80f68135d6988dd8"
+      },
+      {
+        "path": "backup_20261024_071318/pipeline_results/msieve_ropt_inv.p",
+        "bytes": 108266223,
+        "allocated": 108269568,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 497024,
+        "sha256": "35ef1829592ae42e5bac51707e0330615f84f7d8f0fd7abe80f68135d6988dd8"
+      }
+    ]
+  },
+  {
+    "sha256": "6aa3cc73b63d2ad6131093fd5eb5567c626530169ea6f72b4b8d615bd19a5ba0",
+    "bytes": 106719684,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261019_c192/cpu_reference/msieve_ropt_orig.p",
+        "bytes": 106719684,
+        "allocated": 106725376,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 41391,
+        "sha256": "6aa3cc73b63d2ad6131093fd5eb5567c626530169ea6f72b4b8d615bd19a5ba0"
+      },
+      {
+        "path": "backup_20261020_060423/pipeline_results/msieve_ropt_orig.p",
+        "bytes": 106719684,
+        "allocated": 106725376,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 229776,
+        "sha256": "6aa3cc73b63d2ad6131093fd5eb5567c626530169ea6f72b4b8d615bd19a5ba0"
+      }
+    ]
+  },
+  {
+    "sha256": "e56f09b9799dd5e8545de084a0f05dfa4825542ae1a9764ca6a3b3d4e4c0093a",
+    "bytes": 106774360,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261019_c192/cpu_reference/msieve_ropt_inv.p",
+        "bytes": 106774360,
+        "allocated": 106774528,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 41394,
+        "sha256": "e56f09b9799dd5e8545de084a0f05dfa4825542ae1a9764ca6a3b3d4e4c0093a"
+      },
+      {
+        "path": "backup_20261020_060423/pipeline_results/msieve_ropt_inv.p",
+        "bytes": 106774360,
+        "allocated": 106778624,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 229777,
+        "sha256": "e56f09b9799dd5e8545de084a0f05dfa4825542ae1a9764ca6a3b3d4e4c0093a"
+      }
+    ]
+  },
+  {
+    "sha256": "0d6294f7f91e3765bb0666eff6018749980d632b8838c00f9dd00bb1bf21330a",
+    "bytes": 227841529,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261019_c192/cpu_reference/msieve_deep_ropt_top32/msieve_deep_ropt_inv.p",
+        "bytes": 227841529,
+        "allocated": 227848192,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 41423,
+        "sha256": "0d6294f7f91e3765bb0666eff6018749980d632b8838c00f9dd00bb1bf21330a"
+      },
+      {
+        "path": "backup_20261020_060423/pipeline_results/msieve_deep_ropt_top32/msieve_deep_ropt_inv.p",
+        "bytes": 227841529,
+        "allocated": 227848192,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 229775,
+        "sha256": "0d6294f7f91e3765bb0666eff6018749980d632b8838c00f9dd00bb1bf21330a"
+      }
+    ]
+  },
+  {
+    "sha256": "28d156b96706b02e5b7dcbd0c57fb7ce3cc6130a0eaa158da8993f1b5604cbbd",
+    "bytes": 227845040,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261019_c192/cpu_reference/msieve_deep_ropt_top32/msieve_deep_ropt_orig.p",
+        "bytes": 227845040,
+        "allocated": 227848192,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 41434,
+        "sha256": "28d156b96706b02e5b7dcbd0c57fb7ce3cc6130a0eaa158da8993f1b5604cbbd"
+      },
+      {
+        "path": "backup_20261020_060423/pipeline_results/msieve_deep_ropt_top32/msieve_deep_ropt_orig.p",
+        "bytes": 227845040,
+        "allocated": 227852288,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 229774,
+        "sha256": "28d156b96706b02e5b7dcbd0c57fb7ce3cc6130a0eaa158da8993f1b5604cbbd"
+      }
+    ]
+  },
+  {
+    "sha256": "7a8dcc11e1bff1dfc9521d837746c31ddefc3b87c94852b0f9ff41e4d552781d",
+    "bytes": 766523589,
+    "files": [
+      {
+        "path": "stage23_gpu/runs/20261019_c192/inputs/source.raw",
+        "bytes": 766523589,
+        "allocated": 766529536,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 41726,
+        "sha256": "7a8dcc11e1bff1dfc9521d837746c31ddefc3b87c94852b0f9ff41e4d552781d"
+      },
+      {
+        "path": "backup_20261020_060423/msieve.dat.ms",
+        "bytes": 766523589,
+        "allocated": 766529536,
+        "nlink": 1,
+        "dev": 2096,
+        "ino": 229693,
+        "sha256": "7a8dcc11e1bff1dfc9521d837746c31ddefc3b87c94852b0f9ff41e4d552781d"
+      }
+    ]
+  }
+]

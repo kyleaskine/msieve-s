@@ -1,0 +1,6 @@
+{
+  "cpu_count": 1000,
+  "gpu_count": 1000,
+  "identical_raw_inputs": 1000,
+  "identical_optimized": 1000
+}

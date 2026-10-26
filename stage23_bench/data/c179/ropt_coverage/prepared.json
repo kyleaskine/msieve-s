@@ -1,0 +1,95 @@
+{
+  "n": 57620329943072851234467695661532076333504874396552000279206114783643367173277603126879399724731783963048827698518286205989191152664289350141501384171806521091095958947776845847733,
+  "seed_index_zero_based": 8,
+  "target": {
+    "u": -55,
+    "v": 34188178,
+    "t": 14690493
+  },
+  "counts": {
+    "msieve_orig": {
+      "total": 60471,
+      "family_exports": 954,
+      "target_copies": 5,
+      "target_translations": [
+        14690493,
+        14690493,
+        14690493,
+        14690493,
+        14690493
+      ],
+      "family_leading_coefficients": [
+        -277200
+      ],
+      "printed_best": 1.217e-13,
+      "printed_family_best": 1.217e-13,
+      "best_family_rotation": {
+        "u": -55,
+        "v": 34188178,
+        "t": 14690493
+      }
+    },
+    "msieve_inv": {
+      "total": 60386,
+      "family_exports": 982,
+      "target_copies": 0,
+      "target_translations": [],
+      "family_leading_coefficients": [
+        277200
+      ],
+      "printed_best": 1.193e-13,
+      "printed_family_best": 1.128e-13,
+      "best_family_rotation": {
+        "u": -109,
+        "v": -850387982,
+        "t": 9520565
+      }
+    },
+    "cado_orig": {
+      "total": 150,
+      "family_exports": 1,
+      "target_copies": 0,
+      "target_translations": [],
+      "family_leading_coefficients": [
+        -277200
+      ],
+      "printed_best": 1.191e-13,
+      "printed_family_best": 1.121e-13,
+      "best_family_rotation": {
+        "u": -109,
+        "v": -850387982,
+        "t": -225040
+      }
+    },
+    "cado_inv": {
+      "total": 150,
+      "family_exports": 1,
+      "target_copies": 0,
+      "target_translations": [],
+      "family_leading_coefficients": [
+        277200
+      ],
+      "printed_best": 1.191e-13,
+      "printed_family_best": 1.118e-13,
+      "best_family_rotation": {
+        "u": -55,
+        "v": 461195878,
+        "t": 18628712
+      }
+    }
+  },
+  "sources_sha256": {
+    "/home/kylea/msieve-s/pipeline_results/msieve_ropt_orig.p": "f6dda5cf20128821984c776992a0acc9a640417cfa55a04865096f93a717a6b1",
+    "/home/kylea/msieve-s/pipeline_results/msieve_ropt_inv.p": "05c3eac71cb6c2a68803cbdd31f9efc0c9541558b5c146e8109685d37b7d9eda",
+    "/home/kylea/msieve-s/pipeline_results/cado_ropt_orig.txt": "d363335fd05890b4a24bf167948e10925bfbb73fecf57e6240f9a0a0dbddc436",
+    "/home/kylea/msieve-s/pipeline_results/cado_ropt_inv.txt": "1c874ec21d08ced0306d3f02729981c44a20c092abc58204d8e04c5fef0c2e47",
+    "/home/kylea/msieve-s/pipeline_results/best150_cado.txt": "0e4509488b8e5d03240cb4918b06e418f1b8b3cf49215c00aaa740d7ef062e00",
+    "/home/kylea/msieve-s/pipeline_results/best150_cado_inv.txt": "3005ecda5b58a57ac468808446f50d30b74ca3454f035bd1fa089dcbb654f6d6",
+    "/home/kylea/msieve-s/pipeline_results/best300_msieve.ms": "5195d99ca701b4f73770d1baf1a9be1ceef0b10b172f29814ed8ca8f54c71c80",
+    "/home/kylea/msieve-s/pipeline_results/best300_msieve_inv.ms": "9ba313f728152b62cb058fe065b052d7a09c4060bfd57a7640aaf22c62424072",
+    "/home/kylea/msieve-s/pipeline_results/pipeline_settings.txt": "7fd0c0299365ea7e8805955585380175c43a1ab133a6d71cc1fad02d2abc184e",
+    "/home/kylea/msieve-s/pipeline_results/pipeline_report.txt": "af738657618906e2d47608bf0fd28dd2ce28254023efd4c68a8baa52c6441656"
+  },
+  "script_sha256": "7ddaedabfa728c06505dc28845a182fe7987d3aeb9614fdcfc1b2d57b917658f",
+  "shortlist": "Inspect the C179 msieve-original-only winner without launching a GPU search.\n\nRescore all CADO outputs, the top 20 msieve exports per orientation, the top\n10 in the winning seed family, and every exported copy of the target rotation.\nThis is a focused shortlist, not an exhaustive rescore of all msieve outputs.\n"
+}

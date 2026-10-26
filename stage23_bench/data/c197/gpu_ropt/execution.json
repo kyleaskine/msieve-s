@@ -1,0 +1,37 @@
+{
+  "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+  "initial_mode": "import completed CPU initial sopt",
+  "pipeline": {
+    "returncode": 0,
+    "wall_seconds": 3376.8053485800046
+  },
+  "phases": {
+    "breadth": {
+      "seeds": 314,
+      "full_refine_gpu": 314,
+      "full_refine_fallbacks": 0
+    },
+    "depth": {
+      "seeds": 16,
+      "full_refine_gpu": 16,
+      "full_refine_fallbacks": 0
+    },
+    "murphy": {
+      "seeds": 4,
+      "full_refine_gpu": 4,
+      "full_refine_fallbacks": 0,
+      "murphy_gpu": 4,
+      "murphy_cpu_fallbacks": 0
+    }
+  },
+  "initial_count": 1680020,
+  "cpu_reference_unchanged": true,
+  "binary_sha256": {
+    "cado_murphy": "3db4195375d134592178b9df4db0d26d48574262fb0e5187d4ba0dde57c1d7c1",
+    "s23_ropt_cpu": "3bcc3ff985bc8782705024dc312bb00cefcd3fcbaab3e1abbd79a4d9b5a6c673",
+    "s23_ropt": "813b3e6064abbe4af1928159553bcad0a257103a385766a9474649245dc4e816",
+    "s23_sopt": "39ac39c8b2837c6ee3d2921f80b3cef6ae24616de5a225b653daf11b57415c26"
+  },
+  "run_dir": "/home/kylea/msieve-s/stage23_gpu/runs/20261024_c197_gpu",
+  "note": "Initial CPU sopt is shared. Pipeline timing excludes import and later audits; no matched full CPU timing or test sieve."
+}

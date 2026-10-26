@@ -1,0 +1,514 @@
+{
+  "started": "2026-10-25T16:22:11.096793+00:00",
+  "scope": "exact 101-file user-approved cleanup manifest",
+  "deleted": [
+    {
+      "path": "stage23_gpu/runs/20261013_backups/c165/sopt/e0_sorted.txt",
+      "allocated": 409284608,
+      "group": "legacy_sorted"
+    },
+    {
+      "path": "stage23_gpu/runs/20261013_backups/c187/sopt/e0_sorted.txt",
+      "allocated": 956948480,
+      "group": "legacy_sorted"
+    },
+    {
+      "path": "stage23_gpu/runs/20261017_c181/preprocess/cado_sopt_output.txt",
+      "allocated": 699650048,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261017_c181/preprocess/msieve.dat.deduped.ms",
+      "allocated": 518217728,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261017_c181/preprocess/cado_results_sorted.ms",
+      "allocated": 285429760,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261017_c181/preprocess/index.sqlite",
+      "allocated": 1690570752,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261024_c197_gpu/preprocess/cado_sopt_output.txt",
+      "allocated": 1024184320,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261024_c197_gpu/preprocess/cado_results_sorted.ms",
+      "allocated": 423776256,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261024_c197_gpu/preprocess/index.sqlite",
+      "allocated": 2341732352,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261022_three_jobs/c171/preprocess/cado_sopt_output.txt",
+      "allocated": 436731904,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261022_three_jobs/c171/preprocess/msieve.dat.deduped.ms",
+      "allocated": 319234048,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261022_three_jobs/c171/preprocess/cado_results_sorted.ms",
+      "allocated": 176148480,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261022_three_jobs/c171/preprocess/index.sqlite",
+      "allocated": 1097314304,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261022_three_jobs/c196/preprocess/cado_sopt_output.txt",
+      "allocated": 1025003520,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261022_three_jobs/c196/preprocess/msieve.dat.deduped.ms",
+      "allocated": 769548288,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261022_three_jobs/c196/preprocess/cado_results_sorted.ms",
+      "allocated": 423522304,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261022_three_jobs/c196/preprocess/index.sqlite",
+      "allocated": 2345967616,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261022_three_jobs/c179/preprocess/cado_sopt_output.txt",
+      "allocated": 647585792,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261022_three_jobs/c179/preprocess/msieve.dat.deduped.ms",
+      "allocated": 478879744,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261022_three_jobs/c179/preprocess/cado_results_sorted.ms",
+      "allocated": 263663616,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261022_three_jobs/c179/preprocess/index.sqlite",
+      "allocated": 1576886272,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261015_local/c166/preprocess/cado_sopt_output.txt",
+      "allocated": 404189184,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261015_local/c166/preprocess/msieve.dat.deduped.ms",
+      "allocated": 293720064,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261015_local/c166/preprocess/cado_results_sorted.ms",
+      "allocated": 162246656,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261015_local/c166/preprocess/index.sqlite",
+      "allocated": 1035476992,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261015_local/c147/preprocess/cado_sopt_output.txt",
+      "allocated": 182280192,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261015_local/c147/preprocess/msieve.dat.deduped.ms",
+      "allocated": 129601536,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261015_local/c147/preprocess/cado_results_sorted.ms",
+      "allocated": 71131136,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261015_local/c147/preprocess/index.sqlite",
+      "allocated": 506081280,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261014_pipeline_review/all/preprocess/cado_sopt_output.txt",
+      "allocated": 4096,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261014_pipeline_review/all/preprocess/msieve.dat.deduped.ms",
+      "allocated": 4096,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261014_pipeline_review/all/preprocess/cado_results_sorted.ms",
+      "allocated": 4096,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261014_pipeline_review/all/preprocess/index.sqlite",
+      "allocated": 12288,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261014_pipeline_review/split/preprocess/cado_sopt_output.txt",
+      "allocated": 4096,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261014_pipeline_review/split/preprocess/msieve.dat.deduped.ms",
+      "allocated": 4096,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261014_pipeline_review/split/preprocess/cado_results_sorted.ms",
+      "allocated": 4096,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261014_pipeline_review/split/preprocess/index.sqlite",
+      "allocated": 12288,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261016_c171/preprocess/cado_sopt_output.txt",
+      "allocated": 435343360,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261016_c171/preprocess/msieve.dat.deduped.ms",
+      "allocated": 318263296,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261016_c171/preprocess/cado_results_sorted.ms",
+      "allocated": 175636480,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261016_c171/preprocess/index.sqlite",
+      "allocated": 1093611520,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261019_c192/preprocess/cado_sopt_output.txt",
+      "allocated": 984633344,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261019_c192/preprocess/msieve.dat.deduped.ms",
+      "allocated": 735760384,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261019_c192/preprocess/cado_results_sorted.ms",
+      "allocated": 406528000,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/runs/20261019_c192/preprocess/index.sqlite",
+      "allocated": 2282278912,
+      "group": "preprocess_derived"
+    },
+    {
+      "path": "stage23_gpu/build/runs_20261012/c196/sopt/e0_sorted.txt",
+      "allocated": 1074266112,
+      "group": "legacy_sorted"
+    },
+    {
+      "path": "sopt_output/chunk_01.ms",
+      "allocated": 60801024,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/sopt_chunk_00.out",
+      "allocated": 164962304,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/chunk_03.ms",
+      "allocated": 60989440,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/sopt_chunk_05.out",
+      "allocated": 165339136,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/chunk_00.ms",
+      "allocated": 60760064,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/sopt_chunk_07.out",
+      "allocated": 165367808,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/sopt_chunk_06.out",
+      "allocated": 165355520,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/chunk_06.ms",
+      "allocated": 61022208,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/chunk_05.ms",
+      "allocated": 61014016,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/chunk_04.ms",
+      "allocated": 61018112,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/chunk_02.ms",
+      "allocated": 60829696,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/sopt_chunk_04.out",
+      "allocated": 165326848,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/sopt_chunk_02.out",
+      "allocated": 165089280,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/sopt_chunk_03.out",
+      "allocated": 165289984,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/msieve_with_expe.ms",
+      "allocated": 268443648,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/chunk_07.ms",
+      "allocated": 61034496,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "sopt_output/sopt_chunk_01.out",
+      "allocated": 165036032,
+      "group": "cpu_sopt_scratch"
+    },
+    {
+      "path": "profiling/trans_full_t3.ncu-rep",
+      "allocated": 14065664,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/scatter_roots_ncu.ncu-rep",
+      "allocated": 552960,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/trans_full_post_memset_60060.ncu-rep",
+      "allocated": 9805824,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/trans_full.ncu-rep",
+      "allocated": 8257536,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/sort_sol.ncu-rep",
+      "allocated": 1060864,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/filter_60060.ncu-rep",
+      "allocated": 9498624,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/msieve.gerbicz.dat.ms",
+      "allocated": 4767744,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/profile_gerbicz_420_memset.nsys-rep",
+      "allocated": 57049088,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/scatter_roots_ncu_stcs.ncu-rep",
+      "allocated": 552960,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/profile_gerbicz_420_log15.sqlite",
+      "allocated": 167591936,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/profile_gerbicz_420.sqlite",
+      "allocated": 163471360,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/filter_420.ncu-rep",
+      "allocated": 9285632,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/profile_gerbicz_420.nsys-rep",
+      "allocated": 60157952,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/profile_gerbicz_420_log15.nsys-rep",
+      "allocated": 62132224,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/trans_full_medium.ncu-rep",
+      "allocated": 4169728,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/msieve.normal.dat.ms",
+      "allocated": 4767744,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/profile_gerbicz_420_arena.sqlite",
+      "allocated": 159305728,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/profile_gerbicz_420_arena.nsys-rep",
+      "allocated": 58109952,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/scatter_roots_ncu_direct.ncu-rep",
+      "allocated": 552960,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/trans_sol.ncu-rep",
+      "allocated": 385024,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/trans_full_post_memset.ncu-rep",
+      "allocated": 9760768,
+      "group": "old_profiler"
+    },
+    {
+      "path": "profiling/profile_gerbicz_420_memset.sqlite",
+      "allocated": 156442624,
+      "group": "old_profiler"
+    },
+    {
+      "path": "stage23_gpu/runs/20261013_backups/c187/cpu/msieve_ropt_orig.p",
+      "allocated": 104275968,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "stage23_gpu/runs/20261013_backups/c187/cpu/msieve_ropt_inv.p",
+      "allocated": 104255488,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "backup_20261019_064859/msieve.dat.ms",
+      "allocated": 546078720,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "stage23_gpu/runs/20261024_c197_gpu/preprocess/cado_sopt_unsorted.txt",
+      "allocated": 2053844992,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "backup_20261024_143924/cado_sopt_unsorted.txt",
+      "allocated": 2053849088,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "backup_20261024_143924/pipeline_results/msieve_ropt_orig.p",
+      "allocated": 108347392,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "backup_20261024_143924/pipeline_results/msieve_ropt_inv.p",
+      "allocated": 108408832,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "backup_20261024_071318/msieve.dat.deduped.ms",
+      "allocated": 769548288,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "backup_20261024_071318/cado_sopt_unsorted.txt",
+      "allocated": 2056343552,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "backup_20261024_071318/pipeline_results/msieve_ropt_orig.p",
+      "allocated": 108249088,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "backup_20261024_071318/pipeline_results/msieve_ropt_inv.p",
+      "allocated": 108269568,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "backup_20261020_060423/pipeline_results/msieve_ropt_orig.p",
+      "allocated": 106725376,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "backup_20261020_060423/pipeline_results/msieve_ropt_inv.p",
+      "allocated": 106778624,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "backup_20261020_060423/pipeline_results/msieve_deep_ropt_top32/msieve_deep_ropt_inv.p",
+      "allocated": 227848192,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "backup_20261020_060423/pipeline_results/msieve_deep_ropt_top32/msieve_deep_ropt_orig.p",
+      "allocated": 227852288,
+      "group": "verified_duplicate"
+    },
+    {
+      "path": "backup_20261020_060423/msieve.dat.ms",
+      "allocated": 766529536,
+      "group": "verified_duplicate"
+    }
+  ],
+  "allocated_bytes_removed": 40798007296,
+  "completed": "2026-10-25T16:22:11.352161+00:00",
+  "executed": true
+}

@@ -1,0 +1,17 @@
+{
+  "params": "job:32,33,15.5,75e6",
+  "lattice": "16,16384",
+  "qband": "75e6,400e6,7",
+  "lpbr": 32,
+  "lpba": 33,
+  "rlim": 160000000,
+  "alim": 240000000,
+  "sieve_points": 1073741824,
+  "logI": 16,
+  "J": 16384,
+  "region": "cuda-sieve --logI 16 --J 16384",
+  "sq_side": "algebraic",
+  "provisional": true,
+  "source": "User, 2026-10-24; same LPB/limits as C192; approximate region and q range",
+  "note": "Half-plane lattice coordinates i in [-32768,32768), j in [0,16384); Murphy equivalent I=15.5. Limits recorded for test sieving; model uses LPB/area/q geometry."
+}

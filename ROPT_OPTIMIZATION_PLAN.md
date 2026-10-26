@@ -893,3 +893,242 @@ validation, not a new throughput result. Reproduce with
 `stage23_bench/runs/20261019_c192/review_gpu.py --run-dir NEW_DIRECTORY`.
 Compact evidence: `stage23_bench/data/c192/ropt_coverage/review_gpu_20261019.json`;
 full artifacts: `stage23_gpu/runs/20261019_c192_review_gpu/`.
+
+### 2026-10-23: full GPU alpha/translation refinement and MurphyE quadrature
+
+Two new opt-in paths are implemented in the standalone tool and resumable driver:
+
+- `-refine-gpu` / `--refine-gpu`: full-bound algebraic alpha, primitive-content
+  correction and the final exact-integer translation size search run on CUDA.
+  Successful device translations are retained. Bounded-work failures fall back
+  per candidate; unsupported bounds/device allocation failures use the CPU pass.
+  `-refine-check` audits without substituting CPU results. Existing screening
+  behavior and default CPU canonicalization are unchanged.
+- `-murphy-gpu` / `--murphy-gpu`: homogeneous norms, Dickman rho and quadrature
+  run on CUDA, including batches of 193 initial skews and 28 finer-grid points.
+  The same bounded host pattern search and exact GMP translations generate later
+  objective calls. Full algebraic alpha is reused from the preceding refinement;
+  rational alpha remains host-side. Per-worker streams, buffers and two angle
+  grids persist across seeds. `-murphy-check` compares every integral with the
+  scalar oracle; disagreement prevents export. Evaluation failure restarts the
+  candidate on CPU from the untouched input, including failure after translation.
+
+Both features default off and require advertised capabilities. The driver applies
+full refinement to all search phases and CUDA MurphyE only to its final full-pool
+Murphy phase. Old saved runs inherit false even if the global configuration changes;
+blank Booleans, unsupported frozen binaries, semantic changes and resume use the
+existing validation/checkpoint rules. No stage-1 or search-allocation settings changed.
+
+The 26-case audit covers 167,936 saved candidates from C147/C166/C171/C192/C208.
+All 5,200 final exports are byte-identical to CPU, and checked/unchecked CUDA
+exports agree. Across all candidates, maximum size error is zero at printed
+precision, alpha error 7.11e-15 and weighted-key error 1.42e-14. Four candidates
+choose different flat-tie translations; none changes a final export. No candidate
+falls back to CPU. This is empirical retention evidence, not a guarantee of CPU
+translation identity on every input.
+
+One complete full-alpha corpus pass takes 51.078 s CPU versus 5.976 s CUDA,
+including process overhead; the checked GPU pass takes 57.423 s because it also
+executes the CPU oracle. These single-pass alpha timings are diagnostic.
+For the subsequent 16 C208 plus 16 C192 exact-alpha finalists, after warming both
+modes, three alternating two-thread persistent-process repetitions give median
+full-refinement-plus-Murphy wall time 4.350 s CPU versus 1.280 s CUDA (3.40x).
+Every integral in the separate checked run agrees within 1.38e-14 relative.
+Independent 256k-angle evaluation retains the same best printed score for both
+jobs. Settings are recorded in the manifests; these are component measurements
+with model scoring, not whole-job speedups or new test-sieve yield measurements.
+
+Validation also covers full-bound alpha/content/translation exports, lifting-depth
+fallback, device unavailability, changing K/Keval and devices in one persistent
+session, checked/unchecked identity, arbitrary-byte batching, CPU mid-search
+fallback, option validation and driver resume. The host suite passes, including
+41 driver tests, 172,067 Dickman comparisons against linked CADO and 2,100 cached
+integral comparisons. The CUDA tests run without skips; detailed counts/log
+hashes accompany the compact record.
+
+Full artifacts: `stage23_gpu/runs/20261023_gpu_refine/`. Compact results:
+`stage23_bench/data/gpu_refinement/20261023.json`. Reproduction:
+
+```
+python3 stage23_bench/runs/20261023_gpu_refine/run.py --run-dir NEW_DIRECTORY
+```
+
+Remaining in this numerical migration: device-side MurphyE search control and
+exact coefficient transformations, rational alpha, lattice-aware/independent
+pipeline scoring, and exceptional CPU fallback removal where practical. Root
+size/band planning and content-seed generation remain separate host work. The
+next performance experiment should measure complete pipeline time with the new
+options, then decide whether more batched objective calls or further numerical
+migration gives the larger benefit.
+
+### 2026-10-24: C197 production validation and timing
+
+The completed CPU initial-sopt output (1,680,020 polynomials) was imported,
+then the new full GPU refinement and MurphyE paths ran with two workers,
+two host threads per process and batches of at most sixteen seeds. GPU
+effort-50 resopt reproduced all 1,000 CPU outputs. Independent searches
+completed for 314 breadth seeds, sixteen depth pools and four full-pool
+MurphyE refinements, with zero GPU fallbacks or partial MurphyE failures.
+
+All 3,200 depth exports match CPU bytes. Six intermediate translations differ
+at flat ties but do not change exports; maximum alpha/key errors are
+7.11e-15/1.42e-14. All 64 sampled MurphyE finalists have identical independent
+256k-angle scores at printed precision, and checked device integrals differ
+from the scalar oracle by at most 2.08e-14 relative.
+
+The independent search recovers the CPU winner's rotation family at another
+translation/skew. Under provisional LPB 32/33, q=75M–400M and cuda-sieve
+`logI=16, J=16384` (2^30 positions), the GPU lattice-model winner is
+0.0567–0.0938% ahead across three denser sample streams. Standard MurphyE
+at 1,024,000 angles is 1.082506e-14 GPU versus 1.082618e-14 CPU (-0.0103%).
+This is an effective quality tie, with no test-sieve result. CPU comparisons
+cover every CADO export and three msieve exports per rational family and
+orientation; they are not an exhaustive rescore of all msieve outputs.
+
+Pipeline wall time is 3,376.8 s, including GPU resopt (74.8 s) and excluding
+the shared initial CPU sopt, import and subsequent audits. Estimated phase
+wall spans are 1,119.7 s breadth, 1,766.2 s depth and 160.3 s MurphyE; CPU
+pipeline ranking totals 249.7 s. Breadth/depth consumes about 85.5% of the
+total, and GPU sieving dominates depth's logged component time. On this input,
+equal-time dense-versus-selective-class coverage tests are the next substantial
+speed opportunity. Remaining host numerical migration remains as listed above;
+there is no matched end-to-end CPU/GPU speedup claim.
+
+Full artifacts: `stage23_gpu/runs/20261024_c197_gpu/`. Compact evidence and
+winner polynomials: `stage23_bench/data/c197/gpu_ropt/`. Reproduction scripts:
+`stage23_bench/runs/20261024_c197/`. CPU references remain unchanged and both
+new GPU features remain opt-in.
+
+### 2026-10-25: lossless root-sieve lookup optimization
+
+Profiling the frozen C197 binary on the RTX 5070 found high shared-memory
+lookup/instruction utilization and little DRAM traffic. Three alternative
+thread layouts were slower. Reusing raw line tables alone helped only slightly;
+four-cell aligned shared lookups reduced both lookup and index-update instruction
+counts while retaining the per-cell prime summation order.
+
+The rebuilt CUDA tool selects the vector kernel for launches averaging at least
+65,536 selected cells per block. It uses 1,024 threads and about 76 KiB dynamic
+shared memory. The original scalar kernel handles short blocks, devices without
+the required resources, line-table cache overflow and optional allocation failure.
+The raw-table cache is bounded at 1,024 u lines (about 19.3 MiB of device storage).
+Search geometry, block boundaries, K, candidate budgets and scoring are unchanged.
+No new search-policy option or driver setting is needed; frozen runs keep their
+saved executable.
+
+Three alternating full-depth repetitions per C197 seed, one GPU process and two
+host threads, give these medians:
+
+| Seed | Sieve seconds, old -> new | Sieve speedup | Process seconds, old -> new |
+| --- | ---: | ---: | ---: |
+| s0005, overall winner | 62.27 -> 32.90 | 1.893x | 64.43 -> 34.99 |
+| s0001 | 108.37 -> 57.55 | 1.883x | 110.05 -> 59.29 |
+
+All twelve runs reproduce the original 4,096-cell saved pools and 200 exports
+byte for byte; all exported resultants verify. This preserves the selected
+polynomials, rather than measuring a new quality gain. It is a component
+speedup; a complete two-worker pipeline was not timed again.
+
+The direct CUDA test matches 28,672 retained hits against CPU bit for bit across
+C197, C208 and both C168 content fixtures, including dense/strided and
+affine/projective tables, tails, ties, slopes and extreme signed coordinates.
+The host suite and all 32 tests across six CUDA CLI suites pass. Memcheck and
+racecheck each run 7,168 comparisons with zero errors/hazards. Block-size checks
+at logs 16, 18 and 20 also favor the new path. GPU code contains aligned
+128-bit shared loads in both dense and strided variants.
+
+Full artifacts: `stage23_gpu/runs/20261024_root_sieve/`. Compact measurements,
+hashes and validation: `stage23_bench/data/root_sieve/20261025.json`.
+Reproduction: `stage23_bench/runs/20261024_root_sieve/README.md`. Selective-class
+coverage and equal-time quality remain separate future work.
+
+### 2026-10-25: class coverage and timing pilot on the faster baseline
+
+Completed 90 plans on ten C192/C197/C208 controls and thirty independent
+full-enumeration proposal audits. The latter agree with all fifty class CLI
+plans. At modulus 2520, C192's reference class ranks 1723rd on roots alone,
+and C197 s0001's reference ranks 539th. Both are first within their own u
+residue, but neither enters even the 64-class pool. Smaller moduli move these
+cuts without solving coverage across the corpus. Thirty-two classes recover
+C208 seed 103 at the planning stage; later retention and quality still need
+checking on that configuration.
+
+The live pilot uses the frozen grouped-lookup binary, one GPU process and two
+host threads, three rotated-order repetitions, 4096 full-alpha refinements and
+200 exports per search. All 27 searches pass sampled brute-root checks with
+zero refinement fallbacks; all 5400 exports have valid resultants, and repeated
+pools/exports are byte-identical. Independent scoring covers all exports
+(1334 unique configurations) at 16k/64k angles, validating leaders at 256k and
+on two denser lattice streams under the saved provisional job settings.
+
+| Seed | Dense breadth / 16 classes / 32 classes, seconds | Class MurphyE / dense | Class lattice / dense |
+| --- | ---: | ---: | ---: |
+| C192 winner seed | 4.939 / 2.808 / 4.969 | 0.85920 | 0.91490–0.91511 |
+| C197 s0005 | 2.784 / 2.667 / 4.658 | 1.00000 | 1.00000 |
+| C197 s0001 | 3.002 / 1.861 / 3.466 | 0.88028 | 0.92920–0.92931 |
+
+Both class counts have the same displayed quality ratios. The process medians
+exclude independent scoring; elapsed times were measured, not constrained equal.
+C192 dense/32-class times happen to agree within 1%. This diagnostic corpus is
+not an independent holdout, and there is no new full-pipeline or test-sieve run.
+
+On C197 s0005, 32-class modeling costs 4.43 s versus 0.02 s sieving. The next
+implementation should include attainable size before the proposal cutoff,
+retain diverse u residues, and bound or amortize that modeling work. Preserve
+dense coverage as a control; validate complete retention and quality at matched
+elapsed time on independent seeds before promoting a policy. Defaults remain
+unchanged. Broader R3 allocation experiments remain pending.
+
+Scripts and interpretation: `stage23_bench/runs/20261025_root_coverage/README.md`.
+Compact evidence and seed fixtures: `stage23_bench/data/root_coverage/20261025/`.
+Full frozen inputs, binaries, plans, logs and pools:
+`stage23_gpu/runs/20261025_root_coverage/` (about 30 MiB).
+
+### 2026-10-25: additional C179 msieve-original coverage control
+
+The new C179 winner comes from seed 9, supplied identically to both CPU tools;
+the input sign is the only original/inverted difference. Its original-coordinate
+rotation is `u=-55, v=34188178`. Msieve original exports five translations of
+that rotation; neither msieve inverted nor either CADO output contains it.
+Common skew optimization and 1,024,000-angle evaluation retain the lead:
+1.217340e-13 versus 1.198309e-13 for CADO (1.588%) and 1.193176e-13 for msieve
+inverted (2.025%). Scoring covers all CADO outputs plus a documented msieve
+shortlist, not every msieve export.
+
+Our dense breadth plan loses the target when tightening the size budget;
+dense depth admits it. Both 16- and 32-class plans omit its class at proposal.
+A separate rank audit puts it 1290th globally and seventh within its u residue,
+outside even the 64-class proposal pool. The proposed diversity improvement
+must therefore consider multiple v choices as well as different u residues;
+one best v per u would still miss this control. No live GPU retention check or
+test sieve has yet been performed on C179. Fixtures and compact evidence are
+in `stage23_bench/data/c179/ropt_coverage/`; the reproducible inspection is
+`stage23_bench/runs/20261025_c179/inspect.py`.
+
+### 2026-10-26: audit, fallback and resume review fixes
+
+Invalid CUDA MurphyE values now fail checked runs; a shared cancellation flag
+stops unstarted cells and active search objectives without CPU retry. All MurphyE
+paths rank with canonical CADO alpha, and the audit compares the supplied full
+refinement alpha separately. Per-job failure/error statistics reset while healthy
+CUDA allocations remain reusable; transient allocation failures retry next seed.
+
+Final refinement canonicalizes size and translation on the CPU for every
+candidate, including unchecked runs. This prevents device local-minimum drift
+from silently affecting the output cut or exported polynomial. It restores host
+work, so previous numerical-migration speedups need fresh benchmarking. The
+root-sieve kernel, search coverage and default options are unchanged.
+
+Also fixed the oversized finalist copy, empty CPU parallel loop, repeated initial
+skew coefficient conversions, duplicate Murphy fallback and integral/oracle drift.
+Audit flags are execution settings on resume; completed checkpoints remain reused.
+The storage-audit README now records the completed deletion and reconstruction
+requirement. Cross-launch root caches, pattern-search batching and shared device
+top-K helpers remain performance/maintenance follow-ups.
+
+The full host suite, six CUDA CLI checks and new invalid-integral/alpha/OOM-state
+regressions pass. All 5200 exports across 26 saved pools (167936 candidates) match
+CPU bytes, and C192/C208 independent 256k MurphyE scores match. The scalar scorer
+also matches CADO bit for bit in 2100 cases. GPU validation ran on shared hardware;
+there is no controlled new speedup claim. Details and reproduction:
+`stage23_bench/runs/20261026_review/README.md`.

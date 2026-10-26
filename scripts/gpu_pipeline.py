@@ -25,8 +25,10 @@ import threading
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-EXECUTION_SETTINGS = {'device', 'threads', 'workers', 'launch', 'slice', 'ropt_batch_size'}
+EXECUTION_SETTINGS = {'device', 'threads', 'workers', 'launch', 'slice', 'ropt_batch_size',
+                      'refine_check', 'murphy_check'}
 EXECUTION_FLAGS = {'-dev', '-t', '-launch', '-slice'}
+EXECUTION_SWITCHES = {'-refine-check', '-murphy-check'}
 # Each new semantic option declares its historical default, dependencies and
 # executable capabilities together. Missing saved keys mean historical behavior,
 # never the current machine's configuration.
@@ -38,6 +40,13 @@ SCREEN_OPTIONS = {
                             capabilities=('alpha-screen-gpu-v1',)),
     'alpha_screen_check': dict(default=False, requires='alpha_screen_gpu', capabilities=()),
 }
+REFINEMENT_OPTIONS = {
+    'refine_gpu': dict(default=False, capabilities=('full-refine-gpu-v1',)),
+    'refine_check': dict(default=False, requires='refine_gpu', capabilities=()),
+    'murphy_gpu': dict(default=False, capabilities=('murphy-gpu-v1',)),
+    'murphy_check': dict(default=False, requires='murphy_gpu', capabilities=()),
+}
+ROPT_OPTIONS = {**SCREEN_OPTIONS, **REFINEMENT_OPTIONS}
 # Bump only the affected format/algorithm when saved results become incompatible.
 # Source hashes are provenance, not an instruction to repeat expensive work.
 STEP_SCHEMAS = {'index_e0': 1, 'index_resopt': 1, 'seeds': 2}
@@ -56,7 +65,7 @@ def digest(path):
 def semantic_parameters(parameters):
     parameters = {k: v for k, v in parameters.items() if k not in EXECUTION_SETTINGS}
     # Neutral new options must not invalidate pre-screening pipeline settings.
-    for key, option in SCREEN_OPTIONS.items():
+    for key, option in ROPT_OPTIONS.items():
         if parameters.get(key, option['default']) == option['default']:
             parameters.pop(key, None)
     if 'argv' in parameters:
@@ -64,6 +73,8 @@ def semantic_parameters(parameters):
         for arg in argv:
             if arg in EXECUTION_FLAGS:
                 next(argv)
+            elif arg in EXECUTION_SWITCHES:
+                continue
             else:
                 out.append(arg)
         parameters['argv'] = out
@@ -589,6 +600,9 @@ def search(run, args, seeds, binary, phase, cap, n, accurate=False, save_pool=Fa
             bounds = score_bounds(args.params)
             argv += ['-murphy', '-Bf', bounds['Bf'], '-Bg', bounds['Bg'], '-area', bounds['area'],
                      '-murphy-points', 16000, '-murphy-eval-points', 64000, '-maxeval', 384]
+        for key in REFINEMENT_OPTIONS:
+            if getattr(args, key, False) and (accurate or not key.startswith('murphy_')):
+                argv.append('-' + key.replace('_', '-'))
 
         def finish(rc):
             if rc and not accurate:
@@ -733,12 +747,12 @@ def validate_ropt_features(run, args, ropt):
         if required - run.ropt_capabilities(ropt):
             raise ValueError('--ropt-batch-size > 1 requires ropt-batch-v1 and ropt-batch-events-v1; '
                              'resume with --ropt-batch-size 1, or use a new --run-dir with a rebuilt executable')
-    if getattr(args, 'alpha_screen', ''):
-        required = {cap for key, option in SCREEN_OPTIONS.items() if getattr(args, key, option['default'])
-                    for cap in option['capabilities']}
+    required = {cap for key, option in ROPT_OPTIONS.items() if getattr(args, key, option['default'])
+                for cap in option['capabilities']}
+    if required:
         missing = required - run.ropt_capabilities(ropt)
         if missing:
-            raise ValueError('frozen ropt executable lacks requested screening capabilities: ' + ', '.join(sorted(missing)))
+            raise ValueError('frozen ropt executable lacks requested screening/refinement capabilities: ' + ', '.join(sorted(missing)))
 
 
 def pipeline_settings(args):
@@ -854,7 +868,7 @@ def parser(argv=None):
             raise argparse.ArgumentTypeError(f'expected a boolean or blank, got {value!r}')
         return configparser.ConfigParser.BOOLEAN_STATES[value.lower()]
 
-    for key, option in SCREEN_OPTIONS.items():
+    for key, option in ROPT_OPTIONS.items():
         if isinstance(option['default'], bool):
             ap.add_argument('--' + key.replace('_', '-'), action=argparse.BooleanOptionalAction,
                             default=setting('gpu', key, option['default']))
@@ -884,7 +898,7 @@ def parser(argv=None):
     saved = run_dir / 'settings.json'
     if saved.exists():
         options = {a.dest for a in ap._actions} - {'command', 'config', 'run_dir', 'input', 'initial_unsorted', 'resume'}
-        defaults = {k: option['default'] for k, option in SCREEN_OPTIONS.items()}
+        defaults = {k: option['default'] for k, option in ROPT_OPTIONS.items()}
         defaults.update({k: v for k, v in read_json(saved).items() if k in options})
         for key in ('sopt_binary', 'ropt_binary'):
             if key in defaults:
@@ -894,7 +908,7 @@ def parser(argv=None):
     if execution.exists():
         ap.set_defaults(**{k: v for k, v in read_json(execution).items() if k in EXECUTION_SETTINGS})
     args = ap.parse_args(argv)
-    for key, option in SCREEN_OPTIONS.items():
+    for key, option in ROPT_OPTIONS.items():
         if isinstance(option['default'], bool) and isinstance(getattr(args, key), str):
             try:
                 setattr(args, key, boolean(getattr(args, key)))
@@ -968,7 +982,7 @@ def parser(argv=None):
         except ValueError:
             ap.error('--alpha-screen needs N,B: max(rerank,keep,3) <= N <= 2^24 and 2 <= B <= 2000')
         args.alpha_screen = f'{count},{bound}'
-    for key, option in SCREEN_OPTIONS.items():
+    for key, option in ROPT_OPTIONS.items():
         if getattr(args, key) and option.get('requires') and not getattr(args, option['requires']):
             ap.error('--' + key.replace('_', '-') + ' requires --' + option['requires'].replace('_', '-'))
     if args.depth_seeds and args.depth_maxcells <= args.maxcells:

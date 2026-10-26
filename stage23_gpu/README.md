@@ -1,5 +1,27 @@
 # stage23_gpu: GPU size optimization (M1) and root optimization (M2)
 
+The CUDA root sieve automatically groups four adjacent selected cells into one
+aligned shared-memory lookup on long blocks. Each cell still accumulates the
+same prime contributions in the same order. Block boundaries, top-K ordering,
+search coverage and refinement are unchanged. This also handles residue strides
+that share factors with prime-power periods.
+
+The expanded tables use about 76 KiB of dynamic shared memory and 1,024 threads.
+Launches averaging fewer than 65,536 selected cells per block use the original
+scalar kernel, as do devices with insufficient resources. A cache of at most
+1,024 raw u-line tables adds about 19.3 MiB per search. This deduplicates tables
+within a launch; tables are rebuilt on the next launch, not cached across launches.
+Cache overflow or failure
+to allocate that optional workspace also uses the scalar kernel. The log reports
+vector/scalar launch counts. Frozen pipeline binaries retain their prior behavior;
+new runs use the rebuilt executable without an additional option.
+
+`make -C stage23_gpu test-rsieve-gpu` exercises exact retained-hit parity with
+the CPU block selector, including ties, partial blocks, signed coordinates,
+projective roots and strides. It requires a GPU supporting the expanded tables.
+The focused timing and production-pool checks are under
+`stage23_bench/runs/20261024_root_sieve/`.
+
 Experimental root basin discovery: `s23_ropt -search -u-scan 256 -umax 20000
 -u-basins 4 -u-radius 128` adds bounded coarse samples and local expansion before
 the existing cell cap. Add `-plan` to inspect the sampled and retained lines
@@ -348,13 +370,62 @@ The Makefile gets CADO's include flags and libraries from
 `../nfs_config.ini`), the same code the bench tools use, and relinks when CADO's
 libraries change.
 
+## GPU finalist refinement and quadrature (updated 2026-10-26)
+
+`-refine-gpu` runs the final integer-translation size search, primitive-content
+correction and full affine/projective alpha on CUDA. It uses the linked CADO
+alpha bound (currently 2000), independently of any earlier screen bound.
+Final translations and sizes are canonicalized on the CPU from the saved start,
+for every candidate, including unchecked runs. Bounded arithmetic,
+lifting or search failures retry the affected cell on the CPU; unavailable
+devices or unsupported bounds use the full CPU pass. `-refine-check` audits
+device size/alpha against the CPU reference before canonicalization.
+
+Floating-point ties can send a local size search to another basin. CPU
+canonicalization protects both the output cut and exact exports; a narrow
+empirical guard around the cut alone would not guarantee that protection.
+This adds host size work to the opt-in GPU path. Checked and unchecked execution
+must agree. The legacy screen keeps its original canonicalization policy.
+
+`-murphy-gpu`, with `-murphy` and explicit job bounds, moves the homogeneous norm,
+Dickman-rho and quadrature evaluations to CUDA. The 193-point initial skew grid
+and its 28 refinements run in batches; subsequent objective calls use the same
+bounded host pattern search and exact GMP translations. All paths use CADO's
+full algebraic and rational alpha on the host, including recoverable fallbacks.
+The initial skew batches share one coefficient conversion. Per-worker
+CUDA streams/buffers and two angle grids survive seeds in `-batch` mode.
+Parallel reduction changes rounding; no fast math is enabled. `-murphy-check`
+compares the supplied refinement alpha with CADO (absolute tolerance 1e-10) and
+every integral with the shared CPU scalar loop (relative tolerance 2e-10).
+NaN, infinite and negative device integrals fail the audit. An audit failure
+cancels the job across workers, prevents export, and does not retry on CPU.
+Recoverable resource/evaluation failure restarts that candidate from its
+unchanged input on CPU. Each batch job resets failure flags and error statistics;
+a transient allocation failure is retried in the next job.
+
+Example, using an existing seed-bound pool with matching alpha weight:
+
+```bash
+build/s23_ropt -poly seed.poly -search -pool-in depth.pool -aw 1.3 \
+  -rerank 4096 -refine 200 -refine-gpu -murphy -murphy-gpu \
+  -Bf 8589934592 -Bg 4294967296 -area 4.294967296e16 -t 2 -out ranked.poly
+```
+
+Those bounds illustrate LPB 32/33, I=15, qmin=80M; supply the actual job's
+parameters. For audits add `-refine-check -murphy-check`. Both features require
+CUDA search with positive rerank, and default off. The driver forwards their
+double-hyphen equivalents with resume/capability checks. Remaining migration
+includes host size canonicalization, search control, exact MurphyE coefficient
+transformations, canonical alpha, and lattice-aware/independent pipeline scoring. The rho port
+retains CADO's copyright and LGPL terms in `COPYING.LGPL-2.1`.
+
 ## Accurate MurphyE final ranking (2026-10-09)
 
 `s23_ropt -search -murphy` optimizes translation and skew **before** cutting the
 retained proxy pool to the output count. It evaluates every one of the best
 `max(-rerank, -refine, -top)` proxy cells (normally 4096), instead of refining only
-the 200 exported polynomials. This host stage is shared by the CPU and CUDA builds;
-the root sieve itself still runs on the selected device.
+the 200 exported polynomials. The default host implementation is shared by the
+CPU and CUDA builds; `-murphy-gpu` selects the quadrature backend above.
 
 For the C205/C208 job, for example, from `stage23_gpu/`:
 

@@ -1,0 +1,41 @@
+{
+  "modulus": 2520,
+  "u": 2465,
+  "v": 1858,
+  "target_roots_minus_content": 5.772645372799465,
+  "best_roots_minus_content": 6.486394950321742,
+  "strictly_better_classes": 1278,
+  "equal_score_classes": 12,
+  "earlier_ties": 11,
+  "root_proposal_rank": 1290,
+  "rank_within_u": 7,
+  "pools": [
+    {
+      "selected_count": 16,
+      "pool_size": 80,
+      "proposed": false,
+      "nonexploration_distinct_u": 46
+    },
+    {
+      "selected_count": 32,
+      "pool_size": 160,
+      "proposed": false,
+      "nonexploration_distinct_u": 90
+    },
+    {
+      "selected_count": 64,
+      "pool_size": 320,
+      "proposed": false,
+      "nonexploration_distinct_u": 132
+    }
+  ],
+  "command": [
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261025_c179_glance/bin/proposal_probe",
+    "/home/kylea/msieve-s/stage23_gpu/runs/20261025_c179_glance/seed.poly",
+    "2520",
+    "-55",
+    "34188178"
+  ],
+  "binary_sha256": "0b1a9079add503114d83a630ba711c826ffedb7cfd5d45bc46e42f0733f3842b",
+  "source": "stage23_bench/runs/20261025_root_coverage/proposal_probe.cpp"
+}

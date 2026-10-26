@@ -14,6 +14,8 @@
  *           [-alpha-screen N B] (search: screen N proxy cells with alpha through prime B)
  *           [-alpha-screen-exact-size] (also compute exact size before the screen cut)
  *           [-alpha-screen-gpu [-alpha-screen-check]] (CUDA exact-size screen; optional CPU audit)
+ *           [-refine-gpu [-refine-check]] (full-bound CUDA alpha/translation refinement)
+ *           [-murphy-gpu [-murphy-check]] (CUDA quadrature; requires -murphy)
  * Or: s23_ropt -batch MANIFEST (serial independent searches in one CUDA session;
  *     S23_ROPT_BATCH 1 header, then one tab-separated argv row per seed).
  *           [-trace-cell U V] (report the first cutoff losing this cell; never force retention)
@@ -96,8 +98,10 @@
  *   A scoring failure is reported and excluded; valid outputs are saved with
  *   exit 1. Cells invalid before scoring are skipped without causing exit 1.
  *   This does not recover cells outside the retained proxy pool or change the
- *   per-block proxy selection. Full-pool CPU refinement is expensive; measure it
- *   before enabling it for a breadth run. Without -murphy, output is unchanged.
+ *   per-block proxy selection. -murphy-gpu evaluates the integral on CUDA, while
+ *   retaining host search control and exact GMP translation. -murphy-check audits
+ *   every integral against the scalar reference. Full-pool refinement is expensive;
+ *   measure it before enabling it for breadth. Without -murphy, output is unchanged.
  * -band B (search): the bands at budget B (at most -budget) instead of -budget; the line scan
  *   still runs to -budget, so B = -budget - 0.25 k gives the same lines and cells as
  *   "# step B" of -plan with the same options. -maxcells then lowers it from B.
@@ -137,6 +141,7 @@
 #include <string.h>
 #include <math.h>
 #include <vector>
+#include <atomic>
 #include <map>
 #include <algorithm>
 #include <chrono>
@@ -179,6 +184,8 @@ static const int NT = 256; /* threads per block */
     } while (0)
 
 #include "rscreen_cuda.h"
+#include "murphy_cuda.h"
+#include "rsieve_cuda.h"
 
 template <bool Strided>
 __global__ void __launch_bounds__(NT) sieve_kernel(const RsSeed *Sg, const float *PT, const Blk *blks, int k, float aw,
@@ -359,6 +366,27 @@ static size_t run_sieve(const RsSeed &S, const std::vector<float> &PT, const std
     const bool strided = std::any_of(segs.begin(), segs.end(), [](const Seg &s) { return s.step != 1; });
     CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(
         &per_sm, strided ? sieve_kernel<true> : sieve_kernel<false>, NT, shmem));
+    // Expanded four-cell tables reduce lookup/index instructions on long blocks.
+    // Preserve the scalar path for short blocks, limited devices and cache overflow.
+    const size_t vector_shmem = S.ntab * sizeof(float4);
+    int shared_limit = 0, thread_limit = 0;
+    CUDA_CHECK(cudaDeviceGetAttribute(&shared_limit, cudaDevAttrMaxSharedMemoryPerBlockOptin, dev));
+    CUDA_CHECK(cudaDeviceGetAttribute(&thread_limit, cudaDevAttrMaxThreadsPerBlock, dev));
+    cudaFuncAttributes vector_attributes;
+    CUDA_CHECK(cudaFuncGetAttributes(&vector_attributes,
+        strided ? rs_vector_sieve_kernel<true> : rs_vector_sieve_kernel<false>));
+    bool vector_available = thread_limit >= RS_VECTOR_NT &&
+        vector_shmem + vector_attributes.sharedSizeBytes <= (size_t)shared_limit;
+    if (vector_available) {
+        CUDA_CHECK(cudaFuncSetAttribute(strided ? rs_vector_sieve_kernel<true> : rs_vector_sieve_kernel<false>,
+            cudaFuncAttributeMaxDynamicSharedMemorySize, (int)vector_shmem));
+        int vector_blocks = 0;
+        CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&vector_blocks,
+            strided ? rs_vector_sieve_kernel<true> : rs_vector_sieve_kernel<false>, RS_VECTOR_NT, vector_shmem));
+        vector_available = vector_blocks > 0;
+    }
+    RsVectorWorkspace vector_workspace;
+    size_t vector_launches = 0, scalar_launches = 0;
     const size_t max_blocks = 1u << 16;
     const size_t min_blocks = std::min(max_blocks, (size_t)(4 * std::max(1, sms) * std::max(1, per_sm)));
     const double launch_cells = ldexp(1.0, launch_log2);
@@ -382,14 +410,27 @@ static size_t run_sieve(const RsSeed &S, const std::vector<float> &PT, const std
         }
         const size_t nb = batch.size();
         CUDA_CHECK(cudaMemcpy(bg, batch.data(), nb * sizeof(Blk), cudaMemcpyHostToDevice));
-        if (strided)
+        const bool vector = vector_available && cells >= (double)nb * 65536 &&
+                            vector_workspace.prepare(S, Sg, PTg, batch);
+        if (vector) {
+            if (strided)
+                rs_vector_sieve_kernel<true><<<(unsigned)nb, RS_VECTOR_NT, vector_shmem>>>(
+                    Sg, vector_workspace.tables(), vector_workspace.row_ids(), bg, k, aw, out);
+            else
+                rs_vector_sieve_kernel<false><<<(unsigned)nb, RS_VECTOR_NT, vector_shmem>>>(
+                    Sg, vector_workspace.tables(), vector_workspace.row_ids(), bg, k, aw, out);
+            vector_launches++;
+        } else if (strided)
             sieve_kernel<true><<<(unsigned)nb, NT, shmem>>>(Sg, PTg, bg, k, aw, out);
         else
             sieve_kernel<false><<<(unsigned)nb, NT, shmem>>>(Sg, PTg, bg, k, aw, out);
+        if (!vector) scalar_launches++;
         CUDA_CHECK(cudaGetLastError());
         CUDA_CHECK(cudaMemcpy(part.data(), out, nb * k * sizeof(Hit), cudaMemcpyDeviceToHost));
         keep(part.data(), nb * k);
     }
+    printf("# root sieve GPU: %zu vector launches, %zu scalar launches; line-table cache at most 1024 rows\n",
+           vector_launches, scalar_launches);
     cudaFree(out);
     cudaFree(bg);
     cudaFree(PTg);
@@ -447,6 +488,7 @@ static double parse_bound(const char *s)
 struct RoptSession {
 #ifdef __CUDACC__
     RsScreenWorkspace screen;
+    std::vector<std::unique_ptr<MurphyCudaEvaluator>> murphy_workers;
 #endif
 };
 
@@ -467,6 +509,7 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
     int screen_count = 0, screen_bound = 0;
     bool screen_options = false, screen_exact_size = false;
     bool screen_gpu = false, screen_check = false;
+    bool refine_gpu = false, refine_check = false, murphy_gpu = false, murphy_check = false;
     double budget = 0.5, aw = 1.0, maxcells = 0, band = 0;
     int maxlines = 1000, launch_log2 = 32;
     RsScanConfig scan;
@@ -499,6 +542,14 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
             screen_gpu = true;
         else if (!strcmp(argv[i], "-alpha-screen-check"))
             screen_check = true;
+        else if (!strcmp(argv[i], "-refine-gpu"))
+            refine_gpu = true;
+        else if (!strcmp(argv[i], "-refine-check"))
+            refine_check = true;
+        else if (!strcmp(argv[i], "-murphy-gpu"))
+            murphy_gpu = true;
+        else if (!strcmp(argv[i], "-murphy-check"))
+            murphy_check = true;
         else if (!strcmp(argv[i], "-trace-cell") && i + 2 < argc) {
             trace.enabled = true;
             trace.u = parse_coordinate(argv[++i], trace_valid);
@@ -671,6 +722,13 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
                         "0 < -band <= -budget\n");
         return 2;
     }
+    if ((refine_check && !refine_gpu) || (murphy_check && !murphy_gpu) ||
+        ((refine_gpu || murphy_gpu) && (use_cpu || !search || window || cell || plan || !rerank)) ||
+        (murphy_gpu && !murphy)) {
+        fprintf(stderr, "s23_ropt: -refine-gpu/-murphy-gpu require a CUDA build, search with rerank, no -cpu/window/cell/plan; "
+                        "-murphy-gpu requires -murphy; each -check requires its -gpu option\n");
+        return 2;
+    }
     if ((screen_check && !screen_gpu) ||
         (screen_gpu && (!screen_options || !screen_exact_size || use_cpu || screen_bound > RS_SCREEN_MAX_BOUND))) {
         fprintf(stderr, "s23_ropt: -alpha-screen-gpu requires a CUDA build, no -cpu, "
@@ -740,9 +798,9 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
         }
     } gpu_start;
 #ifdef __CUDACC__
-    if (!use_cpu && !cell && !plan && (!pool_in || screen_gpu))
-        gpu_start.th = std::thread([dev, screen_gpu, &gpu_start, &session] {
-            if (screen_gpu) gpu_start.screen_ready = session.screen.start(dev);
+    if (!use_cpu && !cell && !plan && (!pool_in || screen_gpu || refine_gpu || murphy_gpu))
+        gpu_start.th = std::thread([dev, screen_gpu, refine_gpu, &gpu_start, &session] {
+            if (screen_gpu || refine_gpu) gpu_start.screen_ready = session.screen.start(dev);
             else if (cudaSetDevice(dev) == cudaSuccess) cudaFree(0);
         });
 #endif
@@ -1277,26 +1335,42 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
             printf("# alpha-screen: %zu proxy cells, alpha through %d, %zu to full refinement, %.6f s, size %s\n",
                    nproxy, screen_bound, nref, t_screen, screen_exact_size ? "exact" : "interpolated");
         }
+        bool device_refined = false;
+#ifdef __CUDACC__
+        if (refine_gpu && gpu_start.screen_ready) {
+            std::vector<Cand> finalists(best.begin(), best.begin() + nref);
+            size_t fallbacks = 0;
+            device_refined = rs_screen_gpu(finalists, R, P, cio_alpha_bound(), aw, dev,
+                                           refine_check, fallbacks, session.screen, true);
+            if (device_refined) {
+                std::copy(finalists.begin(), finalists.end(), best.begin());
+                printf("# full-refine GPU: %zu cells, alpha bound %lu, %zu host fallbacks; host size canonicalization\n",
+                       nref, cio_alpha_bound(), fallbacks);
+            }
+        }
+#endif
+        if (!device_refined) {
 #pragma omp parallel for schedule(dynamic, 1)
-        for (size_t i = 0; i < nref; i++) {
-            Cand &c = best[i];
-            if (rerank) { /* of the polynomial written, content divided out */
-                if (screen_exact_size && c.screen_host) {
-                    // The screen already ran the same size search from the saved
-                    // start and removed content. Reuse it without a second search.
-                    if (screen_bound != (int)cio_alpha_bound()) {
-                        double log_content = 0;
-                        c.A = cio_alpha_rot(&P, (long)c.h.u, (long)c.h.v, cio_alpha_bound(), &log_content);
+            for (size_t i = 0; i < nref; i++) {
+                Cand &c = best[i];
+                if (rerank) { /* of the polynomial written, content divided out */
+                    if (screen_exact_size && c.screen_host) {
+                        // The screen already ran the same size search from the saved
+                        // start and removed content. Reuse it without a second search.
+                        if (screen_bound != (int)cio_alpha_bound()) {
+                            double log_content = 0;
+                            c.A = cio_alpha_rot(&P, (long)c.h.u, (long)c.h.v, cio_alpha_bound(), &log_content);
+                        }
+                    } else {
+                        const RsExact x = rs_exact_cell(P, R, c.h.u, c.h.v, c.t);
+                        c.L = x.L;
+                        c.A = x.A;
                     }
+                    c.key = rs_screen_key(c.L, c.A, aw);
                 } else {
-                    const RsExact x = rs_exact_cell(P, R, c.h.u, c.h.v, c.t);
-                    c.L = x.L;
-                    c.A = x.A;
+                    c.L = rs_size(R, c.h.u, c.h.v, c.t, 1 << 10);
+                    c.key = c.L + aw * (S.alpha0 - c.h.score);
                 }
-                c.key = rs_screen_key(c.L, c.A, aw);
-            } else {
-                c.L = rs_size(R, c.h.u, c.h.v, c.t, 1 << 10);
-                c.key = c.L + aw * (S.alpha0 - c.h.score);
             }
         }
         best.resize(nref);
@@ -1307,11 +1381,28 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
                             "(K=%d, Keval=%d, maxeval=%d)\n", nref, nout, mc.K, mc.Keval, mc.maxeval);
             murphy_cells.resize(nref);
             size_t completed = 0;
+            std::atomic<bool> audit_abort{false};
+#ifdef __CUDACC__
+            if (murphy_gpu) {
+                const size_t workers = size_t(omp_get_max_threads());
+                session.murphy_workers.resize(workers);
+                for (auto &worker : session.murphy_workers) {
+                    if (!worker || worker->device != dev || worker->check != murphy_check)
+                        worker = std::make_unique<MurphyCudaEvaluator>(dev, murphy_check);
+                    worker->begin_job(audit_abort);
+                }
+            }
+#endif
 #pragma omp parallel for schedule(dynamic, 1)
             for (size_t i = 0; i < nref; i++) {
+                if (audit_abort.load(std::memory_order_relaxed)) continue;
                 Cand &c = best[i];
                 auto m = std::make_unique<MurphyCell>();
-                m->refine(P, R, c.h.u, c.h.v, c.t, c.L, c.A, mc);
+                MurphyEvaluator *evaluator = nullptr;
+#ifdef __CUDACC__
+                if (murphy_gpu) evaluator = session.murphy_workers[omp_get_thread_num()].get();
+#endif
+                m->refine(P, R, c.h.u, c.h.v, c.t, c.L, c.A, mc, evaluator);
                 c.key = m->result.valid ? -m->result.score : INFINITY;
                 murphy_cells[i] = std::move(m);
 #pragma omp critical
@@ -1321,6 +1412,26 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
                         fprintf(stderr, "s23_ropt: MurphyE %zu/%zu cells\n", completed, nref);
                 }
             }
+#ifdef __CUDACC__
+            if (murphy_gpu) {
+                size_t gpu_cells = 0, fallbacks = 0;
+                double error = 0, alpha_error = 0;
+                for (auto &worker : session.murphy_workers) worker->abort = nullptr;
+                if (audit_abort.load()) return 2;
+                for (const auto &m : murphy_cells) {
+                    gpu_cells += m->result.gpu;
+                    fallbacks += m->result.fallback;
+                }
+                for (const auto &worker : session.murphy_workers) {
+                    if (worker->audit_failed) return 2;
+                    error = std::max(error, worker->max_relative_error);
+                    alpha_error = std::max(alpha_error, worker->max_alpha_error);
+                }
+                printf("# MurphyE GPU: %zu cells, %zu host fallbacks%s; max integral relative error %.12g; "
+                       "max alpha error %.12g\n", gpu_cells, fallbacks,
+                       murphy_check ? " (CPU integral and alpha audit)" : " (unchecked)", error, alpha_error);
+            }
+#endif
             std::vector<size_t> ranked;
             for (size_t i = 0; i < nref; i++) {
                 const auto &m = *murphy_cells[i];
@@ -1505,7 +1616,7 @@ int main(int argc, char **argv)
     if (argc == 2 && !strcmp(argv[1], "-capabilities")) {
         printf("ropt-pool-v1 partial-murphy-exit-3 alpha-screen-v1 alpha-screen-exact-size-v1 ropt-batch-v1 ropt-batch-events-v1"
 #ifdef __CUDACC__
-               " alpha-screen-gpu-v1"
+               " alpha-screen-gpu-v1 full-refine-gpu-v1 murphy-gpu-v1"
 #endif
                "\n");
         return 0;

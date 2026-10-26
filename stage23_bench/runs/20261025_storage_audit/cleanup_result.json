@@ -1,0 +1,30 @@
+{
+  "completed": "2026-10-25T16:28:12.205945+00:00",
+  "git_command": [
+    "git",
+    "prune",
+    "--expire=2026-10-25T16:00:54Z"
+  ],
+  "git_returncode": 0,
+  "git_objects_removed": 2247,
+  "git_objects_remaining_from_plan": 0,
+  "git_allocated_bytes_removed": 8837025792,
+  "files_removed": 101,
+  "file_allocated_bytes_removed": 40798007296,
+  "total_allocated_bytes_removed": 49635033088,
+  "source_files_verified": 863,
+  "retained_file_identities_verified": 25651,
+  "refs_unchanged": true,
+  "index_unchanged": true,
+  "verification_errors": [],
+  "git_fsck": {
+    "command": [
+      "git",
+      "fsck",
+      "--full",
+      "--no-dangling"
+    ],
+    "returncode": 0
+  },
+  "filesystem_available_bytes_after": 526532210688
+}

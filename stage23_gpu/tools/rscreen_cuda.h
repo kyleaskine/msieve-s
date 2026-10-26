@@ -1,5 +1,5 @@
-/* CUDA screening is optional: setup/allocation failures leave the input cells
- * untouched so the caller can use the CPU screen after a completed sieve. */
+/* Optional CUDA alpha/size work: setup/allocation failures leave the input cells
+ * untouched so the caller can use CPU screening or final refinement. */
 #pragma once
 #include "rscreen.h"
 
@@ -50,7 +50,7 @@ __global__ void rs_screen_alpha(RsScreenDeviceCell *cells, const uint32_t *prime
 static bool rs_screen_cuda_ok(cudaError_t error)
 {
     if (error == cudaSuccess) return true;
-    fprintf(stderr, "s23_ropt: GPU alpha screen unavailable (%s); using CPU screen\n",
+    fprintf(stderr, "s23_ropt: GPU alpha/size evaluation unavailable (%s); using CPU\n",
             cudaGetErrorString(error));
     cudaGetLastError(); // clear a recoverable allocation/configuration error
     return false;
@@ -136,11 +136,11 @@ struct RsScreenWorkspace {
 
 static bool rs_screen_gpu(std::vector<RsCandidate> &cells, const RsizePoly<RS_LP> &r,
                           const cio_poly &p, int bound, double aw, int dev, bool check,
-                          size_t &fallbacks, RsScreenWorkspace &workspace)
+                          size_t &fallbacks, RsScreenWorkspace &workspace, bool final_refine = false)
 {
     std::vector<uint32_t> primes;
     if (!rs_screen_primes(bound, primes)) {
-        fprintf(stderr, "s23_ropt: GPU alpha bound/capacity unsupported; using CPU screen\n");
+        fprintf(stderr, "s23_ropt: GPU alpha bound/capacity unsupported; using CPU\n");
         return false;
     }
     if (workspace.device != dev || !workspace.reserve(cells.size(), bound, primes)) return false;
@@ -174,10 +174,17 @@ static bool rs_screen_gpu(std::vector<RsCandidate> &cells, const RsizePoly<RS_LP
 #pragma omp parallel for schedule(dynamic, 1) reduction(+:nf,different_t) reduction(max:max_L,max_A,max_key)
         for (int j = 0; j < n; ++j) {
             auto &c = screened[start+j];
+            // Save the CPU start before accepting device output. Every final
+            // candidate gets the CPU size search, not only those near a cut:
+            // small libm differences can send that search to another basin.
+            int64_t canonical_t = c.t;
+            double canonical_L = c.L;
+            bool canonical_ready = c.screen_host;
             c.L = h[j].L; c.A = h[j].A;
             c.key = rs_screen_key(c.L, c.A, aw);
             if (h[j].failed || check) {
-                const RsExact x = rs_exact_cell(p, r, c.h.u, c.h.v, c.t, bound);
+                int64_t reference_t = c.t;
+                const RsExact x = rs_exact_cell(p, r, c.h.u, c.h.v, reference_t, bound);
                 const double reference_key = rs_screen_key(x.L, x.A, aw);
                 if (check && !h[j].failed) {
                     if (std::isfinite(reference_key) != std::isfinite(c.key)) max_key = INFINITY;
@@ -186,21 +193,45 @@ static bool rs_screen_gpu(std::vector<RsCandidate> &cells, const RsizePoly<RS_LP
                         max_A = std::max(max_A, fabs(c.A - x.A));
                         max_key = std::max(max_key, fabs(c.key - reference_key));
                     }
-                    different_t += c.t != h[j].t;
+                    different_t += reference_t != h[j].t;
                 }
-                c.L = x.L; c.A = x.A; c.key = reference_key;
-                c.screen_host = true;
+                if (!canonical_ready) {
+                    canonical_t = reference_t;
+                    canonical_L = x.L;
+                    canonical_ready = true;
+                }
+                // Failed arithmetic also needs CADO alpha. Healthy final
+                // refinement retains device alpha but uses canonical size/t.
+                if (h[j].failed || !final_refine) {
+                    c.L = x.L; c.A = x.A; c.key = reference_key;
+                    c.t = reference_t;
+                    c.screen_host = true;
+                }
                 nf += h[j].failed != 0;
             }
-            // Otherwise retain the original CPU search start, not the device t.
+            if (final_refine && !h[j].failed) {
+                if (!canonical_ready) {
+                    Int<RS_LP> f[6];
+                    double content = 0;
+                    const bool ok = rs_rotate(f, r, c.h.u, c.h.v) && rs_screen_primitive(f, content);
+                    canonical_L = ok ? rs_size(r, c.h.u, c.h.v, canonical_t, 1 << 10) - content : INFINITY;
+                }
+                c.t = canonical_t;
+                c.L = canonical_L;
+                c.key = rs_screen_key(c.L, c.A, aw);
+                c.screen_host = true;
+            }
+            // Screening retains the original start for its later final pass.
         }
         fallbacks += nf;
     }
     if (check) {
-        printf("# alpha-screen GPU check: max |dL| %.12g, |dA| %.12g, |dkey| %.12g; "
-               "%zu translations differ before host canonicalization\n", max_L, max_A, max_key, different_t);
+        printf("# %s GPU check: max |dL| %.12g, |dA| %.12g, |dkey| %.12g; "
+               "%zu translations differ%s\n", final_refine ? "full-refine" : "alpha-screen",
+               max_L, max_A, max_key, different_t, final_refine ? "" : " before host canonicalization");
         if (max_key > 1e-8) {
-            fprintf(stderr, "s23_ropt: GPU screen disagrees with CPU reference; no polynomials written\n");
+            fprintf(stderr, "s23_ropt: GPU %s disagrees with CPU reference; no polynomials written\n",
+                    final_refine ? "final refinement" : "alpha screen");
             exit(2);
         }
     }

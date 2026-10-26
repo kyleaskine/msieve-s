@@ -391,7 +391,7 @@ def cado_murphy_binary():
     fmt = f'-I{cado_src_dir()}/utils/embedded'
     return _cado_tool('cado_murphy', 'cado_murphy.cpp', lambda incs, libs, ldflags, binary, src:
                       ['g++', '-O2', '-ffp-contract=off', '-std=c++20', '-fopenmp'] + incs + [fmt, '-o', binary, src] + libs + ldflags,
-                      headers=('murphy_search.h',))
+                      headers=('murphy_search.h', 'murphy_quadrature.h'))
 
 
 def cado_expe(polys, n):

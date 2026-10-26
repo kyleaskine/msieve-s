@@ -80,7 +80,7 @@ $(BUILD)/test_rclass: tests/test_rclass.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO
 $(BUILD)/test_rclass_rank: tests/test_rclass_rank.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO_LIB_FILES) | $(BUILD)
 	$(CXX) $(CXXFLAGS) -ffp-contract=off -Itools -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -fopenmp
 
-test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_rselect $(BUILD)/test_rscan $(BUILD)/test_rclass $(BUILD)/test_rclass_rank $(BUILD)/test_rscreen $(CASES) $(BUILD)/murphy_rank_probe $(BUILD)/s23_ropt_cpu $(BUILD)/test_murphy_integral $(BUILD)/test_murphy_cell
+test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_rselect $(BUILD)/test_rscan $(BUILD)/test_rclass $(BUILD)/test_rclass_rank $(BUILD)/test_rscreen $(CASES) $(BUILD)/murphy_rank_probe $(BUILD)/s23_ropt_cpu $(BUILD)/test_murphy_integral $(BUILD)/test_murphy_cell $(BUILD)/test_murphy_rho
 	./$(BUILD)/test_mpint
 	./$(BUILD)/test_lll $(CASES)
 	./$(BUILD)/test_rsieve $(RSIEVE_POLYS)
@@ -100,6 +100,8 @@ test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_r
 	python3 tests/test_alpha_screen.py
 	python3 tests/test_alpha_screen_gpu.py
 	python3 tests/test_ropt_batch.py
+	python3 tests/test_refinement_gpu.py
+	./$(BUILD)/test_murphy_rho
 	./$(BUILD)/test_murphy_cell ../stage23_bench/data/c181/translation/gpu.poly
 	./$(BUILD)/test_murphy_integral ../stage23_bench/data/c146/winners/msieve_best.poly \
 		../stage23_bench/data/c181/translation/gpu.poly ../stage23_bench/data/c205/gpu_ropt/verified.poly
@@ -111,6 +113,14 @@ device: $(BUILD)/test_device
 
 run-device: $(BUILD)/test_device $(CASES)
 	./$(BUILD)/test_device $(CASES) -1
+
+$(BUILD)/test_rsieve_gpu: tests/test_rsieve_gpu.cu tools/rsieve_cuda.h $(HEADERS) $(BUILD)/cado_io.o $(CADO_LIB_FILES)
+	$(NVCC) -O3 -std=c++17 -arch=sm_$(CUDA) --fmad=false -Iinclude -Itools -Xcompiler -fopenmp,-ffp-contract=off \
+		-o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -lgomp
+
+.PHONY: test-rsieve-gpu
+test-rsieve-gpu: $(BUILD)/test_rsieve_gpu
+	./$(BUILD)/test_rsieve_gpu $(RSIEVE_POLYS)
 
 $(BUILD)/cado_io.o: tools/cado_io.c tools/cado_io.h include/sopt_skew.h | $(BUILD)
 	gcc -O2 -std=c99 -fopenmp $(CADO_INC) -Itools -Iinclude -c -o $@ $<
@@ -129,21 +139,28 @@ $(BUILD)/s23_sopt: $(SOPT_SRC) $(BUILD)/cado_io.o $(CADO_LIB_FILES)
 s23_sopt_cpu: $(BUILD)/s23_sopt_cpu
 s23_sopt: $(BUILD)/s23_sopt
 
-MURPHY_HEADERS := tools/murphy_rank.h ../stage23_bench/tools/murphy_search.h
+MURPHY_HEADERS := tools/murphy_rank.h ../stage23_bench/tools/murphy_search.h ../stage23_bench/tools/murphy_quadrature.h
 # Keep host scoring portable when the tree/binaries move to a rented GPU host.
 # Disable implicit contraction: scalar rounding/order must match MurphyE exactly.
 MURPHY_FLAGS := -O2 -ffp-contract=off -std=c++20 -Wall -Wextra
+$(BUILD)/test_murphy_rho: tests/test_murphy_rho.cpp include/murphy_rho.h $(CADO_LIB_FILES) Makefile | $(BUILD)
+	$(CXX) $(CXXFLAGS) -ffp-contract=off -o $@ $< $(CADO_LIBS)
+
 $(BUILD)/murphy_rank.o: tools/murphy_rank.cpp $(MURPHY_HEADERS) tools/cado_io.h Makefile $(CADO_LIB_FILES) | $(BUILD)
 	$(CXX) $(MURPHY_FLAGS) $(CADO_INC) $(addsuffix /embedded,$(filter %/utils,$(CADO_INC))) \
 		-I../stage23_bench/tools -c -o $@ $<
 
-ROPT_SRC := tools/s23_ropt.cu tools/rscreen_cuda.h tools/ropt_batch.h tools/cado_io.h tools/murphy_cell.h $(MURPHY_HEADERS) $(HEADERS)
+ROPT_SRC := tools/s23_ropt.cu tools/rsieve_cuda.h tools/rscreen_cuda.h tools/murphy_cuda.h tools/ropt_batch.h tools/cado_io.h tools/murphy_cell.h $(MURPHY_HEADERS) $(HEADERS)
 
 $(BUILD)/murphy_rank_probe: tests/murphy_rank_probe.cpp tools/murphy_rank.h $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIB_FILES)
 	$(CXX) $(CXXFLAGS) -Itools -o $@ $< $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIBS) -fopenmp
 
 $(BUILD)/test_murphy_cell: tests/test_murphy_cell.cpp tools/murphy_cell.h $(MURPHY_HEADERS) $(HEADERS) $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIB_FILES)
 	$(CXX) $(CXXFLAGS) -Iinclude -Itools -o $@ $< $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIBS) -fopenmp
+
+$(BUILD)/test_murphy_cuda: tests/test_murphy_cuda.cu tools/murphy_cuda.h $(MURPHY_HEADERS) $(HEADERS) $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIB_FILES)
+	$(NVCC) -O3 -std=c++17 -arch=sm_$(CUDA) --fmad=false -Iinclude -Itools \
+		-o $@ $< $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIBS) -lgomp
 
 $(BUILD)/test_murphy_integral: tests/test_murphy_integral.cpp $(MURPHY_HEADERS) tools/cado_io.h $(BUILD)/cado_io.o Makefile $(CADO_LIB_FILES) | $(BUILD)
 	$(CXX) $(MURPHY_FLAGS) $(CADO_INC) $(addsuffix /embedded,$(filter %/utils,$(CADO_INC))) \

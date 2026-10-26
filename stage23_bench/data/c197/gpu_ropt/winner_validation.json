@@ -1,0 +1,141 @@
+{
+  "comparison_sha256": "cd2ad49570ca9b99b3b55965757001316749d8352ec1b54de7e1e51fd67c2e71",
+  "scorer_sha256": "3db4195375d134592178b9df4db0d26d48574262fb0e5187d4ba0dde57c1d7c1",
+  "settings": {
+    "params": "job:32,33,15.5,75e6",
+    "lattice": "16,16384",
+    "qband": "75e6,400e6,7",
+    "lpbr": 32,
+    "lpba": 33,
+    "rlim": 160000000,
+    "alim": 240000000,
+    "sieve_points": 1073741824,
+    "logI": 16,
+    "J": 16384,
+    "region": "cuda-sieve --logI 16 --J 16384",
+    "sq_side": "algebraic",
+    "provisional": true,
+    "source": "User, 2026-10-24; same LPB/limits as C192; approximate region and q range",
+    "note": "Half-plane lattice coordinates i in [-32768,32768), j in [0,16384); Murphy equivalent I=15.5. Limits recorded for test sieving; model uses LPB/area/q geometry."
+  },
+  "standard_murphy": {
+    "angles": 1024000,
+    "cpu": [
+      1.082618e-14,
+      84704630.3,
+      0
+    ],
+    "gpu": [
+      1.082506e-14,
+      87739232.5,
+      0
+    ],
+    "ratio": 0.9998965470738524
+  },
+  "lattice": {
+    "lattices": 512,
+    "samples": 8192,
+    "records": [
+      {
+        "stream": 0,
+        "cpu": [
+          1187552000.0,
+          79590546.7,
+          6.68451e-09,
+          [
+            88.6288,
+            78.2801,
+            72.4403,
+            67.9426,
+            64.5628,
+            61.8543,
+            59.4304
+          ]
+        ],
+        "gpu": [
+          1188225000.0,
+          77464461.0,
+          6.688355e-09,
+          [
+            88.72,
+            78.3571,
+            72.4859,
+            67.9823,
+            64.5963,
+            61.8732,
+            59.3768
+          ]
+        ],
+        "ratio": 1.000566712026084
+      },
+      {
+        "stream": 1,
+        "cpu": [
+          1187438000.0,
+          79590546.7,
+          6.68451e-09,
+          [
+            88.6064,
+            78.2778,
+            72.4601,
+            67.9195,
+            64.4533,
+            61.862,
+            59.5895
+          ]
+        ],
+        "gpu": [
+          1188552000.0,
+          77464461.0,
+          6.688355e-09,
+          [
+            88.6882,
+            78.3939,
+            72.5071,
+            67.9867,
+            64.5283,
+            61.9201,
+            59.563
+          ]
+        ],
+        "ratio": 1.0009381542446847
+      },
+      {
+        "stream": 3,
+        "cpu": [
+          1187383000.0,
+          79590546.7,
+          6.68451e-09,
+          [
+            88.5853,
+            78.3724,
+            72.4017,
+            67.912,
+            64.485,
+            61.817,
+            59.5347
+          ]
+        ],
+        "gpu": [
+          1188430000.0,
+          77464461.0,
+          6.688355e-09,
+          [
+            88.6639,
+            78.4741,
+            72.4518,
+            67.9769,
+            64.5627,
+            61.8652,
+            59.5058
+          ]
+        ],
+        "ratio": 1.000881771088183
+      }
+    ],
+    "min_ratio": 1.000566712026084,
+    "max_ratio": 1.0009381542446847,
+    "mean_ratio": 1.0007955457863171
+  },
+  "note": "Previously selected winners and skews held fixed. Stream 0 overlaps the initial screen; streams 1 and 3 are additional streams. These are model checks, not test sieving."
+}

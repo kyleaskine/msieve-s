@@ -17,9 +17,9 @@
 #include "mpz_poly.h"
 #include "cxx_mpz.hpp"
 #include "polyselect_norms.h"
+#include "murphy_quadrature.h"
 
 namespace s23_murphy {
-static constexpr double PI = 3.14159265358979324;
 
 struct Ctx {
     double Bf, Bg, area;
@@ -52,7 +52,7 @@ static const AngleGrid *angle_grid(int K)
     auto &grid = cache[recent];
     grid.xy.resize(K);
     for (int i = 0; i < K; i++) {
-        const double ti = PI / (double)K * ((double)i + 0.5);
+        const double ti = angle(i, K);
         grid.xy[i] = {cos(ti), sin(ti)};
     }
     grid.K = K;
@@ -65,28 +65,33 @@ static const AngleGrid *angle_grid(int K)
  * parallel reduction. Translated GMP coefficients are freshly converted on every
  * call, so neither a translation nor a different polynomial can reuse stale data.
  */
-static double murphy_at(cado_poly_srcptr cpoly, double skew, double alpha_f, double alpha_g, const Ctx &C)
+template <typename F, typename G>
+static double integral(const F &f, int degree, const G &g, double skew, double alpha_f, double alpha_g, const Ctx &C)
 {
     double E = 0;
     const int K = C.K;
     const double x = sqrt(C.area * skew);
     const double y = sqrt(C.area / skew);
-    const polynomial<double> f(cpoly->pols[ALG_SIDE]);
-    const polynomial<double> g(cpoly->pols[RAT_SIDE]);
     const AngleGrid *grid = angle_grid(K);
     const double one_over_logBf = 1.0 / log(C.Bf);
     const double one_over_logBg = 1.0 / log(C.Bg);
     for (int i = 0; i < K; i++) {
-        const double ti = PI / (double)K * ((double)i + 0.5);
+        const double ti = angle(i, K);
         const double xi = x * (grid ? grid->xy[i][0] : cos(ti));
         const double yi = y * (grid ? grid->xy[i][1] : sin(ti));
-        double vf = log(std::abs(f(xi, yi))) + alpha_f;
-        double vg = log(std::abs(g(xi, yi))) + alpha_g;
+        double vf = log(std::abs(homogeneous(f, degree, xi, yi))) + alpha_f;
+        double vg = log(std::abs(homogeneous(g, 1, xi, yi))) + alpha_g;
         vf *= one_over_logBf;
         vg *= one_over_logBg;
         E += dickman_rho(vf) * dickman_rho(vg);
     }
     return E / (double)K;
+}
+
+static double murphy_at(cado_poly_srcptr p, double skew, double af, double ag, const Ctx &c)
+{
+    const polynomial<double> f(p->pols[ALG_SIDE]), g(p->pols[RAT_SIDE]);
+    return integral(f, p->pols[ALG_SIDE]->deg, g, skew, af, ag, c);
 }
 
 /* best skew on the fixed grid; returns E, sets skew */
