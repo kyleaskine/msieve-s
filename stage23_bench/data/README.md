@@ -38,3 +38,40 @@ at their existing paths under `stage23_gpu/runs/`. These ignored artifacts are
 local only; a fresh Git checkout has the summaries and fixtures, not the full
 historical replay environment. See the [run index](../runs/README.md) for study
 scripts, validation details and reproduction requirements.
+
+## Older evidence compacted on October 28
+
+Eighteen bulk artifacts from the October 21–25 studies have been moved out of
+the checkout. Their 101.8 MiB of original data became 3.1 MiB of compressed
+tables, fixtures and metadata. Including the small reader/documentation changes,
+versioned file contents shrink from 114.4 MiB to about 15.7 MiB relative to
+commit `ca2a3d0`; historical Git objects are unchanged.
+The [manifest](historical_evidence.json) records original paths,
+sizes, SHA-256 hashes, Git blobs and the source commit. Full originals remain in
+the ignored `stage23_gpu/runs/20261028_historical_evidence/files/` area, preserving
+their repository-relative paths. This cleanup changes the current tree only.
+
+- Six AS660 score tables retain all 60,000 rows, byte for byte after
+  decompression, as adjacent `scores*.jsonl.gz` files. The statistical comparison
+  readers accept these automatically.
+- Six discovery/sample ledgers are local archive material. Eighteen
+  [representative raw seeds](as660/size_sample_fixtures.json) retain each
+  coefficient sample's best, middle and worst score for small reproductions.
+  These were selected after scoring and are not an unbiased evaluation set.
+- The full CPU-review checkpoint and top-1000 list are archived. Aggregate
+  results, winner origin proofs and the winning stage1 record remain versioned.
+- The full filesystem/Git inventories and retained-file inventory are archived.
+  Cleanup decisions, the exact deletion list, execution results and verification
+  totals remain versioned in the storage-audit directory.
+
+The affected scripts use `stage23_bench/tools/run_evidence.py` to read an existing
+plain file, its gzip replacement, or the mapped local original. The helper does
+not recreate large files. A fresh checkout can reproduce the score-distribution
+and discovery-quarter comparisons from the gzip tables; full historical replay
+still requires the original inputs, binaries and other local run artifacts.
+
+If an archived original is unavailable, recover its bytes with
+`git show SOURCE_COMMIT:ORIGINAL_PATH`, using the commit and path in the manifest,
+and save them under the manifest's `archive_root` plus `ORIGINAL_PATH`. Verify
+the recorded SHA-256 before using it. The exact old bulk paths are ignored so
+regenerating them does not add them to a future commit accidentally.

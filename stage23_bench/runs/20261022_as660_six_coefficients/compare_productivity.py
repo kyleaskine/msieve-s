@@ -10,14 +10,17 @@ import math
 from pathlib import Path
 import re
 import statistics
+import sys
 
 HERE = Path(__file__).resolve().parent
 PREV = HERE.parent / '20261021_as660_two_coefficients'
 THIRD = HERE.parent / '20261021_as660_third_coefficient'
+sys.path.insert(0, str(HERE.parents[2] / 'stage23_bench/tools'))
+from run_evidence import open_evidence
 
 
 def sha256(path):
-    with path.open('rb') as f:
+    with open_evidence(path, 'rb') as f:
         return hashlib.file_digest(f, 'sha256').hexdigest()
 
 
@@ -46,7 +49,7 @@ def main():
         c = comparison[ad]
         seconds = c['coefficient']['ending']['seconds']
         q_rate = c['qroots'] / seconds
-        with scores_path.open() as f:
+        with open_evidence(scores_path) as f:
             scores = list(map(json.loads, f))
         assert len(scores) == 10000
         row = dict(seconds=seconds,

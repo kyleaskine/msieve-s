@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "source_commit": "ca2a3d0a67d3492b2b6074aea134dd356461305c",
+  "archive_root": "stage23_gpu/runs/20261028_historical_evidence/files",
+  "original_bytes": 106782725,
+  "files": {
+    "stage23_bench/runs/20261021_as660_two_coefficients/sample-138600.jsonl": {
+      "bytes": 11860577,
+      "sha256": "5aee7c668285e9cbd6a5091b7caac67819e3c11b170d61d49c22045dd66a64fd",
+      "git_blob": "6ed7b7bc1b5cfbf3d6f196d1cfc9ed1ba8964612"
+    },
+    "stage23_bench/runs/20261021_as660_two_coefficients/sample-277200.jsonl": {
+      "bytes": 13330247,
+      "sha256": "d39691fe80fc1d72c28fcbbeffd2166688ee94a27dc5803c5618ccaedd777b5e",
+      "git_blob": "a4e8785abd5b34064c8bf394d5fffbf544c7b231"
+    },
+    "stage23_bench/runs/20261021_as660_two_coefficients/scores-138600.jsonl": {
+      "bytes": 1790399,
+      "sha256": "227740eb660f6571a2fda1d3928ac964e3df7eb1930c0fc32a004d34d9f3d8e0",
+      "git_blob": "1048a7ad434dfd1596ce471d87f29844718ba84b",
+      "compressed": "stage23_bench/runs/20261021_as660_two_coefficients/scores-138600.jsonl.gz",
+      "compressed_bytes": 542948,
+      "compressed_sha256": "96446b160ae4b666321f42db34ef67a9319bde9c8d0909154efdc56094ffd788"
+    },
+    "stage23_bench/runs/20261021_as660_two_coefficients/scores-277200.jsonl": {
+      "bytes": 1789364,
+      "sha256": "f9c43eadc7685c627fdb8b8d5c5297301f9dbc83e46e1a6e50fc692a91657444",
+      "git_blob": "a14ba1a0640c97ab4a4c61f5e4bbff8787a456d7",
+      "compressed": "stage23_bench/runs/20261021_as660_two_coefficients/scores-277200.jsonl.gz",
+      "compressed_bytes": 542439,
+      "compressed_sha256": "89d9952fc1b70a5e6a79d40aa5e2b5daa49b1943ee368efd7142c320f4174ad6"
+    },
+    "stage23_bench/runs/20261021_as660_third_coefficient/sample-415800.jsonl": {
+      "bytes": 13482985,
+      "sha256": "06ee8508c7aa5aebf5877793798f624863a8b656b36975f2ad8e5ceed9ee9621",
+      "git_blob": "7d1c86b8b6fc209574036c7859522fba10cdd4d4"
+    },
+    "stage23_bench/runs/20261021_as660_third_coefficient/scores-415800.jsonl": {
+      "bytes": 1788810,
+      "sha256": "ebb9e8e2e546414f60d0ce7c0fe8e7669a684747b146b702c1a5c1f32f8ba656",
+      "git_blob": "8af55d66526123e71b63bbcbbb5a7b63c7efdc1b",
+      "compressed": "stage23_bench/runs/20261021_as660_third_coefficient/scores-415800.jsonl.gz",
+      "compressed_bytes": 540899,
+      "compressed_sha256": "02aa376fa5c02385b916ea095f5ad344d3cd807c875613f3dfb6c6c730cd1bdc"
+    },
+    "stage23_bench/runs/20261022_as660_six_coefficients/554400/sample.jsonl": {
+      "bytes": 13424706,
+      "sha256": "eaad37dab9bae5e1fa5a7005beb2a4ff8aa9a384816598f324c89b838407bd03",
+      "git_blob": "edc59121018f182d69e6ed0d0ae69fca95cbb6d7"
+    },
+    "stage23_bench/runs/20261022_as660_six_coefficients/554400/scores.jsonl": {
+      "bytes": 1788429,
+      "sha256": "f4b0ae18f8c00dbd9caad1fe126ae4b53855e78f2cbd3627572414cb25d99f25",
+      "git_blob": "eb57bc5e3254a953bc4033b541c89d7612c12743",
+      "compressed": "stage23_bench/runs/20261022_as660_six_coefficients/554400/scores.jsonl.gz",
+      "compressed_bytes": 541796,
+      "compressed_sha256": "c63352343e22e1196a4f4468667162a267a9d4c403f98ebaaaedd7858007f8d0"
+    },
+    "stage23_bench/runs/20261022_as660_six_coefficients/693000/sample.jsonl": {
+      "bytes": 13708485,
+      "sha256": "7a4825c54dc31bbb97b227447b0bd4891b4f5b7c4786e033ac5381951f680987",
+      "git_blob": "fb30d09c5702046278b731837b757d9b97c57c52"
+    },
+    "stage23_bench/runs/20261022_as660_six_coefficients/693000/scores.jsonl": {
+      "bytes": 1788141,
+      "sha256": "a96a171dc10d469bfaac9086a502c3a10dd6eae2c78aeff69855ae29f0d45736",
+      "git_blob": "c3bc474a76213e38fbff6f5717c1f5a2caa0db40",
+      "compressed": "stage23_bench/runs/20261022_as660_six_coefficients/693000/scores.jsonl.gz",
+      "compressed_bytes": 540792,
+      "compressed_sha256": "77db189eb56a0be8125810463e046f8aca3d110bc83f0f2034748a3dbb69d745"
+    },
+    "stage23_bench/runs/20261022_as660_six_coefficients/831600/sample.jsonl": {
+      "bytes": 13593442,
+      "sha256": "35c44cb8aa3e387f58204541e617f1307353d97afe069897bb4bfe34ec649522",
+      "git_blob": "a37d9e45e8622a87ae8fbc444cbce29ef9b86714"
+    },
+    "stage23_bench/runs/20261022_as660_six_coefficients/831600/scores.jsonl": {
+      "bytes": 1787644,
+      "sha256": "999983d22b4118b7158f0292b0f9f74eeba9f79f88c9fb072853e4056fbaa97a",
+      "git_blob": "007d2847c2134d6c9c4b05f1c2fe6b1f6ef9e57e",
+      "compressed": "stage23_bench/runs/20261022_as660_six_coefficients/831600/scores.jsonl.gz",
+      "compressed_bytes": 540753,
+      "compressed_sha256": "62939328670e9aec0c8b5ea15032da120c1b1c20433bf578d70c7610650d87eb"
+    },
+    "stage23_bench/runs/20261023_as660_cpu_review/corpus-checkpoint.json": {
+      "bytes": 4361173,
+      "sha256": "859861629d2f3df939faf1ecc749fd40c08824e4a0b85bc2b04aa2ee569745d5",
+      "git_blob": "a29cf43f66e3544ae142c58cbd40d81bf3f8ac31"
+    },
+    "stage23_bench/runs/20261023_as660_cpu_review/top1000.jsonl": {
+      "bytes": 1242834,
+      "sha256": "eb2e62cb110a9b4f5cbee0be79a619e6d4fb1c875d647180529ed60177c948af",
+      "git_blob": "71a80c97f20fbb6a7b9a3e028f42e01a323684c4"
+    },
+    "stage23_bench/runs/20261025_storage_audit/git_cleanup_preflight.json": {
+      "bytes": 459962,
+      "sha256": "ce4e31b43e8fd997658ab1a3d35d363fe63369afff7ff5c9a41f31168e3f2d00",
+      "git_blob": "8c2160db13dbad74b77c7625b14586dee454756f"
+    },
+    "stage23_bench/runs/20261025_storage_audit/git_objects.json": {
+      "bytes": 676100,
+      "sha256": "31f09969bd7d9c68f28a5940b4acec5716315749fb79786b3ec5ca7700fe18d5",
+      "git_blob": "f81c87c06bf30e15715eb0de558e42aa0c6e57bd"
+    },
+    "stage23_bench/runs/20261025_storage_audit/inventory.json": {
+      "bytes": 5377080,
+      "sha256": "b0d96b7ab87d4c6459f21cfe00ffdbe60b709f8f0c2fe3aeec1311591c22c04b",
+      "git_blob": "237aa0d6cecf7839dcc247e57c6a521cd6be7c86"
+    },
+    "stage23_bench/runs/20261025_storage_audit/retained_verification.json": {
+      "bytes": 4532347,
+      "sha256": "e31397dedc8fa1ae67d24a90b77301f34c58edf03b9e88fbf849f0c55976ea3b",
+      "git_blob": "4c1a53da6836eab2a6e8c56aaeadccee39e458fe"
+    }
+  },
+  "retained_score_rows": 60000,
+  "note": "Original bytes preserved in the ignored local archive. Gzip score tables are lossless. Existing conclusions, winner provenance and deletion records remain versioned.",
+  "representative_fixtures": {
+    "path": "stage23_bench/data/as660/size_sample_fixtures.json",
+    "count": 18,
+    "sha256": "ef355b22e6d590f952f0f789dbdf6b481722b629dcf141371e12a9f824c84bf7"
+  }
+}

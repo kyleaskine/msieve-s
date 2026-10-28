@@ -5,10 +5,13 @@ import math
 from pathlib import Path
 import random
 import statistics
+import sys
 
 HERE = Path(__file__).resolve().parent
 PREV = HERE.parent / '20261021_as660_two_coefficients'
 THIRD = HERE.parent / '20261021_as660_third_coefficient'
+sys.path.insert(0, str(HERE.parents[2] / 'stage23_bench/tools'))
+from run_evidence import open_evidence
 
 
 def quantile(values, q):
@@ -24,7 +27,7 @@ def main():
     paths.update({ad: HERE/str(ad)/'scores.jsonl' for ad in (554400, 693000, 831600)})
     data = {}
     for ad, path in paths.items():
-        with path.open() as f:
+        with open_evidence(path) as f:
             data[ad] = list(map(json.loads, f))
         assert len(data[ad]) == 10000
     result = {}

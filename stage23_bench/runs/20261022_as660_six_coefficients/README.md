@@ -1,5 +1,10 @@
 > Historical run record moved from the main notes on 2026-10-22. See the [current conclusions](../../../POLYSELECT_OPTIMIZATION_NOTES.md) for subsequent evidence and revised priorities. Statements about a running or stopped process describe the time of this record.
 
+Evidence was compacted on October 28: all six score tables remain available as
+lossless `.jsonl.gz` files, while full sample ledgers are in the local archive.
+Updated readers resolve both forms. See the [evidence index](../../data/README.md)
+for hashes, representative fixtures and recovery instructions.
+
 ## Six complete C196 coefficients (2026-10-22)
 
 The user's next AS660 run completed a_d=554400, 693000, and 831600 and ended

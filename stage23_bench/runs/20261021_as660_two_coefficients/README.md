@@ -1,5 +1,10 @@
 > Historical run record moved from the main notes on 2026-10-22. See the [current conclusions](../../../POLYSELECT_OPTIMIZATION_NOTES.md) for subsequent evidence and revised priorities. Statements about a running or stopped process describe the time of this record.
 
+Evidence was compacted on October 28: score tables are now lossless `.jsonl.gz`
+files, and full sample ledgers are in the local archive. Updated readers resolve
+both forms. See the [evidence index](../../data/README.md) for hashes, retained
+fixtures and recovery instructions.
+
 ## Second complete C196 coefficient and CPU quality samples (2026-10-21)
 
 Inspected the completed a_d=277200 while the user's third coefficient continued.

@@ -10,6 +10,7 @@ FIRST=HERE.parent/'20261020_as660_first_coefficient'
 sys.path.insert(0,str(ROOT/'stage23_bench/tools'))
 from stage1_provenance import join_sopt
 from polyfmt import resultant
+from run_evidence import open_evidence
 
 def quantile(values,q):
     pos=(len(values)-1)*q; i=int(pos); f=pos-i
@@ -35,8 +36,9 @@ def main():
         for e in audit['summary']['exposure']:
             exposure[e['q_min']>>30]+=e['qroots']
         candidates={}
-        for line in (HERE/f'sample-{ad}.jsonl').open():
-            e=json.loads(line);candidates[e['candidate_id']]=e
+        with open_evidence(HERE/f'sample-{ad}.jsonl') as sample:
+            for line in sample:
+                e=json.loads(line);candidates[e['candidate_id']]=e
         assert join_sopt(candidates,[HERE/f'sopt-{ad}.out'])==0
         qvalues=defaultdict(list); timevalues=defaultdict(list); scores=[]
         ambiguous_q=ambiguous_time=0

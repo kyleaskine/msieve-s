@@ -18,6 +18,7 @@ PREVIOUS = HERE.parent / '20261021_as660_two_coefficients'
 sys.path.insert(0, str(ROOT / 'stage23_bench/tools'))
 from stage1_provenance import audit, join_raw, join_sopt
 from polyfmt import cado_poly_text, resultant
+from run_evidence import open_evidence
 
 
 def save(name, value):
@@ -151,7 +152,7 @@ def summarize():
     exposure = Counter()
     for e in audit_data['summary']['exposure']:
         exposure[e['q_min'] >> 30] += e['qroots']
-    with (HERE / 'sample-415800.jsonl').open() as ledger:
+    with open_evidence(HERE / 'sample-415800.jsonl') as ledger:
         candidates = {e['candidate_id']: e for e in map(json.loads, ledger)}
     assert join_sopt(candidates, [HERE / 'sopt-415800.out']) == 0
     qvalues, timevalues, scores = defaultdict(list), defaultdict(list), []
@@ -191,7 +192,7 @@ def summarize():
         sampled_identities_spanning_chronology_bins=ambiguous_time)
     rng = random.Random(660)
     for ad in ('138600', '277200'):
-        with (PREVIOUS / f'scores-{ad}.jsonl').open() as f:
+        with open_evidence(PREVIOUS / f'scores-{ad}.jsonl') as f:
             baseline = [json.loads(line)['exp_E'] for line in f]
         differences = defaultdict(list)
         for _ in range(400):

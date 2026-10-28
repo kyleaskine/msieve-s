@@ -62,6 +62,25 @@ msieve.dat.*
 stage23_bench/runs/**/*.candidates.jsonl.zst
 stage23_bench/runs/**/*.candidates.jsonl.zst.partial
 stage23_bench/runs/**/ledger.jsonl
+# Historical bulk evidence is archived locally; retain summaries and .jsonl.gz scores.
+/stage23_bench/runs/20261021_as660_two_coefficients/sample-138600.jsonl
+/stage23_bench/runs/20261021_as660_two_coefficients/sample-277200.jsonl
+/stage23_bench/runs/20261021_as660_two_coefficients/scores-138600.jsonl
+/stage23_bench/runs/20261021_as660_two_coefficients/scores-277200.jsonl
+/stage23_bench/runs/20261021_as660_third_coefficient/sample-415800.jsonl
+/stage23_bench/runs/20261021_as660_third_coefficient/scores-415800.jsonl
+/stage23_bench/runs/20261022_as660_six_coefficients/554400/sample.jsonl
+/stage23_bench/runs/20261022_as660_six_coefficients/554400/scores.jsonl
+/stage23_bench/runs/20261022_as660_six_coefficients/693000/sample.jsonl
+/stage23_bench/runs/20261022_as660_six_coefficients/693000/scores.jsonl
+/stage23_bench/runs/20261022_as660_six_coefficients/831600/sample.jsonl
+/stage23_bench/runs/20261022_as660_six_coefficients/831600/scores.jsonl
+/stage23_bench/runs/20261023_as660_cpu_review/corpus-checkpoint.json
+/stage23_bench/runs/20261023_as660_cpu_review/top1000.jsonl
+/stage23_bench/runs/20261025_storage_audit/git_cleanup_preflight.json
+/stage23_bench/runs/20261025_storage_audit/git_objects.json
+/stage23_bench/runs/20261025_storage_audit/inventory.json
+/stage23_bench/runs/20261025_storage_audit/retained_verification.json
 /as660.log
 worktodo.ini
 factor.log

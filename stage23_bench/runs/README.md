@@ -149,6 +149,10 @@ They take the run directory as an argument; each file's docstring or header says
   `cleanup_result.json` and `deletion_result.json`. Removed preprocessing indexes
   and sorted intermediates must be rebuilt before a full driver resume; retained
   seeds/pools support direct replay. Original `.zst` archives were preserved.
+  The large inventories were archived locally on October 28; execution records
+  and deletion lists remain versioned. Earlier AS660 score tables are now
+  lossless gzip files, with bulky ledgers/checkpoints also archived locally.
+  See the [evidence index](../data/README.md) for access and recovery details.
 - `20261027_jobs/`: live C179 depth retention and bounded Murphy CPU/GPU audit,
   followed by independent full GPU runs for the newer C170 and C184 inputs.
   `retention.py` freezes the C179 fixtures and traces the known rotation without

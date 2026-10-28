@@ -22,6 +22,7 @@ EXPECTED = (151003, 230703, 199223)
 sys.path.insert(0, str(ROOT / 'stage23_bench/tools'))
 from stage1_provenance import audit, join_raw, join_sopt
 from polyfmt import cado_poly_text, resultant
+from run_evidence import open_evidence
 
 
 def save(path, data):
@@ -184,7 +185,7 @@ def summarize(ad):
                 raw_hits[d['q'] >> 30] += 1
     for e in summary['exposure']:
         exposure[e['q_min'] >> 30] += e['qroots']
-    with (folder / 'sample.jsonl').open() as f:
+    with open_evidence(folder / 'sample.jsonl') as f:
         candidates = {e['candidate_id']: e for e in map(json.loads, f)}
     assert join_sopt(candidates, [folder / 'sopt.out']) == 0
     qvalues, timevalues, scores = defaultdict(list), defaultdict(list), []
@@ -226,13 +227,13 @@ def summarize(ad):
 
 def combine():
     result = json.loads((THIRD / 'comparison.json').read_text())
-    with (PREV / 'scores-138600.jsonl').open() as f:
+    with open_evidence(PREV / 'scores-138600.jsonl') as f:
         baseline = [e['exp_E'] for e in map(json.loads, f)]
     rng = random.Random(660)
     for ad in ADS:
         folder = HERE / str(ad)
         result[str(ad)] = json.loads((folder / 'comparison.json').read_text())
-        with (folder / 'scores.jsonl').open() as f:
+        with open_evidence(folder / 'scores.jsonl') as f:
             scores = [e['exp_E'] for e in map(json.loads, f)]
         differences = defaultdict(list)
         for _ in range(400):

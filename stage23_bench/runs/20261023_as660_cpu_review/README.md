@@ -1,5 +1,10 @@
 # AS660 completed CPU pipeline review — 2026-10-23
 
+The full checkpoint and top-1000 list were moved to the local archive on
+October 28. `analyze.py` resolves the archived checkpoint automatically.
+Summaries, winner proofs and the winning stage1 record remain here; see the
+[evidence index](../../data/README.md) for hashes and recovery instructions.
+
 Subsequent archival work completed the independent collision audits for 180180
 and 360360 and preserved compact log2 q exposure for all eight coefficients.
 See [the archive record](../20261023_stage1_archive/README.md); the pending-audit
@@ -10,7 +15,7 @@ This review reads the frozen CPU reference under
 `stage23_gpu/runs/20261022_three_jobs/c196/cpu_reference/` and the completed
 `pipeline_work/resopt_output.txt`. No GPU work or production-file changes were
 performed. `analyze.py`, `summary.json`, and `root-results.json` reproduce the
-analysis; `corpus-checkpoint.json` retains the small selected-seed state so the
+analysis; the archived `corpus-checkpoint.json` retains selected-seed state so the
 full output need not be rescanned for origin joins.
 
 ## Results

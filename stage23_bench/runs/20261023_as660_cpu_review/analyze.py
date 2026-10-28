@@ -16,6 +16,7 @@ CPU = FROZEN/'cpu_reference'
 sys.path.insert(0, str(ROOT/'stage23_bench/tools'))
 from polyfmt import iter_sopt, resultant, rotation_between, parse_cado_ropt
 from stage1_provenance import candidate_id
+from run_evidence import evidence_exists, open_evidence
 
 
 def digest(path):
@@ -63,8 +64,9 @@ def main():
     for filename, expected in manifest['cpu_sha256'].items():
         assert digest(CPU/filename) == expected, filename
     print('Frozen CPU reference hashes verified', flush=True)
-    if (HERE/'corpus-checkpoint.json').exists():
-        checkpoint = json.loads((HERE/'corpus-checkpoint.json').read_text())
+    if evidence_exists(HERE/'corpus-checkpoint.json'):
+        with open_evidence(HERE/'corpus-checkpoint.json') as stream:
+            checkpoint = json.load(stream)
         assert digest(ROOT/'pipeline_work/resopt_output.txt') == checkpoint['summary']['resopt_input_sha256']
         finish(manifest, checkpoint['summary'], checkpoint['resopt'],
                {int(i): r for i,r in checkpoint['selected'].items()}, checkpoint['ordered'])
