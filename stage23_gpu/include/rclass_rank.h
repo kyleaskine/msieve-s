@@ -71,6 +71,54 @@ struct RsClassProposal {
     double key(double aw) const { return size - content - aw * (roots - content); }
 };
 
+/* At most 129 size probes, with a cubic grid resolving small u as well as
+ * distant basins. Interpolation is a proposal heuristic, not a lower bound.
+ * A linear segment attains its minimum on a residue progression at an endpoint;
+ * evaluate those endpoints instead of enumerating every possible u line. */
+inline std::vector<int64_t> rs_class_size_grid(int64_t umax)
+{
+    std::set<int64_t> grid{0};
+    for (int64_t i = 1; i <= 64; ++i) {
+        const int64_t u = umax * i * i * i / (64 * 64 * 64);
+        grid.insert(u);
+        grid.insert(-u);
+    }
+    return {grid.begin(), grid.end()};
+}
+
+inline std::vector<double> rs_class_size_hints(uint32_t m,
+        const std::vector<std::pair<int64_t, double>> &samples, std::vector<int64_t> *best_u = nullptr)
+{
+    std::vector<double> sizes(m, INFINITY);
+    if (best_u)
+        best_u->assign(m, 0);
+    const auto update = [&](int64_t u, double size) {
+        const uint32_t row = rs_residue(u, m);
+        if (std::isfinite(size) && size < sizes[row]) {
+            sizes[row] = size;
+            if (best_u)
+                (*best_u)[row] = u;
+        }
+    };
+    for (const auto &sample : samples)
+        update(sample.first, sample.second);
+    for (size_t i = 1; i < samples.size(); ++i) {
+        const auto &left = samples[i - 1], &right = samples[i];
+        if (right.first <= left.first || !std::isfinite(left.second) || !std::isfinite(right.second))
+            continue;
+        for (uint32_t u = 0; u < m; ++u) {
+            const auto range = rs_progression(left.first, right.first, m, u);
+            if (!range.count)
+                continue;
+            for (int64_t x : {range.first, range.last}) {
+                const double fraction = (double)(x - left.first) / (double)(right.first - left.first);
+                update(x, left.second + fraction * (right.second - left.second));
+            }
+        }
+    }
+    return sizes;
+}
+
 inline RsClassProposal rs_class_proposal(const std::vector<RsClassMean> &means, uint32_t m, uint32_t u, uint32_t v)
 {
     RsClassProposal c{{m, u, v}};
@@ -84,18 +132,33 @@ inline RsClassProposal rs_class_proposal(const std::vector<RsClassMean> &means, 
 
 /* A bounded promising pool plus deterministic uniform proposals for exploration.
  * M <= 4096 bounds enumeration to 16M classes; memory does not grow as M^2. */
-inline std::vector<RsClassProposal> rs_class_pool(const RsSeed &s, const float *pt, uint32_t m, int count)
+inline std::vector<RsClassProposal> rs_class_pool(const RsSeed &s, const float *pt, uint32_t m, int count,
+                                               const std::vector<double> &sizes = {}, double aw = 1.0)
 {
     const auto means = rs_class_means(s, pt, m);
-    const size_t pool_size = std::min<size_t>((uint64_t)m * m, 4 * count);
-    const auto better = [](const RsClassProposal &a, const RsClassProposal &b) {
-        const double x = a.roots - a.content, y = b.roots - b.content;
-        return x > y || (x == y && (a.cell.u < b.cell.u || (a.cell.u == b.cell.u && a.cell.v < b.cell.v)));
+    const bool size_aware = !sizes.empty();
+    const size_t pool_size = std::min<size_t>((uint64_t)m * m, (size_aware ? 2 : 4) * count);
+    const auto better = [=](const RsClassProposal &a, const RsClassProposal &b) {
+        const double x = size_aware ? a.key(aw) : -(a.roots - a.content);
+        const double y = size_aware ? b.key(aw) : -(b.roots - b.content);
+        return x < y || (x == y && (a.cell.u < b.cell.u || (a.cell.u == b.cell.u && a.cell.v < b.cell.v)));
     };
     std::priority_queue<RsClassProposal, std::vector<RsClassProposal>, decltype(better)> heap(better);
-    for (uint32_t u = 0; u < m; u++)
+    std::vector<RsClassProposal> row_best;
+    for (uint32_t u = 0; u < m; u++) {
+        if (size_aware && !std::isfinite(sizes.at(u)))
+            continue;
+        RsClassProposal best;
+        bool found = false;
         for (uint32_t v = 0; v < m; v++) {
             auto c = rs_class_proposal(means, m, u, v);
+            if (size_aware) {
+                c.size = sizes.at(u);
+                if (!found || better(c, best)) {
+                    best = c;
+                    found = true;
+                }
+            }
             if (heap.size() < pool_size)
                 heap.push(c);
             else if (better(c, heap.top())) {
@@ -103,11 +166,21 @@ inline std::vector<RsClassProposal> rs_class_pool(const RsSeed &s, const float *
                 heap.push(c);
             }
         }
+        if (found)
+            row_best.push_back(best);
+    }
     std::map<uint64_t, RsClassProposal> pool;
     while (!heap.empty()) {
         const auto c = heap.top();
         pool[(uint64_t)c.cell.u * m + c.cell.v] = c;
         heap.pop();
+    }
+    // Reserve half the proposal allowance for distinct u residues. The other
+    // half may retain several promising v residues from the same row.
+    std::sort(row_best.begin(), row_best.end(), better);
+    for (size_t i = 0; i < std::min<size_t>(row_best.size(), 2 * count); ++i) {
+        const auto &c = row_best[i];
+        pool[(uint64_t)c.cell.u * m + c.cell.v] = c;
     }
     uint64_t state = 0x9e3779b97f4a7c15ull;
     for (int i = 0; i < RS_NPRIMES; i++)
@@ -136,7 +209,8 @@ inline std::vector<RsClassProposal> rs_class_pool(const RsSeed &s, const float *
 /* Size estimates are filled by the caller from the actual class's sampled u
  * lines and nearby admissible v coordinates. Preserve an explicit exploration
  * allowance outside the leading size/root ranking; skip failed size probes. */
-inline std::vector<RsClassProposal> rs_choose_classes(std::vector<RsClassProposal> pool, int count, int explore, double aw)
+inline std::vector<RsClassProposal> rs_choose_classes(std::vector<RsClassProposal> pool, int count, int explore, double aw,
+                                                    bool diverse = false)
 {
     pool.erase(std::remove_if(pool.begin(), pool.end(), [](const auto &c) { return !std::isfinite(c.size); }), pool.end());
     std::sort(pool.begin(), pool.end(), [=](const auto &a, const auto &b) {
@@ -144,8 +218,30 @@ inline std::vector<RsClassProposal> rs_choose_classes(std::vector<RsClassProposa
         return x < y || (x == y && (a.cell.u < b.cell.u || (a.cell.u == b.cell.u && a.cell.v < b.cell.v)));
     });
     const size_t leading = std::min<size_t>(pool.size(), count - explore);
-    std::vector<RsClassProposal> out(pool.begin(), pool.begin() + leading);
-    std::vector<RsClassProposal> tail(pool.begin() + leading, pool.end());
+    std::vector<RsClassProposal> out;
+    std::set<uint64_t> chosen;
+    const auto add = [&](const RsClassProposal &c) {
+        if (chosen.insert((uint64_t)c.cell.u * c.cell.modulus + c.cell.v).second)
+            out.push_back(c);
+    };
+    if (diverse) {
+        std::set<uint32_t> rows;
+        for (const auto &c : pool) {
+            if (out.size() >= leading / 2)
+                break;
+            if (rows.insert(c.cell.u).second)
+                add(c);
+        }
+    }
+    for (const auto &c : pool) {
+        if (out.size() >= leading)
+            break;
+        add(c);
+    }
+    std::vector<RsClassProposal> tail;
+    for (const auto &c : pool)
+        if (!chosen.count((uint64_t)c.cell.u * c.cell.modulus + c.cell.v))
+            tail.push_back(c);
     std::stable_sort(tail.begin(), tail.end(), [](const auto &a, const auto &b) { return a.exploration < b.exploration; });
     for (auto c : tail)
         if (out.size() < (size_t)count && c.exploration != UINT32_MAX) {

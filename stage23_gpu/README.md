@@ -76,14 +76,33 @@ correcting for guaranteed content factors. These are heuristic local size
 estimates; good classes can be missed. Modulus 2520 is an experimental setting,
 not an established optimum for all polynomial sizes.
 
+Standalone `-class-size-aware` changes that experimental proposal policy. At
+most 129 coarse size probes span the requested u range, with denser sampling
+near zero. Their interpolated size estimates enter the ranking before its
+cutoff. Half of the 4*K proposal allowance is reserved for distinct u residues;
+half of the final ranked slots also preserve u diversity. Exact local size
+probes replace the interpolation estimates before selecting classes. Coarse
+and hinted probes share a cache and finite-value guards with the basin scanner;
+each batch runs in parallel against a fixed cache snapshot. Selected rows then
+expand in both directions from their best discovered basin, with at most
+`-maxlines` visited coordinates per row and the usual patience stopping rule.
+A 65536-coordinate cache budget includes all coarse/hinted/scanned points;
+remaining capacity is apportioned across selected rows. Capped rows and actual
+probe/cache counts are logged. These are bounded local scans, not exhaustive
+progressions. The interpolation and local probes remain heuristics, so this
+mode can still miss winners. It remains opt-in and is not forwarded by the
+pipeline driver.
+
 `-class-explore E` reserves E class slots outside the leading combined ranking;
 it defaults to floor(K/4). All classes share the existing size band, one total
 `-maxcells` cap, one proxy pool and one final output cut. Exploration slots do
 not guarantee cells or finalists after those cuts. Diagnostics report the
 selected classes, their admitted cell counts, proxy survivors and finalists.
-`-plan` includes the class selection and cap without sieving. Proposal modeling
-permits at most 65536 possible u lines across the candidate rows; reduce `-umax`
-if that bound is exceeded. Automatic mode requires search, positive maxlines and
+`-plan` includes the class selection and cap without sieving. The legacy class
+policy permits at most 65536 possible u lines across the candidate rows; reduce
+`-umax` if that bound is exceeded. Size-aware mode bounds actual probing as
+described above instead of rejecting large ranges from unselected rows.
+Automatic mode requires search, positive maxlines and
 patience, and cannot combine with explicit `-residue`, `-u-scan`, window or cell mode.
 The pipeline checks a conservative upper bound on candidate rows before sopt,
 so a valid pipeline configuration cannot exceed that limit on a later seed.

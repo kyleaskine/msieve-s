@@ -7,6 +7,48 @@
 
 using namespace s23;
 
+static void size_proposals()
+{
+    for (int64_t umax : {0LL, 1LL, 32LL, 20000LL, 1000000000LL}) {
+        const auto grid = rs_class_size_grid(umax);
+        assert(grid.size() <= 129 && grid.front() == -umax && grid.back() == umax);
+        assert(std::is_sorted(grid.begin(), grid.end()));
+        assert(std::set<int64_t>(grid.begin(), grid.end()).size() == grid.size());
+        assert(std::find(grid.begin(), grid.end(), 0) != grid.end());
+    }
+    const std::vector<std::pair<int64_t, double>> samples{{-23, 9}, {-8, 2}, {0, 5}, {7, NAN}, {19, 1}};
+    for (uint32_t m = 2; m <= 30; ++m) {
+        const auto hints = rs_class_size_hints(m, samples);
+        std::vector<double> brute(m, INFINITY);
+        for (int64_t u = -23; u <= 19; ++u) {
+            double size = INFINITY;
+            for (const auto &sample : samples)
+                if (sample.first == u && std::isfinite(sample.second))
+                    size = sample.second;
+            for (size_t i = 1; i < samples.size(); ++i)
+                if (u >= samples[i-1].first && u <= samples[i].first &&
+                    std::isfinite(samples[i-1].second) && std::isfinite(samples[i].second)) {
+                    double f = (double)(u-samples[i-1].first)/(samples[i].first-samples[i-1].first);
+                    size = samples[i-1].second + f*(samples[i].second-samples[i-1].second);
+                }
+            brute[rs_residue(u,m)] = std::min(brute[rs_residue(u,m)],size);
+        }
+        for (uint32_t u = 0; u < m; ++u)
+            assert(hints[u] == brute[u] || fabs(hints[u]-brute[u]) < 1e-12);
+    }
+    std::vector<RsClassProposal> pool;
+    for (uint32_t u = 0; u < 6; ++u)
+        for (uint32_t v = 0; v < 6; ++v) {
+            RsClassProposal c{{6,u,v}};
+            c.size = 10*u + v;
+            pool.push_back(c);
+        }
+    const auto chosen = rs_choose_classes(pool,6,0,1.3,true);
+    std::set<uint32_t> rows;
+    for (const auto &c : chosen) rows.insert(c.cell.u);
+    assert(chosen.size()==6 && rows.size()==3);
+}
+
 static double prime_brute(const RsSeed &s, int i, uint32_t u, uint32_t v)
 {
     const auto &p = s.pr[i];
@@ -69,6 +111,7 @@ static void geometry_and_choice()
 
 int main(int argc, char **argv)
 {
+    size_proposals();
     geometry_and_choice();
     for (int arg = 1; arg < argc; arg++) {
         FILE *file = fopen(argv[arg], "r");
@@ -133,6 +176,42 @@ int main(int argc, char **argv)
             });
             for (size_t i = 0; i < 8; i++)
                 assert(ids.count({exhaustive[i].cell.u, exhaustive[i].cell.v}));
+            // A row with poor root-only rank remains eligible when its size
+            // is much better, and unrelated/nonfinite rows cannot dominate it.
+            std::vector<double> hints(12, INFINITY);
+            for (uint32_t u = 0; u < 6; ++u) hints[u] = 20*u;
+            const auto sized = rs_class_pool(s, pt.data(), 12, 2, hints, 1.3);
+            std::set<uint32_t> ranked_rows;
+            for (const auto &c : sized)
+                if (std::isfinite(c.size)) ranked_rows.insert(c.cell.u);
+            assert(sized.size() <= 24);
+            for (uint32_t u = 0; u < 4; ++u) assert(ranked_rows.count(u));
+            // Full-enumeration oracle for both independent quotas. Checking
+            // only row coverage lets a broken global heap hide behind the
+            // one-per-row reserve. Include all expected random exploration IDs.
+            std::vector<RsClassProposal> oracle;
+            for (auto c : exhaustive) {
+                if (!std::isfinite(hints[c.cell.u])) continue;
+                c.size=hints[c.cell.u];
+                oracle.push_back(c);
+            }
+            std::sort(oracle.begin(),oracle.end(),[](const auto &a,const auto &b) {
+                const double x=a.size-1.3*a.roots+0.3*a.content;
+                const double y=b.size-1.3*b.roots+0.3*b.content;
+                return x<y || (x==y && (a.cell.u<b.cell.u || (a.cell.u==b.cell.u && a.cell.v<b.cell.v)));
+            });
+            std::set<std::pair<uint32_t,uint32_t>> expected,actual,reserved;
+            for (size_t i=0;i<4;++i) expected.emplace(oracle[i].cell.u,oracle[i].cell.v);
+            std::set<uint32_t> rows;
+            for (const auto &c : oracle)
+                if (rows.size()<4 && rows.insert(c.cell.u).second)
+                    reserved.emplace(c.cell.u,c.cell.v);
+            for (const auto &c : pool)
+                if (c.exploration!=UINT32_MAX) reserved.emplace(c.cell.u,c.cell.v);
+            assert(std::any_of(expected.begin(),expected.end(),[&](const auto &id){return !reserved.count(id);}));
+            expected.insert(reserved.begin(),reserved.end());
+            for (const auto &c : sized) actual.emplace(c.cell.u,c.cell.v);
+            assert(actual==expected);
         }
         cio_clear(&written);
         cio_clear(&p);

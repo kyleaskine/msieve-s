@@ -1132,3 +1132,85 @@ CPU bytes, and C192/C208 independent 256k MurphyE scores match. The scalar score
 also matches CADO bit for bit in 2100 cases. GPU validation ran on shared hardware;
 there is no controlled new speedup claim. Details and reproduction:
 `stage23_bench/runs/20261026_review/README.md`.
+
+### 2026-10-27: bounded size-aware proposals and independent-seed comparison
+
+The following measurements describe the frozen prototype before the subsequent
+coverage review. The corrected planner needs fresh quality/timing measurements;
+see the review record below.
+
+Standalone `-class-size-aware` now implements the next proposal experiment.
+At most 129 coarse size probes cover the requested u range; interpolated
+attainable size enters the proposal key before truncation. The pool combines
+2*K leading size/root classes with the leading class from 2*K distinct u rows,
+plus the existing exploration allowance. Local probes replace coarse estimates
+before selection, half the ranked slots preserve u diversity, and only selected
+rows receive progression scans (the prototype started these near zero rather
+than at distant hinted basins). The estimates are heuristic and do not
+certify optimal size. Dense, legacy-class and pipeline defaults are unchanged.
+
+The audit includes 60 plans over 15 seeds. All 20 overlapping dense/legacy plans
+reproduce their previous classes, geometry, budget steps and trace boundaries.
+All new plans respect the 129-probe limit and shared cell caps. The full host
+suite and four CUDA class CLI tests pass. Three rotated-order repetitions of
+four modes on eight seeds complete 96 GPU searches, with identical repeated
+pools/exports, zero device-refinement fallbacks and 19,200 verified resultants.
+CPU replay reproduces 6,400 exports byte for byte and agrees with GPU class
+selection and admitted geometry. Four C170/C184 seeds were unused in policy
+development and chosen before measurement.
+
+Independent scoring covers all 5,273 unique exports, with 256k-angle validation
+and two independent lattice streams. The 16-class mode ties dense MurphyE on
+C197 s0005, C170 s0009 and C184 s0003 while reducing median process time by
+factors 2.05, 2.62 and 2.36 respectively. Other seeds lose 3–11% MurphyE. The new
+32-class mode improves the old class policy's C192 deficit from 14.08% to 3.69%,
+C197 s0001 from 11.97% to 4.41%, and C170 s0010 from 14.85% to 4.55%, but still
+does not replace dense safely. C184 s0001's lattice gap actually widens, and
+the new 16-class mode regresses C179 relative to the old class policy.
+
+The known exact-alpha trace is insufficient as the quality criterion: C197
+s0001's reference is retained with 16 new classes, yet its dense MurphyE leader
+has another v and is lost before class selection. The actual dense MurphyE
+leaders now have separate traces from the scored output. The new policy also
+loses three distant C208 references admitted by the old 32-class policy.
+
+Keep dense as the production default. Next preserve a dense control and a
+root-driven proposal reserve alongside size/u diversity, including competing
+v residues. Validate actual MurphyE/lattice leaders on fresh holdouts and
+matched elapsed budgets before promoting a policy. This study has measured
+timings with equal caps/quotas, not equal elapsed budgets, and no full-pipeline
+or test-sieve claim. Details: `stage23_bench/runs/20261027_root_coverage/README.md`;
+compact results and seed fixtures: `stage23_bench/data/root_coverage/20261027/`.
+Full local snapshot locations are recorded in `stage23_bench/data/README.md`.
+
+The separate C179 live dense-depth check also completed on October 27: its
+known msieve-original rotation survives at proxy rank 18 and exact-alpha rank
+1; 200 exports match CPU, and a bounded Murphy refinement reaches within
+0.0185% of the msieve reference at 1,024,000 independent angles. This resolves
+the earlier missing live depth check, while breadth/proposal losses remain.
+Evidence: `stage23_bench/data/c179/ropt_coverage/live_20261027/`.
+
+### 2026-10-27/28: class-planner review corrections
+
+The size-aware path now shares finite-guarded cached probing with `rscan.h`.
+Coarse/hinted batches run in parallel, and selected rows expand around their
+best discovered basin instead of starting near zero. Work is bounded by
+65536 actual cached coordinates and a per-row maxlines quota; unselected rows'
+hypothetical progressions no longer reject large umax. Diagnostics distinguish
+score-only rank from the actual diverse selection and account for all probe
+work. Non-finite rows are skipped before v enumeration, and the legacy scan
+has no extra map lookup. Profile lookup handles an empty eligible catalog.
+
+Regression tests cover NaN/INF starts, cached coarse points, a distant basin at
+u=400000, line quotas, complete proposal ordering, export identity and actual
+selection positions. The full host suite passes. All 60 study plans complete;
+30 dense/legacy cases exactly preserve classes, cells, budgets and trace
+boundaries. Six live GPU checks agree with CPU planning and reproduce 1200
+CPU replay exports with valid resultants and no device-refinement fallbacks.
+The large-umax example also passes at default maxlines.
+
+Defaults remain unchanged. Earlier timing/quality results describe the frozen
+prototype, not these corrected scans; a new quality/timing study is still
+required before policy promotion. Review mapping and reproduction:
+`stage23_bench/runs/20261027_coverage_review/README.md`; compact evidence:
+`stage23_bench/data/root_coverage/review_20261027/`.

@@ -1,0 +1,396 @@
+{
+  "schema_version": 1,
+  "description": "Historical degree-5 algebraic special-q settings; suggestions, not automatic defaults.",
+  "policy": [
+    "Use explicit current-job settings before history.",
+    "Nearest digit count is a starting point, not a quality guarantee; report ties.",
+    "Preserve unknown values as null; do not invent limits, MFB or lambda.",
+    "Assumed profiles are excluded from suggestions unless explicitly requested.",
+    "Record the selected profile ID and a full snapshot in every new run; inheriting settings does not confirm them.",
+    "Model ranking uses LPB, region and q; limits, MFB and lambda are retained for test sieving.",
+    "LPB and special-q ranges belong to one scenario; do not independently interpolate them or assume higher LPB requires a larger q range."
+  ],
+  "region_convention": "logI is the exponent of the full i interval width, J the positive-j height. Murphy equivalent I=(log2(points)+1)/2. Siever-specific display labels may use another area convention.",
+  "profiles": [
+    {
+      "id": "c146_user_20261003",
+      "digits": 146,
+      "degree": 5,
+      "recorded": "2026-10-03",
+      "evidence": "measured_test_sieve",
+      "lpbr": 29,
+      "lpba": 30,
+      "rlim": 15000000,
+      "alim": 23000000,
+      "side": "algebraic",
+      "region": {
+        "label": "CADO las I=14",
+        "logI": 14,
+        "J": 8192,
+        "points": 134217728
+      },
+      "q": {
+        "min": 10000000,
+        "max": 30000000,
+        "model_samples": 7
+      },
+      "source": {
+        "path": "stage23_bench/data/c146/test_sieve/README.txt",
+        "sha256": "1c01f9c6f94437cf8263348991d036d0b90281f67a80e97178c7d3b3bf59ec9a"
+      },
+      "notes": "Second test uses user c145-style settings. Four 4000-wide windows; timing overlapped another job. Region J follows the saved scoring convention.",
+      "mfbr": 58,
+      "mfba": 58,
+      "rlambda": 2.0,
+      "alambda": 1.94
+    },
+    {
+      "id": "c165_user_20261013",
+      "digits": 165,
+      "degree": 5,
+      "recorded": "2026-10-13",
+      "evidence": "user_supplied",
+      "lpbr": 30,
+      "lpba": 31,
+      "rlim": null,
+      "alim": null,
+      "side": "algebraic",
+      "region": {
+        "label": "14e model",
+        "logI": 14,
+        "J": 8192,
+        "points": 134217728
+      },
+      "q": {
+        "min": 30000000,
+        "max": 90000000,
+        "model_samples": 7
+      },
+      "source": {
+        "path": "stage23_bench/data/c165/gpu_ropt/scoring.json",
+        "sha256": "66863d74e1aa7dfcc4fbbf34d6a9e90aa137aad26f7e08388238124051eba010"
+      },
+      "notes": "No factor-base limits or test-sieve results recorded."
+    },
+    {
+      "id": "c168_assumed_20261010",
+      "digits": 168,
+      "degree": 5,
+      "recorded": "2026-10-10",
+      "evidence": "assumed",
+      "lpbr": 30,
+      "lpba": 31,
+      "rlim": null,
+      "alim": null,
+      "side": "algebraic",
+      "region": {
+        "label": "14e model",
+        "logI": 14,
+        "J": 8192,
+        "points": 134217728
+      },
+      "q": {
+        "min": 25000000,
+        "max": 100000000,
+        "model_samples": 7
+      },
+      "source": {
+        "path": "stage23_bench/data/c168b/gpu_ropt/summary.json",
+        "sha256": "ef0e4d45984ec6476f10c484af68ca4e16046b4d6cc93da192a977532cf8c7a4"
+      },
+      "notes": "Historical model assumption accepted as reasonable. C171 later used different actual settings; do not use the old C171 inherited proxy as a separate observation."
+    },
+    {
+      "id": "c171_testsieve_20261016",
+      "digits": 171,
+      "degree": 5,
+      "recorded": "2026-10-16",
+      "evidence": "user_reported_test_sieve",
+      "lpbr": 31,
+      "lpba": 32,
+      "rlim": 80000000,
+      "alim": 120000000,
+      "side": "algebraic",
+      "region": {
+        "label": "gnfs-lasieve4I14e",
+        "logI": 14,
+        "J": 8192,
+        "points": 134217728
+      },
+      "q": {
+        "min": 40000000,
+        "max": 150000000,
+        "model_samples": 7
+      },
+      "source": {
+        "path": "stage23_bench/data/c171/gpu_ropt/testsieve_user_20261016.json",
+        "sha256": "047c50ae6697e274c4a4299e96342e8a69df3ca929cd06d6ee2d0505e573693f"
+      },
+      "notes": "Six user-reported test windows over this range; final production q endpoint was provisional. Supersedes the earlier C168-derived 30/31, 25M-100M model for C171.",
+      "mfbr": 60,
+      "mfba": 92,
+      "rlambda": 2.35,
+      "alambda": 3.5,
+      "lss": 0
+    },
+    {
+      "id": "c181_user_20261017",
+      "digits": 181,
+      "degree": 5,
+      "recorded": "2026-10-17",
+      "evidence": "user_supplied",
+      "lpbr": 31,
+      "lpba": 32,
+      "rlim": 120000000,
+      "alim": 180000000,
+      "side": "algebraic",
+      "region": {
+        "label": "15e",
+        "logI": 15,
+        "J": 16384,
+        "points": 536870912
+      },
+      "q": {
+        "min": 40000000,
+        "max": 140000000,
+        "model_samples": 7
+      },
+      "source": {
+        "path": "stage23_bench/runs/20261017_c181/run.py",
+        "sha256": "08686998bee9dbae79ece2a747dfbbaeb36d03096e391b99df7d648707d06729"
+      },
+      "notes": "User-provided settings for the C181 starting 220855503682; model comparison, no test sieve.",
+      "n": "2208555036824732635771677559139282765580452196683125340793500220784101129115437978446156897217844169844483178451295612726596781329409430613142162931403182596342469377780097333368779"
+    },
+    {
+      "id": "c184_preferred_20261027",
+      "digits": 184,
+      "degree": 5,
+      "recorded": "2026-10-27",
+      "evidence": "user_provisional",
+      "lpbr": 31,
+      "lpba": 32,
+      "rlim": 120000000,
+      "alim": 180000000,
+      "side": "algebraic",
+      "region": {
+        "label": "15e",
+        "logI": 15,
+        "J": 16384,
+        "points": 536870912
+      },
+      "q": {
+        "min": 40000000,
+        "max": 200000000,
+        "model_samples": 7,
+        "provisional": true
+      },
+      "source": {
+        "path": "config/sieve_profile_sources/c184_20261027.json",
+        "sha256": "970427fab6a3e461202acbe9e90a5b1c9c572aabb46d767bc71e9edf18cc974a"
+      },
+      "notes": "User prefers 31/32 with estimated q=40M-200M. The 15e region and 120M/180M limits remain provisional inheritances from C181. No test sieve.",
+      "n": "4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727",
+      "preference": "preferred",
+      "inherits": "c181_user_20261017",
+      "inherited_source": {
+        "path": "stage23_bench/runs/20261017_c181/run.py",
+        "sha256": "08686998bee9dbae79ece2a747dfbbaeb36d03096e391b99df7d648707d06729"
+      },
+      "field_provenance": {
+        "user_estimated": [
+          "lpbr",
+          "lpba",
+          "q.min",
+          "q.max"
+        ],
+        "inherited": [
+          "region",
+          "rlim",
+          "alim"
+        ],
+        "unknown": [
+          "mfbr",
+          "mfba",
+          "rlambda",
+          "alambda"
+        ]
+      }
+    },
+    {
+      "id": "c184_alternative_20261027",
+      "digits": 184,
+      "degree": 5,
+      "recorded": "2026-10-27",
+      "evidence": "user_provisional",
+      "lpbr": 32,
+      "lpba": 33,
+      "rlim": null,
+      "alim": null,
+      "side": "algebraic",
+      "region": {
+        "label": "15e",
+        "logI": 15,
+        "J": 16384,
+        "points": 536870912
+      },
+      "q": {
+        "min": 35000000,
+        "max": 175000000,
+        "model_samples": 7,
+        "provisional": true
+      },
+      "source": {
+        "path": "config/sieve_profile_sources/c184_20261027.json",
+        "sha256": "970427fab6a3e461202acbe9e90a5b1c9c572aabb46d767bc71e9edf18cc974a"
+      },
+      "notes": "User alternative: 32/33 with estimated q=35M-175M. The 15e region remains inherited from C187; factor-base limits were not supplied. Compare the same finalists; no alternative seed selection or test sieve.",
+      "n": "4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727",
+      "preference": "alternative",
+      "inherits": "c187_user_20261013",
+      "inherited_source": {
+        "path": "stage23_bench/data/c187/gpu_ropt/scoring.json",
+        "sha256": "71f3bf2d7f85b9bc5dfd8be81f49ca70d9ca1bd45019bab6adec8c5863fac198"
+      },
+      "field_provenance": {
+        "user_estimated": [
+          "lpbr",
+          "lpba",
+          "q.min",
+          "q.max"
+        ],
+        "inherited": [
+          "region"
+        ],
+        "unknown": [
+          "mfbr",
+          "mfba",
+          "rlambda",
+          "alambda",
+          "rlim",
+          "alim"
+        ]
+      }
+    },
+    {
+      "id": "c187_user_20261013",
+      "digits": 187,
+      "degree": 5,
+      "recorded": "2026-10-13",
+      "evidence": "user_supplied",
+      "lpbr": 32,
+      "lpba": 33,
+      "rlim": null,
+      "alim": null,
+      "side": "algebraic",
+      "region": {
+        "label": "15e",
+        "logI": 15,
+        "J": 16384,
+        "points": 536870912
+      },
+      "q": {
+        "min": 50000000,
+        "max": 230000000,
+        "model_samples": 7
+      },
+      "source": {
+        "path": "stage23_bench/data/c187/gpu_ropt/scoring.json",
+        "sha256": "71f3bf2d7f85b9bc5dfd8be81f49ca70d9ca1bd45019bab6adec8c5863fac198"
+      },
+      "notes": "No factor-base limits or test-sieve results recorded."
+    },
+    {
+      "id": "c192_provisional_20261019",
+      "digits": 192,
+      "degree": 5,
+      "recorded": "2026-10-19",
+      "evidence": "user_provisional",
+      "lpbr": 32,
+      "lpba": 33,
+      "rlim": 160000000,
+      "alim": 240000000,
+      "side": "algebraic",
+      "region": {
+        "label": "15e",
+        "logI": 15,
+        "J": 16384,
+        "points": 536870912
+      },
+      "q": {
+        "min": 80000000,
+        "max": 500000000,
+        "model_samples": 7
+      },
+      "source": {
+        "path": "stage23_bench/data/c192/ropt_coverage/comparison.json",
+        "sha256": "8e94dd42112e8b23c59eea759a58f9e4f39741e47079f191be573e10f3601a19"
+      },
+      "notes": "User estimate: probably 32/33, 160M/240M, 15e, about 80M-500M. No test sieve."
+    },
+    {
+      "id": "c196_user_20261012",
+      "digits": 196,
+      "degree": 5,
+      "recorded": "2026-10-12",
+      "evidence": "measured_test_sieve",
+      "lpbr": 32,
+      "lpba": 33,
+      "rlim": 200000000,
+      "alim": 300000000,
+      "side": "algebraic",
+      "region": {
+        "label": "cuda-sieve logI=17 J=32768",
+        "logI": 17,
+        "J": 32768,
+        "points": 4294967296
+      },
+      "q": {
+        "min": 80000000,
+        "max": 450000000,
+        "model_samples": 7
+      },
+      "source": {
+        "path": "stage23_bench/data/c196/gpu_ropt/summary.json",
+        "sha256": "0605fecd81dc8cf923ac71a4835f5b1a1250e111968695f52d79879c2defb54a"
+      },
+      "notes": "q maximum provisional. Later test windows are recorded in stage23_bench/data/c196/testsieve/measurements.json. Region is the explicit saved logI/J; do not derive it from the separate user A=30 label.",
+      "mfbr": 62,
+      "mfba": 95,
+      "additional_sources": [
+        {
+          "path": "stage23_bench/data/c196/testsieve/measurements.json",
+          "sha256": "d74686ea418ec75f5750f20f00388509360c2f2e8ef6c53ae96f7fdd6be04722"
+        }
+      ]
+    },
+    {
+      "id": "c197_provisional_20261024",
+      "digits": 197,
+      "degree": 5,
+      "recorded": "2026-10-24",
+      "evidence": "user_provisional",
+      "lpbr": 32,
+      "lpba": 33,
+      "rlim": 160000000,
+      "alim": 240000000,
+      "side": "algebraic",
+      "region": {
+        "label": "cuda-sieve logI=16 J=16384",
+        "logI": 16,
+        "J": 16384,
+        "points": 1073741824
+      },
+      "q": {
+        "min": 75000000,
+        "max": 400000000,
+        "model_samples": 7
+      },
+      "source": {
+        "path": "stage23_bench/data/c197/gpu_ropt/scoring.json",
+        "sha256": "874c45a0dd1be79a9979567c0a2438aa652f6e728bf4ee29350a21268baf650a"
+      },
+      "notes": "LPB/limits inherited from C192 as requested. Approximate 2^30 region and q range. Half-plane coordinates i in [-32768,32768), j in [0,16384); preserve this convention rather than inferring a different aspect ratio from the word square. No test sieve."
+    }
+  ]
+}

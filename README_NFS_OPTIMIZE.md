@@ -183,6 +183,26 @@ The winner is `RUN/results/best.poly`; all validated finalists, scores and a
 readable report are in `RUN/results/`. Progress is in `RUN/status.json` and
 per-command logs are in `RUN/logs/`. `RUN/preprocess/` includes the familiar
 `cado_sopt_unsorted.txt`, `cado_sopt_output.txt`, and `cado_results_sorted.ms`.
+Historical sieve settings are recorded in [`config/sieve_profiles.json`](config/sieve_profiles.json).
+The catalog distinguishes measured tests, user-supplied settings, provisional
+estimates and assumptions. It preserves missing limits as `null`, records sources,
+and keeps the explicit `logI`/`J` convention used by the scorer. Inspect nearby
+sizes before supplying a new job's bounds:
+
+```bash
+python3 scripts/sieve_profiles.py --digits 184
+python3 scripts/sieve_profiles.py --profile c184_preferred_20261027
+```
+
+The first command reports the two C184 estimates: preferred 31/32 with q=40M–200M,
+and alternative 32/33 with q=35M–175M. LPB and q ranges stay paired as scenarios;
+the profile records which other fields remain inherited or unknown. The second
+prints a `scoring.json` snapshot, including the selected profile and its provenance.
+These commands do not change configuration or select production defaults. A size
+match is a starting point; explicit settings for the current job take precedence.
+The catalog's factor-base limits, MFB and lambda values are retained for test
+sieving; current model ranking uses LPB, region geometry and the q band.
+
 Use `./nfs_optimize.sh --gpu pipeline --help` for all options.
 
 Experimental distant-basin discovery is available with

@@ -21,7 +21,70 @@ poly by poly; the ropt of M2 is our own design.)
 Speed alone is not the motivation. The CPU pipeline takes about 2 h, while stage 1 takes
 about 24 h on a rented 5090.
 
-## Current status (updated 2026-10-26)
+## Current status (updated 2026-10-27)
+
+The size-aware class planner now uses shared cached probes and bounded scans
+around selected basin centers, addressing the October 27 follow-up review.
+Large u ranges are bounded by actual probe work rather than every proposed
+row's hypothetical progression. Diagnostics separate score rank from actual
+selection and report the complete probe/cache work. The comparisons below
+belong to the frozen pre-review prototype; its timings/quality are not new
+measurements of the corrected planner. Dense remains the default.
+The full host suite and 60 plans pass, with 30 unchanged dense/legacy plans.
+Six focused live GPU searches agree with CPU planning and reproduce all 1200
+CPU replay exports byte for byte. See
+`stage23_bench/runs/20261027_coverage_review/README.md`.
+
+The first bounded size-aware class proposal experiment was implemented and
+validated behind standalone `-class-size-aware`.
+At most 129 coarse size probes inform the proposal cutoff, reserved u diversity
+limits crowding, and progression scans were limited to selected classes.
+Across 96 GPU searches on eight seeds, repeated pools/exports are identical,
+all 19,200 resultants verify, and CPU replay matches 6,400 exports byte for byte.
+The 16-class mode matches dense MurphyE on three seeds at 2.0–2.6x lower process
+time, but loses 3–11% on the others. It improves several old class-policy gaps
+without making class search a safe dense replacement. Four new C170/C184 seeds
+were held out from policy development. These timings use the study's frozen
+binary; there is no matched elapsed-budget, full-pipeline or test-sieve claim.
+The actual MurphyE leaders can differ from the historical exact-alpha traces.
+Next: preserve dense/root-driven coverage while adding size/u diversity, and
+track competing v residues through the proposal and selection cuts. Evidence:
+`stage23_bench/runs/20261027_root_coverage/README.md` and
+`stage23_bench/data/root_coverage/20261027/`.
+
+The two newer raw-input runs, C170 and C184, have completed with GPU initial
+sopt, resopt, breadth/depth and Murphy refinement. Pipeline wall times were
+59m 26s and 81m 31s respectively; there is no matched full CPU timing.
+All 842,488 C170 initial outputs match CADO. Of 1,415,093 C184 outputs, seven
+differ in coefficients, with maximum size-objective difference 3.2e-8 against
+the audit's 1e-6 tolerance; none fails that tolerance. Initial sopt used its
+CADO fallback on two C170 and six C184 inputs. All 6,400 depth exports match
+CPU replay bytes, and neither run has a partial Murphy search.
+
+Independent finalist scoring puts C170 at -0.0666% standard MurphyE and
+-0.8770% in the provisional C171-derived lattice model relative to the best
+screened CPU references. It recovers the standard winner's rotation family;
+the lattice winner belongs to a different family. C184 is effectively tied:
++0.0136% standard MurphyE, +0.1456% in the preferred 31/32, q=40M–200M model,
+and +0.0095% when the same finalists are rescored with 32/33, q=35M–175M.
+Those small differences are model scores, not demonstrated sieve gains.
+Compact reports, winner polys, audit details and provenance are archived in
+`stage23_bench/data/{c170,c184}/gpu_ropt/20261027/`. No test sieving was done.
+
+The C179 live depth check now recovers the msieve-original-only rotation
+`u=-55, v=34188178`: proxy rank 18, exact-alpha rank 1, retained in the export.
+All 200 depth exports match CPU refinement bytes, and 128 sampled root scores
+plus the printed cells pass brute-force checks. A bounded 32-candidate Murphy
+audit produces identical CPU/GPU polynomial configurations, skews and ranking;
+integral relative error is below 2e-14. At 1,024,000 independent scoring angles,
+the refined GPU representative is 0.0185% below the msieve reference. This is a
+focused seed check, not a full C179 pipeline or test sieve. Earlier breadth/class
+proposal losses remain. Evidence: `stage23_bench/data/c179/ropt_coverage/live_20261027/`.
+
+Historical sieve settings now have a reusable catalog in `config/sieve_profiles.json`
+and a read-only lookup in `scripts/sieve_profiles.py`. Profiles retain provenance,
+unknown limits, provisional status and explicit region geometry. Nearest-size
+lookup reports ties; it does not silently install production defaults.
 
 The October 26 review fixes make MurphyE audits fail immediately on invalid
 device integrals or alpha disagreement, cancel remaining work across workers,
@@ -48,8 +111,8 @@ same time as dense breadth but lose 14.1% standard MurphyE and about 8.5% in
 the provisional lattice model. C197's overall winner is preserved, while
 its s0001 control loses about 12% MurphyE. Early root-only proposal truncation
 excludes good size/root combinations; class planning can also dominate runtime.
-Next: bounded size-aware proposals with u-class diversity, followed by matched
-time/quality tests on independent seeds. Dense remains the default. This is
+The October 27 follow-up above implements bounded size-aware proposals with
+u-class diversity; quality losses still preclude a default change. This is
 a diagnostic pilot, not a full-pipeline or test-sieve comparison. See
 `stage23_bench/runs/20261025_root_coverage/README.md`.
 

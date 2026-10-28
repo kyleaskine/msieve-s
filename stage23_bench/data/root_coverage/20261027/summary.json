@@ -1,0 +1,4811 @@
+{
+  "run": "/home/kylea/msieve-s/stage23_gpu/runs/20261027_root_coverage",
+  "results": [
+    {
+      "case": "c192_winner",
+      "mode": "dense_breadth",
+      "repetitions": 3,
+      "seconds": 6.732792046008399,
+      "sieve_seconds": 2.58,
+      "model_seconds": 3.76,
+      "refine_seconds": 0.23,
+      "trace": [
+        "# trace-cell u -34 v -5754737141: stage region pass",
+        "# trace-cell u -34 v -5754737141: stage line_scan pass",
+        "# trace-cell u -34 v -5754737141: stage size_band pass",
+        "# trace-cell u -34 v -5754737141: stage cell_cap_budget lost",
+        "# trace-cell u -34 v -5754737141: result cell_cap_budget"
+      ],
+      "murphy_over_dense": 1.0,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c192_winner",
+      "mode": "classes2520_32",
+      "repetitions": 3,
+      "seconds": 7.162204024993116,
+      "sieve_seconds": 2.37,
+      "model_seconds": 4.23,
+      "refine_seconds": 0.39,
+      "trace": [
+        "# trace-cell u -34 v -5754737141: stage region pass",
+        "# trace-cell u -34 v -5754737141: stage class_proposal lost",
+        "# trace-cell u -34 v -5754737141: result class_proposal"
+      ],
+      "murphy_over_dense": 0.8591971451583156,
+      "lattice_over_dense": {
+        "2": 0.914897254364372,
+        "3": 0.9151118084641673
+      }
+    },
+    {
+      "case": "c192_winner",
+      "mode": "size2520_16",
+      "repetitions": 3,
+      "seconds": 1.8773374480078928,
+      "sieve_seconds": 0.04,
+      "model_seconds": 1.37,
+      "refine_seconds": 0.29,
+      "trace": [
+        "# trace-cell u -34 v -5754737141: stage region pass",
+        "# trace-cell u -34 v -5754737141: stage class_proposal lost",
+        "# trace-cell u -34 v -5754737141: result class_proposal"
+      ],
+      "murphy_over_dense": 0.9631303579595422,
+      "lattice_over_dense": {
+        "2": 0.9846782472043218,
+        "3": 0.9847600341752961
+      }
+    },
+    {
+      "case": "c192_winner",
+      "mode": "size2520_32",
+      "repetitions": 3,
+      "seconds": 2.83653871100978,
+      "sieve_seconds": 0.07,
+      "model_seconds": 2.35,
+      "refine_seconds": 0.3,
+      "trace": [
+        "# trace-cell u -34 v -5754737141: stage region pass",
+        "# trace-cell u -34 v -5754737141: stage class_proposal pass",
+        "# trace-cell u -34 v -5754737141: stage class_size pass",
+        "# trace-cell class mod 2520 u 2486 v 379: root mean 6.17439184 size 59.8779536 key 51.8512442 size-root rank 90 of 146 exploration 4294967295",
+        "# trace-cell u -34 v -5754737141: stage class_selection lost",
+        "# trace-cell u -34 v -5754737141: result class_selection"
+      ],
+      "murphy_over_dense": 0.9631303579595422,
+      "lattice_over_dense": {
+        "2": 0.9846782472043218,
+        "3": 0.9847600341752961
+      }
+    },
+    {
+      "case": "c197_s0005",
+      "mode": "dense_breadth",
+      "repetitions": 3,
+      "seconds": 3.8786488120094873,
+      "sieve_seconds": 1.48,
+      "model_seconds": 2.03,
+      "refine_seconds": 0.32,
+      "trace": [
+        "# trace-cell u 19 v 707192971: stage region pass",
+        "# trace-cell u 19 v 707192971: stage line_scan pass",
+        "# trace-cell u 19 v 707192971: stage size_band pass",
+        "# trace-cell u 19 v 707192971: stage cell_cap_budget pass",
+        "# trace-cell u 19 v 707192971: stage cell_cap_lines pass",
+        "# trace-cell u 19 v 707192971: stage segments pass",
+        "# trace-cell proxy key 50.815828399278416 interpolated lognorm 60.388731501804273 alpha_s -7.36377162",
+        "# trace-cell u 19 v 707192971: stage block_topk pass",
+        "# trace-cell u 19 v 707192971: proxy_pool rank 1 keep 4096 available 675360",
+        "# trace-cell u 19 v 707192971: stage proxy_pool pass",
+        "# trace-cell u 19 v 707192971: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u 19 v 707192971: stage exact_alpha_cut pass",
+        "# trace-cell u 19 v 707192971: stage export pass",
+        "# trace-cell u 19 v 707192971: result retained"
+      ],
+      "murphy_over_dense": 1.0,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c197_s0005",
+      "mode": "classes2520_32",
+      "repetitions": 3,
+      "seconds": 7.570793934981339,
+      "sieve_seconds": 0.05,
+      "model_seconds": 7.13,
+      "refine_seconds": 0.26,
+      "trace": [
+        "# trace-cell u 19 v 707192971: stage region pass",
+        "# trace-cell u 19 v 707192971: stage class_proposal pass",
+        "# trace-cell u 19 v 707192971: stage class_size pass",
+        "# trace-cell class mod 2520 u 19 v 331: root mean 6.28389921 size 59.6465425 key 51.4774735 size-root rank 2 of 160 exploration 4294967295",
+        "# trace-cell u 19 v 707192971: stage class_selection pass",
+        "# trace-cell u 19 v 707192971: stage line_scan pass",
+        "# trace-cell u 19 v 707192971: stage size_band pass",
+        "# trace-cell u 19 v 707192971: stage cell_cap_budget pass",
+        "# trace-cell u 19 v 707192971: stage cell_cap_lines pass",
+        "# trace-cell u 19 v 707192971: stage segments pass",
+        "# trace-cell proxy key 51.22703711942988 interpolated lognorm 60.79994022195573 alpha_s -7.36377162",
+        "# trace-cell u 19 v 707192971: stage block_topk pass",
+        "# trace-cell u 19 v 707192971: proxy_pool rank 2 keep 4096 available 14112",
+        "# trace-cell u 19 v 707192971: stage proxy_pool pass",
+        "# trace-cell u 19 v 707192971: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u 19 v 707192971: stage exact_alpha_cut pass",
+        "# trace-cell u 19 v 707192971: stage export pass",
+        "# trace-cell u 19 v 707192971: result retained"
+      ],
+      "murphy_over_dense": 1.0,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c197_s0005",
+      "mode": "size2520_16",
+      "repetitions": 3,
+      "seconds": 1.8897577129828278,
+      "sieve_seconds": 0.05,
+      "model_seconds": 1.38,
+      "refine_seconds": 0.27,
+      "trace": [
+        "# trace-cell u 19 v 707192971: stage region pass",
+        "# trace-cell u 19 v 707192971: stage class_proposal pass",
+        "# trace-cell u 19 v 707192971: stage class_size pass",
+        "# trace-cell class mod 2520 u 19 v 331: root mean 6.28389921 size 59.6465425 key 51.4774735 size-root rank 2 of 71 exploration 4294967295",
+        "# trace-cell u 19 v 707192971: stage class_selection pass",
+        "# trace-cell u 19 v 707192971: stage line_scan pass",
+        "# trace-cell u 19 v 707192971: stage size_band pass",
+        "# trace-cell u 19 v 707192971: stage cell_cap_budget pass",
+        "# trace-cell u 19 v 707192971: stage cell_cap_lines pass",
+        "# trace-cell u 19 v 707192971: stage segments pass",
+        "# trace-cell proxy key 51.227037626160296 interpolated lognorm 60.799940728686146 alpha_s -7.36377162",
+        "# trace-cell u 19 v 707192971: stage block_topk pass",
+        "# trace-cell u 19 v 707192971: proxy_pool rank 2 keep 4096 available 7056",
+        "# trace-cell u 19 v 707192971: stage proxy_pool pass",
+        "# trace-cell u 19 v 707192971: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u 19 v 707192971: stage exact_alpha_cut pass",
+        "# trace-cell u 19 v 707192971: stage export pass",
+        "# trace-cell u 19 v 707192971: result retained"
+      ],
+      "murphy_over_dense": 1.0,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c197_s0005",
+      "mode": "size2520_32",
+      "repetitions": 3,
+      "seconds": 2.6984795780153945,
+      "sieve_seconds": 0.04,
+      "model_seconds": 2.23,
+      "refine_seconds": 0.28,
+      "trace": [
+        "# trace-cell u 19 v 707192971: stage region pass",
+        "# trace-cell u 19 v 707192971: stage class_proposal pass",
+        "# trace-cell u 19 v 707192971: stage class_size pass",
+        "# trace-cell class mod 2520 u 19 v 331: root mean 6.28389921 size 59.6465425 key 51.4774735 size-root rank 2 of 147 exploration 4294967295",
+        "# trace-cell u 19 v 707192971: stage class_selection pass",
+        "# trace-cell u 19 v 707192971: stage line_scan pass",
+        "# trace-cell u 19 v 707192971: stage size_band pass",
+        "# trace-cell u 19 v 707192971: stage cell_cap_budget pass",
+        "# trace-cell u 19 v 707192971: stage cell_cap_lines pass",
+        "# trace-cell u 19 v 707192971: stage segments pass",
+        "# trace-cell proxy key 51.227037690604121 interpolated lognorm 60.799940793129977 alpha_s -7.36377162",
+        "# trace-cell u 19 v 707192971: stage block_topk pass",
+        "# trace-cell u 19 v 707192971: proxy_pool rank 2 keep 4096 available 14112",
+        "# trace-cell u 19 v 707192971: stage proxy_pool pass",
+        "# trace-cell u 19 v 707192971: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u 19 v 707192971: stage exact_alpha_cut pass",
+        "# trace-cell u 19 v 707192971: stage export pass",
+        "# trace-cell u 19 v 707192971: result retained"
+      ],
+      "murphy_over_dense": 1.0,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c197_s0001",
+      "mode": "dense_breadth",
+      "repetitions": 3,
+      "seconds": 3.914650875987718,
+      "sieve_seconds": 1.94,
+      "model_seconds": 1.5,
+      "refine_seconds": 0.32,
+      "trace": [
+        "# trace-cell u -5 v -648792916: stage region pass",
+        "# trace-cell u -5 v -648792916: stage line_scan pass",
+        "# trace-cell u -5 v -648792916: stage size_band pass",
+        "# trace-cell u -5 v -648792916: stage cell_cap_budget pass",
+        "# trace-cell u -5 v -648792916: stage cell_cap_lines pass",
+        "# trace-cell u -5 v -648792916: stage segments pass",
+        "# trace-cell proxy key 51.365285629470954 interpolated lognorm 61.068474376528059 alpha_s -7.46399134",
+        "# trace-cell u -5 v -648792916: stage block_topk pass",
+        "# trace-cell u -5 v -648792916: proxy_pool rank 1 keep 4096 available 879984",
+        "# trace-cell u -5 v -648792916: stage proxy_pool pass",
+        "# trace-cell u -5 v -648792916: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u -5 v -648792916: stage exact_alpha_cut pass",
+        "# trace-cell u -5 v -648792916: stage export pass",
+        "# trace-cell u -5 v -648792916: result retained"
+      ],
+      "murphy_over_dense": 1.0,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c197_s0001",
+      "mode": "classes2520_32",
+      "repetitions": 3,
+      "seconds": 6.293807971989736,
+      "sieve_seconds": 0.13,
+      "model_seconds": 5.33,
+      "refine_seconds": 0.43,
+      "trace": [
+        "# trace-cell u -5 v -648792916: stage region pass",
+        "# trace-cell u -5 v -648792916: stage class_proposal lost",
+        "# trace-cell u -5 v -648792916: result class_proposal"
+      ],
+      "murphy_over_dense": 0.8802750510908995,
+      "lattice_over_dense": {
+        "2": 0.929306645696396,
+        "3": 0.9291978971553415
+      }
+    },
+    {
+      "case": "c197_s0001",
+      "mode": "size2520_16",
+      "repetitions": 3,
+      "seconds": 1.772719917993527,
+      "sieve_seconds": 0.03,
+      "model_seconds": 1.21,
+      "refine_seconds": 0.29,
+      "trace": [
+        "# trace-cell u -5 v -648792916: stage region pass",
+        "# trace-cell u -5 v -648792916: stage class_proposal pass",
+        "# trace-cell u -5 v -648792916: stage class_size pass",
+        "# trace-cell class mod 2520 u 2515 v 1244: root mean 6.23915924 size 60.4388111 key 52.3279041 size-root rank 33 of 77 exploration 4294967295",
+        "# trace-cell u -5 v -648792916: stage class_selection pass",
+        "# trace-cell u -5 v -648792916: stage line_scan pass",
+        "# trace-cell u -5 v -648792916: stage size_band pass",
+        "# trace-cell u -5 v -648792916: stage cell_cap_budget pass",
+        "# trace-cell u -5 v -648792916: stage cell_cap_lines pass",
+        "# trace-cell u -5 v -648792916: stage segments pass",
+        "# trace-cell proxy key 51.338269837212955 interpolated lognorm 61.04145858427006 alpha_s -7.46399134",
+        "# trace-cell u -5 v -648792916: stage block_topk pass",
+        "# trace-cell u -5 v -648792916: proxy_pool rank 1 keep 4096 available 6552",
+        "# trace-cell u -5 v -648792916: stage proxy_pool pass",
+        "# trace-cell u -5 v -648792916: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u -5 v -648792916: stage exact_alpha_cut pass",
+        "# trace-cell u -5 v -648792916: stage export pass",
+        "# trace-cell u -5 v -648792916: result retained"
+      ],
+      "murphy_over_dense": 0.9481636085683147,
+      "lattice_over_dense": {
+        "2": 0.972514206863807,
+        "3": 0.9726125559180354
+      }
+    },
+    {
+      "case": "c197_s0001",
+      "mode": "size2520_32",
+      "repetitions": 3,
+      "seconds": 2.425539893010864,
+      "sieve_seconds": 0.03,
+      "model_seconds": 1.95,
+      "refine_seconds": 0.29,
+      "trace": [
+        "# trace-cell u -5 v -648792916: stage region pass",
+        "# trace-cell u -5 v -648792916: stage class_proposal pass",
+        "# trace-cell u -5 v -648792916: stage class_size pass",
+        "# trace-cell class mod 2520 u 2515 v 1244: root mean 6.23915924 size 60.4388111 key 52.3279041 size-root rank 62 of 156 exploration 4294967295",
+        "# trace-cell u -5 v -648792916: stage class_selection lost",
+        "# trace-cell u -5 v -648792916: result class_selection"
+      ],
+      "murphy_over_dense": 0.9559080939998995,
+      "lattice_over_dense": {
+        "2": 0.9760289033636512,
+        "3": 0.9762883782508156
+      }
+    },
+    {
+      "case": "c179_winner",
+      "mode": "dense_breadth",
+      "repetitions": 3,
+      "seconds": 4.3554259249940515,
+      "sieve_seconds": 1.88,
+      "model_seconds": 2.11,
+      "refine_seconds": 0.26,
+      "trace": [
+        "# trace-cell u -55 v 34188178: stage region pass",
+        "# trace-cell u -55 v 34188178: stage line_scan pass",
+        "# trace-cell u -55 v 34188178: stage size_band pass",
+        "# trace-cell u -55 v 34188178: stage cell_cap_budget lost",
+        "# trace-cell u -55 v 34188178: result cell_cap_budget"
+      ],
+      "murphy_over_dense": 1.0,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c179_winner",
+      "mode": "classes2520_32",
+      "repetitions": 3,
+      "seconds": 6.246534584002802,
+      "sieve_seconds": 0.05,
+      "model_seconds": 5.82,
+      "refine_seconds": 0.28,
+      "trace": [
+        "# trace-cell u -55 v 34188178: stage region pass",
+        "# trace-cell u -55 v 34188178: stage class_proposal lost",
+        "# trace-cell u -55 v 34188178: result class_proposal"
+      ],
+      "murphy_over_dense": 0.9999991109593815,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c179_winner",
+      "mode": "size2520_16",
+      "repetitions": 3,
+      "seconds": 1.4702803590043914,
+      "sieve_seconds": 0.03,
+      "model_seconds": 1.02,
+      "refine_seconds": 0.27,
+      "trace": [
+        "# trace-cell u -55 v 34188178: stage region pass",
+        "# trace-cell u -55 v 34188178: stage class_proposal lost",
+        "# trace-cell u -55 v 34188178: result class_proposal"
+      ],
+      "murphy_over_dense": 0.8877079466006643,
+      "lattice_over_dense": {
+        "2": 0.9313943555957748,
+        "3": 0.9315580990272805
+      }
+    },
+    {
+      "case": "c179_winner",
+      "mode": "size2520_32",
+      "repetitions": 3,
+      "seconds": 2.1509408509882633,
+      "sieve_seconds": 0.03,
+      "model_seconds": 1.72,
+      "refine_seconds": 0.29,
+      "trace": [
+        "# trace-cell u -55 v 34188178: stage region pass",
+        "# trace-cell u -55 v 34188178: stage class_proposal lost",
+        "# trace-cell u -55 v 34188178: result class_proposal"
+      ],
+      "murphy_over_dense": 0.9999991109593815,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c170_s0009",
+      "mode": "dense_breadth",
+      "repetitions": 3,
+      "seconds": 2.991722929989919,
+      "sieve_seconds": 1.61,
+      "model_seconds": 0.98,
+      "refine_seconds": 0.27,
+      "trace": [
+        "# trace-cell u -3 v 55868351: stage region pass",
+        "# trace-cell u -3 v 55868351: stage line_scan pass",
+        "# trace-cell u -3 v 55868351: stage size_band pass",
+        "# trace-cell u -3 v 55868351: stage cell_cap_budget pass",
+        "# trace-cell u -3 v 55868351: stage cell_cap_lines pass",
+        "# trace-cell u -3 v 55868351: stage segments pass",
+        "# trace-cell proxy key 42.632311232359513 interpolated lognorm 51.836930014054069 alpha_s -7.08047599",
+        "# trace-cell u -3 v 55868351: stage block_topk pass",
+        "# trace-cell u -3 v 55868351: proxy_pool rank 1 keep 4096 available 743400",
+        "# trace-cell u -3 v 55868351: stage proxy_pool pass",
+        "# trace-cell u -3 v 55868351: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u -3 v 55868351: stage exact_alpha_cut pass",
+        "# trace-cell u -3 v 55868351: stage export pass",
+        "# trace-cell u -3 v 55868351: result retained"
+      ],
+      "murphy_over_dense": 1.0,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c170_s0009",
+      "mode": "classes2520_32",
+      "repetitions": 3,
+      "seconds": 2.737965895998059,
+      "sieve_seconds": 0.04,
+      "model_seconds": 2.3,
+      "refine_seconds": 0.28,
+      "trace": [
+        "# trace-cell u -3 v 55868351: stage region pass",
+        "# trace-cell u -3 v 55868351: stage class_proposal pass",
+        "# trace-cell u -3 v 55868351: stage class_size pass",
+        "# trace-cell class mod 2520 u 2517 v 2471: root mean 6.20315098 size 51.6085608 key 43.5444645 size-root rank 2 of 160 exploration 4294967295",
+        "# trace-cell u -3 v 55868351: stage class_selection pass",
+        "# trace-cell u -3 v 55868351: stage line_scan pass",
+        "# trace-cell u -3 v 55868351: stage size_band pass",
+        "# trace-cell u -3 v 55868351: stage cell_cap_budget pass",
+        "# trace-cell u -3 v 55868351: stage cell_cap_lines pass",
+        "# trace-cell u -3 v 55868351: stage segments pass",
+        "# trace-cell proxy key 42.768836316761721 interpolated lognorm 51.973455098456277 alpha_s -7.08047599",
+        "# trace-cell u -3 v 55868351: stage block_topk pass",
+        "# trace-cell u -3 v 55868351: proxy_pool rank 1 keep 4096 available 13608",
+        "# trace-cell u -3 v 55868351: stage proxy_pool pass",
+        "# trace-cell u -3 v 55868351: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u -3 v 55868351: stage exact_alpha_cut pass",
+        "# trace-cell u -3 v 55868351: stage export pass",
+        "# trace-cell u -3 v 55868351: result retained"
+      ],
+      "murphy_over_dense": 1.0000002143293305,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c170_s0009",
+      "mode": "size2520_16",
+      "repetitions": 3,
+      "seconds": 1.1411403199890628,
+      "sieve_seconds": 0.04,
+      "model_seconds": 0.62,
+      "refine_seconds": 0.26,
+      "trace": [
+        "# trace-cell u -3 v 55868351: stage region pass",
+        "# trace-cell u -3 v 55868351: stage class_proposal pass",
+        "# trace-cell u -3 v 55868351: stage class_size pass",
+        "# trace-cell class mod 2520 u 2517 v 2471: root mean 6.20315098 size 51.6085608 key 43.5444645 size-root rank 6 of 72 exploration 4294967295",
+        "# trace-cell u -3 v 55868351: stage class_selection pass",
+        "# trace-cell u -3 v 55868351: stage line_scan pass",
+        "# trace-cell u -3 v 55868351: stage size_band pass",
+        "# trace-cell u -3 v 55868351: stage cell_cap_budget pass",
+        "# trace-cell u -3 v 55868351: stage cell_cap_lines pass",
+        "# trace-cell u -3 v 55868351: stage segments pass",
+        "# trace-cell proxy key 42.62764118092484 interpolated lognorm 51.832259962619396 alpha_s -7.08047599",
+        "# trace-cell u -3 v 55868351: stage block_topk pass",
+        "# trace-cell u -3 v 55868351: proxy_pool rank 1 keep 4096 available 6552",
+        "# trace-cell u -3 v 55868351: stage proxy_pool pass",
+        "# trace-cell u -3 v 55868351: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u -3 v 55868351: stage exact_alpha_cut pass",
+        "# trace-cell u -3 v 55868351: stage export pass",
+        "# trace-cell u -3 v 55868351: result retained"
+      ],
+      "murphy_over_dense": 1.0000002143293305,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c170_s0009",
+      "mode": "size2520_32",
+      "repetitions": 3,
+      "seconds": 1.2349947369948495,
+      "sieve_seconds": 0.03,
+      "model_seconds": 0.85,
+      "refine_seconds": 0.27,
+      "trace": [
+        "# trace-cell u -3 v 55868351: stage region pass",
+        "# trace-cell u -3 v 55868351: stage class_proposal pass",
+        "# trace-cell u -3 v 55868351: stage class_size pass",
+        "# trace-cell class mod 2520 u 2517 v 2471: root mean 6.20315098 size 51.6085608 key 43.5444645 size-root rank 6 of 148 exploration 4294967295",
+        "# trace-cell u -3 v 55868351: stage class_selection pass",
+        "# trace-cell u -3 v 55868351: stage line_scan pass",
+        "# trace-cell u -3 v 55868351: stage size_band pass",
+        "# trace-cell u -3 v 55868351: stage cell_cap_budget pass",
+        "# trace-cell u -3 v 55868351: stage cell_cap_lines pass",
+        "# trace-cell u -3 v 55868351: stage segments pass",
+        "# trace-cell proxy key 42.62764118092484 interpolated lognorm 51.832259962619396 alpha_s -7.08047599",
+        "# trace-cell u -3 v 55868351: stage block_topk pass",
+        "# trace-cell u -3 v 55868351: proxy_pool rank 1 keep 4096 available 12600",
+        "# trace-cell u -3 v 55868351: stage proxy_pool pass",
+        "# trace-cell u -3 v 55868351: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u -3 v 55868351: stage exact_alpha_cut pass",
+        "# trace-cell u -3 v 55868351: stage export pass",
+        "# trace-cell u -3 v 55868351: result retained"
+      ],
+      "murphy_over_dense": 1.0000002143293305,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c170_s0010",
+      "mode": "dense_breadth",
+      "repetitions": 3,
+      "seconds": 4.808428738993825,
+      "sieve_seconds": 2.52,
+      "model_seconds": 1.86,
+      "refine_seconds": 0.29,
+      "trace": [
+        "# trace-cell u 10 v -59175975: stage region pass",
+        "# trace-cell u 10 v -59175975: stage line_scan pass",
+        "# trace-cell u 10 v -59175975: stage size_band pass",
+        "# trace-cell u 10 v -59175975: stage cell_cap_budget pass",
+        "# trace-cell u 10 v -59175975: stage cell_cap_lines pass",
+        "# trace-cell u 10 v -59175975: stage segments pass",
+        "# trace-cell proxy key 42.611706609644614 interpolated lognorm 53.044595635937554 alpha_s -8.02529925",
+        "# trace-cell u 10 v -59175975: stage block_topk pass",
+        "# trace-cell u 10 v -59175975: proxy_pool rank 2 keep 4096 available 1148616",
+        "# trace-cell u 10 v -59175975: stage proxy_pool pass",
+        "# trace-cell u 10 v -59175975: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u 10 v -59175975: stage exact_alpha_cut pass",
+        "# trace-cell u 10 v -59175975: stage export pass",
+        "# trace-cell u 10 v -59175975: result retained"
+      ],
+      "murphy_over_dense": 1.0,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c170_s0010",
+      "mode": "classes2520_32",
+      "repetitions": 3,
+      "seconds": 4.318355878000148,
+      "sieve_seconds": 0.08,
+      "model_seconds": 3.84,
+      "refine_seconds": 0.29,
+      "trace": [
+        "# trace-cell u 10 v -59175975: stage region pass",
+        "# trace-cell u 10 v -59175975: stage class_proposal lost",
+        "# trace-cell u 10 v -59175975: result class_proposal"
+      ],
+      "murphy_over_dense": 0.851475782009041,
+      "lattice_over_dense": {
+        "2": 0.9192647193185773,
+        "3": 0.9198135986539079
+      }
+    },
+    {
+      "case": "c170_s0010",
+      "mode": "size2520_16",
+      "repetitions": 3,
+      "seconds": 1.263584107015049,
+      "sieve_seconds": 0.02,
+      "model_seconds": 0.88,
+      "refine_seconds": 0.23,
+      "trace": [
+        "# trace-cell u 10 v -59175975: stage region pass",
+        "# trace-cell u 10 v -59175975: stage class_proposal lost",
+        "# trace-cell u 10 v -59175975: result class_proposal"
+      ],
+      "murphy_over_dense": 0.954483149883769,
+      "lattice_over_dense": {
+        "2": 0.9643458633433492,
+        "3": 0.9651389295429408
+      }
+    },
+    {
+      "case": "c170_s0010",
+      "mode": "size2520_32",
+      "repetitions": 3,
+      "seconds": 1.9625586610054597,
+      "sieve_seconds": 0.04,
+      "model_seconds": 1.57,
+      "refine_seconds": 0.26,
+      "trace": [
+        "# trace-cell u 10 v -59175975: stage region pass",
+        "# trace-cell u 10 v -59175975: stage class_proposal lost",
+        "# trace-cell u 10 v -59175975: result class_proposal"
+      ],
+      "murphy_over_dense": 0.954483149883769,
+      "lattice_over_dense": {
+        "2": 0.9643458633433492,
+        "3": 0.9651389295429408
+      }
+    },
+    {
+      "case": "c184_s0001",
+      "mode": "dense_breadth",
+      "repetitions": 3,
+      "seconds": 3.0723868860222865,
+      "sieve_seconds": 1.32,
+      "model_seconds": 1.42,
+      "refine_seconds": 0.24,
+      "trace": [
+        "# trace-cell u -4 v 4349070: stage region pass",
+        "# trace-cell u -4 v 4349070: stage line_scan pass",
+        "# trace-cell u -4 v 4349070: stage size_band pass",
+        "# trace-cell u -4 v 4349070: stage cell_cap_budget pass",
+        "# trace-cell u -4 v 4349070: stage cell_cap_lines pass",
+        "# trace-cell u -4 v 4349070: stage segments pass",
+        "# trace-cell proxy key 47.35362402833205 interpolated lognorm 55.932621777311759 alpha_s -6.59922904",
+        "# trace-cell u -4 v 4349070: stage block_topk pass",
+        "# trace-cell u -4 v 4349070: proxy_pool rank 1 keep 4096 available 619920",
+        "# trace-cell u -4 v 4349070: stage proxy_pool pass",
+        "# trace-cell u -4 v 4349070: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u -4 v 4349070: stage exact_alpha_cut pass",
+        "# trace-cell u -4 v 4349070: stage export pass",
+        "# trace-cell u -4 v 4349070: result retained"
+      ],
+      "murphy_over_dense": 1.0,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c184_s0001",
+      "mode": "classes2520_32",
+      "repetitions": 3,
+      "seconds": 7.368131868017372,
+      "sieve_seconds": 0.04,
+      "model_seconds": 6.92,
+      "refine_seconds": 0.29,
+      "trace": [
+        "# trace-cell u -4 v 4349070: stage region pass",
+        "# trace-cell u -4 v 4349070: stage class_proposal lost",
+        "# trace-cell u -4 v 4349070: result class_proposal"
+      ],
+      "murphy_over_dense": 0.9681918136480638,
+      "lattice_over_dense": {
+        "2": 0.9942611217393494,
+        "3": 0.9941550514077921
+      }
+    },
+    {
+      "case": "c184_s0001",
+      "mode": "size2520_16",
+      "repetitions": 3,
+      "seconds": 1.4132182150206063,
+      "sieve_seconds": 0.02,
+      "model_seconds": 1.05,
+      "refine_seconds": 0.23,
+      "trace": [
+        "# trace-cell u -4 v 4349070: stage region pass",
+        "# trace-cell u -4 v 4349070: stage class_proposal lost",
+        "# trace-cell u -4 v 4349070: result class_proposal"
+      ],
+      "murphy_over_dense": 0.9683150863030809,
+      "lattice_over_dense": {
+        "2": 0.9851071089331044,
+        "3": 0.9840450653577757
+      }
+    },
+    {
+      "case": "c184_s0001",
+      "mode": "size2520_32",
+      "repetitions": 3,
+      "seconds": 2.3157351900008507,
+      "sieve_seconds": 0.03,
+      "model_seconds": 1.91,
+      "refine_seconds": 0.25,
+      "trace": [
+        "# trace-cell u -4 v 4349070: stage region pass",
+        "# trace-cell u -4 v 4349070: stage class_proposal lost",
+        "# trace-cell u -4 v 4349070: result class_proposal"
+      ],
+      "murphy_over_dense": 0.9683150863030809,
+      "lattice_over_dense": {
+        "2": 0.9851071089331044,
+        "3": 0.9840450653577757
+      }
+    },
+    {
+      "case": "c184_s0003",
+      "mode": "dense_breadth",
+      "repetitions": 3,
+      "seconds": 3.4631409870053176,
+      "sieve_seconds": 2.26,
+      "model_seconds": 0.81,
+      "refine_seconds": 0.28,
+      "trace": [
+        "# trace-cell u -1 v 330448: stage region pass",
+        "# trace-cell u -1 v 330448: stage line_scan pass",
+        "# trace-cell u -1 v 330448: stage size_band pass",
+        "# trace-cell u -1 v 330448: stage cell_cap_budget pass",
+        "# trace-cell u -1 v 330448: stage cell_cap_lines pass",
+        "# trace-cell u -1 v 330448: stage segments pass",
+        "# trace-cell proxy key 46.447510722564488 interpolated lognorm 55.720106455858165 alpha_s -7.13276595",
+        "# trace-cell u -1 v 330448: stage block_topk pass",
+        "# trace-cell u -1 v 330448: proxy_pool rank 1 keep 4096 available 1085616",
+        "# trace-cell u -1 v 330448: stage proxy_pool pass",
+        "# trace-cell u -1 v 330448: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u -1 v 330448: stage exact_alpha_cut pass",
+        "# trace-cell u -1 v 330448: stage export pass",
+        "# trace-cell u -1 v 330448: result retained"
+      ],
+      "murphy_over_dense": 1.0,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c184_s0003",
+      "mode": "classes2520_32",
+      "repetitions": 3,
+      "seconds": 4.197429900988936,
+      "sieve_seconds": 0.06,
+      "model_seconds": 3.73,
+      "refine_seconds": 0.28,
+      "trace": [
+        "# trace-cell u -1 v 330448: stage region pass",
+        "# trace-cell u -1 v 330448: stage class_proposal lost",
+        "# trace-cell u -1 v 330448: result class_proposal"
+      ],
+      "murphy_over_dense": 0.9285650076554671,
+      "lattice_over_dense": {
+        "2": 0.9870720725123917,
+        "3": 0.9873094308897437
+      }
+    },
+    {
+      "case": "c184_s0003",
+      "mode": "size2520_16",
+      "repetitions": 3,
+      "seconds": 1.4677877399954014,
+      "sieve_seconds": 0.04,
+      "model_seconds": 0.97,
+      "refine_seconds": 0.27,
+      "trace": [
+        "# trace-cell u -1 v 330448: stage region pass",
+        "# trace-cell u -1 v 330448: stage class_proposal pass",
+        "# trace-cell u -1 v 330448: stage class_size pass",
+        "# trace-cell class mod 2520 u 2519 v 328: root mean 6.17439179 size 55.4898127 key 47.4631034 size-root rank 6 of 78 exploration 4294967295",
+        "# trace-cell u -1 v 330448: stage class_selection pass",
+        "# trace-cell u -1 v 330448: stage line_scan pass",
+        "# trace-cell u -1 v 330448: stage size_band pass",
+        "# trace-cell u -1 v 330448: stage cell_cap_budget pass",
+        "# trace-cell u -1 v 330448: stage cell_cap_lines pass",
+        "# trace-cell u -1 v 330448: stage segments pass",
+        "# trace-cell proxy key 46.863249965702074 interpolated lognorm 56.135845698995752 alpha_s -7.13276595",
+        "# trace-cell u -1 v 330448: stage block_topk pass",
+        "# trace-cell u -1 v 330448: proxy_pool rank 1 keep 4096 available 6048",
+        "# trace-cell u -1 v 330448: stage proxy_pool pass",
+        "# trace-cell u -1 v 330448: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u -1 v 330448: stage exact_alpha_cut pass",
+        "# trace-cell u -1 v 330448: stage export pass",
+        "# trace-cell u -1 v 330448: result retained"
+      ],
+      "murphy_over_dense": 1.0,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    },
+    {
+      "case": "c184_s0003",
+      "mode": "size2520_32",
+      "repetitions": 3,
+      "seconds": 2.0427782160113566,
+      "sieve_seconds": 0.03,
+      "model_seconds": 1.6,
+      "refine_seconds": 0.28,
+      "trace": [
+        "# trace-cell u -1 v 330448: stage region pass",
+        "# trace-cell u -1 v 330448: stage class_proposal pass",
+        "# trace-cell u -1 v 330448: stage class_size pass",
+        "# trace-cell class mod 2520 u 2519 v 328: root mean 6.17439179 size 55.4898127 key 47.4631034 size-root rank 6 of 156 exploration 4294967295",
+        "# trace-cell u -1 v 330448: stage class_selection pass",
+        "# trace-cell u -1 v 330448: stage line_scan pass",
+        "# trace-cell u -1 v 330448: stage size_band pass",
+        "# trace-cell u -1 v 330448: stage cell_cap_budget pass",
+        "# trace-cell u -1 v 330448: stage cell_cap_lines pass",
+        "# trace-cell u -1 v 330448: stage segments pass",
+        "# trace-cell proxy key 46.863249965702074 interpolated lognorm 56.135845698995752 alpha_s -7.13276595",
+        "# trace-cell u -1 v 330448: stage block_topk pass",
+        "# trace-cell u -1 v 330448: proxy_pool rank 1 keep 4096 available 12600",
+        "# trace-cell u -1 v 330448: stage proxy_pool pass",
+        "# trace-cell u -1 v 330448: exact_alpha_cut rank 1 keep 200 available 4096",
+        "# trace-cell u -1 v 330448: stage exact_alpha_cut pass",
+        "# trace-cell u -1 v 330448: stage export pass",
+        "# trace-cell u -1 v 330448: result retained"
+      ],
+      "murphy_over_dense": 1.0,
+      "lattice_over_dense": {
+        "2": 1.0,
+        "3": 1.0
+      }
+    }
+  ],
+  "cases": [
+    {
+      "name": "c208_s0010",
+      "source": "stage23_bench/data/c208/ropt_coverage/s0010.poly",
+      "target": {
+        "u": 7,
+        "v": -174864538
+      },
+      "provenance": "proxy_cut",
+      "file": "seeds/c208_s0010.poly",
+      "n": 4136624823966461711412539872679142662765222458478919632590970169265801634616021014487871356747276432576691021923141092182040847318730274326972882201160040283953623928070578856350386690080628584269005039191069
+    },
+    {
+      "name": "c208_s0015",
+      "source": "stage23_bench/data/c208/ropt_coverage/s0015.poly",
+      "target": {
+        "u": 306,
+        "v": -50074289306,
+        "t": 301312009
+      },
+      "provenance": "cell_cap",
+      "file": "seeds/c208_s0015.poly",
+      "n": 4136624823966461711412539872679142662765222458478919632590970169265801634616021014487871356747276432576691021923141092182040847318730274326972882201160040283953623928070578856350386690080628584269005039191069
+    },
+    {
+      "name": "c208_s0027",
+      "source": "stage23_bench/data/c208/ropt_coverage/s0027.poly",
+      "target": {
+        "u": -295,
+        "v": 47727458321,
+        "t": 213451585
+      },
+      "provenance": "cell_cap",
+      "file": "seeds/c208_s0027.poly",
+      "n": 4136624823966461711412539872679142662765222458478919632590970169265801634616021014487871356747276432576691021923141092182040847318730274326972882201160040283953623928070578856350386690080628584269005039191069
+    },
+    {
+      "name": "c208_s0032",
+      "source": "stage23_bench/data/c208/ropt_coverage/s0032.poly",
+      "target": {
+        "u": 295,
+        "v": -30827451862,
+        "t": 105787825
+      },
+      "provenance": "cell_cap",
+      "file": "seeds/c208_s0032.poly",
+      "n": 4136624823966461711412539872679142662765222458478919632590970169265801634616021014487871356747276432576691021923141092182040847318730274326972882201160040283953623928070578856350386690080628584269005039191069
+    },
+    {
+      "name": "c208_s0103",
+      "source": "stage23_bench/data/c208/ropt_coverage/s0103.poly",
+      "target": {
+        "u": 2014,
+        "v": 569611649768,
+        "t": -421860197
+      },
+      "provenance": "cell_cap",
+      "file": "seeds/c208_s0103.poly",
+      "n": 4136624823966461711412539872679142662765222458478919632590970169265801634616021014487871356747276432576691021923141092182040847318730274326972882201160040283953623928070578856350386690080628584269005039191069
+    },
+    {
+      "name": "c208_s0151",
+      "source": "stage23_bench/data/c208/ropt_coverage/s0151.poly",
+      "target": {
+        "u": 189,
+        "v": -14447292887,
+        "t": 107992068
+      },
+      "provenance": "cell_cap",
+      "file": "seeds/c208_s0151.poly",
+      "n": 4136624823966461711412539872679142662765222458478919632590970169265801634616021014487871356747276432576691021923141092182040847318730274326972882201160040283953623928070578856350386690080628584269005039191069
+    },
+    {
+      "name": "c208_s0222",
+      "source": "stage23_bench/data/c208/ropt_coverage/s0222.poly",
+      "target": {
+        "u": -16152,
+        "v": 6992188045104,
+        "t": 1158405946
+      },
+      "provenance": "line_scan",
+      "file": "seeds/c208_s0222.poly",
+      "n": 4136624823966461711412539872679142662765222458478919632590970169265801634616021014487871356747276432576691021923141092182040847318730274326972882201160040283953623928070578856350386690080628584269005039191069
+    },
+    {
+      "name": "c192_winner",
+      "source": "stage23_bench/data/c192/ropt_coverage/seed.poly",
+      "target": {
+        "u": -34,
+        "v": -5754737141
+      },
+      "provenance": "CADO effort-5 winner missed by effort 10",
+      "file": "seeds/c192_winner.poly",
+      "n": 970137671032597847775481145969913289969436931189728453724304265243876304116067045536862610616610038007662192714697454871633967746240559613115499546579676197722961272656328233636785191370677953
+    },
+    {
+      "name": "c197_s0005",
+      "source": "stage23_gpu/runs/20261024_c197_gpu/seeds/s0005.poly",
+      "target": {
+        "u": 19,
+        "v": 707192971
+      },
+      "provenance": "Saved dense-depth first exact-alpha finalist; s0005 also supplies overall winner",
+      "file": "seeds/c197_s0005.poly",
+      "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427
+    },
+    {
+      "name": "c197_s0001",
+      "source": "stage23_gpu/runs/20261024_c197_gpu/seeds/s0001.poly",
+      "target": {
+        "u": -5,
+        "v": -648792916
+      },
+      "provenance": "Saved dense-depth first exact-alpha finalist; s0005 also supplies overall winner",
+      "file": "seeds/c197_s0001.poly",
+      "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427
+    },
+    {
+      "name": "c179_winner",
+      "target": {
+        "u": -55,
+        "v": 34188178
+      },
+      "provenance": "Previously diagnosed msieve-original-only winner",
+      "source": "stage23_bench/data/c179/ropt_coverage/seed.poly",
+      "file": "seeds/c179_winner.poly",
+      "n": 57620329943072851234467695661532076333504874396552000279206114783643367173277603126879399724731783963048827698518286205989191152664289350141501384171806521091095958947776845847733
+    },
+    {
+      "name": "c170_s0009",
+      "target": {
+        "u": -3,
+        "v": 55868351
+      },
+      "provenance": "First two depth seeds from the new input, unused for policy development",
+      "source": "stage23_gpu/runs/20261027_c170/seeds/s0009.poly",
+      "file": "seeds/c170_s0009.poly",
+      "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251
+    },
+    {
+      "name": "c170_s0010",
+      "target": {
+        "u": 10,
+        "v": -59175975
+      },
+      "provenance": "First two depth seeds from the new input, unused for policy development",
+      "source": "stage23_gpu/runs/20261027_c170/seeds/s0010.poly",
+      "file": "seeds/c170_s0010.poly",
+      "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251
+    },
+    {
+      "name": "c184_s0001",
+      "target": {
+        "u": -4,
+        "v": 4349070
+      },
+      "provenance": "First two depth seeds from the new input, unused for policy development",
+      "source": "stage23_gpu/runs/20261027_c184/seeds/s0001.poly",
+      "file": "seeds/c184_s0001.poly",
+      "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727
+    },
+    {
+      "name": "c184_s0003",
+      "target": {
+        "u": -1,
+        "v": 330448
+      },
+      "provenance": "First two depth seeds from the new input, unused for policy development",
+      "source": "stage23_gpu/runs/20261027_c184/seeds/s0003.poly",
+      "file": "seeds/c184_s0003.poly",
+      "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727
+    }
+  ],
+  "plans_completed": 60,
+  "verified_exports": 19200,
+  "cpu_replay_exports": 6400,
+  "quality_losses": [
+    {
+      "case": "c170_s0010",
+      "mode": "classes2520_32",
+      "murphy_over_dense": 0.851475782009041,
+      "target": {
+        "u": 10,
+        "v": -59175975
+      },
+      "first_loss": "class_proposal",
+      "pool_rank": null
+    },
+    {
+      "case": "c170_s0010",
+      "mode": "size2520_16",
+      "murphy_over_dense": 0.954483149883769,
+      "target": {
+        "u": 10,
+        "v": -59175975
+      },
+      "first_loss": "class_proposal",
+      "pool_rank": null
+    },
+    {
+      "case": "c170_s0010",
+      "mode": "size2520_32",
+      "murphy_over_dense": 0.954483149883769,
+      "target": {
+        "u": 10,
+        "v": -59175975
+      },
+      "first_loss": "class_proposal",
+      "pool_rank": null
+    },
+    {
+      "case": "c179_winner",
+      "mode": "size2520_16",
+      "murphy_over_dense": 0.8877079466006643,
+      "target": {
+        "u": -55,
+        "v": 425164918
+      },
+      "first_loss": "class_selection",
+      "pool_rank": null
+    },
+    {
+      "case": "c184_s0001",
+      "mode": "classes2520_32",
+      "murphy_over_dense": 0.9681918136480638,
+      "target": {
+        "u": -4,
+        "v": 4349070
+      },
+      "first_loss": "class_proposal",
+      "pool_rank": null
+    },
+    {
+      "case": "c184_s0001",
+      "mode": "size2520_16",
+      "murphy_over_dense": 0.9683150863030809,
+      "target": {
+        "u": -4,
+        "v": 4349070
+      },
+      "first_loss": "class_proposal",
+      "pool_rank": null
+    },
+    {
+      "case": "c184_s0001",
+      "mode": "size2520_32",
+      "murphy_over_dense": 0.9683150863030809,
+      "target": {
+        "u": -4,
+        "v": 4349070
+      },
+      "first_loss": "class_proposal",
+      "pool_rank": null
+    },
+    {
+      "case": "c184_s0003",
+      "mode": "classes2520_32",
+      "murphy_over_dense": 0.9285650076554671,
+      "target": {
+        "u": -1,
+        "v": 330448
+      },
+      "first_loss": "class_proposal",
+      "pool_rank": null
+    },
+    {
+      "case": "c192_winner",
+      "mode": "classes2520_32",
+      "murphy_over_dense": 0.8591971451583156,
+      "target": {
+        "u": -100,
+        "v": 4000885537
+      },
+      "first_loss": "class_proposal",
+      "pool_rank": null
+    },
+    {
+      "case": "c192_winner",
+      "mode": "size2520_16",
+      "murphy_over_dense": 0.9631303579595422,
+      "target": {
+        "u": -100,
+        "v": 4000885537
+      },
+      "first_loss": "class_selection",
+      "pool_rank": null
+    },
+    {
+      "case": "c192_winner",
+      "mode": "size2520_32",
+      "murphy_over_dense": 0.9631303579595422,
+      "target": {
+        "u": -100,
+        "v": 4000885537
+      },
+      "first_loss": "class_selection",
+      "pool_rank": null
+    },
+    {
+      "case": "c197_s0001",
+      "mode": "classes2520_32",
+      "murphy_over_dense": 0.8802750510908995,
+      "target": {
+        "u": -5,
+        "v": 196240364
+      },
+      "first_loss": "class_proposal",
+      "pool_rank": null
+    },
+    {
+      "case": "c197_s0001",
+      "mode": "size2520_16",
+      "murphy_over_dense": 0.9481636085683147,
+      "target": {
+        "u": -5,
+        "v": 196240364
+      },
+      "first_loss": "class_proposal",
+      "pool_rank": null
+    },
+    {
+      "case": "c197_s0001",
+      "mode": "size2520_32",
+      "murphy_over_dense": 0.9559080939998995,
+      "target": {
+        "u": -5,
+        "v": 196240364
+      },
+      "first_loss": "class_proposal",
+      "pool_rank": null
+    }
+  ],
+  "repeat_outputs_identical": true,
+  "gpu_concurrency": 1,
+  "host_threads": 2,
+  "caveats": [
+    "Timing/quality comparison, not equal elapsed budgets or a full pipeline.",
+    "Four new-input seeds were selected before evaluating the policy.",
+    "Lattice scores use provisional settings; no test sieving.",
+    "Reference coordinates only trace losses; they never force selection."
+  ],
+  "measurement_version": "Frozen pre-review prototype; these timings and quality measurements do not describe the corrected planner.",
+  "scoring": [
+    {
+      "case": "c192_winner",
+      "provenance": {
+        "scores/cado_murphy": "3db4195375d134592178b9df4db0d26d48574262fb0e5187d4ba0dde57c1d7c1",
+        "scores/c192_winner_scoring.json": "30c149d2c6e81cdca8b72c9921d73ff1df3b27bc544a5896953ab774f6b31849",
+        "pilot/c192_winner_dense_breadth_r0.poly": "639d0031b83400102b080a17b626215dce27b451fe96aa7d1fa249ca504960ed",
+        "pilot/c192_winner_classes2520_32_r0.poly": "76097485ae51279b407347cd841ffc4fda565f2e7cec7abfc3b14b40459d39ee",
+        "pilot/c192_winner_size2520_16_r0.poly": "23b3f2af747560dd9b1aecb6192da5851b4328b3c9ec379b9864ea29030fd8c5",
+        "pilot/c192_winner_size2520_32_r0.poly": "35c84ddc9153b3869e593cf730c558009167be63b2b2fbb2ce2dab58874628b1",
+        "script_sha256": "2099db6bd45d47dd904884d46f0183984c77d2b71cabdc49e4fb070d2b3abf82",
+        "score_polys.py": "7d34c44bf0e45ffaa3ba5a61279d52d688eca9dc7fb2a617763981260edc2156",
+        "polyfmt.py": "4ae7b1d0ffab0b8fa87b6bc617223bb5495f871676e66584583f2f5263548721",
+        "rescore.py": "b8a03fbb286cd3efd576edbc1f30ecf9292fb4a6429fa3fdf8d20f893abb3f80"
+      },
+      "settings": {
+        "params": "job:32,33,15,80e6",
+        "lattice": "15,16384",
+        "qband": "80e6,500e6,7",
+        "lpbr": 32,
+        "lpba": 33,
+        "rlim": 160000000,
+        "alim": 240000000,
+        "region": "15e",
+        "provisional": true,
+        "source": "User, 2026-10-19",
+        "note": "Factor-base limits recorded for future test sieving; model uses LPB, region and q range."
+      },
+      "unique_screened": 670,
+      "winners": {
+        "dense_breadth": {
+          "standard": {
+            "mode": "dense_breadth",
+            "index": 0,
+            "label": "u -100 v 4000885537 t 94343465 Ea 49.229453 lognorm 59.501781 alpha_s -7.360359 alpha -7.901790",
+            "poly": {
+              "n": 970137671032597847775481145969913289969436931189728453724304265243876304116067045536862610616610038007662192714697454871633967746240559613115499546579676197722961272656328233636785191370677953,
+              "Y0": -23389142989763219075453589420971108857,
+              "Y1": 207799140317397110892323,
+              "c0": 4048944296525934006307635378236839196691307284,
+              "c1": -474080815545737911451726743104070226984,
+              "c2": -5025771048648266426941202143227,
+              "c3": 130810131564301058658161,
+              "c4": 303077208584874,
+              "c5": -831600
+            },
+            "standard_murphy": 1.729553e-14,
+            "standard_skew": 140160054.5,
+            "lattice_score": 1246708000.0,
+            "lattice_skew": 140160054.5,
+            "lattice_validation": {
+              "2": {
+                "score": 1245941000.0,
+                "per_q": [
+                  75.2844,
+                  65.2145,
+                  59.7499,
+                  55.4486,
+                  52.2071,
+                  49.3127,
+                  47.2689
+                ]
+              },
+              "3": {
+                "score": 1245344000.0,
+                "per_q": [
+                  75.1311,
+                  65.2068,
+                  59.7346,
+                  55.5437,
+                  52.1166,
+                  49.2515,
+                  47.256
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "dense_breadth",
+            "index": 0,
+            "label": "u -100 v 4000885537 t 94343465 Ea 49.229453 lognorm 59.501781 alpha_s -7.360359 alpha -7.901790",
+            "poly": {
+              "n": 970137671032597847775481145969913289969436931189728453724304265243876304116067045536862610616610038007662192714697454871633967746240559613115499546579676197722961272656328233636785191370677953,
+              "Y0": -23389142989763219075453589420971108857,
+              "Y1": 207799140317397110892323,
+              "c0": 4048944296525934006307635378236839196691307284,
+              "c1": -474080815545737911451726743104070226984,
+              "c2": -5025771048648266426941202143227,
+              "c3": 130810131564301058658161,
+              "c4": 303077208584874,
+              "c5": -831600
+            },
+            "standard_murphy": 1.729553e-14,
+            "standard_skew": 140160054.5,
+            "lattice_score": 1246708000.0,
+            "lattice_skew": 140160054.5,
+            "lattice_validation": {
+              "2": {
+                "score": 1245941000.0,
+                "per_q": [
+                  75.2844,
+                  65.2145,
+                  59.7499,
+                  55.4486,
+                  52.2071,
+                  49.3127,
+                  47.2689
+                ]
+              },
+              "3": {
+                "score": 1245344000.0,
+                "per_q": [
+                  75.1311,
+                  65.2068,
+                  59.7346,
+                  55.5437,
+                  52.1166,
+                  49.2515,
+                  47.256
+                ]
+              }
+            }
+          }
+        },
+        "classes2520_32": {
+          "standard": {
+            "mode": "classes2520_32",
+            "index": 3,
+            "label": "u 14 v 47357899 t -12426567 Ea 50.336195 lognorm 59.946251 alpha_s -6.873253 alpha -7.392351",
+            "poly": {
+              "n": 970137671032597847775481145969913289969436931189728453724304265243876304116067045536862610616610038007662192714697454871633967746240559613115499546579676197722961272656328233636785191370677953,
+              "Y0": -23389165176484080336433276101846373193,
+              "Y1": 207799140317397110892323,
+              "c0": 14685657304252759344164295044747656414820726568,
+              "c1": 390466489359211005845311789544421564058,
+              "c2": -16073450549690335049200217038005,
+              "c3": -93429188693974623709711,
+              "c4": 747027001640874,
+              "c5": -831600
+            },
+            "standard_murphy": 1.486027e-14,
+            "standard_skew": 171254006.6,
+            "lattice_score": 1140936000.0,
+            "lattice_skew": 163993398.5,
+            "lattice_validation": {
+              "2": {
+                "score": 1139908000.0,
+                "per_q": [
+                  68.0044,
+                  59.5942,
+                  54.5408,
+                  50.8152,
+                  47.8926,
+                  45.4392,
+                  43.5283
+                ]
+              },
+              "3": {
+                "score": 1139629000.0,
+                "per_q": [
+                  67.9114,
+                  59.6573,
+                  54.5177,
+                  50.8566,
+                  47.8888,
+                  45.3623,
+                  43.4623
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "classes2520_32",
+            "index": 3,
+            "label": "u 14 v 47357899 t -12426567 Ea 50.336195 lognorm 59.946251 alpha_s -6.873253 alpha -7.392351",
+            "poly": {
+              "n": 970137671032597847775481145969913289969436931189728453724304265243876304116067045536862610616610038007662192714697454871633967746240559613115499546579676197722961272656328233636785191370677953,
+              "Y0": -23389165176484080336433276101846373193,
+              "Y1": 207799140317397110892323,
+              "c0": 14685657304252759344164295044747656414820726568,
+              "c1": 390466489359211005845311789544421564058,
+              "c2": -16073450549690335049200217038005,
+              "c3": -93429188693974623709711,
+              "c4": 747027001640874,
+              "c5": -831600
+            },
+            "standard_murphy": 1.486027e-14,
+            "standard_skew": 171254006.6,
+            "lattice_score": 1140936000.0,
+            "lattice_skew": 163993398.5,
+            "lattice_validation": {
+              "2": {
+                "score": 1139908000.0,
+                "per_q": [
+                  68.0044,
+                  59.5942,
+                  54.5408,
+                  50.8152,
+                  47.8926,
+                  45.4392,
+                  43.5283
+                ]
+              },
+              "3": {
+                "score": 1139629000.0,
+                "per_q": [
+                  67.9114,
+                  59.6573,
+                  54.5177,
+                  50.8566,
+                  47.8888,
+                  45.3623,
+                  43.4623
+                ]
+              }
+            }
+          }
+        },
+        "size2520_16": {
+          "standard": {
+            "mode": "size2520_16",
+            "index": 0,
+            "label": "u -94 v 5374167199 t 90009906 Ea 49.279598 lognorm 60.031134 alpha_s -7.452819 alpha -8.270412",
+            "poly": {
+              "n": 970137671032597847775481145969913289969436931189728453724304265243876304116067045536862610616610038007662192714697454871633967746240559613115499546579676197722961272656328233636785191370677953,
+              "Y0": -23389143890273053790172695902395476414,
+              "Y1": 207799140317397110892323,
+              "c0": -38752928984404230711415109978644720806234762024,
+              "c1": -563586720173666862647672843376262935689,
+              "c2": -6691563033488770912823981789922,
+              "c3": 125400347439798130715897,
+              "c4": 321096146906874,
+              "c5": -831600
+            },
+            "standard_murphy": 1.665785e-14,
+            "standard_skew": 235720174.8,
+            "lattice_score": 1226864000.0,
+            "lattice_skew": 209813352.1,
+            "lattice_validation": {
+              "2": {
+                "score": 1226851000.0,
+                "per_q": [
+                  71.3214,
+                  64.09,
+                  58.7724,
+                  54.7525,
+                  51.8444,
+                  49.2973,
+                  47.3372
+                ]
+              },
+              "3": {
+                "score": 1226365000.0,
+                "per_q": [
+                  71.2234,
+                  64.0604,
+                  58.7751,
+                  54.8062,
+                  51.775,
+                  49.282,
+                  47.2857
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_16",
+            "index": 0,
+            "label": "u -94 v 5374167199 t 90009906 Ea 49.279598 lognorm 60.031134 alpha_s -7.452819 alpha -8.270412",
+            "poly": {
+              "n": 970137671032597847775481145969913289969436931189728453724304265243876304116067045536862610616610038007662192714697454871633967746240559613115499546579676197722961272656328233636785191370677953,
+              "Y0": -23389143890273053790172695902395476414,
+              "Y1": 207799140317397110892323,
+              "c0": -38752928984404230711415109978644720806234762024,
+              "c1": -563586720173666862647672843376262935689,
+              "c2": -6691563033488770912823981789922,
+              "c3": 125400347439798130715897,
+              "c4": 321096146906874,
+              "c5": -831600
+            },
+            "standard_murphy": 1.665785e-14,
+            "standard_skew": 235720174.8,
+            "lattice_score": 1226864000.0,
+            "lattice_skew": 209813352.1,
+            "lattice_validation": {
+              "2": {
+                "score": 1226851000.0,
+                "per_q": [
+                  71.3214,
+                  64.09,
+                  58.7724,
+                  54.7525,
+                  51.8444,
+                  49.2973,
+                  47.3372
+                ]
+              },
+              "3": {
+                "score": 1226365000.0,
+                "per_q": [
+                  71.2234,
+                  64.0604,
+                  58.7751,
+                  54.8062,
+                  51.775,
+                  49.282,
+                  47.2857
+                ]
+              }
+            }
+          }
+        },
+        "size2520_32": {
+          "standard": {
+            "mode": "size2520_32",
+            "index": 0,
+            "label": "u -94 v 5374167199 t 90009906 Ea 49.279598 lognorm 60.031134 alpha_s -7.452819 alpha -8.270412",
+            "poly": {
+              "n": 970137671032597847775481145969913289969436931189728453724304265243876304116067045536862610616610038007662192714697454871633967746240559613115499546579676197722961272656328233636785191370677953,
+              "Y0": -23389143890273053790172695902395476414,
+              "Y1": 207799140317397110892323,
+              "c0": -38752928984404230711415109978644720806234762024,
+              "c1": -563586720173666862647672843376262935689,
+              "c2": -6691563033488770912823981789922,
+              "c3": 125400347439798130715897,
+              "c4": 321096146906874,
+              "c5": -831600
+            },
+            "standard_murphy": 1.665785e-14,
+            "standard_skew": 235720174.8,
+            "lattice_score": 1226864000.0,
+            "lattice_skew": 209813352.1,
+            "lattice_validation": {
+              "2": {
+                "score": 1226851000.0,
+                "per_q": [
+                  71.3214,
+                  64.09,
+                  58.7724,
+                  54.7525,
+                  51.8444,
+                  49.2973,
+                  47.3372
+                ]
+              },
+              "3": {
+                "score": 1226365000.0,
+                "per_q": [
+                  71.2234,
+                  64.0604,
+                  58.7751,
+                  54.8062,
+                  51.775,
+                  49.282,
+                  47.2857
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_32",
+            "index": 0,
+            "label": "u -94 v 5374167199 t 90009906 Ea 49.279598 lognorm 60.031134 alpha_s -7.452819 alpha -8.270412",
+            "poly": {
+              "n": 970137671032597847775481145969913289969436931189728453724304265243876304116067045536862610616610038007662192714697454871633967746240559613115499546579676197722961272656328233636785191370677953,
+              "Y0": -23389143890273053790172695902395476414,
+              "Y1": 207799140317397110892323,
+              "c0": -38752928984404230711415109978644720806234762024,
+              "c1": -563586720173666862647672843376262935689,
+              "c2": -6691563033488770912823981789922,
+              "c3": 125400347439798130715897,
+              "c4": 321096146906874,
+              "c5": -831600
+            },
+            "standard_murphy": 1.665785e-14,
+            "standard_skew": 235720174.8,
+            "lattice_score": 1226864000.0,
+            "lattice_skew": 209813352.1,
+            "lattice_validation": {
+              "2": {
+                "score": 1226851000.0,
+                "per_q": [
+                  71.3214,
+                  64.09,
+                  58.7724,
+                  54.7525,
+                  51.8444,
+                  49.2973,
+                  47.3372
+                ]
+              },
+              "3": {
+                "score": 1226365000.0,
+                "per_q": [
+                  71.2234,
+                  64.0604,
+                  58.7751,
+                  54.8062,
+                  51.775,
+                  49.282,
+                  47.2857
+                ]
+              }
+            }
+          }
+        }
+      },
+      "screen_seconds": 130.3930602670007,
+      "validation_seconds": 5.659946392988786,
+      "note": "Independently score all 200 exports per pilot mode, then validate leaders.\n\nStandard MurphyE uses 16k search/64k evaluation angles, then 256k at fixed skew.\nThe provisional job lattice uses stream 0 for screening and streams 2/3 for\nvalidation. These model comparisons are not measured relation yields.\n",
+      "caveat": "Equal 4096-candidate refinement and 200-export scoring quotas. Timing/quality pilot, not an equal-elapsed-time or holdout study. Lattice skew is optimized for job-bounds MurphyE, not directly for lattice yield."
+    },
+    {
+      "case": "c197_s0005",
+      "provenance": {
+        "scores/cado_murphy": "3db4195375d134592178b9df4db0d26d48574262fb0e5187d4ba0dde57c1d7c1",
+        "scores/c197_s0005_scoring.json": "874c45a0dd1be79a9979567c0a2438aa652f6e728bf4ee29350a21268baf650a",
+        "pilot/c197_s0005_dense_breadth_r0.poly": "292fa5a330eed85a28619e5dae26e897dc6cc17ddbd8d130ff71101e5d635f21",
+        "pilot/c197_s0005_classes2520_32_r0.poly": "2945a152366c369caa5d52e856f2eab504e92c51587f740b4b941249be4523b8",
+        "pilot/c197_s0005_size2520_16_r0.poly": "8f120fd2abba34d3c4661cd405d08b4aac4b6a6cd8519126f0c3c542f22849d6",
+        "pilot/c197_s0005_size2520_32_r0.poly": "030b9ed5c5b36b600c18772ef266ddf090507563345b50c44876e0d69d20edc8",
+        "script_sha256": "2099db6bd45d47dd904884d46f0183984c77d2b71cabdc49e4fb070d2b3abf82",
+        "score_polys.py": "7d34c44bf0e45ffaa3ba5a61279d52d688eca9dc7fb2a617763981260edc2156",
+        "polyfmt.py": "4ae7b1d0ffab0b8fa87b6bc617223bb5495f871676e66584583f2f5263548721",
+        "rescore.py": "b8a03fbb286cd3efd576edbc1f30ecf9292fb4a6429fa3fdf8d20f893abb3f80"
+      },
+      "settings": {
+        "params": "job:32,33,15.5,75e6",
+        "lattice": "16,16384",
+        "qband": "75e6,400e6,7",
+        "lpbr": 32,
+        "lpba": 33,
+        "rlim": 160000000,
+        "alim": 240000000,
+        "sieve_points": 1073741824,
+        "logI": 16,
+        "J": 16384,
+        "region": "cuda-sieve --logI 16 --J 16384",
+        "sq_side": "algebraic",
+        "provisional": true,
+        "source": "User, 2026-10-24; same LPB/limits as C192; approximate region and q range",
+        "note": "Half-plane lattice coordinates i in [-32768,32768), j in [0,16384); Murphy equivalent I=15.5. Limits recorded for test sieving; model uses LPB/area/q geometry."
+      },
+      "unique_screened": 694,
+      "winners": {
+        "dense_breadth": {
+          "standard": {
+            "mode": "dense_breadth",
+            "index": 0,
+            "label": "u 19 v 707192971 t -73478075 Ea 49.433431 lognorm 59.996275 alpha_s -7.363772 alpha -8.125265",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -170250710558951380661053820131492815451,
+              "Y1": 135598723863270151729813,
+              "c0": 446146166967890324136348879556117733589318372,
+              "c1": 41718793833722291970203510628166908152,
+              "c2": -1538823994039187335510877398899,
+              "c3": -330588142454695352277807,
+              "c4": 1133977421244452,
+              "c5": 1663200
+            },
+            "standard_murphy": 1.08206e-14,
+            "standard_skew": 80457230.9,
+            "lattice_score": 1186791000.0,
+            "lattice_skew": 80457230.9,
+            "lattice_validation": {
+              "2": {
+                "score": 1187700000.0,
+                "per_q": [
+                  88.6345,
+                  78.1521,
+                  72.5483,
+                  67.8615,
+                  64.7335,
+                  61.7878,
+                  59.5323
+                ]
+              },
+              "3": {
+                "score": 1187676000.0,
+                "per_q": [
+                  88.492,
+                  78.4013,
+                  72.3985,
+                  67.9581,
+                  64.5088,
+                  61.8226,
+                  59.6417
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "dense_breadth",
+            "index": 0,
+            "label": "u 19 v 707192971 t -73478075 Ea 49.433431 lognorm 59.996275 alpha_s -7.363772 alpha -8.125265",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -170250710558951380661053820131492815451,
+              "Y1": 135598723863270151729813,
+              "c0": 446146166967890324136348879556117733589318372,
+              "c1": 41718793833722291970203510628166908152,
+              "c2": -1538823994039187335510877398899,
+              "c3": -330588142454695352277807,
+              "c4": 1133977421244452,
+              "c5": 1663200
+            },
+            "standard_murphy": 1.08206e-14,
+            "standard_skew": 80457230.9,
+            "lattice_score": 1186791000.0,
+            "lattice_skew": 80457230.9,
+            "lattice_validation": {
+              "2": {
+                "score": 1187700000.0,
+                "per_q": [
+                  88.6345,
+                  78.1521,
+                  72.5483,
+                  67.8615,
+                  64.7335,
+                  61.7878,
+                  59.5323
+                ]
+              },
+              "3": {
+                "score": 1187676000.0,
+                "per_q": [
+                  88.492,
+                  78.4013,
+                  72.3985,
+                  67.9581,
+                  64.5088,
+                  61.8226,
+                  59.6417
+                ]
+              }
+            }
+          }
+        },
+        "classes2520_32": {
+          "standard": {
+            "mode": "classes2520_32",
+            "index": 0,
+            "label": "u 19 v 707192971 t -73478076 Ea 49.433431 lognorm 59.996275 alpha_s -7.363772 alpha -8.125265",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -170250710558951516259777683401644545264,
+              "Y1": 135598723863270151729813,
+              "c0": 446146125249094951590393458308860267316870380,
+              "c1": 41718796911369288284146281654188210721,
+              "c2": -1538823002274753167560309730766,
+              "c3": -330588146990605020623615,
+              "c4": 1133977412928452,
+              "c5": 1663200
+            },
+            "standard_murphy": 1.08206e-14,
+            "standard_skew": 80457230.9,
+            "lattice_score": 1186791000.0,
+            "lattice_skew": 80457230.9,
+            "lattice_validation": {
+              "2": {
+                "score": 1187700000.0,
+                "per_q": [
+                  88.6345,
+                  78.1521,
+                  72.5483,
+                  67.8615,
+                  64.7335,
+                  61.7878,
+                  59.5323
+                ]
+              },
+              "3": {
+                "score": 1187676000.0,
+                "per_q": [
+                  88.492,
+                  78.4013,
+                  72.3985,
+                  67.9581,
+                  64.5088,
+                  61.8226,
+                  59.6417
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "classes2520_32",
+            "index": 0,
+            "label": "u 19 v 707192971 t -73478076 Ea 49.433431 lognorm 59.996275 alpha_s -7.363772 alpha -8.125265",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -170250710558951516259777683401644545264,
+              "Y1": 135598723863270151729813,
+              "c0": 446146125249094951590393458308860267316870380,
+              "c1": 41718796911369288284146281654188210721,
+              "c2": -1538823002274753167560309730766,
+              "c3": -330588146990605020623615,
+              "c4": 1133977412928452,
+              "c5": 1663200
+            },
+            "standard_murphy": 1.08206e-14,
+            "standard_skew": 80457230.9,
+            "lattice_score": 1186791000.0,
+            "lattice_skew": 80457230.9,
+            "lattice_validation": {
+              "2": {
+                "score": 1187700000.0,
+                "per_q": [
+                  88.6345,
+                  78.1521,
+                  72.5483,
+                  67.8615,
+                  64.7335,
+                  61.7878,
+                  59.5323
+                ]
+              },
+              "3": {
+                "score": 1187676000.0,
+                "per_q": [
+                  88.492,
+                  78.4013,
+                  72.3985,
+                  67.9581,
+                  64.5088,
+                  61.8226,
+                  59.6417
+                ]
+              }
+            }
+          }
+        },
+        "size2520_16": {
+          "standard": {
+            "mode": "size2520_16",
+            "index": 0,
+            "label": "u 19 v 707192971 t -73478076 Ea 49.433431 lognorm 59.996275 alpha_s -7.363772 alpha -8.125265",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -170250710558951516259777683401644545264,
+              "Y1": 135598723863270151729813,
+              "c0": 446146125249094951590393458308860267316870380,
+              "c1": 41718796911369288284146281654188210721,
+              "c2": -1538823002274753167560309730766,
+              "c3": -330588146990605020623615,
+              "c4": 1133977412928452,
+              "c5": 1663200
+            },
+            "standard_murphy": 1.08206e-14,
+            "standard_skew": 80457230.9,
+            "lattice_score": 1186791000.0,
+            "lattice_skew": 80457230.9,
+            "lattice_validation": {
+              "2": {
+                "score": 1187700000.0,
+                "per_q": [
+                  88.6345,
+                  78.1521,
+                  72.5483,
+                  67.8615,
+                  64.7335,
+                  61.7878,
+                  59.5323
+                ]
+              },
+              "3": {
+                "score": 1187676000.0,
+                "per_q": [
+                  88.492,
+                  78.4013,
+                  72.3985,
+                  67.9581,
+                  64.5088,
+                  61.8226,
+                  59.6417
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_16",
+            "index": 0,
+            "label": "u 19 v 707192971 t -73478076 Ea 49.433431 lognorm 59.996275 alpha_s -7.363772 alpha -8.125265",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -170250710558951516259777683401644545264,
+              "Y1": 135598723863270151729813,
+              "c0": 446146125249094951590393458308860267316870380,
+              "c1": 41718796911369288284146281654188210721,
+              "c2": -1538823002274753167560309730766,
+              "c3": -330588146990605020623615,
+              "c4": 1133977412928452,
+              "c5": 1663200
+            },
+            "standard_murphy": 1.08206e-14,
+            "standard_skew": 80457230.9,
+            "lattice_score": 1186791000.0,
+            "lattice_skew": 80457230.9,
+            "lattice_validation": {
+              "2": {
+                "score": 1187700000.0,
+                "per_q": [
+                  88.6345,
+                  78.1521,
+                  72.5483,
+                  67.8615,
+                  64.7335,
+                  61.7878,
+                  59.5323
+                ]
+              },
+              "3": {
+                "score": 1187676000.0,
+                "per_q": [
+                  88.492,
+                  78.4013,
+                  72.3985,
+                  67.9581,
+                  64.5088,
+                  61.8226,
+                  59.6417
+                ]
+              }
+            }
+          }
+        },
+        "size2520_32": {
+          "standard": {
+            "mode": "size2520_32",
+            "index": 0,
+            "label": "u 19 v 707192971 t -73478075 Ea 49.433431 lognorm 59.996275 alpha_s -7.363772 alpha -8.125265",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -170250710558951380661053820131492815451,
+              "Y1": 135598723863270151729813,
+              "c0": 446146166967890324136348879556117733589318372,
+              "c1": 41718793833722291970203510628166908152,
+              "c2": -1538823994039187335510877398899,
+              "c3": -330588142454695352277807,
+              "c4": 1133977421244452,
+              "c5": 1663200
+            },
+            "standard_murphy": 1.08206e-14,
+            "standard_skew": 80457230.9,
+            "lattice_score": 1186791000.0,
+            "lattice_skew": 80457230.9,
+            "lattice_validation": {
+              "2": {
+                "score": 1187700000.0,
+                "per_q": [
+                  88.6345,
+                  78.1521,
+                  72.5483,
+                  67.8615,
+                  64.7335,
+                  61.7878,
+                  59.5323
+                ]
+              },
+              "3": {
+                "score": 1187676000.0,
+                "per_q": [
+                  88.492,
+                  78.4013,
+                  72.3985,
+                  67.9581,
+                  64.5088,
+                  61.8226,
+                  59.6417
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_32",
+            "index": 0,
+            "label": "u 19 v 707192971 t -73478075 Ea 49.433431 lognorm 59.996275 alpha_s -7.363772 alpha -8.125265",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -170250710558951380661053820131492815451,
+              "Y1": 135598723863270151729813,
+              "c0": 446146166967890324136348879556117733589318372,
+              "c1": 41718793833722291970203510628166908152,
+              "c2": -1538823994039187335510877398899,
+              "c3": -330588142454695352277807,
+              "c4": 1133977421244452,
+              "c5": 1663200
+            },
+            "standard_murphy": 1.08206e-14,
+            "standard_skew": 80457230.9,
+            "lattice_score": 1186791000.0,
+            "lattice_skew": 80457230.9,
+            "lattice_validation": {
+              "2": {
+                "score": 1187700000.0,
+                "per_q": [
+                  88.6345,
+                  78.1521,
+                  72.5483,
+                  67.8615,
+                  64.7335,
+                  61.7878,
+                  59.5323
+                ]
+              },
+              "3": {
+                "score": 1187676000.0,
+                "per_q": [
+                  88.492,
+                  78.4013,
+                  72.3985,
+                  67.9581,
+                  64.5088,
+                  61.8226,
+                  59.6417
+                ]
+              }
+            }
+          }
+        }
+      },
+      "screen_seconds": 142.1914280729834,
+      "validation_seconds": 5.954251930990722,
+      "note": "Independently score all 200 exports per pilot mode, then validate leaders.\n\nStandard MurphyE uses 16k search/64k evaluation angles, then 256k at fixed skew.\nThe provisional job lattice uses stream 0 for screening and streams 2/3 for\nvalidation. These model comparisons are not measured relation yields.\n",
+      "caveat": "Equal 4096-candidate refinement and 200-export scoring quotas. Timing/quality pilot, not an equal-elapsed-time or holdout study. Lattice skew is optimized for job-bounds MurphyE, not directly for lattice yield."
+    },
+    {
+      "case": "c197_s0001",
+      "provenance": {
+        "scores/cado_murphy": "3db4195375d134592178b9df4db0d26d48574262fb0e5187d4ba0dde57c1d7c1",
+        "scores/c197_s0001_scoring.json": "874c45a0dd1be79a9979567c0a2438aa652f6e728bf4ee29350a21268baf650a",
+        "pilot/c197_s0001_dense_breadth_r0.poly": "3ac54e317c04dbc9a7d3b05ba643637cbbbde6be06ebf5fcb6ca5d4a9ed6d682",
+        "pilot/c197_s0001_classes2520_32_r0.poly": "7ceb02836ba550ec037d7a439b13c7aa33aa0dfb9f0c25dcb331cb6d836ff015",
+        "pilot/c197_s0001_size2520_16_r0.poly": "f42149eb8706c140631b86c76ad0e39890f40ca1a5d6976c80e3d327a6d9b8df",
+        "pilot/c197_s0001_size2520_32_r0.poly": "cdf5f9a89e16da6ccfe2d99023194f8049d556d499c32a3fe98c6d5501a89b3c",
+        "script_sha256": "2099db6bd45d47dd904884d46f0183984c77d2b71cabdc49e4fb070d2b3abf82",
+        "score_polys.py": "7d34c44bf0e45ffaa3ba5a61279d52d688eca9dc7fb2a617763981260edc2156",
+        "polyfmt.py": "4ae7b1d0ffab0b8fa87b6bc617223bb5495f871676e66584583f2f5263548721",
+        "rescore.py": "b8a03fbb286cd3efd576edbc1f30ecf9292fb4a6429fa3fdf8d20f893abb3f80"
+      },
+      "settings": {
+        "params": "job:32,33,15.5,75e6",
+        "lattice": "16,16384",
+        "qband": "75e6,400e6,7",
+        "lpbr": 32,
+        "lpba": 33,
+        "rlim": 160000000,
+        "alim": 240000000,
+        "sieve_points": 1073741824,
+        "logI": 16,
+        "J": 16384,
+        "region": "cuda-sieve --logI 16 --J 16384",
+        "sq_side": "algebraic",
+        "provisional": true,
+        "source": "User, 2026-10-24; same LPB/limits as C192; approximate region and q range",
+        "note": "Half-plane lattice coordinates i in [-32768,32768), j in [0,16384); Murphy equivalent I=15.5. Limits recorded for test sieving; model uses LPB/area/q geometry."
+      },
+      "unique_screened": 738,
+      "winners": {
+        "dense_breadth": {
+          "standard": {
+            "mode": "dense_breadth",
+            "index": 1,
+            "label": "u -5 v 196240364 t 12017072 Ea 50.956820 lognorm 60.688255 alpha_s -7.017056 alpha -7.485719",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -212086475892552774676751296644863882557,
+              "Y1": 807015958638053476937161,
+              "c0": -26648181481320186744588348999490378898939246472,
+              "c1": 928782512601825582863844272713573692774,
+              "c2": -9997204434256135185084891807269,
+              "c3": 2510664029582007612367,
+              "c4": 1500070457068302,
+              "c5": 1940400
+            },
+            "standard_murphy": 8.15703e-15,
+            "standard_skew": 143617493.7,
+            "lattice_score": 1011628000.0,
+            "lattice_skew": 134217728.0,
+            "lattice_validation": {
+              "2": {
+                "score": 1010955000.0,
+                "per_q": [
+                  77.4537,
+                  65.9845,
+                  60.9204,
+                  57.6927,
+                  55.1696,
+                  52.8,
+                  50.9363
+                ]
+              },
+              "3": {
+                "score": 1010631000.0,
+                "per_q": [
+                  77.3285,
+                  65.975,
+                  60.9147,
+                  57.6975,
+                  55.1129,
+                  52.8552,
+                  50.8629
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "dense_breadth",
+            "index": 1,
+            "label": "u -5 v 196240364 t 12017072 Ea 50.956820 lognorm 60.688255 alpha_s -7.017056 alpha -7.485719",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -212086475892552774676751296644863882557,
+              "Y1": 807015958638053476937161,
+              "c0": -26648181481320186744588348999490378898939246472,
+              "c1": 928782512601825582863844272713573692774,
+              "c2": -9997204434256135185084891807269,
+              "c3": 2510664029582007612367,
+              "c4": 1500070457068302,
+              "c5": 1940400
+            },
+            "standard_murphy": 8.15703e-15,
+            "standard_skew": 143617493.7,
+            "lattice_score": 1011628000.0,
+            "lattice_skew": 134217728.0,
+            "lattice_validation": {
+              "2": {
+                "score": 1010955000.0,
+                "per_q": [
+                  77.4537,
+                  65.9845,
+                  60.9204,
+                  57.6927,
+                  55.1696,
+                  52.8,
+                  50.9363
+                ]
+              },
+              "3": {
+                "score": 1010631000.0,
+                "per_q": [
+                  77.3285,
+                  65.975,
+                  60.9147,
+                  57.6975,
+                  55.1129,
+                  52.8552,
+                  50.8629
+                ]
+              }
+            }
+          }
+        },
+        "classes2520_32": {
+          "standard": {
+            "mode": "classes2520_32",
+            "index": 0,
+            "label": "u 31 v 3443924468 t -39541266 Ea 51.466816 lognorm 61.773188 alpha_s -7.340205 alpha -7.927978",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -212086517500954341531532122646215480975,
+              "Y1": 807015958638053476937161,
+              "c0": -478448778976839278240583716854540177428182707072,
+              "c1": -6409244456757877951945830814431758473006,
+              "c2": 10880544829411171625516178402517,
+              "c3": -255272974502865184219937,
+              "c4": 999851461792302,
+              "c5": 1940400
+            },
+            "standard_murphy": 7.18043e-15,
+            "standard_skew": 286458320.1,
+            "lattice_score": 939466500.0,
+            "lattice_skew": 286458320.1,
+            "lattice_validation": {
+              "2": {
+                "score": 939487200.0,
+                "per_q": [
+                  70.7713,
+                  63.2567,
+                  57.6469,
+                  53.3227,
+                  50.1104,
+                  48.262,
+                  46.9717
+                ]
+              },
+              "3": {
+                "score": 939076200.0,
+                "per_q": [
+                  70.66,
+                  63.2475,
+                  57.6615,
+                  53.3642,
+                  50.0488,
+                  48.2499,
+                  46.8464
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "classes2520_32",
+            "index": 0,
+            "label": "u 31 v 3443924468 t -39541266 Ea 51.466816 lognorm 61.773188 alpha_s -7.340205 alpha -7.927978",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -212086517500954341531532122646215480975,
+              "Y1": 807015958638053476937161,
+              "c0": -478448778976839278240583716854540177428182707072,
+              "c1": -6409244456757877951945830814431758473006,
+              "c2": 10880544829411171625516178402517,
+              "c3": -255272974502865184219937,
+              "c4": 999851461792302,
+              "c5": 1940400
+            },
+            "standard_murphy": 7.18043e-15,
+            "standard_skew": 286458320.1,
+            "lattice_score": 939466500.0,
+            "lattice_skew": 286458320.1,
+            "lattice_validation": {
+              "2": {
+                "score": 939487200.0,
+                "per_q": [
+                  70.7713,
+                  63.2567,
+                  57.6469,
+                  53.3227,
+                  50.1104,
+                  48.262,
+                  46.9717
+                ]
+              },
+              "3": {
+                "score": 939076200.0,
+                "per_q": [
+                  70.66,
+                  63.2475,
+                  57.6615,
+                  53.3642,
+                  50.0488,
+                  48.2499,
+                  46.8464
+                ]
+              }
+            }
+          }
+        },
+        "size2520_16": {
+          "standard": {
+            "mode": "size2520_16",
+            "index": 0,
+            "label": "u -5 v -648792916 t -22693350 Ea 50.767499 lognorm 61.068689 alpha_s -7.463991 alpha -7.923993",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -212086503904417259738132739700989674499,
+              "Y1": 807015958638053476937161,
+              "c0": 110263477460603014943995447468237336987900793720,
+              "c1": 1395024754551185397377467428217425971030,
+              "c2": -226280330894369632147277925683,
+              "c3": -182383451224020071425409,
+              "c4": 1163309942824302,
+              "c5": 1940400
+            },
+            "standard_murphy": 7.734199e-15,
+            "standard_skew": 214988984.4,
+            "lattice_score": 982960500.0,
+            "lattice_skew": 207553245.4,
+            "lattice_validation": {
+              "2": {
+                "score": 983168100.0,
+                "per_q": [
+                  75.2539,
+                  65.6863,
+                  59.3773,
+                  55.1401,
+                  53.1037,
+                  51.1559,
+                  49.6175
+                ]
+              },
+              "3": {
+                "score": 982952400.0,
+                "per_q": [
+                  75.1254,
+                  65.665,
+                  59.372,
+                  55.2301,
+                  53.0143,
+                  51.2158,
+                  49.5325
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_16",
+            "index": 0,
+            "label": "u -5 v -648792916 t -22693350 Ea 50.767499 lognorm 61.068689 alpha_s -7.463991 alpha -7.923993",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -212086503904417259738132739700989674499,
+              "Y1": 807015958638053476937161,
+              "c0": 110263477460603014943995447468237336987900793720,
+              "c1": 1395024754551185397377467428217425971030,
+              "c2": -226280330894369632147277925683,
+              "c3": -182383451224020071425409,
+              "c4": 1163309942824302,
+              "c5": 1940400
+            },
+            "standard_murphy": 7.734199e-15,
+            "standard_skew": 214988984.4,
+            "lattice_score": 982960500.0,
+            "lattice_skew": 207553245.4,
+            "lattice_validation": {
+              "2": {
+                "score": 983168100.0,
+                "per_q": [
+                  75.2539,
+                  65.6863,
+                  59.3773,
+                  55.1401,
+                  53.1037,
+                  51.1559,
+                  49.6175
+                ]
+              },
+              "3": {
+                "score": 982952400.0,
+                "per_q": [
+                  75.1254,
+                  65.665,
+                  59.372,
+                  55.2301,
+                  53.0143,
+                  51.2158,
+                  49.5325
+                ]
+              }
+            }
+          }
+        },
+        "size2520_32": {
+          "standard": {
+            "mode": "size2520_32",
+            "index": 0,
+            "label": "u -5 v 69364604 t 8119517 Ea 50.999040 lognorm 60.499661 alpha_s -6.908745 alpha -7.308170",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -212086479037941859346289815948680423912,
+              "Y1": 807015958638053476937161,
+              "c0": -3511200308448066882978826160021698629167363022,
+              "c1": 1006473113634065971261751400198575204529,
+              "c2": -9890984813445739654379075114024,
+              "c3": -20580999509299778494073,
+              "c4": 1462256378458302,
+              "c5": 1940400
+            },
+            "standard_murphy": 7.797371e-15,
+            "standard_skew": 144397322.5,
+            "lattice_score": 987316900.0,
+            "lattice_skew": 132054891.4,
+            "lattice_validation": {
+              "2": {
+                "score": 986721300.0,
+                "per_q": [
+                  75.5281,
+                  64.3801,
+                  59.4921,
+                  56.3677,
+                  53.8548,
+                  51.4899,
+                  49.7269
+                ]
+              },
+              "3": {
+                "score": 986667300.0,
+                "per_q": [
+                  75.3887,
+                  64.3615,
+                  59.514,
+                  56.4078,
+                  53.7914,
+                  51.6078,
+                  49.6425
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_32",
+            "index": 0,
+            "label": "u -5 v 69364604 t 8119517 Ea 50.999040 lognorm 60.499661 alpha_s -6.908745 alpha -7.308170",
+            "poly": {
+              "n": 59474306498684483704299315645258240310332611756761182952846584704580775865108066459714362731723681602337460465012145001878831907245008801973322374138382013652011304386327244346111535565243769675427,
+              "Y0": -212086479037941859346289815948680423912,
+              "Y1": 807015958638053476937161,
+              "c0": -3511200308448066882978826160021698629167363022,
+              "c1": 1006473113634065971261751400198575204529,
+              "c2": -9890984813445739654379075114024,
+              "c3": -20580999509299778494073,
+              "c4": 1462256378458302,
+              "c5": 1940400
+            },
+            "standard_murphy": 7.797371e-15,
+            "standard_skew": 144397322.5,
+            "lattice_score": 987316900.0,
+            "lattice_skew": 132054891.4,
+            "lattice_validation": {
+              "2": {
+                "score": 986721300.0,
+                "per_q": [
+                  75.5281,
+                  64.3801,
+                  59.4921,
+                  56.3677,
+                  53.8548,
+                  51.4899,
+                  49.7269
+                ]
+              },
+              "3": {
+                "score": 986667300.0,
+                "per_q": [
+                  75.3887,
+                  64.3615,
+                  59.514,
+                  56.4078,
+                  53.7914,
+                  51.6078,
+                  49.6425
+                ]
+              }
+            }
+          }
+        }
+      },
+      "screen_seconds": 144.07913646599627,
+      "validation_seconds": 6.135905959003139,
+      "note": "Independently score all 200 exports per pilot mode, then validate leaders.\n\nStandard MurphyE uses 16k search/64k evaluation angles, then 256k at fixed skew.\nThe provisional job lattice uses stream 0 for screening and streams 2/3 for\nvalidation. These model comparisons are not measured relation yields.\n",
+      "caveat": "Equal 4096-candidate refinement and 200-export scoring quotas. Timing/quality pilot, not an equal-elapsed-time or holdout study. Lattice skew is optimized for job-bounds MurphyE, not directly for lattice yield."
+    },
+    {
+      "case": "c179_winner",
+      "provenance": {
+        "scores/cado_murphy": "3db4195375d134592178b9df4db0d26d48574262fb0e5187d4ba0dde57c1d7c1",
+        "scores/c179_winner_scoring.json": "931536084b4a289b4af20eab60d48f78d1eb27c17d60dc62d6867a366e874b41",
+        "pilot/c179_winner_dense_breadth_r0.poly": "4ad94743d1067f45d10bbf9c4b0454de8d16a2622325dea04fffcce83024eeae",
+        "pilot/c179_winner_classes2520_32_r0.poly": "cf03c3900bd9429b73fadb01e380b1ac78d1f32a70acef59041025701a367715",
+        "pilot/c179_winner_size2520_16_r0.poly": "84bbd2da14dc28223b7fcf1102531cfa0a912b467a2091b0af2c6936d956297e",
+        "pilot/c179_winner_size2520_32_r0.poly": "1e1fcb9a607596db283d220efdb8e92d299729052fa7ee018c1aa13529b1aa42",
+        "script_sha256": "2099db6bd45d47dd904884d46f0183984c77d2b71cabdc49e4fb070d2b3abf82",
+        "score_polys.py": "7d34c44bf0e45ffaa3ba5a61279d52d688eca9dc7fb2a617763981260edc2156",
+        "polyfmt.py": "4ae7b1d0ffab0b8fa87b6bc617223bb5495f871676e66584583f2f5263548721",
+        "rescore.py": "b8a03fbb286cd3efd576edbc1f30ecf9292fb4a6429fa3fdf8d20f893abb3f80"
+      },
+      "settings": {
+        "params": "job:31,32,15,40000000",
+        "lattice": "15,16384",
+        "qband": "40000000,140000000,7",
+        "lpbr": 31,
+        "lpba": 32,
+        "rlim": 120000000,
+        "alim": 180000000,
+        "profile_id": "c181_user_20261017",
+        "profile_snapshot": {
+          "id": "c181_user_20261017",
+          "digits": 181,
+          "degree": 5,
+          "recorded": "2026-10-17",
+          "evidence": "user_supplied",
+          "lpbr": 31,
+          "lpba": 32,
+          "rlim": 120000000,
+          "alim": 180000000,
+          "side": "algebraic",
+          "region": {
+            "label": "15e",
+            "logI": 15,
+            "J": 16384,
+            "points": 536870912
+          },
+          "q": {
+            "min": 40000000,
+            "max": 140000000,
+            "model_samples": 7
+          },
+          "source": {
+            "path": "stage23_bench/runs/20261017_c181/run.py",
+            "sha256": "08686998bee9dbae79ece2a747dfbbaeb36d03096e391b99df7d648707d06729"
+          },
+          "notes": "User-provided settings for the C181 starting 220855503682; model comparison, no test sieve.",
+          "n": "2208555036824732635771677559139282765580452196683125340793500220784101129115437978446156897217844169844483178451295612726596781329409430613142162931403182596342469377780097333368779"
+        },
+        "catalog_sha256": "e3fac3581bd361d307de0e093e641268488c6be15c051656521404524d6d4b30",
+        "provisional": true,
+        "source": "Inherited historical profile; not confirmed for this input.",
+        "note": "Model comparison only; no new test sieving."
+      },
+      "unique_screened": 692,
+      "winners": {
+        "dense_breadth": {
+          "standard": {
+            "mode": "dense_breadth",
+            "index": 3,
+            "label": "u -55 v 425164918 t 17898019 Ea 45.571071 lognorm 55.527360 alpha_s -7.327228 alpha -7.658684",
+            "poly": {
+              "n": 57620329943072851234467695661532076333504874396552000279206114783643367173277603126879399724731783963048827698518286205989191152664289350141501384171806521091095958947776845847733,
+              "Y0": -52937572943060148611332927283114020,
+              "Y1": 23587893246810238569991,
+              "c0": 20667651014215126315359562039047289551816054,
+              "c1": 1536966301563714594161846485636642719,
+              "c2": -60356753141940589081320801480,
+              "c3": -358635435210341191523,
+              "c4": 10915368579070,
+              "c5": -277200
+            },
+            "standard_murphy": 1.124808e-13,
+            "standard_skew": 48230335.2,
+            "lattice_score": 556000700.0,
+            "lattice_skew": 47069240.9,
+            "lattice_validation": {
+              "2": {
+                "score": 555732700.0,
+                "per_q": [
+                  123.341,
+                  112.4904,
+                  104.9985,
+                  99.1457,
+                  94.677,
+                  90.5665,
+                  87.2538
+                ]
+              },
+              "3": {
+                "score": 555566100.0,
+                "per_q": [
+                  123.1102,
+                  112.5078,
+                  105.0004,
+                  99.2888,
+                  94.5792,
+                  90.44,
+                  87.2456
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "dense_breadth",
+            "index": 3,
+            "label": "u -55 v 425164918 t 17898019 Ea 45.571071 lognorm 55.527360 alpha_s -7.327228 alpha -7.658684",
+            "poly": {
+              "n": 57620329943072851234467695661532076333504874396552000279206114783643367173277603126879399724731783963048827698518286205989191152664289350141501384171806521091095958947776845847733,
+              "Y0": -52937572943060148611332927283114020,
+              "Y1": 23587893246810238569991,
+              "c0": 20667651014215126315359562039047289551816054,
+              "c1": 1536966301563714594161846485636642719,
+              "c2": -60356753141940589081320801480,
+              "c3": -358635435210341191523,
+              "c4": 10915368579070,
+              "c5": -277200
+            },
+            "standard_murphy": 1.124808e-13,
+            "standard_skew": 48230335.2,
+            "lattice_score": 556000700.0,
+            "lattice_skew": 47069240.9,
+            "lattice_validation": {
+              "2": {
+                "score": 555732700.0,
+                "per_q": [
+                  123.341,
+                  112.4904,
+                  104.9985,
+                  99.1457,
+                  94.677,
+                  90.5665,
+                  87.2538
+                ]
+              },
+              "3": {
+                "score": 555566100.0,
+                "per_q": [
+                  123.1102,
+                  112.5078,
+                  105.0004,
+                  99.2888,
+                  94.5792,
+                  90.44,
+                  87.2456
+                ]
+              }
+            }
+          }
+        },
+        "classes2520_32": {
+          "standard": {
+            "mode": "classes2520_32",
+            "index": 2,
+            "label": "u -55 v 425164918 t 17898018 Ea 45.571071 lognorm 55.527360 alpha_s -7.327228 alpha -7.658684",
+            "poly": {
+              "n": 57620329943072851234467695661532076333504874396552000279206114783643367173277603126879399724731783963048827698518286205989191152664289350141501384171806521091095958947776845847733,
+              "Y0": -52937572943083736504579737521684011,
+              "Y1": 23587893246810238569991,
+              "c0": 20667649477248764394892184572057848304419648,
+              "c1": 1536966422277219802136675355778968830,
+              "c2": -60356752066034217958082980491,
+              "c3": -358635478871818279803,
+              "c4": 10915369965070,
+              "c5": -277200
+            },
+            "standard_murphy": 1.124807e-13,
+            "standard_skew": 48230335.2,
+            "lattice_score": 556000800.0,
+            "lattice_skew": 47069240.9,
+            "lattice_validation": {
+              "2": {
+                "score": 555732700.0,
+                "per_q": [
+                  123.341,
+                  112.4904,
+                  104.9985,
+                  99.1457,
+                  94.6769,
+                  90.5665,
+                  87.2538
+                ]
+              },
+              "3": {
+                "score": 555566100.0,
+                "per_q": [
+                  123.1102,
+                  112.5078,
+                  105.0004,
+                  99.2888,
+                  94.5792,
+                  90.44,
+                  87.2456
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "classes2520_32",
+            "index": 2,
+            "label": "u -55 v 425164918 t 17898018 Ea 45.571071 lognorm 55.527360 alpha_s -7.327228 alpha -7.658684",
+            "poly": {
+              "n": 57620329943072851234467695661532076333504874396552000279206114783643367173277603126879399724731783963048827698518286205989191152664289350141501384171806521091095958947776845847733,
+              "Y0": -52937572943083736504579737521684011,
+              "Y1": 23587893246810238569991,
+              "c0": 20667649477248764394892184572057848304419648,
+              "c1": 1536966422277219802136675355778968830,
+              "c2": -60356752066034217958082980491,
+              "c3": -358635478871818279803,
+              "c4": 10915369965070,
+              "c5": -277200
+            },
+            "standard_murphy": 1.124807e-13,
+            "standard_skew": 48230335.2,
+            "lattice_score": 556000800.0,
+            "lattice_skew": 47069240.9,
+            "lattice_validation": {
+              "2": {
+                "score": 555732700.0,
+                "per_q": [
+                  123.341,
+                  112.4904,
+                  104.9985,
+                  99.1457,
+                  94.6769,
+                  90.5665,
+                  87.2538
+                ]
+              },
+              "3": {
+                "score": 555566100.0,
+                "per_q": [
+                  123.1102,
+                  112.5078,
+                  105.0004,
+                  99.2888,
+                  94.5792,
+                  90.44,
+                  87.2456
+                ]
+              }
+            }
+          }
+        },
+        "size2520_16": {
+          "standard": {
+            "mode": "size2520_16",
+            "index": 0,
+            "label": "u -19 v 21408718 t 10288101 Ea 46.246139 lognorm 55.067484 alpha_s -6.142680 alpha -6.785650",
+            "poly": {
+              "n": 57620329943072851234467695661532076333504874396552000279206114783643367173277603126879399724731783963048827698518286205989191152664289350141501384171806521091095958947776845847733,
+              "Y0": -52937752444993549591010005351884758,
+              "Y1": 23587893246810238569991,
+              "c0": 7445186745758554785025486737115980199565460,
+              "c1": 463630003906035199215905352074422871,
+              "c2": -47154023826578566679530202382,
+              "c3": -851424556168096984563,
+              "c4": 21462714927070,
+              "c5": -277200
+            },
+            "standard_murphy": 9.98501e-14,
+            "standard_skew": 36197205.8,
+            "lattice_score": 512444200.0,
+            "lattice_skew": 35613910.0,
+            "lattice_validation": {
+              "2": {
+                "score": 512701500.0,
+                "per_q": [
+                  114.1594,
+                  104.359,
+                  97.3849,
+                  91.4978,
+                  86.9106,
+                  82.7769,
+                  80.2038
+                ]
+              },
+              "3": {
+                "score": 512360700.0,
+                "per_q": [
+                  113.9539,
+                  104.1807,
+                  97.2987,
+                  91.6789,
+                  86.8175,
+                  82.7048,
+                  80.1739
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_16",
+            "index": 2,
+            "label": "u -79 v 637604758 t 16660332 Ea 46.341472 lognorm 55.818169 alpha_s -6.759241 alpha -7.289767",
+            "poly": {
+              "n": 57620329943072851234467695661532076333504874396552000279206114783643367173277603126879399724731783963048827698518286205989191152664289350141501384171806521091095958947776845847733,
+              "Y0": -52937602137488977576156672259564837,
+              "Y1": 23587893246810238569991,
+              "c0": 28594552457995065285118419290984895366336456,
+              "c1": 2955135688657059054879338285537316278,
+              "c2": -58920102866712565078377690381,
+              "c3": -416921015545268903883,
+              "c4": 12630802761070,
+              "c5": -277200
+            },
+            "standard_murphy": 9.940235e-14,
+            "standard_skew": 54627535.4,
+            "lattice_score": 517859300.0,
+            "lattice_skew": 54627535.4,
+            "lattice_validation": {
+              "2": {
+                "score": 517606300.0,
+                "per_q": [
+                  114.1774,
+                  104.9302,
+                  97.8014,
+                  92.2637,
+                  88.1518,
+                  84.5022,
+                  81.6001
+                ]
+              },
+              "3": {
+                "score": 517542100.0,
+                "per_q": [
+                  113.9536,
+                  105.0052,
+                  97.801,
+                  92.4192,
+                  88.0737,
+                  84.4115,
+                  81.5613
+                ]
+              }
+            }
+          }
+        },
+        "size2520_32": {
+          "standard": {
+            "mode": "size2520_32",
+            "index": 2,
+            "label": "u -55 v 425164918 t 17898018 Ea 45.571071 lognorm 55.527360 alpha_s -7.327228 alpha -7.658684",
+            "poly": {
+              "n": 57620329943072851234467695661532076333504874396552000279206114783643367173277603126879399724731783963048827698518286205989191152664289350141501384171806521091095958947776845847733,
+              "Y0": -52937572943083736504579737521684011,
+              "Y1": 23587893246810238569991,
+              "c0": 20667649477248764394892184572057848304419648,
+              "c1": 1536966422277219802136675355778968830,
+              "c2": -60356752066034217958082980491,
+              "c3": -358635478871818279803,
+              "c4": 10915369965070,
+              "c5": -277200
+            },
+            "standard_murphy": 1.124807e-13,
+            "standard_skew": 48230335.2,
+            "lattice_score": 556000800.0,
+            "lattice_skew": 47069240.9,
+            "lattice_validation": {
+              "2": {
+                "score": 555732700.0,
+                "per_q": [
+                  123.341,
+                  112.4904,
+                  104.9985,
+                  99.1457,
+                  94.6769,
+                  90.5665,
+                  87.2538
+                ]
+              },
+              "3": {
+                "score": 555566100.0,
+                "per_q": [
+                  123.1102,
+                  112.5078,
+                  105.0004,
+                  99.2888,
+                  94.5792,
+                  90.44,
+                  87.2456
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_32",
+            "index": 2,
+            "label": "u -55 v 425164918 t 17898018 Ea 45.571071 lognorm 55.527360 alpha_s -7.327228 alpha -7.658684",
+            "poly": {
+              "n": 57620329943072851234467695661532076333504874396552000279206114783643367173277603126879399724731783963048827698518286205989191152664289350141501384171806521091095958947776845847733,
+              "Y0": -52937572943083736504579737521684011,
+              "Y1": 23587893246810238569991,
+              "c0": 20667649477248764394892184572057848304419648,
+              "c1": 1536966422277219802136675355778968830,
+              "c2": -60356752066034217958082980491,
+              "c3": -358635478871818279803,
+              "c4": 10915369965070,
+              "c5": -277200
+            },
+            "standard_murphy": 1.124807e-13,
+            "standard_skew": 48230335.2,
+            "lattice_score": 556000800.0,
+            "lattice_skew": 47069240.9,
+            "lattice_validation": {
+              "2": {
+                "score": 555732700.0,
+                "per_q": [
+                  123.341,
+                  112.4904,
+                  104.9985,
+                  99.1457,
+                  94.6769,
+                  90.5665,
+                  87.2538
+                ]
+              },
+              "3": {
+                "score": 555566100.0,
+                "per_q": [
+                  123.1102,
+                  112.5078,
+                  105.0004,
+                  99.2888,
+                  94.5792,
+                  90.44,
+                  87.2456
+                ]
+              }
+            }
+          }
+        }
+      },
+      "screen_seconds": 139.5129646330024,
+      "validation_seconds": 6.085566593013937,
+      "note": "Independently score all 200 exports per pilot mode, then validate leaders.\n\nStandard MurphyE uses 16k search/64k evaluation angles, then 256k at fixed skew.\nThe provisional job lattice uses stream 0 for screening and streams 2/3 for\nvalidation. These model comparisons are not measured relation yields.\n",
+      "caveat": "Equal 4096-candidate refinement and 200-export scoring quotas. Timing/quality pilot, not an equal-elapsed-time or holdout study. Lattice skew is optimized for job-bounds MurphyE, not directly for lattice yield."
+    },
+    {
+      "case": "c170_s0009",
+      "provenance": {
+        "scores/cado_murphy": "3db4195375d134592178b9df4db0d26d48574262fb0e5187d4ba0dde57c1d7c1",
+        "scores/c170_s0009_scoring.json": "3d19a17073f05662716af1bae6c5c02205a2394301a2718de203c2422f8abb84",
+        "pilot/c170_s0009_dense_breadth_r0.poly": "676f77627362a080f35da20144cfbebb2cad1b54ac88c61f305234bdff7a684e",
+        "pilot/c170_s0009_classes2520_32_r0.poly": "302b3fc17608526d5b2b6132bc466566dde26b7a60373a923503672f1f90b31b",
+        "pilot/c170_s0009_size2520_16_r0.poly": "61bf17f080838b72b66edd1e32ea1269f0f07be0c339e0419824cf3979dff904",
+        "pilot/c170_s0009_size2520_32_r0.poly": "4311a5dd97f926cfe141073115db6531252fcf05e377899eee8474ebaf5e2cc5",
+        "script_sha256": "2099db6bd45d47dd904884d46f0183984c77d2b71cabdc49e4fb070d2b3abf82",
+        "score_polys.py": "7d34c44bf0e45ffaa3ba5a61279d52d688eca9dc7fb2a617763981260edc2156",
+        "polyfmt.py": "4ae7b1d0ffab0b8fa87b6bc617223bb5495f871676e66584583f2f5263548721",
+        "rescore.py": "b8a03fbb286cd3efd576edbc1f30ecf9292fb4a6429fa3fdf8d20f893abb3f80"
+      },
+      "settings": {
+        "params": "job:31,32,14,40000000",
+        "lattice": "14,8192",
+        "qband": "40000000,150000000,7",
+        "lpbr": 31,
+        "lpba": 32,
+        "rlim": 80000000,
+        "alim": 120000000,
+        "profile_id": "c171_testsieve_20261016",
+        "profile_snapshot": {
+          "id": "c171_testsieve_20261016",
+          "digits": 171,
+          "degree": 5,
+          "recorded": "2026-10-16",
+          "evidence": "user_reported_test_sieve",
+          "lpbr": 31,
+          "lpba": 32,
+          "rlim": 80000000,
+          "alim": 120000000,
+          "side": "algebraic",
+          "region": {
+            "label": "gnfs-lasieve4I14e",
+            "logI": 14,
+            "J": 8192,
+            "points": 134217728
+          },
+          "q": {
+            "min": 40000000,
+            "max": 150000000,
+            "model_samples": 7
+          },
+          "source": {
+            "path": "stage23_bench/data/c171/gpu_ropt/testsieve_user_20261016.json",
+            "sha256": "047c50ae6697e274c4a4299e96342e8a69df3ca929cd06d6ee2d0505e573693f"
+          },
+          "notes": "Six user-reported test windows over this range; final production q endpoint was provisional. Supersedes the earlier C168-derived 30/31, 25M-100M model for C171.",
+          "mfbr": 60,
+          "mfba": 92,
+          "rlambda": 2.35,
+          "alambda": 3.5,
+          "lss": 0
+        },
+        "catalog_sha256": "5516b3ef07a321b666869b483b9fdb8134280782c6530f1cf0e30b64d0e131b4",
+        "provisional": true,
+        "source": "Inherited historical profile; not confirmed for this input.",
+        "note": "Model comparison only; no new test sieving."
+      },
+      "unique_screened": 565,
+      "winners": {
+        "dense_breadth": {
+          "standard": {
+            "mode": "dense_breadth",
+            "index": 1,
+            "label": "u 9 v -14436997 t 2454772 Ea 42.399423 lognorm 51.278372 alpha_s -6.456785 alpha -6.829961",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961863300115219766256290683386406,
+              "Y1": 4083442735129771568647,
+              "c0": -6681721488452593497809776934608064269716,
+              "c1": -7350776408003020849242201498093771,
+              "c2": 617854222952031837600762676,
+              "c3": 78680415564792617155,
+              "c4": -1215971759856,
+              "c5": -70560
+            },
+            "standard_murphy": 4.665717e-13,
+            "standard_skew": 19105702.9,
+            "lattice_score": 574483500.0,
+            "lattice_skew": 17710787.2,
+            "lattice_validation": {
+              "2": {
+                "score": 575906500.0,
+                "per_q": [
+                  119.4652,
+                  107.1519,
+                  99.2475,
+                  92.7789,
+                  88.551,
+                  84.7082,
+                  82.2846
+                ]
+              },
+              "3": {
+                "score": 575879200.0,
+                "per_q": [
+                  119.5033,
+                  106.7379,
+                  98.8647,
+                  93.1043,
+                  88.6174,
+                  84.8135,
+                  82.8393
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "dense_breadth",
+            "index": 1,
+            "label": "u 9 v -14436997 t 2454772 Ea 42.399423 lognorm 51.278372 alpha_s -6.456785 alpha -6.829961",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961863300115219766256290683386406,
+              "Y1": 4083442735129771568647,
+              "c0": -6681721488452593497809776934608064269716,
+              "c1": -7350776408003020849242201498093771,
+              "c2": 617854222952031837600762676,
+              "c3": 78680415564792617155,
+              "c4": -1215971759856,
+              "c5": -70560
+            },
+            "standard_murphy": 4.665717e-13,
+            "standard_skew": 19105702.9,
+            "lattice_score": 574483500.0,
+            "lattice_skew": 17710787.2,
+            "lattice_validation": {
+              "2": {
+                "score": 575906500.0,
+                "per_q": [
+                  119.4652,
+                  107.1519,
+                  99.2475,
+                  92.7789,
+                  88.551,
+                  84.7082,
+                  82.2846
+                ]
+              },
+              "3": {
+                "score": 575879200.0,
+                "per_q": [
+                  119.5033,
+                  106.7379,
+                  98.8647,
+                  93.1043,
+                  88.6174,
+                  84.8135,
+                  82.8393
+                ]
+              }
+            }
+          }
+        },
+        "classes2520_32": {
+          "standard": {
+            "mode": "classes2520_32",
+            "index": 1,
+            "label": "u 9 v -14436997 t 2454771 Ea 42.399423 lognorm 51.278372 alpha_s -6.456785 alpha -6.829961",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961863300119303208991420454955053,
+              "Y1": 4083442735129771568647,
+              "c0": -6681714137675567640644656077349729719720,
+              "c1": -7350777643711230712054318435081034,
+              "c2": 617853986910777847393057675,
+              "c3": 78680420428678950979,
+              "c4": -1215971407056,
+              "c5": -70560
+            },
+            "standard_murphy": 4.665718e-13,
+            "standard_skew": 19105702.9,
+            "lattice_score": 574483300.0,
+            "lattice_skew": 17710787.2,
+            "lattice_validation": {
+              "2": {
+                "score": 575906500.0,
+                "per_q": [
+                  119.4653,
+                  107.1519,
+                  99.2475,
+                  92.7789,
+                  88.551,
+                  84.7082,
+                  82.2846
+                ]
+              },
+              "3": {
+                "score": 575879200.0,
+                "per_q": [
+                  119.5033,
+                  106.7379,
+                  98.8647,
+                  93.1043,
+                  88.6174,
+                  84.8135,
+                  82.8393
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "classes2520_32",
+            "index": 1,
+            "label": "u 9 v -14436997 t 2454771 Ea 42.399423 lognorm 51.278372 alpha_s -6.456785 alpha -6.829961",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961863300119303208991420454955053,
+              "Y1": 4083442735129771568647,
+              "c0": -6681714137675567640644656077349729719720,
+              "c1": -7350777643711230712054318435081034,
+              "c2": 617853986910777847393057675,
+              "c3": 78680420428678950979,
+              "c4": -1215971407056,
+              "c5": -70560
+            },
+            "standard_murphy": 4.665718e-13,
+            "standard_skew": 19105702.9,
+            "lattice_score": 574483300.0,
+            "lattice_skew": 17710787.2,
+            "lattice_validation": {
+              "2": {
+                "score": 575906500.0,
+                "per_q": [
+                  119.4653,
+                  107.1519,
+                  99.2475,
+                  92.7789,
+                  88.551,
+                  84.7082,
+                  82.2846
+                ]
+              },
+              "3": {
+                "score": 575879200.0,
+                "per_q": [
+                  119.5033,
+                  106.7379,
+                  98.8647,
+                  93.1043,
+                  88.6174,
+                  84.8135,
+                  82.8393
+                ]
+              }
+            }
+          }
+        },
+        "size2520_16": {
+          "standard": {
+            "mode": "size2520_16",
+            "index": 1,
+            "label": "u 9 v -14436997 t 2454771 Ea 42.399423 lognorm 51.278372 alpha_s -6.456785 alpha -6.829961",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961863300119303208991420454955053,
+              "Y1": 4083442735129771568647,
+              "c0": -6681714137675567640644656077349729719720,
+              "c1": -7350777643711230712054318435081034,
+              "c2": 617853986910777847393057675,
+              "c3": 78680420428678950979,
+              "c4": -1215971407056,
+              "c5": -70560
+            },
+            "standard_murphy": 4.665718e-13,
+            "standard_skew": 19105702.9,
+            "lattice_score": 574483300.0,
+            "lattice_skew": 17710787.2,
+            "lattice_validation": {
+              "2": {
+                "score": 575906500.0,
+                "per_q": [
+                  119.4653,
+                  107.1519,
+                  99.2475,
+                  92.7789,
+                  88.551,
+                  84.7082,
+                  82.2846
+                ]
+              },
+              "3": {
+                "score": 575879200.0,
+                "per_q": [
+                  119.5033,
+                  106.7379,
+                  98.8647,
+                  93.1043,
+                  88.6174,
+                  84.8135,
+                  82.8393
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_16",
+            "index": 1,
+            "label": "u 9 v -14436997 t 2454771 Ea 42.399423 lognorm 51.278372 alpha_s -6.456785 alpha -6.829961",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961863300119303208991420454955053,
+              "Y1": 4083442735129771568647,
+              "c0": -6681714137675567640644656077349729719720,
+              "c1": -7350777643711230712054318435081034,
+              "c2": 617853986910777847393057675,
+              "c3": 78680420428678950979,
+              "c4": -1215971407056,
+              "c5": -70560
+            },
+            "standard_murphy": 4.665718e-13,
+            "standard_skew": 19105702.9,
+            "lattice_score": 574483300.0,
+            "lattice_skew": 17710787.2,
+            "lattice_validation": {
+              "2": {
+                "score": 575906500.0,
+                "per_q": [
+                  119.4653,
+                  107.1519,
+                  99.2475,
+                  92.7789,
+                  88.551,
+                  84.7082,
+                  82.2846
+                ]
+              },
+              "3": {
+                "score": 575879200.0,
+                "per_q": [
+                  119.5033,
+                  106.7379,
+                  98.8647,
+                  93.1043,
+                  88.6174,
+                  84.8135,
+                  82.8393
+                ]
+              }
+            }
+          }
+        },
+        "size2520_32": {
+          "standard": {
+            "mode": "size2520_32",
+            "index": 1,
+            "label": "u 9 v -14436997 t 2454771 Ea 42.399423 lognorm 51.278372 alpha_s -6.456785 alpha -6.829961",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961863300119303208991420454955053,
+              "Y1": 4083442735129771568647,
+              "c0": -6681714137675567640644656077349729719720,
+              "c1": -7350777643711230712054318435081034,
+              "c2": 617853986910777847393057675,
+              "c3": 78680420428678950979,
+              "c4": -1215971407056,
+              "c5": -70560
+            },
+            "standard_murphy": 4.665718e-13,
+            "standard_skew": 19105702.9,
+            "lattice_score": 574483300.0,
+            "lattice_skew": 17710787.2,
+            "lattice_validation": {
+              "2": {
+                "score": 575906500.0,
+                "per_q": [
+                  119.4653,
+                  107.1519,
+                  99.2475,
+                  92.7789,
+                  88.551,
+                  84.7082,
+                  82.2846
+                ]
+              },
+              "3": {
+                "score": 575879200.0,
+                "per_q": [
+                  119.5033,
+                  106.7379,
+                  98.8647,
+                  93.1043,
+                  88.6174,
+                  84.8135,
+                  82.8393
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_32",
+            "index": 1,
+            "label": "u 9 v -14436997 t 2454771 Ea 42.399423 lognorm 51.278372 alpha_s -6.456785 alpha -6.829961",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961863300119303208991420454955053,
+              "Y1": 4083442735129771568647,
+              "c0": -6681714137675567640644656077349729719720,
+              "c1": -7350777643711230712054318435081034,
+              "c2": 617853986910777847393057675,
+              "c3": 78680420428678950979,
+              "c4": -1215971407056,
+              "c5": -70560
+            },
+            "standard_murphy": 4.665718e-13,
+            "standard_skew": 19105702.9,
+            "lattice_score": 574483300.0,
+            "lattice_skew": 17710787.2,
+            "lattice_validation": {
+              "2": {
+                "score": 575906500.0,
+                "per_q": [
+                  119.4653,
+                  107.1519,
+                  99.2475,
+                  92.7789,
+                  88.551,
+                  84.7082,
+                  82.2846
+                ]
+              },
+              "3": {
+                "score": 575879200.0,
+                "per_q": [
+                  119.5033,
+                  106.7379,
+                  98.8647,
+                  93.1043,
+                  88.6174,
+                  84.8135,
+                  82.8393
+                ]
+              }
+            }
+          }
+        }
+      },
+      "screen_seconds": 106.77696704198024,
+      "validation_seconds": 5.298473506001756,
+      "note": "Independently score all 200 exports per pilot mode, then validate leaders.\n\nStandard MurphyE uses 16k search/64k evaluation angles, then 256k at fixed skew.\nThe provisional job lattice uses stream 0 for screening and streams 2/3 for\nvalidation. These model comparisons are not measured relation yields.\n",
+      "caveat": "Equal 4096-candidate refinement and 200-export scoring quotas. Timing/quality pilot, not an equal-elapsed-time or holdout study. Lattice skew is optimized for job-bounds MurphyE, not directly for lattice yield."
+    },
+    {
+      "case": "c170_s0010",
+      "provenance": {
+        "scores/cado_murphy": "3db4195375d134592178b9df4db0d26d48574262fb0e5187d4ba0dde57c1d7c1",
+        "scores/c170_s0010_scoring.json": "3d19a17073f05662716af1bae6c5c02205a2394301a2718de203c2422f8abb84",
+        "pilot/c170_s0010_dense_breadth_r0.poly": "1f3bb32def91ebaf0cf1857c348a1e794c917e7f1a59624cb871e0375b8e36ce",
+        "pilot/c170_s0010_classes2520_32_r0.poly": "1697a2036f43950601ea275cab80904988419bc366c0487d7300ea41ef8de234",
+        "pilot/c170_s0010_size2520_16_r0.poly": "676ae67372ca3a47612ac9e349ebe1a43941dab0b20100a35d5935e65b910c0c",
+        "pilot/c170_s0010_size2520_32_r0.poly": "955b6472645d7cda0606bb165c3fa8b45aeaf08f17536b07d53d114f409413dd",
+        "script_sha256": "2099db6bd45d47dd904884d46f0183984c77d2b71cabdc49e4fb070d2b3abf82",
+        "score_polys.py": "7d34c44bf0e45ffaa3ba5a61279d52d688eca9dc7fb2a617763981260edc2156",
+        "polyfmt.py": "4ae7b1d0ffab0b8fa87b6bc617223bb5495f871676e66584583f2f5263548721",
+        "rescore.py": "b8a03fbb286cd3efd576edbc1f30ecf9292fb4a6429fa3fdf8d20f893abb3f80"
+      },
+      "settings": {
+        "params": "job:31,32,14,40000000",
+        "lattice": "14,8192",
+        "qband": "40000000,150000000,7",
+        "lpbr": 31,
+        "lpba": 32,
+        "rlim": 80000000,
+        "alim": 120000000,
+        "profile_id": "c171_testsieve_20261016",
+        "profile_snapshot": {
+          "id": "c171_testsieve_20261016",
+          "digits": 171,
+          "degree": 5,
+          "recorded": "2026-10-16",
+          "evidence": "user_reported_test_sieve",
+          "lpbr": 31,
+          "lpba": 32,
+          "rlim": 80000000,
+          "alim": 120000000,
+          "side": "algebraic",
+          "region": {
+            "label": "gnfs-lasieve4I14e",
+            "logI": 14,
+            "J": 8192,
+            "points": 134217728
+          },
+          "q": {
+            "min": 40000000,
+            "max": 150000000,
+            "model_samples": 7
+          },
+          "source": {
+            "path": "stage23_bench/data/c171/gpu_ropt/testsieve_user_20261016.json",
+            "sha256": "047c50ae6697e274c4a4299e96342e8a69df3ca929cd06d6ee2d0505e573693f"
+          },
+          "notes": "Six user-reported test windows over this range; final production q endpoint was provisional. Supersedes the earlier C168-derived 30/31, 25M-100M model for C171.",
+          "mfbr": 60,
+          "mfba": 92,
+          "rlambda": 2.35,
+          "alambda": 3.5,
+          "lss": 0
+        },
+        "catalog_sha256": "5516b3ef07a321b666869b483b9fdb8134280782c6530f1cf0e30b64d0e131b4",
+        "provisional": true,
+        "source": "Inherited historical profile; not confirmed for this input.",
+        "note": "Model comparison only; no new test sieving."
+      },
+      "unique_screened": 662,
+      "winners": {
+        "dense_breadth": {
+          "standard": {
+            "mode": "dense_breadth",
+            "index": 0,
+            "label": "u 10 v -59175975 t 1280207 Ea 42.334091 lognorm 53.045978 alpha_s -8.025299 alpha -8.239913",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961873328786371721723188350374655,
+              "Y1": 456378376496924639089,
+              "c0": 46075089345630313658140813091708802141780,
+              "c1": -11252448091568463819130291197498976,
+              "c2": -1034938232584407853959038001,
+              "c3": 33015509025030618022,
+              "c4": 23430190696440,
+              "c5": 529200
+            },
+            "standard_murphy": 4.304362e-13,
+            "standard_skew": 12797644.9,
+            "lattice_score": 538385800.0,
+            "lattice_skew": 12321610.5,
+            "lattice_validation": {
+              "2": {
+                "score": 540680600.0,
+                "per_q": [
+                  111.4754,
+                  100.8938,
+                  93.0401,
+                  86.9436,
+                  83.0396,
+                  79.7399,
+                  77.7395
+                ]
+              },
+              "3": {
+                "score": 540468200.0,
+                "per_q": [
+                  111.6128,
+                  100.381,
+                  92.386,
+                  87.1511,
+                  83.4037,
+                  79.7958,
+                  78.3142
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "dense_breadth",
+            "index": 0,
+            "label": "u 10 v -59175975 t 1280207 Ea 42.334091 lognorm 53.045978 alpha_s -8.025299 alpha -8.239913",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961873328786371721723188350374655,
+              "Y1": 456378376496924639089,
+              "c0": 46075089345630313658140813091708802141780,
+              "c1": -11252448091568463819130291197498976,
+              "c2": -1034938232584407853959038001,
+              "c3": 33015509025030618022,
+              "c4": 23430190696440,
+              "c5": 529200
+            },
+            "standard_murphy": 4.304362e-13,
+            "standard_skew": 12797644.9,
+            "lattice_score": 538385800.0,
+            "lattice_skew": 12321610.5,
+            "lattice_validation": {
+              "2": {
+                "score": 540680600.0,
+                "per_q": [
+                  111.4754,
+                  100.8938,
+                  93.0401,
+                  86.9436,
+                  83.0396,
+                  79.7399,
+                  77.7395
+                ]
+              },
+              "3": {
+                "score": 540468200.0,
+                "per_q": [
+                  111.6128,
+                  100.381,
+                  92.386,
+                  87.1511,
+                  83.4037,
+                  79.7958,
+                  78.3142
+                ]
+              }
+            }
+          }
+        },
+        "classes2520_32": {
+          "standard": {
+            "mode": "classes2520_32",
+            "index": 0,
+            "label": "u -32 v -92960061 t -4298687 Ea 42.996166 lognorm 53.068527 alpha_s -7.425888 alpha -7.747970",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961875874872958090157075816162221,
+              "Y1": 456378376496924639089,
+              "c0": -50421529552308676109452349076495538414848,
+              "c1": 30066486515637747236934396993822182,
+              "c2": 1869036892535072885949588297,
+              "c3": -325134175826824219418,
+              "c4": 8668437172440,
+              "c5": 529200
+            },
+            "standard_murphy": 3.66506e-13,
+            "standard_skew": 14495105.5,
+            "lattice_score": 495261800.0,
+            "lattice_skew": 14852667.8,
+            "lattice_validation": {
+              "2": {
+                "score": 497028600.0,
+                "per_q": [
+                  103.0945,
+                  92.7011,
+                  85.5264,
+                  80.008,
+                  76.3077,
+                  73.1236,
+                  71.1439
+                ]
+              },
+              "3": {
+                "score": 497130000.0,
+                "per_q": [
+                  103.129,
+                  92.3129,
+                  85.1607,
+                  80.4062,
+                  76.4057,
+                  73.2217,
+                  71.6784
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "classes2520_32",
+            "index": 0,
+            "label": "u -32 v -92960061 t -4298687 Ea 42.996166 lognorm 53.068527 alpha_s -7.425888 alpha -7.747970",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961875874872958090157075816162221,
+              "Y1": 456378376496924639089,
+              "c0": -50421529552308676109452349076495538414848,
+              "c1": 30066486515637747236934396993822182,
+              "c2": 1869036892535072885949588297,
+              "c3": -325134175826824219418,
+              "c4": 8668437172440,
+              "c5": 529200
+            },
+            "standard_murphy": 3.66506e-13,
+            "standard_skew": 14495105.5,
+            "lattice_score": 495261800.0,
+            "lattice_skew": 14852667.8,
+            "lattice_validation": {
+              "2": {
+                "score": 497028600.0,
+                "per_q": [
+                  103.0945,
+                  92.7011,
+                  85.5264,
+                  80.008,
+                  76.3077,
+                  73.1236,
+                  71.1439
+                ]
+              },
+              "3": {
+                "score": 497130000.0,
+                "per_q": [
+                  103.129,
+                  92.3129,
+                  85.1607,
+                  80.4062,
+                  76.4057,
+                  73.2217,
+                  71.6784
+                ]
+              }
+            }
+          }
+        },
+        "size2520_16": {
+          "standard": {
+            "mode": "size2520_16",
+            "index": 0,
+            "label": "u 2 v -2755011 t -423893 Ea 42.382936 lognorm 51.819316 alpha_s -7.193996 alpha -7.258754",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961874106500763110132465821939555,
+              "Y1": 456378376496924639089,
+              "c0": 4739851690492914006537722545464375201440,
+              "c1": -184000636465703324006028325224724,
+              "c2": -821673664182112305331621313,
+              "c3": -111326303399662997978,
+              "c4": 18921142096440,
+              "c5": 529200
+            },
+            "standard_murphy": 4.108441e-13,
+            "standard_skew": 8142448.4,
+            "lattice_score": 519510500.0,
+            "lattice_skew": 7967972.6,
+            "lattice_validation": {
+              "2": {
+                "score": 521403100.0,
+                "per_q": [
+                  106.8795,
+                  96.5832,
+                  89.8463,
+                  83.8322,
+                  80.4392,
+                  77.3647,
+                  75.2315
+                ]
+              },
+              "3": {
+                "score": 521626900.0,
+                "per_q": [
+                  106.8879,
+                  96.4396,
+                  88.8477,
+                  84.3345,
+                  80.5844,
+                  77.6397,
+                  76.1772
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_16",
+            "index": 0,
+            "label": "u 2 v -2755011 t -423893 Ea 42.382936 lognorm 51.819316 alpha_s -7.193996 alpha -7.258754",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961874106500763110132465821939555,
+              "Y1": 456378376496924639089,
+              "c0": 4739851690492914006537722545464375201440,
+              "c1": -184000636465703324006028325224724,
+              "c2": -821673664182112305331621313,
+              "c3": -111326303399662997978,
+              "c4": 18921142096440,
+              "c5": 529200
+            },
+            "standard_murphy": 4.108441e-13,
+            "standard_skew": 8142448.4,
+            "lattice_score": 519510500.0,
+            "lattice_skew": 7967972.6,
+            "lattice_validation": {
+              "2": {
+                "score": 521403100.0,
+                "per_q": [
+                  106.8795,
+                  96.5832,
+                  89.8463,
+                  83.8322,
+                  80.4392,
+                  77.3647,
+                  75.2315
+                ]
+              },
+              "3": {
+                "score": 521626900.0,
+                "per_q": [
+                  106.8879,
+                  96.4396,
+                  88.8477,
+                  84.3345,
+                  80.5844,
+                  77.6397,
+                  76.1772
+                ]
+              }
+            }
+          }
+        },
+        "size2520_32": {
+          "standard": {
+            "mode": "size2520_32",
+            "index": 0,
+            "label": "u 2 v -2755011 t -423893 Ea 42.382936 lognorm 51.819316 alpha_s -7.193996 alpha -7.258754",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961874106500763110132465821939555,
+              "Y1": 456378376496924639089,
+              "c0": 4739851690492914006537722545464375201440,
+              "c1": -184000636465703324006028325224724,
+              "c2": -821673664182112305331621313,
+              "c3": -111326303399662997978,
+              "c4": 18921142096440,
+              "c5": 529200
+            },
+            "standard_murphy": 4.108441e-13,
+            "standard_skew": 8142448.4,
+            "lattice_score": 519510500.0,
+            "lattice_skew": 7967972.6,
+            "lattice_validation": {
+              "2": {
+                "score": 521403100.0,
+                "per_q": [
+                  106.8795,
+                  96.5832,
+                  89.8463,
+                  83.8322,
+                  80.4392,
+                  77.3647,
+                  75.2315
+                ]
+              },
+              "3": {
+                "score": 521626900.0,
+                "per_q": [
+                  106.8879,
+                  96.4396,
+                  88.8477,
+                  84.3345,
+                  80.5844,
+                  77.6397,
+                  76.1772
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_32",
+            "index": 0,
+            "label": "u 2 v -2755011 t -423893 Ea 42.382936 lognorm 51.819316 alpha_s -7.193996 alpha -7.258754",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961874106500763110132465821939555,
+              "Y1": 456378376496924639089,
+              "c0": 4739851690492914006537722545464375201440,
+              "c1": -184000636465703324006028325224724,
+              "c2": -821673664182112305331621313,
+              "c3": -111326303399662997978,
+              "c4": 18921142096440,
+              "c5": 529200
+            },
+            "standard_murphy": 4.108441e-13,
+            "standard_skew": 8142448.4,
+            "lattice_score": 519510500.0,
+            "lattice_skew": 7967972.6,
+            "lattice_validation": {
+              "2": {
+                "score": 521403100.0,
+                "per_q": [
+                  106.8795,
+                  96.5832,
+                  89.8463,
+                  83.8322,
+                  80.4392,
+                  77.3647,
+                  75.2315
+                ]
+              },
+              "3": {
+                "score": 521626900.0,
+                "per_q": [
+                  106.8879,
+                  96.4396,
+                  88.8477,
+                  84.3345,
+                  80.5844,
+                  77.6397,
+                  76.1772
+                ]
+              }
+            }
+          }
+        }
+      },
+      "screen_seconds": 128.013818729989,
+      "validation_seconds": 6.395292621979024,
+      "note": "Independently score all 200 exports per pilot mode, then validate leaders.\n\nStandard MurphyE uses 16k search/64k evaluation angles, then 256k at fixed skew.\nThe provisional job lattice uses stream 0 for screening and streams 2/3 for\nvalidation. These model comparisons are not measured relation yields.\n",
+      "caveat": "Equal 4096-candidate refinement and 200-export scoring quotas. Timing/quality pilot, not an equal-elapsed-time or holdout study. Lattice skew is optimized for job-bounds MurphyE, not directly for lattice yield."
+    },
+    {
+      "case": "c184_s0001",
+      "provenance": {
+        "scores/cado_murphy": "3db4195375d134592178b9df4db0d26d48574262fb0e5187d4ba0dde57c1d7c1",
+        "scores/c184_s0001_scoring.json": "d3b3009daf489a515180130e6dbf819f8af75a04cc708b5a47e67b9678c2f95a",
+        "pilot/c184_s0001_dense_breadth_r0.poly": "8d607718d1e733ff15cc4d17532ee62f8c95612b5768da44a1c073a75a8ea440",
+        "pilot/c184_s0001_classes2520_32_r0.poly": "96fcfc8b12cc3216a5897af92505b1bd773e07d202176b054f21cda1012e980f",
+        "pilot/c184_s0001_size2520_16_r0.poly": "0f5188087add5127a8fed49ee985f45c677e5f35bbb14d218eb227bba6797c40",
+        "pilot/c184_s0001_size2520_32_r0.poly": "f3ad52897a6dc3539ba68a2c3b8ef47bb2e7013a77c61a1394afe6f8fa54a1b8",
+        "script_sha256": "2099db6bd45d47dd904884d46f0183984c77d2b71cabdc49e4fb070d2b3abf82",
+        "score_polys.py": "7d34c44bf0e45ffaa3ba5a61279d52d688eca9dc7fb2a617763981260edc2156",
+        "polyfmt.py": "4ae7b1d0ffab0b8fa87b6bc617223bb5495f871676e66584583f2f5263548721",
+        "rescore.py": "b8a03fbb286cd3efd576edbc1f30ecf9292fb4a6429fa3fdf8d20f893abb3f80"
+      },
+      "settings": {
+        "params": "job:31,32,15,40000000",
+        "lattice": "15,16384",
+        "qband": "40000000,200000000,7",
+        "lpbr": 31,
+        "lpba": 32,
+        "rlim": 120000000,
+        "alim": 180000000,
+        "profile_id": "c184_preferred_20261027",
+        "profile_snapshot": {
+          "id": "c184_preferred_20261027",
+          "digits": 184,
+          "degree": 5,
+          "recorded": "2026-10-27",
+          "evidence": "user_provisional",
+          "lpbr": 31,
+          "lpba": 32,
+          "rlim": 120000000,
+          "alim": 180000000,
+          "side": "algebraic",
+          "region": {
+            "label": "15e",
+            "logI": 15,
+            "J": 16384,
+            "points": 536870912
+          },
+          "q": {
+            "min": 40000000,
+            "max": 200000000,
+            "model_samples": 7,
+            "provisional": true
+          },
+          "source": {
+            "path": "config/sieve_profile_sources/c184_20261027.json",
+            "sha256": "970427fab6a3e461202acbe9e90a5b1c9c572aabb46d767bc71e9edf18cc974a"
+          },
+          "notes": "User prefers 31/32 with estimated q=40M-200M. The 15e region and 120M/180M limits remain provisional inheritances from C181. No test sieve.",
+          "n": "4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727",
+          "preference": "preferred",
+          "inherits": "c181_user_20261017",
+          "inherited_source": {
+            "path": "stage23_bench/runs/20261017_c181/run.py",
+            "sha256": "08686998bee9dbae79ece2a747dfbbaeb36d03096e391b99df7d648707d06729"
+          },
+          "field_provenance": {
+            "user_estimated": [
+              "lpbr",
+              "lpba",
+              "q.min",
+              "q.max"
+            ],
+            "inherited": [
+              "region",
+              "rlim",
+              "alim"
+            ],
+            "unknown": [
+              "mfbr",
+              "mfba",
+              "rlambda",
+              "alambda"
+            ]
+          }
+        },
+        "catalog_sha256": "e3fac3581bd361d307de0e093e641268488c6be15c051656521404524d6d4b30",
+        "provisional": true,
+        "source": "User, 2026-10-27: preferred LPB 31/32 and estimated q=40M-200M; region/limits inherited from C181.",
+        "note": "Model comparison only; no new test sieving."
+      },
+      "unique_screened": 637,
+      "winners": {
+        "dense_breadth": {
+          "standard": {
+            "mode": "dense_breadth",
+            "index": 0,
+            "label": "u -4 v 4349070 t 7025230 Ea 46.842672 lognorm 55.931585 alpha_s -6.599229 alpha -6.991472",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -478686641143434314693901075364160982,
+              "Y1": 69660253543884248677559,
+              "c0": 10341735513321022805403173646291489665691688,
+              "c1": 1585591753227618053945457616174308217,
+              "c2": -31923588827219782427537667430,
+              "c3": -1746591622930472237299,
+              "c4": -74308672468200,
+              "c5": 332640
+            },
+            "standard_murphy": 5.727142e-14,
+            "standard_skew": 41557160.6,
+            "lattice_score": 539542500.0,
+            "lattice_skew": 41557160.6,
+            "lattice_validation": {
+              "2": {
+                "score": 539658100.0,
+                "per_q": [
+                  80.7397,
+                  71.3843,
+                  65.1051,
+                  60.2898,
+                  56.4063,
+                  53.6607,
+                  51.6686
+                ]
+              },
+              "3": {
+                "score": 539077600.0,
+                "per_q": [
+                  80.5552,
+                  71.1679,
+                  65.0548,
+                  60.3303,
+                  56.3778,
+                  53.6079,
+                  51.6829
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "dense_breadth",
+            "index": 1,
+            "label": "u -26 v 198725714 t 17747325 Ea 46.971984 lognorm 56.790245 alpha_s -7.150294 alpha -7.552509",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -478685894239578093080317750952194877,
+              "Y1": 69660253543884248677559,
+              "c0": 114437973203110609198533151053892368203221190,
+              "c1": 10485306492017385566992700352402512532,
+              "c2": -135262836807843846649432667943,
+              "c3": -4551156213438998993299,
+              "c4": -56475684064200,
+              "c5": 332640
+            },
+            "standard_murphy": 5.599661e-14,
+            "standard_skew": 68764291.6,
+            "lattice_score": 540193400.0,
+            "lattice_skew": 72394411.7,
+            "lattice_validation": {
+              "2": {
+                "score": 539861600.0,
+                "per_q": [
+                  78.9068,
+                  70.2915,
+                  64.6572,
+                  60.6031,
+                  57.4385,
+                  54.6524,
+                  52.4734
+                ]
+              },
+              "3": {
+                "score": 539713900.0,
+                "per_q": [
+                  78.7283,
+                  70.3236,
+                  64.6552,
+                  60.715,
+                  57.4046,
+                  54.5694,
+                  52.3987
+                ]
+              }
+            }
+          }
+        },
+        "classes2520_32": {
+          "standard": {
+            "mode": "classes2520_32",
+            "index": 0,
+            "label": "u -146 v 7704019904 t 58414915 Ea 46.938876 lognorm 57.685326 alpha_s -7.708652 alpha -8.266500",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -478683061324947674348685073940582067,
+              "Y1": 69660253543884248677559,
+              "c0": -343619570764654031951006900524241655018074360,
+              "c1": 23700272405697366974709686918304044142,
+              "c2": -1027211983934580920839217933253,
+              "c3": -8236699863324772265299,
+              "c4": 11162651623800,
+              "c5": 332640
+            },
+            "standard_murphy": 5.544972e-14,
+            "standard_skew": 116275245.9,
+            "lattice_score": 536943900.0,
+            "lattice_skew": 111044484.8,
+            "lattice_validation": {
+              "2": {
+                "score": 536763400.0,
+                "per_q": [
+                  75.2116,
+                  69.008,
+                  64.4758,
+                  60.6987,
+                  57.8091,
+                  55.1866,
+                  53.142
+                ]
+              },
+              "3": {
+                "score": 536559300.0,
+                "per_q": [
+                  75.0911,
+                  69.0112,
+                  64.4555,
+                  60.7758,
+                  57.7315,
+                  55.1761,
+                  53.037
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "classes2520_32",
+            "index": 0,
+            "label": "u -146 v 7704019904 t 58414915 Ea 46.938876 lognorm 57.685326 alpha_s -7.708652 alpha -8.266500",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -478683061324947674348685073940582067,
+              "Y1": 69660253543884248677559,
+              "c0": -343619570764654031951006900524241655018074360,
+              "c1": 23700272405697366974709686918304044142,
+              "c2": -1027211983934580920839217933253,
+              "c3": -8236699863324772265299,
+              "c4": 11162651623800,
+              "c5": 332640
+            },
+            "standard_murphy": 5.544972e-14,
+            "standard_skew": 116275245.9,
+            "lattice_score": 536943900.0,
+            "lattice_skew": 111044484.8,
+            "lattice_validation": {
+              "2": {
+                "score": 536763400.0,
+                "per_q": [
+                  75.2116,
+                  69.008,
+                  64.4758,
+                  60.6987,
+                  57.8091,
+                  55.1866,
+                  53.142
+                ]
+              },
+              "3": {
+                "score": 536559300.0,
+                "per_q": [
+                  75.0911,
+                  69.0112,
+                  64.4555,
+                  60.7758,
+                  57.7315,
+                  55.1761,
+                  53.037
+                ]
+              }
+            }
+          }
+        },
+        "size2520_16": {
+          "standard": {
+            "mode": "size2520_16",
+            "index": 0,
+            "label": "u -6 v 11794524 t 8444080 Ea 47.035986 lognorm 56.117980 alpha_s -6.479388 alpha -6.986149",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -478686542305983573953734839209573832,
+              "Y1": 69660253543884248677559,
+              "c0": 17041994059842935611082544119467868880701530,
+              "c1": 2440983974188693048607541915667127727,
+              "c2": -40246241880623604264277080998,
+              "c3": -2161626569319730517299,
+              "c4": -71948841148200,
+              "c5": 332640
+            },
+            "standard_murphy": 5.545678e-14,
+            "standard_skew": 49286442.0,
+            "lattice_score": 531675700.0,
+            "lattice_skew": 49286442.0,
+            "lattice_validation": {
+              "2": {
+                "score": 531821500.0,
+                "per_q": [
+                  79.2806,
+                  69.907,
+                  64.0794,
+                  59.5099,
+                  56.0361,
+                  52.9822,
+                  51.022
+                ]
+              },
+              "3": {
+                "score": 531102800.0,
+                "per_q": [
+                  79.0989,
+                  69.6558,
+                  64.0472,
+                  59.5313,
+                  56.0037,
+                  52.9122,
+                  50.953
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_16",
+            "index": 0,
+            "label": "u -6 v 11794524 t 8444080 Ea 47.035986 lognorm 56.117980 alpha_s -6.479388 alpha -6.986149",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -478686542305983573953734839209573832,
+              "Y1": 69660253543884248677559,
+              "c0": 17041994059842935611082544119467868880701530,
+              "c1": 2440983974188693048607541915667127727,
+              "c2": -40246241880623604264277080998,
+              "c3": -2161626569319730517299,
+              "c4": -71948841148200,
+              "c5": 332640
+            },
+            "standard_murphy": 5.545678e-14,
+            "standard_skew": 49286442.0,
+            "lattice_score": 531675700.0,
+            "lattice_skew": 49286442.0,
+            "lattice_validation": {
+              "2": {
+                "score": 531821500.0,
+                "per_q": [
+                  79.2806,
+                  69.907,
+                  64.0794,
+                  59.5099,
+                  56.0361,
+                  52.9822,
+                  51.022
+                ]
+              },
+              "3": {
+                "score": 531102800.0,
+                "per_q": [
+                  79.0989,
+                  69.6558,
+                  64.0472,
+                  59.5313,
+                  56.0037,
+                  52.9122,
+                  50.953
+                ]
+              }
+            }
+          }
+        },
+        "size2520_32": {
+          "standard": {
+            "mode": "size2520_32",
+            "index": 0,
+            "label": "u -6 v 11794524 t 8444080 Ea 47.035986 lognorm 56.117980 alpha_s -6.479388 alpha -6.986149",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -478686542305983573953734839209573832,
+              "Y1": 69660253543884248677559,
+              "c0": 17041994059842935611082544119467868880701530,
+              "c1": 2440983974188693048607541915667127727,
+              "c2": -40246241880623604264277080998,
+              "c3": -2161626569319730517299,
+              "c4": -71948841148200,
+              "c5": 332640
+            },
+            "standard_murphy": 5.545678e-14,
+            "standard_skew": 49286442.0,
+            "lattice_score": 531675700.0,
+            "lattice_skew": 49286442.0,
+            "lattice_validation": {
+              "2": {
+                "score": 531821500.0,
+                "per_q": [
+                  79.2806,
+                  69.907,
+                  64.0794,
+                  59.5099,
+                  56.0361,
+                  52.9822,
+                  51.022
+                ]
+              },
+              "3": {
+                "score": 531102800.0,
+                "per_q": [
+                  79.0989,
+                  69.6558,
+                  64.0472,
+                  59.5313,
+                  56.0037,
+                  52.9122,
+                  50.953
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_32",
+            "index": 0,
+            "label": "u -6 v 11794524 t 8444080 Ea 47.035986 lognorm 56.117980 alpha_s -6.479388 alpha -6.986149",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -478686542305983573953734839209573832,
+              "Y1": 69660253543884248677559,
+              "c0": 17041994059842935611082544119467868880701530,
+              "c1": 2440983974188693048607541915667127727,
+              "c2": -40246241880623604264277080998,
+              "c3": -2161626569319730517299,
+              "c4": -71948841148200,
+              "c5": 332640
+            },
+            "standard_murphy": 5.545678e-14,
+            "standard_skew": 49286442.0,
+            "lattice_score": 531675700.0,
+            "lattice_skew": 49286442.0,
+            "lattice_validation": {
+              "2": {
+                "score": 531821500.0,
+                "per_q": [
+                  79.2806,
+                  69.907,
+                  64.0794,
+                  59.5099,
+                  56.0361,
+                  52.9822,
+                  51.022
+                ]
+              },
+              "3": {
+                "score": 531102800.0,
+                "per_q": [
+                  79.0989,
+                  69.6558,
+                  64.0472,
+                  59.5313,
+                  56.0037,
+                  52.9122,
+                  50.953
+                ]
+              }
+            }
+          }
+        }
+      },
+      "screen_seconds": 116.74641348799923,
+      "validation_seconds": 5.143613396008732,
+      "note": "Independently score all 200 exports per pilot mode, then validate leaders.\n\nStandard MurphyE uses 16k search/64k evaluation angles, then 256k at fixed skew.\nThe provisional job lattice uses stream 0 for screening and streams 2/3 for\nvalidation. These model comparisons are not measured relation yields.\n",
+      "caveat": "Equal 4096-candidate refinement and 200-export scoring quotas. Timing/quality pilot, not an equal-elapsed-time or holdout study. Lattice skew is optimized for job-bounds MurphyE, not directly for lattice yield."
+    },
+    {
+      "case": "c184_s0003",
+      "provenance": {
+        "scores/cado_murphy": "3db4195375d134592178b9df4db0d26d48574262fb0e5187d4ba0dde57c1d7c1",
+        "scores/c184_s0003_scoring.json": "d3b3009daf489a515180130e6dbf819f8af75a04cc708b5a47e67b9678c2f95a",
+        "pilot/c184_s0003_dense_breadth_r0.poly": "5b51ce7c06bc1cdfaa6ccfc5bb53339bb1d2ed5be3689750ebafb3de18a37a4f",
+        "pilot/c184_s0003_classes2520_32_r0.poly": "2941abeedeb6524a9ab2e33a5187d276689463de0d3c73904dc63100ec8cde96",
+        "pilot/c184_s0003_size2520_16_r0.poly": "c9aa093e783153b0d44db78d1b632adce17b5774f2adcdb2efba6a7cb2332a1c",
+        "pilot/c184_s0003_size2520_32_r0.poly": "40586d1b20f0994d30749875b89501100a57dacaee5fa869bc4e69897669bbf6",
+        "script_sha256": "2099db6bd45d47dd904884d46f0183984c77d2b71cabdc49e4fb070d2b3abf82",
+        "score_polys.py": "7d34c44bf0e45ffaa3ba5a61279d52d688eca9dc7fb2a617763981260edc2156",
+        "polyfmt.py": "4ae7b1d0ffab0b8fa87b6bc617223bb5495f871676e66584583f2f5263548721",
+        "rescore.py": "b8a03fbb286cd3efd576edbc1f30ecf9292fb4a6429fa3fdf8d20f893abb3f80"
+      },
+      "settings": {
+        "params": "job:31,32,15,40000000",
+        "lattice": "15,16384",
+        "qband": "40000000,200000000,7",
+        "lpbr": 31,
+        "lpba": 32,
+        "rlim": 120000000,
+        "alim": 180000000,
+        "profile_id": "c184_preferred_20261027",
+        "profile_snapshot": {
+          "id": "c184_preferred_20261027",
+          "digits": 184,
+          "degree": 5,
+          "recorded": "2026-10-27",
+          "evidence": "user_provisional",
+          "lpbr": 31,
+          "lpba": 32,
+          "rlim": 120000000,
+          "alim": 180000000,
+          "side": "algebraic",
+          "region": {
+            "label": "15e",
+            "logI": 15,
+            "J": 16384,
+            "points": 536870912
+          },
+          "q": {
+            "min": 40000000,
+            "max": 200000000,
+            "model_samples": 7,
+            "provisional": true
+          },
+          "source": {
+            "path": "config/sieve_profile_sources/c184_20261027.json",
+            "sha256": "970427fab6a3e461202acbe9e90a5b1c9c572aabb46d767bc71e9edf18cc974a"
+          },
+          "notes": "User prefers 31/32 with estimated q=40M-200M. The 15e region and 120M/180M limits remain provisional inheritances from C181. No test sieve.",
+          "n": "4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727",
+          "preference": "preferred",
+          "inherits": "c181_user_20261017",
+          "inherited_source": {
+            "path": "stage23_bench/runs/20261017_c181/run.py",
+            "sha256": "08686998bee9dbae79ece2a747dfbbaeb36d03096e391b99df7d648707d06729"
+          },
+          "field_provenance": {
+            "user_estimated": [
+              "lpbr",
+              "lpba",
+              "q.min",
+              "q.max"
+            ],
+            "inherited": [
+              "region",
+              "rlim",
+              "alim"
+            ],
+            "unknown": [
+              "mfbr",
+              "mfba",
+              "rlambda",
+              "alambda"
+            ]
+          }
+        },
+        "catalog_sha256": "e3fac3581bd361d307de0e093e641268488c6be15c051656521404524d6d4b30",
+        "provisional": true,
+        "source": "User, 2026-10-27: preferred LPB 31/32 and estimated q=40M-200M; region/limits inherited from C181.",
+        "note": "Model comparison only; no new test sieving."
+      },
+      "unique_screened": 615,
+      "winners": {
+        "dense_breadth": {
+          "standard": {
+            "mode": "dense_breadth",
+            "index": 0,
+            "label": "u -1 v 330448 t 1647450 Ea 46.138128 lognorm 55.496808 alpha_s -7.132766 alpha -7.198985",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -596311517553215478971477252492981340,
+              "Y1": 19637945493809141548837,
+              "c0": 806393979749019611595477468251019153530514,
+              "c1": 577530332041684612612111330163431361,
+              "c2": -27014776880463532001552868228,
+              "c3": -4984658586487959160973,
+              "c4": 53817482952966,
+              "c5": -332640
+            },
+            "standard_murphy": 6.174019e-14,
+            "standard_skew": 26155753.6,
+            "lattice_score": 551878800.0,
+            "lattice_skew": 24377764.5,
+            "lattice_validation": {
+              "2": {
+                "score": 552424200.0,
+                "per_q": [
+                  84.6796,
+                  73.853,
+                  65.9342,
+                  60.9231,
+                  57.5735,
+                  54.8046,
+                  52.7225
+                ]
+              },
+              "3": {
+                "score": 552063500.0,
+                "per_q": [
+                  84.6744,
+                  73.5235,
+                  65.9486,
+                  61.0179,
+                  57.534,
+                  54.668,
+                  53.0409
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "dense_breadth",
+            "index": 0,
+            "label": "u -1 v 330448 t 1647450 Ea 46.138128 lognorm 55.496808 alpha_s -7.132766 alpha -7.198985",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -596311517553215478971477252492981340,
+              "Y1": 19637945493809141548837,
+              "c0": 806393979749019611595477468251019153530514,
+              "c1": 577530332041684612612111330163431361,
+              "c2": -27014776880463532001552868228,
+              "c3": -4984658586487959160973,
+              "c4": 53817482952966,
+              "c5": -332640
+            },
+            "standard_murphy": 6.174019e-14,
+            "standard_skew": 26155753.6,
+            "lattice_score": 551878800.0,
+            "lattice_skew": 24377764.5,
+            "lattice_validation": {
+              "2": {
+                "score": 552424200.0,
+                "per_q": [
+                  84.6796,
+                  73.853,
+                  65.9342,
+                  60.9231,
+                  57.5735,
+                  54.8046,
+                  52.7225
+                ]
+              },
+              "3": {
+                "score": 552063500.0,
+                "per_q": [
+                  84.6744,
+                  73.5235,
+                  65.9486,
+                  61.0179,
+                  57.534,
+                  54.668,
+                  53.0409
+                ]
+              }
+            }
+          }
+        },
+        "classes2520_32": {
+          "standard": {
+            "mode": "classes2520_32",
+            "index": 0,
+            "label": "u -13 v 45726988 t 14944861 Ea 46.606881 lognorm 56.359726 alpha_s -7.156996 alpha -7.502189",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -596311256419383052193366520430820333,
+              "Y1": 19637945493809141548837,
+              "c0": 73404367708296424285593634430206579112414136,
+              "c1": 4824785731417628302978447964296394222,
+              "c2": -176589004842499151490497513265,
+              "c3": -2710303665020865291269,
+              "c4": 31701228977766,
+              "c5": -332640
+            },
+            "standard_murphy": 5.732978e-14,
+            "standard_skew": 57980422.1,
+            "lattice_score": 545461600.0,
+            "lattice_skew": 55073072.0,
+            "lattice_validation": {
+              "2": {
+                "score": 545282500.0,
+                "per_q": [
+                  81.4266,
+                  71.5193,
+                  65.5495,
+                  61.0499,
+                  57.6312,
+                  54.3588,
+                  52.3107
+                ]
+              },
+              "3": {
+                "score": 545057500.0,
+                "per_q": [
+                  81.2701,
+                  71.5037,
+                  65.5154,
+                  61.1761,
+                  57.5529,
+                  54.296,
+                  52.2893
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "classes2520_32",
+            "index": 0,
+            "label": "u -13 v 45726988 t 14944861 Ea 46.606881 lognorm 56.359726 alpha_s -7.156996 alpha -7.502189",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -596311256419383052193366520430820333,
+              "Y1": 19637945493809141548837,
+              "c0": 73404367708296424285593634430206579112414136,
+              "c1": 4824785731417628302978447964296394222,
+              "c2": -176589004842499151490497513265,
+              "c3": -2710303665020865291269,
+              "c4": 31701228977766,
+              "c5": -332640
+            },
+            "standard_murphy": 5.732978e-14,
+            "standard_skew": 57980422.1,
+            "lattice_score": 545461600.0,
+            "lattice_skew": 55073072.0,
+            "lattice_validation": {
+              "2": {
+                "score": 545282500.0,
+                "per_q": [
+                  81.4266,
+                  71.5193,
+                  65.5495,
+                  61.0499,
+                  57.6312,
+                  54.3588,
+                  52.3107
+                ]
+              },
+              "3": {
+                "score": 545057500.0,
+                "per_q": [
+                  81.2701,
+                  71.5037,
+                  65.5154,
+                  61.1761,
+                  57.5529,
+                  54.296,
+                  52.2893
+                ]
+              }
+            }
+          }
+        },
+        "size2520_16": {
+          "standard": {
+            "mode": "size2520_16",
+            "index": 0,
+            "label": "u -1 v 330448 t 1647450 Ea 46.138128 lognorm 55.496808 alpha_s -7.132766 alpha -7.198985",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -596311517553215478971477252492981340,
+              "Y1": 19637945493809141548837,
+              "c0": 806393979749019611595477468251019153530514,
+              "c1": 577530332041684612612111330163431361,
+              "c2": -27014776880463532001552868228,
+              "c3": -4984658586487959160973,
+              "c4": 53817482952966,
+              "c5": -332640
+            },
+            "standard_murphy": 6.174019e-14,
+            "standard_skew": 26155753.6,
+            "lattice_score": 551878800.0,
+            "lattice_skew": 24377764.5,
+            "lattice_validation": {
+              "2": {
+                "score": 552424200.0,
+                "per_q": [
+                  84.6796,
+                  73.853,
+                  65.9342,
+                  60.9231,
+                  57.5735,
+                  54.8046,
+                  52.7225
+                ]
+              },
+              "3": {
+                "score": 552063500.0,
+                "per_q": [
+                  84.6744,
+                  73.5235,
+                  65.9486,
+                  61.0179,
+                  57.534,
+                  54.668,
+                  53.0409
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_16",
+            "index": 0,
+            "label": "u -1 v 330448 t 1647450 Ea 46.138128 lognorm 55.496808 alpha_s -7.132766 alpha -7.198985",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -596311517553215478971477252492981340,
+              "Y1": 19637945493809141548837,
+              "c0": 806393979749019611595477468251019153530514,
+              "c1": 577530332041684612612111330163431361,
+              "c2": -27014776880463532001552868228,
+              "c3": -4984658586487959160973,
+              "c4": 53817482952966,
+              "c5": -332640
+            },
+            "standard_murphy": 6.174019e-14,
+            "standard_skew": 26155753.6,
+            "lattice_score": 551878800.0,
+            "lattice_skew": 24377764.5,
+            "lattice_validation": {
+              "2": {
+                "score": 552424200.0,
+                "per_q": [
+                  84.6796,
+                  73.853,
+                  65.9342,
+                  60.9231,
+                  57.5735,
+                  54.8046,
+                  52.7225
+                ]
+              },
+              "3": {
+                "score": 552063500.0,
+                "per_q": [
+                  84.6744,
+                  73.5235,
+                  65.9486,
+                  61.0179,
+                  57.534,
+                  54.668,
+                  53.0409
+                ]
+              }
+            }
+          }
+        },
+        "size2520_32": {
+          "standard": {
+            "mode": "size2520_32",
+            "index": 0,
+            "label": "u -1 v 330448 t 1647450 Ea 46.138128 lognorm 55.496808 alpha_s -7.132766 alpha -7.198985",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -596311517553215478971477252492981340,
+              "Y1": 19637945493809141548837,
+              "c0": 806393979749019611595477468251019153530514,
+              "c1": 577530332041684612612111330163431361,
+              "c2": -27014776880463532001552868228,
+              "c3": -4984658586487959160973,
+              "c4": 53817482952966,
+              "c5": -332640
+            },
+            "standard_murphy": 6.174019e-14,
+            "standard_skew": 26155753.6,
+            "lattice_score": 551878800.0,
+            "lattice_skew": 24377764.5,
+            "lattice_validation": {
+              "2": {
+                "score": 552424200.0,
+                "per_q": [
+                  84.6796,
+                  73.853,
+                  65.9342,
+                  60.9231,
+                  57.5735,
+                  54.8046,
+                  52.7225
+                ]
+              },
+              "3": {
+                "score": 552063500.0,
+                "per_q": [
+                  84.6744,
+                  73.5235,
+                  65.9486,
+                  61.0179,
+                  57.534,
+                  54.668,
+                  53.0409
+                ]
+              }
+            }
+          },
+          "lattice": {
+            "mode": "size2520_32",
+            "index": 0,
+            "label": "u -1 v 330448 t 1647450 Ea 46.138128 lognorm 55.496808 alpha_s -7.132766 alpha -7.198985",
+            "poly": {
+              "n": 4180102161340183824495039134389019513025016353316465736364440341862970843704868335190688577773144380902297719394702397705751536574091728794368867645729373219404335832887650689562738727,
+              "Y0": -596311517553215478971477252492981340,
+              "Y1": 19637945493809141548837,
+              "c0": 806393979749019611595477468251019153530514,
+              "c1": 577530332041684612612111330163431361,
+              "c2": -27014776880463532001552868228,
+              "c3": -4984658586487959160973,
+              "c4": 53817482952966,
+              "c5": -332640
+            },
+            "standard_murphy": 6.174019e-14,
+            "standard_skew": 26155753.6,
+            "lattice_score": 551878800.0,
+            "lattice_skew": 24377764.5,
+            "lattice_validation": {
+              "2": {
+                "score": 552424200.0,
+                "per_q": [
+                  84.6796,
+                  73.853,
+                  65.9342,
+                  60.9231,
+                  57.5735,
+                  54.8046,
+                  52.7225
+                ]
+              },
+              "3": {
+                "score": 552063500.0,
+                "per_q": [
+                  84.6744,
+                  73.5235,
+                  65.9486,
+                  61.0179,
+                  57.534,
+                  54.668,
+                  53.0409
+                ]
+              }
+            }
+          }
+        }
+      },
+      "screen_seconds": 116.28698114299914,
+      "validation_seconds": 6.116992204013513,
+      "note": "Independently score all 200 exports per pilot mode, then validate leaders.\n\nStandard MurphyE uses 16k search/64k evaluation angles, then 256k at fixed skew.\nThe provisional job lattice uses stream 0 for screening and streams 2/3 for\nvalidation. These model comparisons are not measured relation yields.\n",
+      "caveat": "Equal 4096-candidate refinement and 200-export scoring quotas. Timing/quality pilot, not an equal-elapsed-time or holdout study. Lattice skew is optimized for job-bounds MurphyE, not directly for lattice yield."
+    }
+  ],
+  "provenance": {
+    "variants": {
+      "dense_breadth": [
+        "-maxcells",
+        "2e11"
+      ],
+      "classes2520_32": [
+        "-maxcells",
+        "2e11",
+        "-classes",
+        "2520",
+        "32",
+        "-class-explore",
+        "8"
+      ],
+      "size2520_16": [
+        "-maxcells",
+        "2e11",
+        "-classes",
+        "2520",
+        "16",
+        "-class-size-aware"
+      ],
+      "size2520_32": [
+        "-maxcells",
+        "2e11",
+        "-classes",
+        "2520",
+        "32",
+        "-class-size-aware"
+      ]
+    },
+    "sha256": {
+      "seeds/c208_s0010.poly": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+      "seeds/c208_s0015.poly": "b70e9f413a8c9668876333d3b89ce895545f91bfb7aca8e83833f2eb0efc30aa",
+      "seeds/c208_s0027.poly": "8b8b37562a8232975380cc4e6403cf6c4ffcf4692326a5b58a002930ba7aea68",
+      "seeds/c208_s0032.poly": "f1ac8382e2533d6d879ae96e5c15f60aaf6475afa82768e4f00cc4db5486816a",
+      "seeds/c208_s0103.poly": "f2d8738729108875cf6b66e8c91000ae6419af19997c5f2010b4dcf13dc57058",
+      "seeds/c208_s0151.poly": "bee665015476fa491fa59b9fc10df9739c3d3124c04d6e84b7efe9d9ce9c4605",
+      "seeds/c208_s0222.poly": "abb3524b504a1ce9c8eab25cdc18a82bcb383dc90c93e6d5ea288c5800c266a5",
+      "seeds/c192_winner.poly": "a4bcdd47f5143966730e841e35b504008ac36d3b500e45c3925ff833e0141405",
+      "seeds/c197_s0005.poly": "82c01f797717d837a7ccb6d5df55839c389e63fbe6ff5fa13d3b09ae8d089f19",
+      "seeds/c197_s0001.poly": "e3b429158f1d91701a350495cba62c2f56cb88658082fa085492f2cb5154ccb4",
+      "bin/s23_ropt": "7c7233169f26e1362a858811830a76f3b95846c7da94b0d49b0ff98582653090",
+      "bin/s23_ropt_cpu": "449e12a7cf832f35b8f23cd9e344a8fb3ad6d5b7fb0ebba2cbb3f3a5db722176",
+      "source/include/rsize.h": "c1ff1e234f86c30b0ad14ce36384bcc883501e0039110e18ecf859357aa5d87b",
+      "source/include/rclass_rank.h": "6c947387154436d880076e2af04c3be11b496aaa583971f4fd2880b16f476ca0",
+      "source/include/rsieve.h": "032d7906be44546472ff7150bb39aa4daa228ee0bf6a565a815f3989c7110ab4",
+      "source/include/sopt_lll.h": "701f776ff4352370e51e63e558813821fff07d37a0dc98f49ebad9689022a151",
+      "source/include/rscan.h": "3c5a5dbbdea45af63901febc87acf1cc6f7cc3027481dd1602e4c5345367eb3b",
+      "source/include/rpool.h": "5dc5fb4dc5cf912ddd53cb49443933030d70aa564aa050da8fae6f36b49889b5",
+      "source/include/dpoly.h": "80fb219406a92c38e8f6872b0271bcced44c72749cd6aca9ca8825596b4c1a1c",
+      "source/include/lll_exact.h": "045ea72a820348a33e6a16867625f4a41f191c61dfcf81515e07f81c8168c2e7",
+      "source/include/alpha_proj.h": "79fe527b9b6103c365597d4225877dab82e4770b3653637697930dbb029261c9",
+      "source/include/sopt.h": "83ea23c14a58cf110501b53cc85425decec41aed60a975dd8d45448e7c2c25d5",
+      "source/include/mpint.h": "920813928ddd1253436c1ea7a1c161a618f30ee4af7bb02c41897adfaa5178f2",
+      "source/include/rtrace.h": "e5ac8e29fa951c31f2a3d37c176afb9dde84d53637222f9dc0827dad28ea7724",
+      "source/include/gmp_bridge.h": "0ffa1ead3abf83ce6bcae93206323e7d4ebfe3472cb7aa50f4d43cdb14c2c753",
+      "source/include/rprimes.h": "f7b3b93dbe13d1926abafb8886ed6c947aa400886d31c8cfd1057cf1945eac51",
+      "source/include/hd.h": "2f097ffd5060ab2847fad869a18c57c73b556e68d2598281ee63ea1f395a0086",
+      "source/include/norms.h": "d47b53730f4a1d57cf5a8ad3b8cbb61a0a8e59a046f0264d204f5ee92fd75757",
+      "source/include/rsegment.h": "83b8a14e8e4c0e00ae20f99c45a6e8bfbb66106b3d957b3c1ccfcda6736f2fdd",
+      "source/include/rscreen.h": "c768dc10b9582ced62851a876f3876211698a9945d74f59b67a786c2a58489a0",
+      "source/include/rclass.h": "d46f25d0270d918a099962256b0f8b86af7f6ae912170d2204aabb57be4f7bd4",
+      "source/include/rblock.h": "605ce4ab3e6f374e48296d513cced7eda290bb15f9ac31e6e98e99b48e9ebb3f",
+      "source/include/murphy_rho.h": "ed7b37316b76c390ce01923f41a9fed4590b20238c07ede7bc6d17841c30f2fb",
+      "source/include/rhost.h": "3603a6a91f79929113cd50d0ab39ba0c3f8a42927a456ba9ab98fa437d8ca64a",
+      "source/include/rseed.h": "d84f0928fb148b5fa50487e59144bfcebe6c41d99c7306e753461d92e1d5a988",
+      "source/include/sopt_skew.h": "f58714999de0955d6a26deec73cebee8835546483e8210cb532411c734ba1181",
+      "source/tools/s23_sopt.cu": "afda5c6ae6454b3c36841aa45b83d875f4f682ebd29ead2121e2156db7ba8eb6",
+      "source/tools/ropt_batch.h": "bdec0880bb8d369ec942ac8671c6e44823ff6fccf249ecbf145b072f6c3b84ed",
+      "source/tools/s23_ropt.cu": "695c7891a40ff71e396c540d96f7516fd1df04ace3e6a463c2fbbd524dab63ba",
+      "source/tools/murphy_rank.cpp": "7191564ca0d8067aa79ee2bc3ab1f0f61590174437c60a584f8e5ad2c09b1aa1",
+      "source/tools/cado_io.h": "2c2a7d8012ba87b519d6aa5fe469c8f8db2f0b76e8094a2a293eee4a5183cbc8",
+      "source/tools/murphy_rank.h": "9854516d8d723d91d54d7c70ac5a714b54bc173ad20d9e88fc8b67f2c1740f0f",
+      "source/tools/rscreen_cuda.h": "9c36e7391f73226b5d2c1e50d83619f4dd475cc92ebed785f0c86fb6d3926e52",
+      "source/tools/murphy_cell.h": "555a6a832f6a0f9c5f226265e073bce98998e8d1d36d1cd2641f80a2ea833da0",
+      "source/tools/rsieve_cuda.h": "9e3d01dd4e416237fb1f026b4534c56bd6b7706776c786b08677ac266ffb78c5",
+      "source/tools/cado_io.c": "3c7049c8cfa04379bce7466d411d66bc6f6f92bff644e4329d657f48498bfc27",
+      "source/tools/murphy_cuda.h": "8c982095c88d0dcbe2556d7a9304922c3bedfc2b20ef26f3592cb271b6a49f99",
+      "seeds/c179_winner.poly": "3ab948156cf317c5df12fb30e842efc7624037465960c22a4bda3981a0f2ee9f",
+      "seeds/c170_s0009.poly": "b2fff7e9f0acd490cf474ee456f19200ff54801d1cedcf506e5d3df3900d2cd1",
+      "seeds/c170_s0010.poly": "5658d45964ec5a8596e0a43c08f707fc67a35a6ef76571e2f27e637b8f1fdab0",
+      "seeds/c184_s0001.poly": "decbbf6497e8084d654709a90b9800ff40cec01b86ae3c316b3cf3a8a705e73c",
+      "seeds/c184_s0003.poly": "9a060c4818f1da506e09ff36bc1164b67ce412341b1ae653e9b0cc8b214bb25e",
+      "scores/c192_winner_scoring.json": "30c149d2c6e81cdca8b72c9921d73ff1df3b27bc544a5896953ab774f6b31849",
+      "scores/c197_s0005_scoring.json": "874c45a0dd1be79a9979567c0a2438aa652f6e728bf4ee29350a21268baf650a",
+      "scores/c197_s0001_scoring.json": "874c45a0dd1be79a9979567c0a2438aa652f6e728bf4ee29350a21268baf650a",
+      "scores/c179_winner_scoring.json": "931536084b4a289b4af20eab60d48f78d1eb27c17d60dc62d6867a366e874b41",
+      "scores/c170_s0009_scoring.json": "3d19a17073f05662716af1bae6c5c02205a2394301a2718de203c2422f8abb84",
+      "scores/c170_s0010_scoring.json": "3d19a17073f05662716af1bae6c5c02205a2394301a2718de203c2422f8abb84",
+      "scores/c184_s0001_scoring.json": "d3b3009daf489a515180130e6dbf819f8af75a04cc708b5a47e67b9678c2f95a",
+      "scores/c184_s0003_scoring.json": "d3b3009daf489a515180130e6dbf819f8af75a04cc708b5a47e67b9678c2f95a"
+    },
+    "script_sha256": "e802e217d9ae15c178446bb1e15f368af2aaca15444629e18fdaf0bf2ff766e2",
+    "note": "Bounded size-aware proposals: frozen loss corpus, independent seeds, GPU quality/timing.\n\nReuse the October 25 planning, timing and independent scoring harnesses with\nexplicit study configurations. Old run directories and their defaults stay intact.\n",
+    "harness_sha256": {
+      "/home/kylea/msieve-s/stage23_bench/runs/20261027_root_coverage/study.py": "e6b260ebd7b104a06cfee3139c19823f7adced7f6e57db2746502f4cec139208",
+      "/home/kylea/msieve-s/stage23_bench/runs/20261025_root_coverage/audit.py": "e802e217d9ae15c178446bb1e15f368af2aaca15444629e18fdaf0bf2ff766e2",
+      "/home/kylea/msieve-s/stage23_bench/runs/20261025_root_coverage/pilot.py": "588123338863f2dfc8c71fb22e676106188b866482f6ae4e1891f25f86152eee",
+      "/home/kylea/msieve-s/stage23_bench/runs/20261025_root_coverage/score.py": "2099db6bd45d47dd904884d46f0183984c77d2b71cabdc49e4fb070d2b3abf82"
+    },
+    "pilot_cases": [
+      "c192_winner",
+      "c197_s0005",
+      "c197_s0001",
+      "c179_winner",
+      "c170_s0009",
+      "c170_s0010",
+      "c184_s0001",
+      "c184_s0003"
+    ]
+  },
+  "fixtures": {
+    "c170_s0009": {
+      "path": "evidence/seeds/c170_s0009.poly",
+      "sha256": "b2fff7e9f0acd490cf474ee456f19200ff54801d1cedcf506e5d3df3900d2cd1"
+    },
+    "c170_s0010": {
+      "path": "evidence/seeds/c170_s0010.poly",
+      "sha256": "5658d45964ec5a8596e0a43c08f707fc67a35a6ef76571e2f27e637b8f1fdab0"
+    },
+    "c184_s0001": {
+      "path": "evidence/seeds/c184_s0001.poly",
+      "sha256": "decbbf6497e8084d654709a90b9800ff40cec01b86ae3c316b3cf3a8a705e73c"
+    },
+    "c184_s0003": {
+      "path": "evidence/seeds/c184_s0003.poly",
+      "sha256": "9a060c4818f1da506e09ff36bc1164b67ce412341b1ae653e9b0cc8b214bb25e"
+    }
+  },
+  "evidence": {
+    "full_evidence_local": "stage23_gpu/runs/20261028_commit_evidence/root_coverage/20261027",
+    "original_manifest_sha256": "6f68e7f80747d3f6411896aafae74af7210c9a35d5b484473660df27c4f59466",
+    "full_evidence_files": 212,
+    "note": "Full logs, command records and source snapshots are preserved locally in the ignored run area; they are not part of Git."
+  }
+}

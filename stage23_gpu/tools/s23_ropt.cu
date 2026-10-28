@@ -9,7 +9,7 @@
  *   common: [-top N] [-k K] [-seg LOG2] [-noproj] [-cpu] [-dev N] [-t THREADS] [-check N] [-launch LOG2]
  *           [-plan] [-exactskew] [-oldsearch]
  *           [-residue M U V]  (window/search: (u,v) = (U,V) mod M)
- *           [-classes M K [-class-explore E]]  (search: automatic classes, shared cap)
+ *           [-classes M K [-class-explore E] [-class-size-aware]] (automatic classes, shared cap)
  *           [-pool-out FILE | -pool-in FILE] (save/replay cells before exact refinement)
  *           [-alpha-screen N B] (search: screen N proxy cells with alpha through prime B)
  *           [-alpha-screen-exact-size] (also compute exact size before the screen cut)
@@ -520,6 +520,7 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
     RsClass residue;
     int class_mod = 0, class_count = 0, class_explore = -1;
     bool class_valid = true, class_options = false;
+    bool class_size_aware = false;
     RsClassRows class_rows;
     std::vector<RsClassProposal> selected_classes;
     bool murphy = false, murphy_options = false;
@@ -606,6 +607,8 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
         } else if (!strcmp(argv[i], "-class-explore") && i + 1 < argc) {
             class_explore = parse_count(argv[++i]);
             class_options = true;
+        } else if (!strcmp(argv[i], "-class-size-aware")) {
+            class_size_aware = true;
         } else if (!strcmp(argv[i], "-out") && i + 1 < argc)
             out_path = argv[++i];
         else if (!strcmp(argv[i], "-refine") && i + 1 < argc)
@@ -674,12 +677,13 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
         return 2;
     }
     scan.umax = umax;
-    if (!class_valid || (class_options && (!class_mod || class_explore < 0 || class_explore > class_count)) ||
+    if (!class_valid || (class_size_aware && !class_mod) ||
+        (class_options && (!class_mod || class_explore < 0 || class_explore > class_count)) ||
         (class_mod && (!search || window || cell || residue_mod || scan.step || umax < 0 || umax > 1000000000 ||
                        maxlines < 1 || patience < 1))) {
         fprintf(stderr, "s23_ropt: -classes needs search mode, M in [2,4096], K in [1,min(64,M*M)], "
                         "0 <= -class-explore <= K, positive maxlines/patience, umax in [0,1e9]; "
-                        "cannot combine with -residue/-u-scan/-cell/window\n");
+                        "-class-size-aware requires -classes; cannot combine with -residue/-u-scan/-cell/window\n");
         return 2;
     }
     if (class_mod && class_explore < 0)
@@ -870,6 +874,11 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
     int n_bands = 0;
     RsScanStats scan_stats;
     if (!window && !pool_in) {
+        const auto evaluate_line = [&](int64_t u, int64_t v, int64_t t) {
+            RsLine line;
+            rs_line_min(line, R, u, v, t, 1 << 20);
+            return line;
+        };
         /* line minima from u = 0 outwards, warm-started from the neighbour; a direction
          * stops after `patience` lines beyond the budget, or after maxlines / 2 lines within
          * it (a seed whose size is flat in u would otherwise run to umax) */
@@ -910,7 +919,23 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
         if (!class_mod)
             scan_u(residue.u, residue.modulus);
         else {
-            auto pool = rs_class_pool(S, PT.data(), class_mod, class_count);
+            std::vector<double> size_hints;
+            std::vector<int64_t> hinted_u;
+            RsProbeStats class_probes;
+            size_t coarse_count = 0, hinted_count = 0, scan_visited = 0, limited_rows = 0;
+            // A hard bound on actual cached coordinates, independent of umax.
+            // Coarse/hinted batches consume at most 129 + 4K + max(16,K).
+            constexpr size_t class_line_limit = 65536;
+            if (class_size_aware) {
+                const auto grid = rs_class_size_grid(umax);
+                rs_probe_batch(lines, grid, class_probes, evaluate_line);
+                coarse_count = lines.size();
+                std::vector<std::pair<int64_t, double>> samples;
+                for (const auto &entry : lines)
+                    samples.emplace_back(entry.first, entry.second.L_min);
+                size_hints = rs_class_size_hints(class_mod, samples, &hinted_u);
+            }
+            auto pool = rs_class_pool(S, PT.data(), class_mod, class_count, size_hints, aw);
             const auto is_trace_class = [&](const RsClassProposal &c) {
                 return trace.enabled && c.cell.u == rs_residue(trace.u, class_mod) &&
                        c.cell.v == rs_residue(trace.v, class_mod);
@@ -919,15 +944,27 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
             std::set<uint32_t> urows;
             for (const auto &c : pool)
                 urows.insert(c.cell.u);
-            uint64_t possible_lines = 0;
-            for (uint32_t u : urows)
-                possible_lines += rs_progression(-umax, umax, class_mod, u).count;
-            if (possible_lines > 65536) {
-                fprintf(stderr, "s23_ropt: -classes candidate pool exceeds 65536 possible u lines; reduce -umax\n");
-                return 2;
+            if (!class_size_aware) {
+                uint64_t possible_lines = 0;
+                for (uint32_t u : urows)
+                    possible_lines += rs_progression(-umax, umax, class_mod, u).count;
+                if (possible_lines > class_line_limit) {
+                    fprintf(stderr, "s23_ropt: -classes candidate pool exceeds 65536 possible u lines; reduce -umax\n");
+                    return 2;
+                }
+                for (uint32_t u : urows)
+                    scan_u(u, class_mod);
+            } else {
+                std::vector<int64_t> points;
+                for (uint32_t u : urows)
+                    if (std::isfinite(size_hints[u])) points.push_back(hinted_u[u]);
+                const size_t before = lines.size();
+                rs_probe_batch(lines, points, class_probes, evaluate_line);
+                hinted_count = lines.size() - before;
+                printf("# class size proposals: %zu coarse coordinates, ranked proposal upper bound %zu, "
+                       "%zu total proposals including exploration\n", coarse_count,
+                       std::min<size_t>((uint64_t)class_mod * class_mod, 4 * class_count), pool.size());
             }
-            for (uint32_t u : urows)
-                scan_u(u, class_mod);
             std::map<uint32_t, const RsLine *> minima;
             for (const auto &entry : lines) {
                 const RsLine &line = entry.second;
@@ -936,6 +973,7 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
                     best = &line;
             }
             for (auto &c : pool) {
+                c.size = INFINITY; // discard the coarse hint before exact class probes
                 auto it = minima.find(c.cell.u);
                 if (it == minima.end() || !it->second)
                     continue;
@@ -949,32 +987,57 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
                     c.size = std::min(c.size, rs_size(R, line.u, (int64_t)v, t, 1 << 10));
                 }
             }
-            selected_classes = rs_choose_classes(pool, class_count, class_explore, aw);
+            selected_classes = rs_choose_classes(pool, class_count, class_explore, aw, class_size_aware);
             if (trace.active()) {
                 const auto ranked = rs_choose_classes(pool, (int)pool.size(), 0, aw);
                 const auto it = std::find_if(ranked.begin(), ranked.end(), is_trace_class);
                 trace.stage("class_size", it != ranked.end());
                 if (it != ranked.end())
                     printf("# trace-cell class mod %d u %u v %u: root mean %.9g size %.9g key %.9g "
-                           "size-root rank %zu of %zu exploration %u\n", class_mod, it->cell.u, it->cell.v,
+                           "score-only rank %zu of %zu exploration %u\n", class_mod, it->cell.u, it->cell.v,
                            it->roots, it->size, it->key(aw), (size_t)(it - ranked.begin()) + 1,
                            ranked.size(), it->exploration);
+                const auto chosen = std::find_if(selected_classes.begin(), selected_classes.end(), is_trace_class);
+                printf("# trace-cell class selection: %s, selection position %zu of %zu, policy %s, kind %s\n",
+                       chosen == selected_classes.end() ? "not selected" : "selected",
+                       chosen == selected_classes.end() ? 0 : (size_t)(chosen - selected_classes.begin()) + 1,
+                       selected_classes.size(), class_size_aware ? "diverse" : "score",
+                       chosen == selected_classes.end() ? "none" : chosen->selected_exploration ? "exploration" : "ranked");
                 trace.stage("class_selection", std::any_of(selected_classes.begin(), selected_classes.end(), is_trace_class));
             }
             class_rows.modulus = class_mod;
-            printf("# automatic classes: mod %d, %zu proposals, %zu sampled lines, %zu selected, exploration requested %d\n",
-                   class_mod, pool.size(), lines.size(), selected_classes.size(), class_explore);
             for (const auto &c : selected_classes) {
                 class_rows.rows[c.cell.u].push_back(c.cell.v);
                 printf("# class u %u v %u: root mean %.6f, guaranteed log content %.6f, size estimate %.6f, key %.6f, %s\n",
                        c.cell.u, c.cell.v, c.roots, c.content, c.size, c.key(aw),
                        c.selected_exploration ? "exploration" : "ranked");
             }
+            if (class_size_aware) {
+                size_t remaining = class_rows.rows.size();
+                for (const auto &row : class_rows.rows) {
+                    const int64_t center = minima.at(row.first)->u;
+                    const size_t quota = std::min<size_t>(maxlines, (class_line_limit - lines.size()) / remaining--);
+                    const auto stats = rs_scan_progression(lines, center, class_mod, umax, budget,
+                                                           patience, quota, class_probes, evaluate_line);
+                    scan_visited += stats.visited;
+                    limited_rows += stats.limited;
+                    printf("# class basin u %u: center %lld, %zu visited, limit %zu, capped %d\n",
+                           row.first, (long long)center, stats.visited, quota, stats.limited);
+                }
+            }
+            const size_t sampled = lines.size();
             for (auto it = lines.begin(); it != lines.end();)
                 if (class_rows.at(it->first).empty())
                     it = lines.erase(it);
                 else
                     ++it;
+            printf("# automatic classes: mod %d, %zu proposals, %zu sampled lines, %zu selected, exploration requested %d\n",
+                   class_mod, pool.size(), sampled, selected_classes.size(), class_explore);
+            if (class_size_aware)
+                printf("# class probes: coarse %zu, hinted new %zu, scan visited %zu, cached lines %zu, "
+                       "retained lines %zu, evaluations %zu, cache hits %zu, nonfinite %zu, capped rows %zu\n",
+                       coarse_count, hinted_count, scan_visited, sampled, lines.size(), class_probes.evaluations,
+                       class_probes.cache_hits, class_probes.nonfinite, limited_rows);
             L_best = INFINITY;
             for (const auto &entry : lines)
                 if (entry.second.L_min < L_best) {
@@ -983,11 +1046,7 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
                 }
         }
         if (scan.step) {
-            scan_stats = rs_scan_basins(lines, scan, [&](int64_t u, int64_t v, int64_t t) {
-                RsLine line;
-                rs_line_min(line, R, u, v, t, 1 << 20);
-                return line;
-            });
+            scan_stats = rs_scan_basins(lines, scan, evaluate_line);
             for (const auto &entry : lines)
                 if (entry.second.L_min < L_best) {
                     L_best = entry.second.L_min;

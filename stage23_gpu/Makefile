@@ -69,7 +69,7 @@ $(BUILD)/test_rselect: tests/test_rselect.cpp $(HEADERS) $(BUILD)/cado_io.o $(CA
 	$(CXX) $(CXXFLAGS) -Itools -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -fopenmp
 
 $(BUILD)/test_rscan: tests/test_rscan.cpp $(HEADERS) | $(BUILD)
-	$(CXX) $(CXXFLAGS) -o $@ $<
+	$(CXX) $(CXXFLAGS) -fopenmp -o $@ $<
 
 $(BUILD)/test_rscreen: tests/test_rscreen.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO_LIB_FILES) | $(BUILD)
 	$(CXX) $(CXXFLAGS) $(ROPT_HOST_FLAGS) -Itools -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -fopenmp
@@ -96,6 +96,7 @@ test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_r
 	python3 tests/test_ropt_scan.py
 	python3 tests/test_ropt_class.py
 	python3 tests/test_ropt_classes.py
+	python3 tests/test_sieve_profiles.py
 	python3 tests/test_ropt_trace.py
 	python3 tests/test_alpha_screen.py
 	python3 tests/test_alpha_screen_gpu.py

@@ -1,0 +1,322 @@
+{
+  "run": "/home/kylea/msieve-s/stage23_gpu/runs/20261027_c170",
+  "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+  "input_polynomials": 842488,
+  "searches": 315,
+  "pipeline_seconds": 3566.364395240991,
+  "partial_murphy_searches": [],
+  "initial_sopt": {
+    "polynomials": 842488,
+    "identical": 842488,
+    "different": 0,
+    "worse_at_full_precision": 0,
+    "tolerance": 1e-06,
+    "elapsed_seconds": 65.31280398368835,
+    "cpu_source": "/home/kylea/msieve-s/stage23_gpu/runs/20261027_c170/cpu_reference/cado_sopt_unsorted.txt"
+  },
+  "initial_sopt_max_abs_objective_difference": 0,
+  "initial_sopt_cpu_fallbacks": 2,
+  "depth_exports_verified": 3200,
+  "depth_cpu_gpu_bytes_equal": true,
+  "comparisons": {
+    "comparison": {
+      "profile_id": "c171_testsieve_20261016",
+      "screened": 2260,
+      "validated": 23,
+      "validation": {
+        "angles": 256000,
+        "lattices": 256,
+        "samples": 4096,
+        "stream": 2
+      },
+      "gpu_over_cpu": {
+        "standard_murphy": 0.9993343770780632,
+        "lattice_score": 0.9912303625064492
+      },
+      "settings": {
+        "params": "job:31,32,14,40000000",
+        "lattice": "14,8192",
+        "qband": "40000000,150000000,7",
+        "lpbr": 31,
+        "lpba": 32,
+        "rlim": 80000000,
+        "alim": 120000000,
+        "profile_id": "c171_testsieve_20261016",
+        "profile_snapshot": {
+          "id": "c171_testsieve_20261016",
+          "digits": 171,
+          "degree": 5,
+          "recorded": "2026-10-16",
+          "evidence": "user_reported_test_sieve",
+          "lpbr": 31,
+          "lpba": 32,
+          "rlim": 80000000,
+          "alim": 120000000,
+          "side": "algebraic",
+          "region": {
+            "label": "gnfs-lasieve4I14e",
+            "logI": 14,
+            "J": 8192,
+            "points": 134217728
+          },
+          "q": {
+            "min": 40000000,
+            "max": 150000000,
+            "model_samples": 7
+          },
+          "source": {
+            "path": "stage23_bench/data/c171/gpu_ropt/testsieve_user_20261016.json",
+            "sha256": "047c50ae6697e274c4a4299e96342e8a69df3ca929cd06d6ee2d0505e573693f"
+          },
+          "notes": "Six user-reported test windows over this range; final production q endpoint was provisional. Supersedes the earlier C168-derived 30/31, 25M-100M model for C171.",
+          "mfbr": 60,
+          "mfba": 92,
+          "rlambda": 2.35,
+          "alambda": 3.5,
+          "lss": 0
+        },
+        "catalog_sha256": "5516b3ef07a321b666869b483b9fdb8134280782c6530f1cf0e30b64d0e131b4",
+        "provisional": true,
+        "source": "Inherited historical profile; not confirmed for this input.",
+        "note": "Model comparison only; no new test sieving."
+      },
+      "winners": {
+        "standard_murphy": {
+          "cpu": {
+            "method": "msieve_orig",
+            "index": 24,
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "e": 4.668e-13,
+              "skew": 17741929.71,
+              "c0": 3242403822189901383606650695356984706574,
+              "c1": -8512554373219646111134497207830551,
+              "c2": 314941589495161006011160726,
+              "c3": 83631032029053416515,
+              "c4": -778009367856,
+              "c5": -70560,
+              "Y0": -961868369260196729003418286085736,
+              "Y1": 4083442735129771568647
+            },
+            "standard_murphy": 4.667808e-13,
+            "standard_skew": 16777216.0,
+            "lattice_score": 576007400.0,
+            "lattice_skew": 16777216.0,
+            "job_murphy": 7.855227e-08,
+            "per_q": [
+              119.5532,
+              107.0689,
+              99.2302,
+              92.8182,
+              88.5723,
+              84.7899,
+              82.3194
+            ]
+          },
+          "gpu": {
+            "method": "gpu_pipeline",
+            "index": 0,
+            "label": "murphy/s0009/0",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961870097863175364138318725733776,
+              "Y1": 4083442735129771568647,
+              "skew": 17331281.5,
+              "c0": 6896007636177375992754695478296846538294,
+              "c1": -8734011775964257016731469256051191,
+              "c2": 207950535234110580821924926,
+              "c3": 84821976336771184195,
+              "c4": -628662071856,
+              "c5": -70560
+            },
+            "standard_murphy": 4.664701e-13,
+            "standard_skew": 19951584.6,
+            "lattice_score": 576169400.0,
+            "lattice_skew": 18246213.3,
+            "job_murphy": 7.855271e-08,
+            "per_q": [
+              119.5807,
+              107.1334,
+              99.2691,
+              92.7876,
+              88.5959,
+              84.8353,
+              82.3295
+            ]
+          },
+          "ratio": 0.9993343770780632,
+          "transform": {
+            "t": -423320,
+            "rotation": [
+              0
+            ],
+            "negated": false
+          }
+        },
+        "lattice_score": {
+          "cpu": {
+            "method": "msieve_orig",
+            "index": 882,
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "e": 4.401e-13,
+              "skew": 68132660.82,
+              "c0": 7042147772469107934651617353807307511745060,
+              "c1": -233257924659675405608751395454336426,
+              "c2": -18548985610833212264299169138,
+              "c3": 46056972287998846299,
+              "c4": 1742776916242,
+              "c5": 15120,
+              "Y0": -1139466793337272683214476603043023,
+              "Y1": 1524143884686386050973
+            },
+            "standard_murphy": 4.401373e-13,
+            "standard_skew": 69513085.6,
+            "lattice_score": 581266900.0,
+            "lattice_skew": 69513085.6,
+            "job_murphy": 7.552267e-08,
+            "per_q": [
+              115.5383,
+              106.9128,
+              100.0463,
+              94.6893,
+              90.5668,
+              86.8737,
+              83.994
+            ]
+          },
+          "gpu": {
+            "method": "gpu_pipeline",
+            "index": 0,
+            "label": "murphy/s0009/0",
+            "poly": {
+              "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+              "Y0": -961870097863175364138318725733776,
+              "Y1": 4083442735129771568647,
+              "skew": 17331281.5,
+              "c0": 6896007636177375992754695478296846538294,
+              "c1": -8734011775964257016731469256051191,
+              "c2": 207950535234110580821924926,
+              "c3": 84821976336771184195,
+              "c4": -628662071856,
+              "c5": -70560
+            },
+            "standard_murphy": 4.664701e-13,
+            "standard_skew": 19951584.6,
+            "lattice_score": 576169400.0,
+            "lattice_skew": 18246213.3,
+            "job_murphy": 7.855271e-08,
+            "per_q": [
+              119.5807,
+              107.1334,
+              99.2691,
+              92.7876,
+              88.5959,
+              84.8353,
+              82.3295
+            ]
+          },
+          "ratio": 0.9912303625064492,
+          "transform": null
+        }
+      },
+      "scorer_sha256": "91e10d4c146d189a96a785d17f64bc9ac1a2edb0327bac4e7a7d24320d02aad5",
+      "note": "Independent new-job CPU/GPU ranking under standard MurphyE and the job lattice.\n\nScreen three msieve exports per rational family and every CADO export; validate\nleaders at 256k angles and an independent lattice stream. This is a measured\nshortlist comparison, not exhaustive rescoring of all msieve outputs.\n Initial size optimization ran independently on GPU; no test sieving performed."
+    }
+  },
+  "limitations": [
+    "Model comparison of shortlisted CPU/GPU exports; no test sieving.",
+    "Wall time includes GPU initial sopt; no matched full CPU timing.",
+    "Alternative profiles rescore the same finalists without repeating seed selection.",
+    "Compact evidence is not a standalone replay bundle; full inputs and pools remain in the run."
+  ],
+  "provenance": {
+    "n": 29048727503343059355761545569182703138764663216399945039143376935283593989746364158898321915838072869322195948809449072838583616663438880217373141182294535692716775740251,
+    "digits": 170,
+    "source": "/home/kylea/msieve-s/backup_20261026_135654",
+    "input": {
+      "mode": "raw",
+      "source": "/home/kylea/msieve-s/backup_20261026_135654/msieve.dat.deduped.ms",
+      "sha256": "395b2c912d78ec160d8e4f73f3e8ad4a86122d0940d4e5e2d41f6924707dc9c5",
+      "snapshot": "inputs/source.raw"
+    },
+    "scope": "GPU initial sopt, effort-50 resopt, breadth/depth/final refinement; independent CPU references; no test sieve.",
+    "sources_sha256": {
+      "/home/kylea/msieve-s/backup_20261026_135654/pipeline_results/best150_cado_inv.txt": "6d9a4d91cb09f40011e5858badad86688325b1b34f4775aebc69d875af9121c9",
+      "/home/kylea/msieve-s/backup_20261026_135654/pipeline_results/cado_ropt_orig.txt": "2762e69ae418936bc02d2c30463ba1f7cf5e09a807553021fb7e0f193ec98dda",
+      "/home/kylea/msieve-s/backup_20261026_135654/pipeline_results/best300_msieve.ms": "fb258400fdf2465663c1f57738cfabaef55ff1196c01088618b37f2430e840a2",
+      "/home/kylea/msieve-s/backup_20261026_135654/pipeline_results/best300_msieve_inv.ms": "d6972a20a451ca18b910652c3e80efa4ebe034ca2a5102cc38dc6dc1151beeb3",
+      "/home/kylea/msieve-s/backup_20261026_135654/pipeline_results/msieve_ropt_orig.p": "787879070122f668aea11d4c89645ed0a42a8ccf8701f8e1c8515d676c9a36b3",
+      "/home/kylea/msieve-s/backup_20261026_135654/pipeline_results/cado_ropt_inv.txt": "8b28555b55bed780065769f6395fa4fd84b8a4aab19ef58ae5b133b0390b9773",
+      "/home/kylea/msieve-s/backup_20261026_135654/pipeline_results/msieve_ropt_inv.p": "6bd4a5ff3be48112c707444b0f1eb2980f0b2235fe7a45f2d7f4fbc74bd40fa9",
+      "/home/kylea/msieve-s/backup_20261026_135654/pipeline_results/skewopt_results.txt": "519333a9360ce26d664a35f0a830e0d4df953b83a563d2e30ffd292ed384bd95",
+      "/home/kylea/msieve-s/backup_20261026_135654/pipeline_results/best150_cado.txt": "ba556de49f528a266e6ddd17e3a7a4e6b22bb90c23efabb78cc3b28146f13857",
+      "/home/kylea/msieve-s/backup_20261026_135654/pipeline_results/pipeline_report.txt": "89b191558c979b4bb3e641c89e4a96e21728be031989a79ce8e673584067bc3d",
+      "/home/kylea/msieve-s/backup_20261026_135654/pipeline_results/pipeline_settings.txt": "c4bc3adc0b50932d9f0fd29dd7ef07e6c4179977d5dfb777ff47c161f86f2ae4",
+      "/home/kylea/msieve-s/backup_20261026_135654/cado_sopt_unsorted.txt": "1f8303cb1c45bb61e22db8dab7e2c4af8a760102a6a9f8427607a07a4149b595"
+    },
+    "cpu_sha256": {
+      "best150_cado_inv.txt": "6d9a4d91cb09f40011e5858badad86688325b1b34f4775aebc69d875af9121c9",
+      "cado_ropt_orig.txt": "2762e69ae418936bc02d2c30463ba1f7cf5e09a807553021fb7e0f193ec98dda",
+      "best300_msieve.ms": "fb258400fdf2465663c1f57738cfabaef55ff1196c01088618b37f2430e840a2",
+      "cado_sopt_unsorted.txt": "1f8303cb1c45bb61e22db8dab7e2c4af8a760102a6a9f8427607a07a4149b595",
+      "best300_msieve_inv.ms": "d6972a20a451ca18b910652c3e80efa4ebe034ca2a5102cc38dc6dc1151beeb3",
+      "msieve_ropt_orig.p": "787879070122f668aea11d4c89645ed0a42a8ccf8701f8e1c8515d676c9a36b3",
+      "cado_ropt_inv.txt": "8b28555b55bed780065769f6395fa4fd84b8a4aab19ef58ae5b133b0390b9773",
+      "msieve_ropt_inv.p": "6bd4a5ff3be48112c707444b0f1eb2980f0b2235fe7a45f2d7f4fbc74bd40fa9",
+      "skewopt_results.txt": "519333a9360ce26d664a35f0a830e0d4df953b83a563d2e30ffd292ed384bd95",
+      "best150_cado.txt": "ba556de49f528a266e6ddd17e3a7a4e6b22bb90c23efabb78cc3b28146f13857",
+      "pipeline_report.txt": "89b191558c979b4bb3e641c89e4a96e21728be031989a79ce8e673584067bc3d",
+      "cado_references.json": "cb52d6dadc3bf2787f678c0bcb40a566c7f377ec9920233610fc9fe05003997e",
+      "pipeline_settings.txt": "c4bc3adc0b50932d9f0fd29dd7ef07e6c4179977d5dfb777ff47c161f86f2ae4"
+    }
+  },
+  "pipeline_settings": {
+    "run_dir": "/home/kylea/msieve-s/stage23_gpu/runs/20261027_c170",
+    "extract": 1000,
+    "resopt_effort": 50,
+    "seeds": 300,
+    "threads": 2,
+    "device": 0,
+    "workers": 2,
+    "ropt_batch_size": 16,
+    "launch": 30,
+    "slice": 10.0,
+    "budget": 3.0,
+    "maxcells": 200000000000.0,
+    "depth_maxcells": 6000000000000.0,
+    "depth_seeds": 16,
+    "murphy_seeds": 4,
+    "rerank": 4096,
+    "alpha_screen": "",
+    "alpha_screen_exact_size": false,
+    "alpha_screen_gpu": false,
+    "alpha_screen_check": false,
+    "refine_gpu": true,
+    "refine_check": false,
+    "murphy_gpu": true,
+    "murphy_check": false,
+    "keep": 200,
+    "score_top": 32,
+    "finalists": 32,
+    "maxlines": 1000,
+    "umax": 20000,
+    "residue": "",
+    "classes": "",
+    "class_explore": -1,
+    "u_scan": 0,
+    "u_basins": 4,
+    "u_radius": 128,
+    "params": "job:31,32,14,40000000",
+    "lattice": "14,8192",
+    "qband": "40000000,150000000,7",
+    "sopt_binary": "/home/kylea/msieve-s/stage23_gpu/build/s23_sopt",
+    "ropt_binary": "/home/kylea/msieve-s/stage23_gpu/build/s23_ropt"
+  },
+  "evidence": {
+    "full_evidence_local": "stage23_gpu/runs/20261028_commit_evidence/c170/gpu_ropt/20261027",
+    "original_manifest_sha256": "00b84fd477960ad02a2dcc5c0ee980b7ac6e76b9e1f0e705a6cd733dcaf9e35e",
+    "full_evidence_files": 83,
+    "note": "Full logs, command records and source snapshots are preserved locally in the ignored run area; they are not part of Git."
+  }
+}

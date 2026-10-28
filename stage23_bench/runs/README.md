@@ -149,3 +149,46 @@ They take the run directory as an argument; each file's docstring or header says
   `cleanup_result.json` and `deletion_result.json`. Removed preprocessing indexes
   and sorted intermediates must be rebuilt before a full driver resume; retained
   seeds/pools support direct replay. Original `.zst` archives were preserved.
+- `20261027_jobs/`: live C179 depth retention and bounded Murphy CPU/GPU audit,
+  followed by independent full GPU runs for the newer C170 and C184 inputs.
+  `retention.py` freezes the C179 fixtures and traces the known rotation without
+  inserting it; `murphy.py` audits the first 32 saved proxy candidates. Both have
+  `--score-only` for independent rescoring of completed checks. `jobs.py prepare`
+  takes explicit source, destination and historical profile; pipeline/audit/compare
+  phases preserve raw inputs, completed CPU references, pools and provenance.
+  `compare.py --profile ID` rescores the same finalists under another profile;
+  it does not repeat seed selection under those alternative settings. The catalog
+  is `config/sieve_profiles.json`. C179 compact evidence is in
+  `data/c179/ropt_coverage/live_20261027/`.
+  Both full new-job runs completed: C170 in 59m 26s and C184 in 81m 31s,
+  including independent GPU initial sopt. All 6,400 depth exports match CPU
+  replay; C184 has seven initial-sopt coefficient differences within the
+  recorded size-objective tolerance. The preferred C184 scenario is 31/32,
+  q=40M–200M; its 32/33, q=35M–175M alternative rescores the same finalists.
+  `save.py --run-dir RUN --destination NEW_DIRECTORY` exports a full diagnostic
+  snapshot with verified hashes; use a destination under `stage23_gpu/runs/`.
+  Versioned summaries in `data/{c170,c184}/gpu_ropt/20261027/` retain conclusions,
+  settings, winner coefficients and provenance. Full replay still needs the
+  local inputs and pools. See the [evidence index](../data/README.md) for retained
+  files and relocated snapshots. No matched full CPU timing or test sieving
+  was performed.
+- `20261027_root_coverage/`: bounded size-aware class proposals with reserved
+  u diversity, evaluated on the loss corpus and four unused C170/C184 seeds.
+  `study.py` runs preparation, CPU plans, paired GPU searches and independent
+  scoring using the prior audit harnesses with frozen study configurations.
+  `validate.py` compares GPU class geometry with CPU plans and replays every
+  first-repetition pool. `trace_quality.py` diagnoses losses of the actual dense
+  MurphyE leaders; `archive.py` exports full diagnostic and source snapshots
+  to an ignored destination under `stage23_gpu/runs/`.
+  All 60 plans and 96 GPU searches completed; 6,400 CPU replay exports match.
+  The new opt-in modes are faster but still lose quality on several seeds;
+  dense defaults and driver forwarding are unchanged. Results and limitations
+  are in the study README and `data/root_coverage/20261027/`.
+- `20261027_coverage_review/`: shared cached probing, bounded scans around
+  selected basin centers, corrected work limits/diagnostics and stronger
+  regression tests. `run.py host` compares all 60 plans with the frozen study;
+  `run.py gpu` checks six live searches against CPU plans and pool replay.
+  All 30 dense/legacy plans are unchanged and all 1200 GPU exports match CPU.
+  The study README maps all thirteen findings to fixes. Compact evidence is
+  `data/root_coverage/review_20261027/`. Previous prototype speed/quality numbers
+  are historical; this check does not establish new performance.

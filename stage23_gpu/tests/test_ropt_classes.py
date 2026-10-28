@@ -79,7 +79,7 @@ class AutomaticClasses(unittest.TestCase):
                     self.assertGreater(max(map(float, contents)), 0)
 
     def test_invalid_options(self):
-        for args in (['-classes', 1, 1], ['-classes', 4097, 16], ['-classes', 2, 5],
+        for args in (['-class-size-aware'], ['-classes', 1, 1], ['-classes', 4097, 16], ['-classes', 2, 5],
                      ['-classes', 6, 65], ['-classes', 6, '1.5'], ['-class-explore', 0],
                      ['-classes', 6, 4, '-class-explore', -1], ['-classes', 6, 4, '-class-explore', 5],
                      ['-classes', 6, 4, '-u-scan', 256], ['-classes', 6, 4, '-residue', 6, 0, 0],
@@ -89,6 +89,54 @@ class AutomaticClasses(unittest.TestCase):
                 p = run('/no/such/file.poly', '-search', *args)
                 self.assertEqual(p.returncode, 2)
                 self.assertIn('-classes', p.stderr)
+
+    def test_size_aware_geometry_and_exports(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp) / 'out.poly'
+            args = ['-search', '-classes', 30, 8, '-class-size-aware', '-budget', .5,
+                    '-maxcells', 100000, '-umax', 16, '-maxlines', 16,
+                    '-rerank', 32, '-refine', 3, '-top', 3, '-check', 16,
+                    '-launch', 30, '-out', dest]
+            text = self.checked(CONTROL, *args)
+            self.assertIn('# class size proposals:', text)
+            chosen = selections(text)
+            self.assertEqual(len(chosen), 8)
+            self.assertEqual(len({(u,v) for u,v,_ in chosen}), 8)
+            self.assertEqual(sum(kind=='exploration' for _,_,kind in chosen), 2)
+            self.assertGreaterEqual(len({u for u,v,kind in chosen if kind=='ranked'}),3)
+            counts = re.findall(r'^# class cells u \d+ v \d+: (\d+) selected',text,re.M)
+            self.assertGreater(sum(map(int,counts)),0)
+            self.assertLessEqual(sum(map(int,counts)),100000)
+            original = dest.read_bytes()
+            seed = read_cado_blocks(CONTROL)[0][1]
+            for label, poly in read_cado_blocks(dest):
+                coords = re.match(r'u (-?\d+) v (-?\d+)',label)
+                self.assertIn((int(coords[1])%30,int(coords[2])%30),{(u,v) for u,v,_ in chosen})
+                self.assertNotEqual(resultant(poly),0)
+                self.assertEqual(poly['n'],seed['n'])
+                self.assertEqual(resultant(poly)%poly['n'],0)
+            ru,rv,_ = chosen[0]
+            traced = self.checked(CONTROL,*args,'-trace-cell',ru if ru<=16 else ru-30,rv)
+            self.assertEqual(chosen,selections(traced))
+            self.assertIn('selection position 1 of 8, policy diverse',traced)
+            self.assertEqual(original,dest.read_bytes())
+
+    def test_size_aware_large_range_and_small_modulus(self):
+        text = self.checked(CONTROL, '-search', '-classes', 30, 16, '-class-size-aware',
+                            '-umax', 100000, '-maxlines', 16, '-maxcells', 100000, '-plan')
+        self.assertEqual(len(selections(text)),16)
+        match = re.search(r'# class probes: coarse (\d+), hinted new (\d+), scan visited (\d+), '
+                          r'cached lines (\d+), retained lines (\d+), evaluations (\d+), cache hits (\d+)',text)
+        self.assertIsNotNone(match)
+        coarse,hinted,visited,cached,retained,evaluations,hits = map(int,match.groups())
+        self.assertLessEqual(coarse,129)
+        self.assertLessEqual(visited,16*16)
+        self.assertLessEqual(cached,65536)
+        self.assertLessEqual(retained,cached)
+        self.assertGreater(hits,0)
+        # Every coordinate is minimized at most once from each of its two starts.
+        self.assertLessEqual(evaluations,2*cached)
+        self.assertGreaterEqual(evaluations,cached)
 
 
 if __name__ == '__main__':

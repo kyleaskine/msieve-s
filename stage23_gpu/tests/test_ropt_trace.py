@@ -82,7 +82,7 @@ class CellTrace(unittest.TestCase):
                             '-classes', 2520, 16, '-class-explore', 4, '-aw', 1.3,
                             '-trace-cell', 2014, 569611649768)
         self.assertIn('stage class_proposal pass', text)
-        self.assertIn('size-root rank 15 of 80', text)
+        self.assertIn('score-only rank 15 of 80', text)
         self.assertEqual(self.result(text), 'class_selection')
 
     def test_invalid_options(self):
