@@ -33,7 +33,7 @@ $Id: util.h 1005 2016-11-11 15:43:21Z jasonp_sf $
 #endif
 
 #ifdef NO_ZLIB
-	#define gzFile   FILE
+	#define gzFile   FILE *
 	#define gzopen   fopen
 	#define gzclose  fclose
 	#define gzeof    feof
