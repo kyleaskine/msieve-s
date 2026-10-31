@@ -17,6 +17,7 @@
  *   index  band  skew  MurphyE  rel(q_1)  rel(q_2) ...       (-lattice)
  *   index start_skew train0 dt skew train1 eval0 eval1 E0 E1 calls limited Y0 c0 (-refine)
  *   index error message                                    (-refine failed input)
+ * Skew fields use 17 significant digits to preserve the evaluated configuration.
  * Refinement writes one success/error row per input; exit 0 means the batch was
  * processed. The wrapper reports partial failures with exit 1 after saving results.
  *
@@ -475,7 +476,7 @@ int main(int argc, char **argv)
             fprintf(stderr, "cado_murphy: -useskew: %zu of %zu polynomials have no valid skew line; MurphyE's best skew "
                             "was used for them\n", nos, polys.size());
         for (size_t i = 0; i < polys.size(); i++) {
-            printf("%zu\t%.6e\t%.1f\t%.6e", i, band[i], S[i], E[i]);
+            printf("%zu\t%.6e\t%.17g\t%.6e", i, band[i], S[i], E[i]);
             for (double r : rel[i])
                 printf("\t%.4f", r);
             printf("\n");
@@ -530,7 +531,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "cado_murphy: -useskew: %zu of %zu polynomials have no valid skew line; MurphyE's best skew "
                         "was used for them\n", nos, polys.size());
     for (size_t i = 0; i < polys.size(); i++) {
-        gmp_printf("%zu\t%.6e\t%.1f\t%ld\t%Zd\t%Zd\n", i, E[i], S[i], T[i], mpz_poly_coeff_const(polys[i]->pols[RAT_SIDE], 0),
+        gmp_printf("%zu\t%.6e\t%.17g\t%ld\t%Zd\t%Zd\n", i, E[i], S[i], T[i], mpz_poly_coeff_const(polys[i]->pols[RAT_SIDE], 0),
                    mpz_poly_coeff_const(polys[i]->pols[ALG_SIDE], 0));
         cado_poly_clear(polys[i]);
         free(polys[i]);

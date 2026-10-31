@@ -394,7 +394,7 @@ S23_HD double expected_rotation_gain(const Int<L> *f, const Int<L> *g, DiscScrat
         if (s >= 2.0)
             incr += NORM_MARGIN / 2.0;
     }
-    return proj_alpha + expected_alpha(log(S)) + incr;
+    return proj_alpha + expected_alpha(sopt_log(S)) + incr;
 }
 
 S23_HD unsigned compute_rational_approximation(double *Q, double q, unsigned nb_approx, double bound)

@@ -2,7 +2,7 @@
  * the same source.
  *
  *   s23_sopt [-cpu] [-dev N] [-sopteffort E] [-t THREADS] [-batch N] [-slice SECONDS]
- *            [-compare] [-rawstats] -inputpolys FILE
+ *            [-compare] [-rawstats] [-trace FILE [-trace-index N]] -inputpolys FILE
  *
  * Reads CADO-format polynomials (e.g. msieve -nps output, or fixture_raw.py output) and
  * prints CADO sopt's format ("### Input raw polynomial (i) ###" commented, then
@@ -32,13 +32,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <algorithm>
+#include <string>
 #include <vector>
 #include <chrono>
 #include <omp.h>
 #include "cado_io.h"
 #include "gmp_bridge.h"
+#define S23_SOPT_HOST_LOG
 #include "sopt.h"
+#include "sopt_trace.h"
+#include "host_log_check.h"
 
 using namespace s23;
 
@@ -48,9 +56,6 @@ static const int DEG = 5;
 typedef SoptScratch<LP, LL, DEG> Scratch;
 typedef SoptPoly<LP, DEG> Poly;
 typedef SoptCand<LP, DEG> Cand;
-
-enum { PH_PREPARE, PH_LLL, PH_DEDUPE, PH_DESCENT, PH_REDUCE, PH_COUNT };
-static const char *phase_name[PH_COUNT] = {"prepare", "lll", "dedupe", "descent", "reduce"};
 
 /* What a phase works on. Per-polynomial phases take item i = polynomial i; the
  * candidate phases take items[i] = the candidate's slot, polynomial * maxk + j. */
@@ -215,7 +220,11 @@ static void build_items(std::vector<unsigned> &items, const std::vector<Poly> &P
 int main(int argc, char **argv)
 {
     const char *input = NULL;
+    const char *trace_path = NULL;
+    long trace_index = 0;
+    bool trace_index_given = false;
     int effort = 0, threads = 8, use_cpu = 0, compare = 0, raw_stats = 0, batch = 4096, dev = 0;
+    bool host_log_fallback = false;
     double slice = 10, scratch_frac = 0.5;
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-inputpolys") && i + 1 < argc)
@@ -238,9 +247,23 @@ int main(int argc, char **argv)
             compare = 1;
         else if (!strcmp(argv[i], "-rawstats"))
             raw_stats = 1;
+        else if (!strcmp(argv[i], "-trace") && i + 1 < argc)
+            trace_path = argv[++i];
+        else if (!strcmp(argv[i], "-trace-index") && i + 1 < argc) {
+            char *end;
+            const char *arg = argv[++i];
+            errno = 0;
+            trace_index = strtol(arg, &end, 10);
+            if (errno || end == arg || *end || trace_index < 0) {
+                fprintf(stderr, "s23_sopt: -trace-index must be a nonnegative integer (zero-based)\n");
+                return 2;
+            }
+            trace_index_given = true;
+        }
         else {
             fprintf(stderr, "usage: %s [-cpu] [-dev N] [-sopteffort E] [-t THREADS] [-batch N] "
-                            "[-slice SECONDS] [-scratch FRACTION] [-compare] [-rawstats] -inputpolys FILE\n",
+                            "[-slice SECONDS] [-scratch FRACTION] [-compare] [-rawstats] "
+                            "[-trace FILE [-trace-index N]] -inputpolys FILE\n",
                     argv[0]);
             return 2;
         }
@@ -248,6 +271,10 @@ int main(int argc, char **argv)
 #ifndef __CUDACC__
     use_cpu = 1; /* host-only build */
 #endif
+    if (trace_index_given && !trace_path) {
+        fprintf(stderr, "s23_sopt: -trace-index requires -trace FILE\n");
+        return 2;
+    }
     if (threads < 1)
         threads = 1;
     if (effort < 0 || effort > SOPT_MAX_EFFORT) {
@@ -258,10 +285,60 @@ int main(int argc, char **argv)
         slice = 10;
     if (scratch_frac <= 0 || scratch_frac > 0.9)
         scratch_frac = 0.5;
+    /* Reject existing destinations and unusable parent directories before any
+     * device setup or input processing. Create nothing until the target batch;
+     * fopen(wx) remains authoritative if the filesystem changes meanwhile. */
+    FILE *trace = NULL;
+    if (trace_path) {
+        if (!*trace_path) {
+            fprintf(stderr, "s23_sopt: trace path must not be empty\n");
+            return 2;
+        }
+        struct stat info;
+        if (lstat(trace_path, &info) == 0) {
+            fprintf(stderr, "s23_sopt: trace file already exists: %s\n", trace_path);
+            return 2;
+        }
+        if (errno != ENOENT) {
+            perror(trace_path);
+            return 2;
+        }
+        const std::string path(trace_path);
+        const auto slash = path.find_last_of('/');
+        const std::string parent = slash == std::string::npos ? "." :
+                                   slash == 0 ? "/" : path.substr(0, slash);
+        if (stat(parent.c_str(), &info) != 0) {
+            perror(parent.c_str());
+            return 2;
+        }
+        if (!S_ISDIR(info.st_mode)) {
+            fprintf(stderr, "s23_sopt: trace parent is not a directory: %s\n", parent.c_str());
+            return 2;
+        }
+        if (faccessat(AT_FDCWD, parent.c_str(), W_OK | X_OK, AT_EACCESS) != 0) {
+            perror(parent.c_str());
+            return 2;
+        }
+    }
     /* GPU candidate slots: at most 1.5 GB and 40% of the VRAM free once the device's
      * stack reservation is made (the CPU path keeps one polynomial's slots per thread) */
     const int maxk = sopt_max_cand(effort);
 #ifdef __CUDACC__
+    if (!use_cpu) {
+        auto inputs = matched_log::probe_inputs();
+        auto check = matched_log::identify_host(inputs);
+        fprintf(stderr, "# s23_sopt: host log %s; %zu samples, mismatches FMA=%zu scalar=%zu\n",
+                matched_log::name(check.mode), check.samples, check.fused_mismatches, check.unfused_mismatches);
+        if (check.mode == matched_log::unsupported) {
+            fprintf(stderr, "# s23_sopt: unsupported host log/rounding environment; using CADO CPU fallback\n");
+            use_cpu = 1;
+            host_log_fallback = true;
+        } else {
+            CUDA_CHECK(cudaSetDevice(dev));
+            if (!matched_log::check_device(inputs, check)) return 2;
+            fprintf(stderr, "# s23_sopt: device log verified against host (%zu values)\n", check.samples);
+        }
+    }
     if (!use_cpu) {
         CUDA_CHECK(cudaSetDevice(dev));
         CUDA_CHECK(cudaDeviceSetLimit(cudaLimitStackSize, 64 * 1024));
@@ -321,7 +398,7 @@ int main(int argc, char **argv)
             cio_poly &r = raws[n];
             Poly &p = P[n];
             memset(&p, 0, sizeof p);
-            bool ok = r.deg == DEG;
+            bool ok = !host_log_fallback && r.deg == DEG;
             for (int i = 0; i <= DEG && ok; i++)
                 ok = from_mpz(p.f[i], r.f[i]);
             ok = ok && from_mpz(p.g[0], r.g[0]) && from_mpz(p.g[1], r.g[1]);
@@ -335,6 +412,15 @@ int main(int argc, char **argv)
         }
         if (n == 0)
             break;
+        const int trace_slot = trace_path && trace_index >= total && trace_index - total < n
+                                   ? (int)(trace_index - total) : -1;
+        if (trace_slot >= 0) {
+            trace = fopen(trace_path, "wx");
+            if (!trace) {
+                perror(trace_path);
+                return 2;
+            }
+        }
 
         auto t0 = std::chrono::steady_clock::now();
         auto lap = [&](int ph) {
@@ -346,17 +432,35 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
         if (!use_cpu) {
             const Ctx c = {G.polys, G.cands, G.items, maxk, effort};
+            auto snapshot = [&](SoptPhase ph, const Poly *host = NULL) {
+                if (trace_slot < 0) return;
+                Poly p;
+                if (host) p = *host;
+                else CUDA_CHECK(cudaMemcpy(&p, G.polys + trace_slot, sizeof p, cudaMemcpyDeviceToHost));
+                if (p.ncand < 0 || p.ncand > maxk) {
+                    fprintf(stderr, "s23_sopt: invalid candidate count in phase trace\n");
+                    exit(2);
+                }
+                std::vector<Cand> candidates(p.ncand);
+                if (p.ncand)
+                    CUDA_CHECK(cudaMemcpy(candidates.data(), G.cands + (size_t)trace_slot * maxk,
+                                          p.ncand * sizeof(Cand), cudaMemcpyDeviceToHost));
+                sopt_trace(trace, trace_index, "GPU", effort, ph, p, candidates.data());
+            };
             CUDA_CHECK(cudaMemcpy(G.polys, P.data(), n * sizeof(Poly), cudaMemcpyHostToDevice));
             gpu_phase<PH_PREPARE>(G, c, n);
             CUDA_CHECK(cudaMemcpy(P.data(), G.polys, n * sizeof(Poly), cudaMemcpyDeviceToHost));
+            snapshot(PH_PREPARE, trace_slot < 0 ? NULL : &P[trace_slot]);
             lap(PH_PREPARE);
             build_items(items, P, n, maxk, NULL, -1);
             ncand += items.size();
             CUDA_CHECK(cudaMemcpy(G.items, items.data(), items.size() * sizeof(unsigned), cudaMemcpyHostToDevice));
             gpu_phase<PH_LLL>(G, c, items.size());
+            snapshot(PH_LLL);
             lap(PH_LLL);
             gpu_phase<PH_DEDUPE>(G, c, n);
             CUDA_CHECK(cudaMemcpy(P.data(), G.polys, n * sizeof(Poly), cudaMemcpyDeviceToHost));
+            snapshot(PH_DEDUPE, trace_slot < 0 ? NULL : &P[trace_slot]);
             CUDA_CHECK(cudaMemcpy2D(state.data(), sizeof(int), (char *)G.cands + offsetof(Cand, state), sizeof(Cand),
                                     sizeof(int), (size_t)n * maxk, cudaMemcpyDeviceToHost));
             build_items(items, P, n, maxk, &state, CAND_LLL);
@@ -364,9 +468,11 @@ int main(int argc, char **argv)
             lap(PH_DEDUPE);
             CUDA_CHECK(cudaMemcpy(G.items, items.data(), items.size() * sizeof(unsigned), cudaMemcpyHostToDevice));
             gpu_phase<PH_DESCENT>(G, c, items.size());
+            snapshot(PH_DESCENT);
             lap(PH_DESCENT);
             gpu_phase<PH_REDUCE>(G, c, n);
             CUDA_CHECK(cudaMemcpy(P.data(), G.polys, n * sizeof(Poly), cudaMemcpyDeviceToHost));
+            snapshot(PH_REDUCE, trace_slot < 0 ? NULL : &P[trace_slot]);
             lap(PH_REDUCE);
         } else
 #endif
@@ -380,25 +486,38 @@ int main(int argc, char **argv)
                 const int t = omp_get_thread_num();
                 Scratch &S = *scr[t];
                 Cand *C = host_cands[t].data();
+                auto snapshot = [&](SoptPhase ph) {
+                    if (p == trace_slot)
+                        sopt_trace(trace, trace_index, "CPU", effort, ph, P[p], C);
+                };
                 sopt_prepare<LP, LL, DEG>(P[p], C, effort, S);
+                snapshot(PH_PREPARE);
                 if (P[p].status == SOPT_OK) {
                     nc += P[p].ncand;
                     for (int j = 0; j < P[p].ncand; j++)
                         sopt_lll<LP, LL, DEG>(P[p], C[j], S);
-                    sopt_dedupe<LP, DEG>(P[p], C);
-                    if (P[p].status == SOPT_OK)
-                        for (int j = 0; j < P[p].ncand; j++)
-                            if (C[j].state == CAND_LLL) {
-                                nk++;
-                                sopt_descent<LP, LL, DEG>(C[j], S);
-                            }
                 }
+                snapshot(PH_LLL);
+                sopt_dedupe<LP, DEG>(P[p], C);
+                snapshot(PH_DEDUPE);
+                if (P[p].status == SOPT_OK)
+                    for (int j = 0; j < P[p].ncand; j++)
+                        if (C[j].state == CAND_LLL) {
+                            nk++;
+                            sopt_descent<LP, LL, DEG>(C[j], S);
+                        }
+                snapshot(PH_DESCENT);
                 sopt_reduce<LP, DEG>(P[p], C);
+                snapshot(PH_REDUCE);
             }
             ncand += nc;
             nkept += nk;
         }
         secs += std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+        if (trace && ferror(trace)) {
+            fprintf(stderr, "s23_sopt: failed writing phase trace\n");
+            return 2;
+        }
 
         /* CADO fallbacks, -compare and the stats and text of each result, in parallel;
          * written in input order below */
@@ -436,8 +555,9 @@ int main(int argc, char **argv)
         for (int i = 0; i < n; i++, total++) {
             if (P[i].status != SOPT_OK) {
                 nfallback++;
-                fprintf(stderr, "# s23_sopt: poly %ld redone by CADO (%s)\n", total,
-                        skipped[i] ? "not degree 5 or too wide" : "port flagged it");
+                if (!host_log_fallback)
+                    fprintf(stderr, "# s23_sopt: poly %ld redone by CADO (%s)\n", total,
+                            skipped[i] ? "not degree 5 or too wide" : "port flagged it");
             }
             if (same[i] >= 0) {
                 ncompared++;
@@ -456,6 +576,8 @@ int main(int argc, char **argv)
 
     fprintf(stderr, "# s23_sopt: %ld polynomials, %.2f s optimizing (%.3f ms each); %ld redone by CADO",
             total, secs, 1000.0 * secs / (total ? total : 1), nfallback);
+    if (host_log_fallback)
+        fprintf(stderr, " (unsupported host log)");
     if (compare)
         fprintf(stderr, "; identical to CADO: %ld of %ld", nsame, ncompared);
     fprintf(stderr, "\n# s23_sopt: %ld candidates (%.1f per poly), %ld kept after dedupe", ncand,
@@ -481,5 +603,15 @@ int main(int argc, char **argv)
         cio_clear(&ref[t]);
     }
     mpz_clear(skew);
+    if (trace) {
+        if (fclose(trace)) {
+            perror(trace_path);
+            return 2;
+        }
+    }
+    if (trace_path && trace_index >= total) {
+        fprintf(stderr, "s23_sopt: trace index %ld not found in %ld inputs\n", trace_index, total);
+        return 2;
+    }
     return read_error ? 1 : 0;
 }

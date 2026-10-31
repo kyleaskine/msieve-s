@@ -11,6 +11,7 @@
 
 #include "mpint.h"
 #include "sopt_lll.h" /* translate */
+#include "sopt_math.h"
 
 namespace s23 {
 
@@ -250,10 +251,10 @@ S23_HD double alpha_projective_100(const Int<L> *f, DiscScratch<LL, DEG> &S, boo
         return 0.0;
     }
     double e = projective_term<L, DEG>(f, 2, pv[0], ok);
-    double alpha = (-e) * log(2.0);
+    double alpha = (-e) * sopt_log(2.0);
     for (int i = 1; i < 25; i++) {
         e = projective_term<L, DEG>(f, primes[i], pv[i], ok);
-        alpha += (-e) * log((double)primes[i]);
+        alpha += (-e) * sopt_log((double)primes[i]);
     }
     return alpha;
 }
@@ -263,7 +264,7 @@ S23_HD double expected_alpha(double logK)
 {
     if (logK < 0.999)
         return 0.0;
-    return 0.0 - 0.824 * (sqrt(2 * logK) - (log(logK) + 1.3766) / (2 * sqrt(2 * logK)));
+    return 0.0 - 0.824 * (sqrt(2 * logK) - (sopt_log(logK) + 1.3766) / (2 * sqrt(2 * logK)));
 }
 
 } // namespace s23

@@ -1,0 +1,1035 @@
+{
+  "date": "2026-10-30",
+  "updated_utc": "2026-10-31T00:27:51.372901+00:00",
+  "status": "complete: host tests, production-build GPU regressions, eight-job corpus and final-ranking replays passed",
+  "host_log": {
+    "implementation": "Production sopt uses the matching explicit-FMA or scalar glibc-derived device log, with host and device compatibility probes before processing.",
+    "unsupported_host": "Use CADO CPU fallback for unknown log/rounding environment.",
+    "device_failure": "Exit with error on device disagreement or CUDA failure.",
+    "host_tests": {
+      "samples": 2006680,
+      "default_glibc": {
+        "selected": "FMA",
+        "fma_mismatches": 0,
+        "scalar_mismatches": 302
+      },
+      "forced_scalar_glibc": {
+        "command": "GLIBC_TUNABLES=glibc.cpu.hwcaps=-FMA,-AVX2 stage23_gpu/build/test_host_log",
+        "selected": "scalar",
+        "fma_mismatches": 302,
+        "scalar_mismatches": 0
+      },
+      "rejection_cases": [
+        "unrecognized reference",
+        "non-nearest rounding",
+        "empty sample set"
+      ],
+      "special_values": true
+    },
+    "build": {
+      "path": "stage23_gpu/runs/20261030_shipping/frozen_build/build.json",
+      "sha256": "40112b854f7f1e4177847966bf60563c7b74f810228a7ef1bd6fd25cb965bb5d"
+    },
+    "gpu_binary": {
+      "path": "stage23_gpu/runs/20261030_shipping/frozen_build/s23_sopt",
+      "sha256": "3470484ee4316d0d12a0bda698abc59051138a01ad0528f14f26a50cbf5d64be"
+    },
+    "prior_prototype_evidence": "20261029_sopt_descent.json; does not establish new production-build GPU validation"
+  },
+  "validation": {
+    "host_suite": "passed",
+    "pipeline_tests": 44,
+    "final_scoring_tests": 3,
+    "trace_tests": 4,
+    "perturbation_reproducer": "fresh frozen-source build passed; both regression cases retain the expected sensitivity",
+    "stream_runner_checks": [
+      "saved CPU correction applied while streaming",
+      "truncated output rejected"
+    ],
+    "gpu": {
+      "status": "passed",
+      "pid": 900728,
+      "started": 1793383274.8741047,
+      "checks": [
+        {
+          "name": "device_log_check",
+          "command": [
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/test_host_log_gpu"
+          ],
+          "returncode": 0,
+          "seconds": 0.45847389602568,
+          "output_sha256": "f59f14452fefa353fccbe312e005b2864d8263da52c56fa426ad8b4919d3e2f4"
+        },
+        {
+          "name": "all48_cpu",
+          "command": [
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/frozen_build/s23_sopt_cpu",
+            "-cpu",
+            "-compare",
+            "-t",
+            "2",
+            "-inputpolys",
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/all48.poly"
+          ],
+          "returncode": 0,
+          "seconds": 0.9731567419948988,
+          "output_sha256": "6c254b39b53fb326ab5cb78290cd67b5989156f742ed10de05c067afd14e50c3"
+        },
+        {
+          "name": "all48_gpu",
+          "command": [
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/frozen_build/s23_sopt",
+            "-compare",
+            "-t",
+            "2",
+            "-inputpolys",
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/all48.poly"
+          ],
+          "returncode": 0,
+          "seconds": 1.6455462329904549,
+          "output_sha256": "6ce35cff74b853ad13c81e0e356c862d5928cbd7a3582089769a0ab22c1d9e62",
+          "exact": 48
+        },
+        {
+          "name": "c181_context",
+          "command": [
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/frozen_build/s23_sopt",
+            "-t",
+            "2",
+            "-batch",
+            "4096",
+            "-slice",
+            "10",
+            "-inputpolys",
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_context_c181/context.poly",
+            "-trace",
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/c181_context.jsonl",
+            "-trace-index",
+            "5854"
+          ],
+          "returncode": 0,
+          "seconds": 14.549145909026265,
+          "output_sha256": "b3986335f29102d0f4b4c8434a647fc6b3df3d2fbf70ef8e674b7545ad09176b",
+          "exact": 8192,
+          "all_trace_phases_exact": true,
+          "reference_sha256": "dd643b367317dadae499f7bb1de7801a33395087805883be6a5905d7d061c712",
+          "input_sha256": "d86e545996a9fc8bf7372842ea8033ac14ef781e33a126f109821c4f4e97eee3",
+          "trace_reference_sha256": "3b8232d4d4278b2f090d5ae2e45c53b05bbb0049481987d8314a96b93b83e6e6"
+        },
+        {
+          "name": "c179_576203_context",
+          "command": [
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/frozen_build/s23_sopt",
+            "-t",
+            "2",
+            "-batch",
+            "4096",
+            "-slice",
+            "10",
+            "-inputpolys",
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_context_c179/context.poly",
+            "-trace",
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/c179_576203_context.jsonl",
+            "-trace-index",
+            "5462"
+          ],
+          "returncode": 0,
+          "seconds": 14.549284161010291,
+          "output_sha256": "7aed66154425b70a697e7648c5474849a8d2f4a7abfc60fdf62ae0316d7681a7",
+          "exact": 8192,
+          "all_trace_phases_exact": true,
+          "reference_sha256": "dce5439543c64ba8b18a34b5950597b44e4d40e3d34932e3219fccb5c6cf2747",
+          "input_sha256": "1099d4a035b112186a23556cc4d8bf64cdbcc8a7cd8ebc22e4a3ac1da3eb7ba0",
+          "trace_reference_sha256": "09d19a7c3b438261d934d9a07b59fd49b57cdc6c8f3435dc765d48b612087b93"
+        },
+        {
+          "name": "c146_e0_gpu",
+          "command": [
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/frozen_build/s23_sopt",
+            "-t",
+            "2",
+            "-sopteffort",
+            "0",
+            "-inputpolys",
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/c146_e0.poly"
+          ],
+          "returncode": 0,
+          "seconds": 23.922932913992554,
+          "output_sha256": "ae49ea3462f9eee6ad5652410ab34cb16345e3f7dffc5accb7df41b6dea294cf",
+          "exact": 13000,
+          "fixture_sha256": "f951f30f09610e11bcac144121b895229dea870691710212387798aaff9f0fc8"
+        },
+        {
+          "name": "c146_e50_gpu",
+          "command": [
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/frozen_build/s23_sopt",
+            "-t",
+            "2",
+            "-sopteffort",
+            "50",
+            "-inputpolys",
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/c146_e50.poly"
+          ],
+          "returncode": 0,
+          "seconds": 180.4783434229903,
+          "output_sha256": "b9bcf7075b990c205b6b4b8f5bf61c6fad7af5f36b9265c5c56cb16075ac8830",
+          "exact": 3000,
+          "fixture_sha256": "f951f30f09610e11bcac144121b895229dea870691710212387798aaff9f0fc8"
+        },
+        {
+          "name": "c161_e0_gpu",
+          "command": [
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/frozen_build/s23_sopt",
+            "-t",
+            "2",
+            "-sopteffort",
+            "0",
+            "-inputpolys",
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/c161_e0.poly"
+          ],
+          "returncode": 0,
+          "seconds": 19.56678498897236,
+          "output_sha256": "ef6c02f90ed55187c6c622e4d12d3b6934a0dda5b06f0383a7a513cdc3df91a6",
+          "exact": 11000,
+          "fixture_sha256": "cbd49ee90999eb2884c1b32dd1ef166eccfb4f7e5c1f8567928807b4faf2d3ec"
+        },
+        {
+          "name": "c161_e50_gpu",
+          "command": [
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/frozen_build/s23_sopt",
+            "-t",
+            "2",
+            "-sopteffort",
+            "50",
+            "-inputpolys",
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/c161_e50.poly"
+          ],
+          "returncode": 0,
+          "seconds": 72.4999730400159,
+          "output_sha256": "fadfc7a826453a028debf4f0b7f82226656ea48ebb28075857f186dc008ce21c",
+          "exact": 1000,
+          "fixture_sha256": "cbd49ee90999eb2884c1b32dd1ef166eccfb4f7e5c1f8567928807b4faf2d3ec"
+        },
+        {
+          "name": "full_corpus",
+          "command": [
+            "/usr/bin/python3",
+            "/home/kylea/msieve-s/stage23_gpu/tests/run_sopt_corpus.py",
+            "--run-dir",
+            "/home/kylea/msieve-s/stage23_gpu/runs/20261030_shipping/full_corpus",
+            "--wait-gpu"
+          ],
+          "returncode": 0,
+          "seconds": 17651.665641956963,
+          "output_sha256": "8655226f0301d3a4de8ab276e1a312860aab1c3e9f1fca9def1d5bea37885eef"
+        }
+      ],
+      "phase": "full_corpus",
+      "binary_sha256": "3470484ee4316d0d12a0bda698abc59051138a01ad0528f14f26a50cbf5d64be",
+      "finished": 1793400162.6746135,
+      "corpus": {
+        "status": "passed",
+        "total": 8028269,
+        "exact": 8028269,
+        "binary_sha256": "3470484ee4316d0d12a0bda698abc59051138a01ad0528f14f26a50cbf5d64be"
+      }
+    },
+    "gpu_status_file": "stage23_gpu/runs/20261030_shipping/gpu_status.json",
+    "gpu_plan": {
+      "path": "stage23_gpu/runs/20261030_shipping/gpu_plan.json",
+      "sha256": "d13ec8678369b2b1de54067360f50652ab339725150f0c6834b584c01f9e09ad"
+    },
+    "full_corpus": {
+      "path": "stage23_gpu/runs/20261030_shipping/full_corpus/manifest.json",
+      "sha256": "6eeb3a25b7b64635bfed1cc7095b863611f2d0acc00aff45ee021b4aa033b7e0"
+    },
+    "planned_smoke": [
+      "both device log variants and deliberate mismatch rejection",
+      "all 48 historically differing inputs against saved and current CADO results",
+      "both original 8192-input batch contexts and phase traces",
+      "C146: 13000 effort-0 and 3000 effort-50 fixture outputs",
+      "C161: 11000 effort-0 and 1000 effort-50 fixture outputs"
+    ],
+    "planned_full_corpus_inputs": 8028269,
+    "reference": "Checkpoint-verified historical GPU outputs with all audited coefficient differences replaced by saved CPU results; not a new full CPU recomputation.",
+    "full_corpus_results": [
+      {
+        "name": "c152",
+        "count": 371723,
+        "seconds": 622.1404457619647,
+        "record": "stage23_gpu/runs/20261030_shipping/full_corpus/c152.json",
+        "sha256": "9e9cb75af6dcef25a32624af5f5f1eaa2d382c384c0df7409cff209f50298239"
+      },
+      {
+        "name": "c170_418691",
+        "count": 770700,
+        "seconds": 1336.887915818952,
+        "record": "stage23_gpu/runs/20261030_shipping/full_corpus/c170_418691.json",
+        "sha256": "1d4f1663626d8f71848fb7fae95b80723c25177f664b4f937a135b6fad6e0762"
+      },
+      {
+        "name": "c148",
+        "count": 440650,
+        "seconds": 734.9334986110334,
+        "record": "stage23_gpu/runs/20261030_shipping/full_corpus/c148.json",
+        "sha256": "00ba4e59003185b4e6f00c93596ad0edb5537ab2528f5dcb61913dfdb0bc3ca6"
+      },
+      {
+        "name": "c164",
+        "count": 809721,
+        "seconds": 1334.8707133160206,
+        "record": "stage23_gpu/runs/20261030_shipping/full_corpus/c164.json",
+        "sha256": "3bb5b5de23b596d4ae7c679a22033def81072b85801e999e3362605f24efeb8b"
+      },
+      {
+        "name": "c179_358030",
+        "count": 1335975,
+        "seconds": 2406.373533171951,
+        "record": "stage23_gpu/runs/20261030_shipping/full_corpus/c179_358030.json",
+        "sha256": "aabf3d53bb90c3467be33e2db8d82b012a685beafa090e245b80742f70f77718"
+      },
+      {
+        "name": "c179_576203",
+        "count": 1151078,
+        "seconds": 2088.8261048269924,
+        "record": "stage23_gpu/runs/20261030_shipping/full_corpus/c179_576203.json",
+        "sha256": "533afdd933ceb7b62d3bacb7f33e1b2cff6f57c81439979fa23dc1e2047f741a"
+      },
+      {
+        "name": "c181",
+        "count": 1144432,
+        "seconds": 2816.8737153229886,
+        "record": "stage23_gpu/runs/20261030_shipping/full_corpus/c181.json",
+        "sha256": "f259cd5c285f3385ef34a77a0b0ccfbd8e95faaac4503df407765e726dff2d5d"
+      },
+      {
+        "name": "c190",
+        "count": 2003990,
+        "seconds": 3690.741553488013,
+        "record": "stage23_gpu/runs/20261030_shipping/full_corpus/c190.json",
+        "sha256": "640bb627d93bfcc0df06a1c2b6aeab173d1fd9f518203af870353bccc0c6d3bf"
+      }
+    ]
+  },
+  "c170_correction": {
+    "supersedes": "20261029_followup.json comparison and export-regression interpretation",
+    "problem": "The comparison reoptimized declared skew before scoring; its value was not the score of the exported configuration.",
+    "exported_skew": 27761121.2,
+    "exported_lattice_score": 582868400.0,
+    "replaced_skew": 26512258.7,
+    "replaced_skew_lattice_score": 582720200.0,
+    "original_cpu_control_lattice_score": 582832700.0,
+    "conclusion": "The original actual export beat that control in the independent lattice model. The earlier claimed export regression was incorrect.",
+    "evidence": {
+      "path": "stage23_gpu/runs/20261030_shipping/c170_scoring_diagnosis.json",
+      "sha256": "5c70135159a861d6e35b6bf2d79b2db640089010d279ccbfb31b489af613072d"
+    }
+  },
+  "final_ranking": {
+    "policy": "Retain every declared finalist plus standard/job Murphy skew proposals; choose only after independent fixed-skew validation.",
+    "validation": {
+      "murphy_angles": 256000,
+      "lattice_stream": 2,
+      "lattices": 256,
+      "samples_per_lattice": 4096
+    },
+    "checkpoint_schemas": {
+      "score_final": 2,
+      "export": 2
+    },
+    "replays": [
+      {
+        "name": "c170_418691",
+        "seconds": 59.482249488006346,
+        "old_score": 582868400.0,
+        "new_score": 582950000.0,
+        "new_winner": {
+          "search": "s0001",
+          "parent": 1,
+          "phase": "breadth",
+          "rank": 0,
+          "label": "u 2 v 8394009 t -2871989 Ea 42.140747 lognorm 50.788721 alpha_s -6.314848 alpha -6.652287",
+          "poly": {
+            "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+            "Y0": -1754343176299108860144625010922072,
+            "Y1": 1350903045751772826863,
+            "c0": 23269054856233958953467879921180173492026,
+            "c1": -2430044291775224432101119979758661,
+            "c2": -950801495386158365600829311,
+            "c3": 12332564179494365320,
+            "c4": 1186509460876,
+            "c5": -5040,
+            "skew": 28215801.6
+          },
+          "score": 582950000.0,
+          "murphy": 7.819933e-08,
+          "configuration": "standard_skew_proposal"
+        },
+        "old_count": 160,
+        "new_count": 341,
+        "all_original_controls_retained": true,
+        "export_readback_matches": true,
+        "original_summary_sha256": "fe54afbdc2193e512e90adcc45e2d95e5d8c09e08c982561278309e78362dc02",
+        "source_hashes": {
+          "scripts/gpu_pipeline.py": "980d3323947daa4d4c29721d91179dd25dd9a539bc7affc5bc61997f94dd21ad",
+          "stage23_bench/tools/polyfmt.py": "4ae7b1d0ffab0b8fa87b6bc617223bb5495f871676e66584583f2f5263548721",
+          "stage23_bench/tools/content_seeds.py": "4bd1e45b142b7c26df38e608de5d1e8ae08d5197daa356de0d02591e7b67688e",
+          "stage23_bench/tools/score_polys.py": "7d34c44bf0e45ffaa3ba5a61279d52d688eca9dc7fb2a617763981260edc2156"
+        },
+        "relative_lattice_gain": 0.00013999729613067835,
+        "export": {
+          "path": "stage23_gpu/runs/20261030_shipping/final_ranking/c170_418691/results/best.poly",
+          "sha256": "3a53bfd7c8264a62efde228d5db984005fbfa6eea2701f3275477e551243c90c"
+        }
+      },
+      {
+        "name": "c152",
+        "seconds": 50.44752560602501,
+        "old_score": 173295300.0,
+        "new_score": 173296800.0,
+        "new_winner": {
+          "search": "s0010",
+          "parent": 10,
+          "phase": "murphy",
+          "rank": 0,
+          "label": "u 1 v -1026760 t -775880 MurphyE 1.1731117203422957e-07 lognorm 46.022686 lognorm_at_murphy_skew 46.530641 alpha_s -6.693813 control 1.1705151817273411e-07 proposal 1.1731117203422957e-07 accepted 1 calls 134 limited 0 alpha -7.215670",
+          "poly": {
+            "n": 16273663420298428230583140319166907644233995594739232048821072852607365917367887257773312807074616381970239273254832258257562987678558761121530866553451,
+            "Y0": -312417212640335517407508516808,
+            "Y1": 81471496833508471591,
+            "c0": -33605595065146530842871157168640202,
+            "c1": 2590656553368287011594012734233,
+            "c2": -1641621348272263424483844,
+            "c3": -544530852014319053,
+            "c4": 179009077866,
+            "c5": 32760,
+            "skew": 2832400.3
+          },
+          "score": 173296800.0,
+          "murphy": 1.173126e-07,
+          "configuration": "standard_skew_proposal"
+        },
+        "old_count": 160,
+        "new_count": 330,
+        "all_original_controls_retained": true,
+        "export_readback_matches": true,
+        "original_summary_sha256": "46e99b47c2f0e0179caa69313f1835c9c1723aa5d693bbb1fc83cbb22444c6f7",
+        "source_hashes": {
+          "scripts/gpu_pipeline.py": "980d3323947daa4d4c29721d91179dd25dd9a539bc7affc5bc61997f94dd21ad",
+          "stage23_bench/tools/polyfmt.py": "4ae7b1d0ffab0b8fa87b6bc617223bb5495f871676e66584583f2f5263548721",
+          "stage23_bench/tools/content_seeds.py": "4bd1e45b142b7c26df38e608de5d1e8ae08d5197daa356de0d02591e7b67688e",
+          "stage23_bench/tools/score_polys.py": "7d34c44bf0e45ffaa3ba5a61279d52d688eca9dc7fb2a617763981260edc2156"
+        },
+        "relative_lattice_gain": 8.655745424190897e-06,
+        "export": {
+          "path": "stage23_gpu/runs/20261030_shipping/final_ranking/c152/results/best.poly",
+          "sha256": "178f53bb05158988c43bc1f02c32e36539a356e1f5247581f7ea9164883e52f4"
+        }
+      }
+    ],
+    "corrected_cpu_gpu_comparisons": [
+      {
+        "name": "c170_418691",
+        "source": {
+          "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/comparison_declared_20261030/summary.json",
+          "sha256": "9a5eca2b7065ba4809775c83932fc90e21916dbbf7810ac519453f3f0722a984"
+        },
+        "settings": {
+          "params": "job:31,32,14,40000000",
+          "lattice": "14,8192",
+          "qband": "40000000,150000000,7",
+          "lpbr": 31,
+          "lpba": 32,
+          "rlim": 80000000,
+          "alim": 120000000,
+          "profile_id": "c171_testsieve_20261016",
+          "profile_snapshot": {
+            "id": "c171_testsieve_20261016",
+            "digits": 171,
+            "degree": 5,
+            "recorded": "2026-10-16",
+            "evidence": "user_reported_test_sieve",
+            "lpbr": 31,
+            "lpba": 32,
+            "rlim": 80000000,
+            "alim": 120000000,
+            "side": "algebraic",
+            "region": {
+              "label": "gnfs-lasieve4I14e",
+              "logI": 14,
+              "J": 8192,
+              "points": 134217728
+            },
+            "q": {
+              "min": 40000000,
+              "max": 150000000,
+              "model_samples": 7
+            },
+            "source": {
+              "path": "stage23_bench/data/c171/gpu_ropt/testsieve_user_20261016.json",
+              "sha256": "047c50ae6697e274c4a4299e96342e8a69df3ca929cd06d6ee2d0505e573693f"
+            },
+            "notes": "Six user-reported test windows over this range; final production q endpoint was provisional. Supersedes the earlier C168-derived 30/31, 25M-100M model for C171.",
+            "mfbr": 60,
+            "mfba": 92,
+            "rlambda": 2.35,
+            "alambda": 3.5,
+            "lss": 0
+          },
+          "catalog_sha256": "e3fac3581bd361d307de0e093e641268488c6be15c051656521404524d6d4b30",
+          "provisional": true,
+          "source": "Inherited historical profile; not confirmed for this input.",
+          "note": "Model comparison only; no new test sieving."
+        },
+        "validation": {
+          "angles": 256000,
+          "lattices": 256,
+          "samples": 4096,
+          "stream": 2
+        },
+        "winners": {
+          "standard_murphy": {
+            "cpu": {
+              "method": "msieve_orig",
+              "index": 3,
+              "poly": {
+                "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+                "e": 4.721e-13,
+                "skew": 14149361.54,
+                "c0": -7779841274585328059524027775629960989540,
+                "c1": -961471758026072892043363078918680,
+                "c2": 226241619003811742877438925,
+                "c3": 851187056223826298,
+                "c4": -489409559774,
+                "c5": 35280,
+                "Y0": -1034841062628466937972475138419123,
+                "Y1": 391430229897112440401
+              },
+              "skew_candidates": [
+                14149361.54,
+                13880560.6
+              ],
+              "standard_murphy": 4.720864e-13,
+              "standard_skew": 14149361.54,
+              "lattice_score": 575620400.0,
+              "lattice_skew": 14149361.54,
+              "job_murphy": 7.923557e-08,
+              "per_q": [
+                119.1145,
+                107.1147,
+                99.0055,
+                92.5703,
+                88.5091,
+                85.0308,
+                82.5173
+              ],
+              "declared_scores": {
+                "standard_murphy": 4.720864e-13,
+                "lattice_score": 575620400.0,
+                "job_murphy": 7.923557e-08,
+                "per_q": [
+                  119.1145,
+                  107.1147,
+                  99.0055,
+                  92.5703,
+                  88.5091,
+                  85.0308,
+                  82.5173
+                ],
+                "skew": 14149361.54
+              }
+            },
+            "gpu": {
+              "method": "gpu_pipeline",
+              "index": 3,
+              "label": "murphy/s0002/0",
+              "poly": {
+                "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+                "Y0": -1034841027203248271824005057247821,
+                "Y1": 391430229897112440401,
+                "skew": 14165315.3,
+                "c0": -7865002735971499821616449516631524404240,
+                "c1": -920501644089323029896252085640772,
+                "c2": 226448931532723509724363537,
+                "c3": 676906528224171306,
+                "c4": -473445006974,
+                "c5": 35280
+              },
+              "skew_candidates": [
+                14165315.3,
+                14300192.7
+              ],
+              "standard_murphy": 4.720868e-13,
+              "standard_skew": 14165315.3,
+              "lattice_score": 575657900.0,
+              "lattice_skew": 14300192.7,
+              "job_murphy": 7.923407e-08,
+              "per_q": [
+                119.118,
+                107.1176,
+                99.0081,
+                92.5779,
+                88.5375,
+                85.0175,
+                82.5325
+              ],
+              "declared_scores": {
+                "standard_murphy": 4.720868e-13,
+                "lattice_score": 575647900.0,
+                "job_murphy": 7.92355e-08,
+                "per_q": [
+                  119.118,
+                  107.1159,
+                  99.0074,
+                  92.5724,
+                  88.5258,
+                  85.0311,
+                  82.5245
+                ],
+                "skew": 14165315.3
+              }
+            },
+            "ratio": 1.0000008473025277,
+            "transform": {
+              "t": 90502,
+              "rotation": [
+                0
+              ],
+              "negated": false
+            }
+          },
+          "lattice_score": {
+            "cpu": {
+              "method": "cado_orig",
+              "index": 0,
+              "poly": {
+                "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+                "Y0": -1754343176299108860144625010922072,
+                "Y1": 1350903045751772826863,
+                "c0": 23269054856233958953467879921180173492026,
+                "c1": -2430044291775224432101119979758661,
+                "c2": -950801495386158365600829311,
+                "c3": 12332564179494365320,
+                "c4": 1186509460876,
+                "c5": -5040,
+                "skew": 28215801.6,
+                "lognorm": 50.81,
+                "alpha": -6.65,
+                "MurphyE": 4.632e-13
+              },
+              "skew_candidates": [
+                20962081.347,
+                28215801.6,
+                27611195.1
+              ],
+              "standard_murphy": 4.644521e-13,
+              "standard_skew": 28215801.6,
+              "lattice_score": 582950000.0,
+              "lattice_skew": 28215801.6,
+              "job_murphy": 7.819933e-08,
+              "per_q": [
+                120.0169,
+                109.193,
+                100.9904,
+                93.8237,
+                89.3475,
+                85.5618,
+                82.7668
+              ],
+              "declared_scores": {
+                "standard_murphy": 4.623243e-13,
+                "lattice_score": 578632000.0,
+                "job_murphy": 7.790538e-08,
+                "per_q": [
+                  120.0796,
+                  109.1654,
+                  98.9825,
+                  93.1225,
+                  88.6652,
+                  84.9067,
+                  82.1953
+                ],
+                "skew": 20962081.347
+              }
+            },
+            "gpu": {
+              "method": "gpu_pipeline",
+              "index": 1,
+              "label": "breadth/s0001/0",
+              "poly": {
+                "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+                "Y0": -1754343176299108860144625010922072,
+                "Y1": 1350903045751772826863,
+                "c0": 23269054856233958953467879921180173492026,
+                "c1": -2430044291775224432101119979758661,
+                "c2": -950801495386158365600829311,
+                "c3": 12332564179494365320,
+                "c4": 1186509460876,
+                "c5": -5040,
+                "skew": 28215801.6
+              },
+              "skew_candidates": [
+                27611195.1,
+                28215801.6
+              ],
+              "standard_murphy": 4.644521e-13,
+              "standard_skew": 28215801.6,
+              "lattice_score": 582950000.0,
+              "lattice_skew": 28215801.6,
+              "job_murphy": 7.819933e-08,
+              "per_q": [
+                120.0169,
+                109.193,
+                100.9904,
+                93.8237,
+                89.3475,
+                85.5618,
+                82.7668
+              ],
+              "declared_scores": {
+                "standard_murphy": 4.644284e-13,
+                "lattice_score": 582832700.0,
+                "job_murphy": 7.820085e-08,
+                "per_q": [
+                  120.0651,
+                  109.1945,
+                  100.9946,
+                  93.7522,
+                  89.3093,
+                  85.5401,
+                  82.7298
+                ],
+                "skew": 27611195.1
+              }
+            },
+            "ratio": 1.0,
+            "transform": {
+              "t": 0,
+              "rotation": [
+                0
+              ],
+              "negated": false
+            }
+          }
+        }
+      },
+      {
+        "name": "c152",
+        "source": {
+          "path": "stage23_gpu/runs/20261028_existing_jobs/c152/comparison_declared_20261030/summary.json",
+          "sha256": "91fcc5893cf1430764acb6ecd4724201a3b84ab80f095d4202ba08805e9e662a"
+        },
+        "settings": {
+          "params": "job:29,30,14,10000000",
+          "lattice": "14,8192",
+          "qband": "10000000,30000000,7",
+          "lpbr": 29,
+          "lpba": 30,
+          "rlim": 15000000,
+          "alim": 23000000,
+          "profile_id": "c146_user_20261003",
+          "profile_snapshot": {
+            "id": "c146_user_20261003",
+            "digits": 146,
+            "degree": 5,
+            "recorded": "2026-10-03",
+            "evidence": "measured_test_sieve",
+            "lpbr": 29,
+            "lpba": 30,
+            "rlim": 15000000,
+            "alim": 23000000,
+            "side": "algebraic",
+            "region": {
+              "label": "CADO las I=14",
+              "logI": 14,
+              "J": 8192,
+              "points": 134217728
+            },
+            "q": {
+              "min": 10000000,
+              "max": 30000000,
+              "model_samples": 7
+            },
+            "source": {
+              "path": "stage23_bench/data/c146/test_sieve/README.txt",
+              "sha256": "1c01f9c6f94437cf8263348991d036d0b90281f67a80e97178c7d3b3bf59ec9a"
+            },
+            "notes": "Second test uses user c145-style settings. Four 4000-wide windows; timing overlapped another job. Region J follows the saved scoring convention.",
+            "mfbr": 58,
+            "mfba": 58,
+            "rlambda": 2.0,
+            "alambda": 1.94
+          },
+          "catalog_sha256": "e3fac3581bd361d307de0e093e641268488c6be15c051656521404524d6d4b30",
+          "provisional": true,
+          "source": "Inherited historical profile; not confirmed for this input.",
+          "note": "Model comparison only; no new test sieving."
+        },
+        "validation": {
+          "angles": 256000,
+          "lattices": 256,
+          "samples": 4096,
+          "stream": 2
+        },
+        "winners": {
+          "standard_murphy": {
+            "cpu": {
+              "method": "msieve_orig",
+              "index": 27,
+              "poly": {
+                "n": 16273663420298428230583140319166907644233995594739232048821072852607365917367887257773312807074616381970239273254832258257562987678558761121530866553451,
+                "e": 5.999e-12,
+                "skew": 2833400.03,
+                "c0": 39753042636438302142609146339455680,
+                "c1": 2494596008727606729715482364298,
+                "c2": -1687847096515769505143439,
+                "c3": -523601270516086517,
+                "c4": 183734544066,
+                "c5": 32760,
+                "Y0": -312414862269123367521611588049,
+                "Y1": 81471496833508471591
+              },
+              "skew_candidates": [
+                2833400.03,
+                3006245.2
+              ],
+              "standard_murphy": 5.99918e-12,
+              "standard_skew": 2833400.03,
+              "lattice_score": 173280900.0,
+              "lattice_skew": 2833400.03,
+              "job_murphy": 1.173145e-07,
+              "per_q": [
+                174.0881,
+                160.9068,
+                150.3992,
+                141.5899,
+                135.5554,
+                130.3532,
+                127.2521
+              ],
+              "declared_scores": {
+                "standard_murphy": 5.99918e-12,
+                "lattice_score": 173280900.0,
+                "job_murphy": 1.173145e-07,
+                "per_q": [
+                  174.0881,
+                  160.9068,
+                  150.3992,
+                  141.5899,
+                  135.5554,
+                  130.3532,
+                  127.2521
+                ],
+                "skew": 2833400.03
+              }
+            },
+            "gpu": {
+              "method": "gpu_pipeline",
+              "index": 0,
+              "label": "murphy/s0010/0",
+              "poly": {
+                "n": 16273663420298428230583140319166907644233995594739232048821072852607365917367887257773312807074616381970239273254832258257562987678558761121530866553451,
+                "Y0": -312417212640335517407508516808,
+                "Y1": 81471496833508471591,
+                "skew": 2832400.3,
+                "c0": -33605595065146530842871157168640202,
+                "c1": 2590656553368287011594012734233,
+                "c2": -1641621348272263424483844,
+                "c3": -544530852014319053,
+                "c4": 179009077866,
+                "c5": 32760
+              },
+              "skew_candidates": [
+                2836237.4,
+                2832400.3
+              ],
+              "standard_murphy": 5.998992e-12,
+              "standard_skew": 2832400.3,
+              "lattice_score": 173296800.0,
+              "lattice_skew": 2832400.3,
+              "job_murphy": 1.173126e-07,
+              "per_q": [
+                174.1118,
+                160.936,
+                150.3963,
+                141.5889,
+                135.5651,
+                130.3811,
+                127.2612
+              ],
+              "declared_scores": {
+                "standard_murphy": 5.998901e-12,
+                "lattice_score": 173295300.0,
+                "job_murphy": 1.173119e-07,
+                "per_q": [
+                  174.1139,
+                  160.9322,
+                  150.3963,
+                  141.5865,
+                  135.5651,
+                  130.3789,
+                  127.2612
+                ],
+                "skew": 2836237.4
+              }
+            },
+            "ratio": 0.9999686623838591,
+            "transform": {
+              "t": -28849,
+              "rotation": [
+                0
+              ],
+              "negated": false
+            }
+          },
+          "lattice_score": {
+            "cpu": {
+              "method": "msieve_orig",
+              "index": 27,
+              "poly": {
+                "n": 16273663420298428230583140319166907644233995594739232048821072852607365917367887257773312807074616381970239273254832258257562987678558761121530866553451,
+                "e": 5.999e-12,
+                "skew": 2833400.03,
+                "c0": 39753042636438302142609146339455680,
+                "c1": 2494596008727606729715482364298,
+                "c2": -1687847096515769505143439,
+                "c3": -523601270516086517,
+                "c4": 183734544066,
+                "c5": 32760,
+                "Y0": -312414862269123367521611588049,
+                "Y1": 81471496833508471591
+              },
+              "skew_candidates": [
+                2833400.03,
+                3006245.2
+              ],
+              "standard_murphy": 5.99918e-12,
+              "standard_skew": 2833400.03,
+              "lattice_score": 173280900.0,
+              "lattice_skew": 2833400.03,
+              "job_murphy": 1.173145e-07,
+              "per_q": [
+                174.0881,
+                160.9068,
+                150.3992,
+                141.5899,
+                135.5554,
+                130.3532,
+                127.2521
+              ],
+              "declared_scores": {
+                "standard_murphy": 5.99918e-12,
+                "lattice_score": 173280900.0,
+                "job_murphy": 1.173145e-07,
+                "per_q": [
+                  174.0881,
+                  160.9068,
+                  150.3992,
+                  141.5899,
+                  135.5554,
+                  130.3532,
+                  127.2521
+                ],
+                "skew": 2833400.03
+              }
+            },
+            "gpu": {
+              "method": "gpu_pipeline",
+              "index": 0,
+              "label": "murphy/s0010/0",
+              "poly": {
+                "n": 16273663420298428230583140319166907644233995594739232048821072852607365917367887257773312807074616381970239273254832258257562987678558761121530866553451,
+                "Y0": -312417212640335517407508516808,
+                "Y1": 81471496833508471591,
+                "skew": 2832400.3,
+                "c0": -33605595065146530842871157168640202,
+                "c1": 2590656553368287011594012734233,
+                "c2": -1641621348272263424483844,
+                "c3": -544530852014319053,
+                "c4": 179009077866,
+                "c5": 32760
+              },
+              "skew_candidates": [
+                2836237.4,
+                2832400.3
+              ],
+              "standard_murphy": 5.998992e-12,
+              "standard_skew": 2832400.3,
+              "lattice_score": 173296800.0,
+              "lattice_skew": 2832400.3,
+              "job_murphy": 1.173126e-07,
+              "per_q": [
+                174.1118,
+                160.936,
+                150.3963,
+                141.5889,
+                135.5651,
+                130.3811,
+                127.2612
+              ],
+              "declared_scores": {
+                "standard_murphy": 5.998901e-12,
+                "lattice_score": 173295300.0,
+                "job_murphy": 1.173119e-07,
+                "per_q": [
+                  174.1139,
+                  160.9322,
+                  150.3963,
+                  141.5865,
+                  135.5651,
+                  130.3789,
+                  127.2612
+                ],
+                "skew": 2836237.4
+              }
+            },
+            "ratio": 1.000091758526185,
+            "transform": {
+              "t": -28849,
+              "rotation": [
+                0
+              ],
+              "negated": false
+            }
+          }
+        }
+      }
+    ],
+    "original_run_outputs": "Preserved; replay outputs are under stage23_gpu/runs/20261030_shipping/final_ranking."
+  },
+  "limitations": [
+    "The eight-job corpus excludes the subsequently added C150 input and does not establish agreement with other CADO/compiler/host builds.",
+    "A finite runtime compatibility probe is not a proof over every double or host libm.",
+    "The lattice profiles are provisional; tiny model differences have no statistical significance estimate and are not measured sieve-speed gains.",
+    "Finalist comparisons are shortlist comparisons, not exhaustive rescoring of all CPU exports."
+  ],
+  "provenance": [
+    {
+      "path": "stage23_gpu/runs/20261030_shipping/host_tests.log",
+      "sha256": "ccc98ad183e3cb83b33d0c58db415fd0ae3c53a2330956889ccc441794fd58d0"
+    },
+    {
+      "path": "stage23_gpu/runs/20261030_shipping/pipeline_tests.log",
+      "sha256": "a7a264e1a612fd3a025067b6cac4ef48768f054b808bba580e6c6d9390cbd650"
+    },
+    {
+      "path": "stage23_gpu/runs/20261030_shipping/final_ranking.json",
+      "sha256": "39c43185942e62e233f3611ec500c9b769db6982c674cc2fa566b32f9b098511"
+    },
+    {
+      "path": "stage23_gpu/runs/20261030_shipping/trace_perturb/summary.json",
+      "sha256": "5638b2d6735a9a5a61cd315877e4b836723fd0e9c2590633d21b60de4424aa0e"
+    }
+  ],
+  "source_hashes": {
+    "scripts/gpu_pipeline.py": "980d3323947daa4d4c29721d91179dd25dd9a539bc7affc5bc61997f94dd21ad",
+    "stage23_bench/tools/final_scoring.py": "725799c8459cfb1a453f0a005124ff3f5d1a2e8a59e1403c49ca5f2e4a825cfa",
+    "stage23_bench/runs/20261027_jobs/compare.py": "4455b2ef43fb8834e3d1556acacf50e7614fd4f29bfff2cb7d892d6ee282d972",
+    "stage23_gpu/tests/run_sopt_corpus.py": "da436143cbd922c903d344cedd85ce54768e4384e4989d062c0c83a563754044",
+    "stage23_gpu/tools/host_log_check.h": "d154697f8e1ad315bdf144fb63670c85dc8b1174178b44e313c5b3df7c5b6c33",
+    "stage23_gpu/include/host_log.h": "5a4f18572e17d46df8bd654575e08b680503b411abb32b7fb56ca2cb3bc16b8e",
+    "stage23_gpu/include/norms.h": "c69f6bbf4add321b224a08ac985be3301736f246ecb0931d07a334b934e25130",
+    "stage23_gpu/tools/s23_sopt.cu": "b071ff9888733230fc2970b3d514274d5621e287832a9f1eac104f5504cae23e",
+    "stage23_gpu/Makefile": "a72bc655fd9afd8b46e9d94b7eb740bef79608206f248afdfbdd60d424d445ab"
+  }
+}

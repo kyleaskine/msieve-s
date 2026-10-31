@@ -40,7 +40,7 @@ CASES := $(BUILD)/cases.txt
 
 .PHONY: all test device run-device clean s23_sopt_cpu s23_sopt accept-cpu accept-gpu s23_ropt_cpu s23_ropt
 
-SOPT_SRC := tools/s23_sopt.cu tools/cado_io.h $(HEADERS)
+SOPT_SRC := tools/s23_sopt.cu tools/sopt_trace.h tools/host_log_check.h tools/cado_io.h $(HEADERS)
 
 all: test
 
@@ -71,6 +71,18 @@ $(BUILD)/test_rselect: tests/test_rselect.cpp $(HEADERS) $(BUILD)/cado_io.o $(CA
 $(BUILD)/test_rscan: tests/test_rscan.cpp $(HEADERS) | $(BUILD)
 	$(CXX) $(CXXFLAGS) -fopenmp -o $@ $<
 
+$(BUILD)/test_host_log: tests/test_host_log.cpp tools/host_log_check.h include/host_log.h | $(BUILD)
+	$(CXX) $(CXXFLAGS) -Itools -ffp-contract=off -o $@ $< -lm
+
+$(BUILD)/test_host_log_gpu: tests/test_host_log_gpu.cu tools/host_log_check.h include/host_log.h | $(BUILD)
+	$(NVCC) -O2 -std=c++17 -arch=sm_$(CUDA) --fmad=false -Iinclude -Itools -Xcompiler -ffp-contract=off -o $@ $<
+
+.PHONY: test-host-log-gpu
+test-host-log-gpu: $(BUILD)/test_host_log_gpu
+	./$(BUILD)/test_host_log_gpu
+
+test: $(BUILD)/test_host_log
+
 $(BUILD)/test_rscreen: tests/test_rscreen.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO_LIB_FILES) | $(BUILD)
 	$(CXX) $(CXXFLAGS) $(ROPT_HOST_FLAGS) -Itools -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -fopenmp
 
@@ -80,9 +92,12 @@ $(BUILD)/test_rclass: tests/test_rclass.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO
 $(BUILD)/test_rclass_rank: tests/test_rclass_rank.cpp $(HEADERS) $(BUILD)/cado_io.o $(CADO_LIB_FILES) | $(BUILD)
 	$(CXX) $(CXXFLAGS) -ffp-contract=off -Itools -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS) -fopenmp
 
-test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_rselect $(BUILD)/test_rscan $(BUILD)/test_rclass $(BUILD)/test_rclass_rank $(BUILD)/test_rscreen $(CASES) $(BUILD)/murphy_rank_probe $(BUILD)/s23_ropt_cpu $(BUILD)/test_murphy_integral $(BUILD)/test_murphy_cell $(BUILD)/test_murphy_rho
+test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_rselect $(BUILD)/test_rscan $(BUILD)/test_rclass $(BUILD)/test_rclass_rank $(BUILD)/test_rscreen $(CASES) $(BUILD)/murphy_rank_probe $(BUILD)/s23_ropt_cpu $(BUILD)/s23_sopt_cpu $(BUILD)/test_murphy_integral $(BUILD)/test_murphy_cell $(BUILD)/test_murphy_rho
+	./$(BUILD)/test_host_log
 	./$(BUILD)/test_mpint
 	./$(BUILD)/test_lll $(CASES)
+	python3 tests/test_sopt_trace.py
+	python3 tests/test_sopt_reproducer.py
 	./$(BUILD)/test_rsieve $(RSIEVE_POLYS)
 	./$(BUILD)/test_rselect $(RSIEVE_POLYS)
 	./$(BUILD)/test_rscan
@@ -93,6 +108,7 @@ test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_r
 	python3 tests/test_murphy_rank.py
 	python3 tests/test_refine_failures.py
 	python3 tests/test_pipeline.py
+	python3 tests/test_final_scoring.py
 	python3 tests/test_ropt_scan.py
 	python3 tests/test_ropt_class.py
 	python3 tests/test_ropt_classes.py
@@ -134,7 +150,7 @@ $(BUILD)/s23_sopt_cpu: $(SOPT_SRC) $(BUILD)/cado_io.o $(CADO_LIB_FILES)
 
 # --fmad=false: no automatic fusion, as in the CPU build (explicit fma() in dpoly.h)
 $(BUILD)/s23_sopt: $(SOPT_SRC) $(BUILD)/cado_io.o $(CADO_LIB_FILES)
-	$(NVCC) -O2 -std=c++17 -arch=sm_$(CUDA) --fmad=false -Iinclude -Itools -Xcompiler -fopenmp \
+	$(NVCC) -O2 -std=c++17 -arch=sm_$(CUDA) --fmad=false -Iinclude -Itools -Xcompiler -fopenmp,-ffp-contract=off \
 		-o $@ tools/s23_sopt.cu $(BUILD)/cado_io.o $(CADO_LIBS) -lgomp
 
 s23_sopt_cpu: $(BUILD)/s23_sopt_cpu

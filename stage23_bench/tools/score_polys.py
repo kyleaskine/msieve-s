@@ -57,6 +57,22 @@ from rescore import derived
 read_blocks = read_cado_blocks  # the old name, still imported by scripts
 
 
+def scored_skew(token, declared=None):
+    """Decode a scorer skew, preserving fixed input configurations exactly.
+
+    New scorers print %.17g. Historical frozen binaries print %.1f; accept
+    that exact legacy rendering, not an absolute numerical tolerance.
+    """
+    value = float(token)
+    if declared is None:
+        return value
+    if not math.isfinite(declared) or declared <= 0:
+        raise ValueError('fixed-configuration scorer needs a finite positive declared skew')
+    if value == declared or token == format(declared, '.1f'):
+        return declared
+    raise ValueError('fixed-configuration scorer changed the declared skew')
+
+
 def score_bounds(params):
     """Parse the shared --params syntax, rejecting invalid or overflowing bounds."""
     if params == 'default':
@@ -102,6 +118,13 @@ def _run_cado_murphy(polys, n, args, extra, keep_skew=False):
     res = [line.split('\t') for line in r.stdout.split('\n') if line]
     if len(res) != len(polys):
         raise RuntimeError(f"cado_murphy scored {len(res)} of {len(polys)} polynomials")
+    # Refinement also preserves input skew, but has a different output protocol
+    # (column 2 is a training score). Only fixed-score rows put skew there.
+    if keep_skew and '-useskew' in extra and '-refine' not in extra:
+        for poly, row in zip(polys, res):
+            skew = poly.get('skew')
+            if skew is not None and math.isfinite(skew) and skew > 0:
+                row[2] = repr(scored_skew(row[2], skew))
     return res
 
 

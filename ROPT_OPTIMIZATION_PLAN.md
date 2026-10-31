@@ -7,6 +7,25 @@ kernel launches.
 
 ## Priorities after pipeline integration
 
+The later October 30 review edits passed the CPU suite and focused GPU checks
+on October 31, including 47,214 exact outputs and the original batch traces.
+They extend matched log beyond lognorm, normalize all scoring producers and
+fix trace/queue/report handling. A refinement-protocol parsing bug found by the
+CPU suite was fixed before the successful rerun. See
+`stage23_bench/data/gpu_pipeline/20261031_validation.json`. The full-corpus
+results below apply to the earlier frozen build; no performance benchmark or
+log-table memory-layout change was made in this focused validation.
+
+October 30: the host-compatible sopt log and declared-configuration final ranking
+are implemented; host checks and C170/C152 final-ranking replays pass. New-build
+GPU log checks, all 48 historical differences, both 8192-input batch contexts,
+C146/C161 effort-0/50 fixtures and all 8,028,269 saved corpus outputs pass exactly
+against their CPU references. The earlier C170
+export regression was caused by the comparison replacing its declared skew,
+not by the pipeline's lattice decision. See
+`stage23_bench/data/gpu_pipeline/20261030_integration.json`. Once validation is
+complete, the search and performance priorities below remain.
+
 1. **Wider selective root search:** discover distant size basins and search good
    small-prime residue classes without lowering the norm budget so aggressively.
    This is the implementation work started here.

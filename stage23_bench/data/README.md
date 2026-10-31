@@ -75,3 +75,78 @@ If an archived original is unavailable, recover its bytes with
 and save them under the manifest's `archive_root` plus `ORIGINAL_PATH`. Verify
 the recorded SHA-256 before using it. The exact old bulk paths are ignored so
 regenerating them does not add them to a future commit accidentally.
+
+## October 28 pipeline comparisons
+
+The [six-run report](gpu_pipeline/20261028.json) retains CPU/GPU winners, common
+scoring settings, validation totals and the two isolated size-optimization
+regression inputs. It also compares the separate 60060 and 138600 C190 CPU runs
+with the GPU search of their union. Detailed records and reproduction scripts
+remain local under `stage23_gpu/runs/20261028_results_review/`.
+
+The [October 29 follow-up](gpu_pipeline/20261029_followup.json) records the new
+C170 (`418691…`) and C152 jobs. Both completed their audits: 1,142,421 of
+1,142,423 initial outputs match CPU coefficients exactly, the two C170 differences
+are within the 1e-6 score tolerance and outside the selected top 1000, and all
+6,400 depth exports match CPU replay byte for byte. The report retains both raw
+differing inputs, winning polynomials, settings, binary hashes and evidence hashes.
+
+| Job | GPU pipeline wall time | Best GPU shortlist vs CPU: standard MurphyE | Best GPU shortlist vs CPU: lattice model |
+|---|---|---|---|
+| C170 (`418691…`) | 1h 05m 29s | +0.000085% | tied |
+| C152 | 38m 01s | -0.00313% | +0.00918% |
+
+**October 30 correction:** the earlier comparison reoptimized declared skews
+before scoring them. It therefore did not measure the actual exported
+configurations. At its exported skew C170 scores 582,868,400 in the independent
+lattice model, above the old CPU control's 582,832,700; the claimed export
+regression was incorrect. The table now retains declared configurations as well
+as proposed skews for both methods. Historical evidence is preserved, with the
+correction in [the integration report](gpu_pipeline/20261030_integration.json).
+
+Final export now preserves all declared finalists and adds standard/job Murphy
+skew proposals before independent fixed-skew scoring. Replaying the saved
+finalists improves C170's export to 582,950,000 (+0.0140%) and C152's to
+173,296,800 (+0.000866%). Both exports reproduce their scores on readback.
+These are small model differences under inherited, provisional profiles,
+without test sieving or matched CPU timings. Original run outputs remain intact;
+replay artifacts are local under `stage23_gpu/runs/20261030_shipping/`.
+
+The [size-descent diagnosis](gpu_pipeline/20261029_sopt_descent.json) records
+the synthetic perturbation search (one exact hit among 16 seeds per case),
+fresh-build reproduction, original-batch extraction and the host's FMA log
+implementation. GPU validation reproduces both losses with the original code;
+the matched-log prototype matches all 16,384 context outputs, all 46 historical
+differences and all 13,000 C146 acceptance outputs to CADO. Full sources/build
+manifests and traces remain ignored. The October 30 implementation selects and
+checks the host's FMA/non-FMA log variant, checks the device before sopt, and
+uses CADO on the CPU for unsupported host math. Host tests pass, as do new-build
+device log checks, all 48 historical differences against current CADO, and both
+8192-input batch contexts and target traces against CPU. All 28,000 C146/C161
+effort-0/50 fixture outputs and all 8,028,269 outputs in the eight-job replay
+also match their CPU references exactly. The subsequently added C150 job is a
+separate comparison and is not part of that corpus.
+
+The [C150 follow-up](gpu_pipeline/20261030_c150.json) finds that all three root
+optimizers reached the same winning rotation, `u=3, v=2189298`. Msieve exported
+it with coefficient gcd 2 and printed MurphyE `5.668e-12`, below its reported
+leader `6.543e-12`. Dividing out that content reveals a common-score result of
+`7.230907e-12`, effectively tied with GPU `7.230667e-12` and CADO `7.228422e-12`.
+The comparison now retains every distinct nonprimitive msieve export before
+common scoring, alongside three distinct printed-score leaders per family.
+This corrects a shortlist loss; the prior C150 comparison remains preserved.
+
+C150's initial audit differs from its imported CADO reference on 2,782 of
+362,672 outputs, including 147 worse size scores. All 2,782 disputed rows match
+the local CPU port and linked CADO exactly; the precise cross-build/environment
+cause remains unisolated. All 3,200 depth exports match CPU replay byte for byte.
+The original queue validation error is retained, and no new test sieve was run.
+
+The [October 31 focused validation](gpu_pipeline/20261031_validation.json)
+covers the subsequent review fixes: the CPU suite passes, and all 47,214
+GPU polynomial outputs match their references, including the 2,782 C150
+discrepancies against fresh CPU and linked CADO. Original batch traces, both
+log variants, NDEBUG checks and aggregate fallback logging also pass. The
+CPU suite found a refinement-output parsing bug, now fixed and covered by the
+successful rerun. Builds and logs remain ignored. The eight-million-input
+corpus was not rerun for this build.

@@ -389,6 +389,213 @@ The Makefile gets CADO's include flags and libraries from
 `../nfs_config.ini`), the same code the bench tools use, and relinks when CADO's
 libraries change.
 
+## Initial size-optimization phase diagnostics (2026-10-29)
+
+The October 28 corpus has **46 differing initial-sopt outputs** among 6,885,846
+inputs: 44 are no worse than CADO beyond the recorded score tolerance, and two
+(C181 and C179
+`576203…`) are worse by more than 1e-6 in independently rescored `exp_E`.
+Both losses are outside the retained top 1000. The CPU port
+matches CADO on both isolated inputs; each saved GPU output exactly matches
+another, worse candidate in the CPU descent results. A CPU experiment that
+perturbs returned lognorms by one ULP reproduces both saved GPU winners without
+changing the translation list, LLL results or deduplication. The reproducing
+seeds were selected after trying seeds 1–16 plus the unmodified seed-zero
+control: exactly one of 16 seeds matched the saved GPU output for each input
+(C181: seed 10; C179: seed 7). This is a constructed sensitivity experiment,
+not a random sample of CUDA errors. It establishes
+numerical sensitivity of local descent; the subsequent device checks below
+provide direct evidence. The October 30 integration is described below.
+
+**GPU validation:** original and matched-log binaries ran on both saved failing
+4096-input batches, each preceded by one warmup batch. Both used the original
+12,288 GPU workers, two host threads and 10-second slices. The original code
+reproduced each known loss, first diverging at descent candidate 2 for C181
+and candidate 5 for C179. Replacing only the L2 log implementation restored
+all **16,384/16,384** output coefficient sets to CADO and made all five recorded
+phases of both targets exactly equal to CPU, including objectives.
+
+A separate replay of **all 46** historical differences reproduced every saved
+GPU result with the original binary; the matched-log binary matched current
+CADO on **46/46**. GPU C146 acceptance also passed **13,000/13,000** exactly.
+No invalid exports were found. This strongly identifies host/device log
+rounding in local descent as the cause of the observed differences on this
+machine. The full 6.9-million-input corpus has not been rerun with the prototype,
+and these checks do not establish a performance change or compatibility with
+every host's libm. See the
+[validation report](../stage23_bench/data/gpu_pipeline/20261029_sopt_descent.json).
+
+Two later production runs, C170 (`418691…`) and C152, added 1,142,423 initial
+outputs: C152 matches CPU exactly; C170 has two coefficient differences with
+GPU `exp_E` lower by 3.3e-8 and 1.4e-8, both within the 1e-6 audit tolerance and
+outside the selected top 1000. All 6,400 depth exports match CPU replay exactly.
+These runs did not use the matched-log prototype. Their
+[follow-up report](../stage23_bench/data/gpu_pipeline/20261029_followup.json)
+preserves the two raw inputs. **October 30 correction:** its comparison changed
+declared skews before scoring. The claim that C170 exported a worse lattice
+configuration was incorrect: its actual export scores 582,868,400, above the
+old control's 582,832,700. Corrected comparisons preserve declared configurations
+and proposed skews for both CPU and GPU references. Final export now also retains
+standard and job-Murphy skew proposals through independent fixed-skew validation.
+Replays improve C170 to 582,950,000 and C152 to 173,296,800 while retaining every
+original finalist; exported-file readback reproduces both scores. See the
+[integration report](../stage23_bench/data/gpu_pipeline/20261030_integration.json).
+These are small model changes under provisional profiles, without test sieving.
+
+The [C150 follow-up](../stage23_bench/data/gpu_pipeline/20261030_c150.json) also
+checks candidate selection before scoring. Msieve's printed scores hid a winning
+polynomial whose coefficients share a factor of 2. The benchmark now retains all
+distinct content-reduced msieve exports before the common scoring cut. Its best
+normalized output, CADO and GPU are effectively tied near `7.23e-12`. C150's
+2,782 disputed initial outputs match local CADO on CPU replay; their differences
+from the imported CADO build remain a separate finding. All 3,200 depth exports
+match CPU replay. This case is outside the eight-job exact corpus below.
+
+`s23_sopt -trace FILE [-trace-index N]` (also in `s23_sopt_cpu`) writes JSONL snapshots after
+prepare, LLL, deduplication, descent and reduction for one input. N is zero-based
+(default 0), matching the index in the polynomial output. The file must not
+exist. Creation is deferred until input reading and device setup succeed and
+the requested index is reached; startup failures and missing indices leave no
+empty file blocking a retry. An absent index or failed trace write returns
+status 2. Failed/unsupported
+polynomials report the port's failure state; CADO fallback internals are not traced.
+Exact integer coefficients are strings; candidate objectives appear after descent.
+These are the internal optimization objectives, not the printed CADO `exp_E`.
+Normal polynomial output is unchanged. Device tracing adds synchronization and
+copies for the selected input, so traced timings are not performance measurements.
+
+The compact [corpus report](../stage23_bench/data/gpu_pipeline/20261028.json)
+contains both raw inputs and reference outputs. The
+[reproducer](../stage23_bench/runs/20261029_sopt_descent/trace.py) extracts them,
+builds new binaries from frozen local sources, and records compiler commands,
+compiler-discovered dependencies, static CADO libraries and runtime libraries
+(including libm). Dependencies are checked for changes during the build; it
+does not assume an existing executable corresponds to today's headers.
+Preflight validates the toolchain/CADO inputs before reserving the run directory.
+Detailed output stays under ignored `stage23_gpu/runs/`:
+
+```bash
+# From the repository root. CPU-only sensitivity experiment:
+python3 stage23_bench/runs/20261029_sopt_descent/trace.py perturb \
+  --run-dir stage23_gpu/runs/sopt_perturb_new
+# Actual failing batch plus one preceding batch. Execute only on a free GPU:
+python3 stage23_bench/runs/20261029_sopt_descent/trace.py gpu --case c181 \
+  --context-run stage23_gpu/runs/20261028_existing_jobs/c181 \
+  --run-dir stage23_gpu/runs/sopt_device_new
+```
+
+For C179 use `--case c179_576203` and its original run directory. Context mode
+recovers the actual batch size and host-thread/slice/device options from the
+saved run; both cases used batches of 4096, two host threads and 10-second
+slices. The failing input's coefficients and source hash are checked when
+extracting its original position. Default context contains 8192 inputs;
+`--warmup-batches N` changes the prefix, while `--full-prefix` preserves every
+preceding batch. Use `--prepare-only` to extract/check inputs without compiling
+or executing. Replay rejects a silently reduced batch size and records worker
+count; allocator bytes and warp scheduling are not deterministic replays.
+An isolated-input pass alone cannot exclude a context-dependent failure.
+
+The perturbation build modifies copied headers only; a seed-zero control must
+match all baseline phases. CPU regression tests require agreement with CADO
+on the **current host**, while historical coefficients/ranks are informational.
+Tests cover
+phase contents, unchanged output, reused batches, fallback and invalid options.
+They always select `-cpu`, including when `S23_SOPT_BIN` points to a CUDA build.
+The 13,000-polynomial C146 CPU acceptance also remains exactly identical to CADO.
+
+The device-log hypothesis is consistent with NVIDIA's documented
+[one-ULP double-log bound](https://docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/mathematical-functions.html).
+The local glibc 2.39 resolves log to an FMA kernel; its disassembly uses FMA
+throughout the polynomial evaluation, beyond the explicit FMA in
+[glibc's source](https://github.com/bminor/glibc/blob/glibc-2.39/sysdeps/ieee754/dbl-64/e_log.c).
+A compatible port must reproduce the selected host implementation's contraction
+pattern and validate it at runtime; merely copying the source under
+`--fmad=false` would not establish bitwise parity.
+
+An isolated explicit-FMA prototype now matches this host's log bit-for-bit on
+2,006,680 positive finite random/boundary samples; the non-FMA variant differs
+on 302. Substituting the FMA prototype on the CPU preserves all five phases
+for both regression inputs, including objectives, and matches current CADO.
+The complete `s23_sopt_log_gpu` executable passed the GPU checks above. Its source,
+LGPL notices and probes remain local under `stage23_gpu/runs/20261029_host_log/`;
+the compact report retains hashes and outcomes.
+
+**Production integration (October 30):** `include/host_log.h` retains the glibc
+license notices, upstream references and explicit FMA/scalar implementations.
+GPU sopt now compares both against the running host library on 2,006,680
+positive finite samples, selects a matching variant, and checks its device
+implementation against the same reference before processing inputs. Unknown
+host libraries, rounding modes or unmatched variants use CADO CPU fallback;
+device disagreement or CUDA failure exits with an error. Other GPU stages keep
+their existing math. The host suite passes, including selection under the
+host's FMA and forced scalar glibc variants. This finite compatibility check is
+not a proof for every double or every host.
+
+The new build passes the device log check, all 48 historical differences against
+current CADO, and all 16,384 original batch-context outputs plus their target
+phase traces against CPU. C146/C161 effort-0/50 fixtures also pass (28,000
+outputs), as does the full eight-job replay: all 8,028,269 coefficient sets
+match the audited saved CPU references exactly. This corpus does not include
+the subsequently added C150 job or establish parity with other CADO builds.
+
+**October 30 review follow-up — focused validation passed October 31:** the working tree
+extends the selected host log to `log(S)`, `log(logK)` and projective-alpha
+prime logs through `sopt_math.h`. The successful corpus results above belong
+to the earlier frozen build, which changed only lognorm. Trace parent-directory
+errors now fail before input processing, and unsupported-host fallback reports
+one reason plus the aggregate count instead of one line per polynomial.
+The host-log checks no longer disappear under `-DNDEBUG`.
+
+Common scoring now reduces algebraic content for every producer, retains the
+removed factor as `source_content`, and identifies declared/skew-proposal
+configurations in text exports and comparison labels. New scorers print skews
+with 17 significant digits; the shared reader accepts the exact one-decimal
+rendering from older frozen scorers. Final-score/export checkpoint schemas
+are bumped; search checkpoint schemas are unchanged. Relative comparison
+output directories resolve inside the run and can contain nested directories.
+C152's queue source uses hard links to its frozen inputs/references under
+`runs/20261030_queue_sources/c152`, and C190's concatenation checks composite
+identity while leaving resultant validation to preprocessing. The log tables'
+constant-memory layout is unchanged pending profiling.
+
+The [October 31 report](../stage23_bench/data/gpu_pipeline/20261031_validation.json)
+records a passing CPU suite (117 Python cases, including 13 CUDA-only skips,
+plus native/scorer checks) and 47,214 exact GPU outputs: 48 historical cases,
+16,384 batch-context inputs with complete target traces, 28,000 C146/C161
+effort-0/50 fixtures and 2,782 C150 discrepancies. C150 and the 48 historical
+cases also agree with current linked CADO. Both device log variants pass
+2,006,680 samples, deliberate mismatch rejection works, host checks run under
+`-DNDEBUG`, and unsupported-host fallback emits aggregate logging. The CPU
+suite caught a protocol mix-up: preserving input skew for refinement does not
+make its output column 2 a skew. Fixed-score decoding now excludes refinement,
+and the integration check exercises a full-precision fractional skew.
+
+The successful CPU rerun took 345.7 s, the fresh frozen CUDA/test build 278.1 s,
+and focused commands 471.3 s including CPU reference checks. No full corpus,
+new test sieve or performance benchmark ran. The tested CUDA executable is
+`runs/20261031_focused_validation/frozen_build/s23_sopt`; the production CUDA
+executable and completed run results were not replaced.
+
+Run the explicit device check
+with `make -C stage23_gpu test-host-log-gpu`. The corpus runner preserves the
+original 4096-input batch size, verifies source checkpoint hashes, and compares
+output as a stream against saved audited CPU references; it does not write
+another multi-gigabyte output copy. A new binary requires a new corpus run
+directory; resuming an old one reuses its frozen binary and completed checks.
+The following full replay has **not** been run for the October 31 build:
+
+```sh
+python3 stage23_gpu/tests/run_sopt_corpus.py \
+  --run-dir stage23_gpu/runs/20261031_focused_validation/full_corpus \
+  --binary stage23_gpu/runs/20261031_focused_validation/frozen_build/s23_sopt --prepare-only
+# When the GPU is available (or wait for a full minute of idle usage):
+python3 stage23_gpu/tests/run_sopt_corpus.py \
+  --run-dir stage23_gpu/runs/20261031_focused_validation/full_corpus --wait-gpu
+```
+
+The context-replay CPU checks also passed all 8192 outputs for each composite
+against current CADO, with both traced targets identical to isolated execution.
+
 ## GPU finalist refinement and quadrature (updated 2026-10-26)
 
 `-refine-gpu` runs the final integer-translation size search, primitive-content
@@ -628,6 +835,10 @@ Details in `../GPU_STAGE23_PLAN.md`: "Size model speedup, implemented" and "C184
   in `../stage23_bench/runs/20261011_c184/`.
 
 ## Status (2026-10-03, M1 steps 3-4)
+
+The identity results below describe these dated corpora and host/device builds.
+They are not a general guarantee of bitwise equality: the October 28 corpus
+above found 46 differences, including two size-score losses beyond tolerance.
 
 - `s23_sopt`, CPU build, M1 acceptance on the c146 fixture:
   - effort 0, 13,000 polys: **13,000 identical to CADO** (bit for bit), 0 redone by

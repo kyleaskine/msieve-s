@@ -21,7 +21,30 @@ poly by poly; the ropt of M2 is our own design.)
 Speed alone is not the motivation. The CPU pipeline takes about 2 h, while stage 1 takes
 about 24 h on a rented 5090.
 
-## Current status (updated 2026-10-27)
+## Current status (updated 2026-10-31)
+
+The October 30 review follow-up extends matched log to the remaining sopt
+objective terms and fixes scoring normalization/provenance and orchestration
+issues. The October 31 CPU suite and focused current-source GPU checks now
+pass: 47,214 exact polynomial outputs, both complete batch-context traces,
+both log variants, NDEBUG checks and aggregate fallback logging. Testing found
+and fixed a score-reader protocol mix-up affecting refinement. See
+`stage23_bench/data/gpu_pipeline/20261031_validation.json`. The full corpus was
+not rerun; the eight-million-output results below belong to the earlier build.
+
+Production sopt now selects the running host's FMA/scalar log variant and checks
+the device against it before processing. Unsupported hosts use CADO CPU fallback;
+device disagreement fails explicitly. Host checks pass, including both glibc
+variants. New-build GPU log checks, all 48 historical differences, both
+8192-input batch contexts, C146/C161 effort-0/50 fixtures, and all 8,028,269
+outputs in the eight-job corpus pass exactly against their CPU references.
+Final ranking retains declared configurations
+plus standard/job Murphy skew proposals for independent fixed-skew scoring.
+C170/C152 finalist replays preserve all controls and pass export readback checks.
+The earlier C170 export-regression claim was a comparison error: it replaced the
+exported skew. See `stage23_bench/data/gpu_pipeline/20261030_integration.json`.
+
+The following coverage measurements retain their October 27 scope:
 
 The size-aware class planner now uses shared cached probes and bounded scans
 around selected basin centers, addressing the October 27 follow-up review.

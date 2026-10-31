@@ -6,6 +6,7 @@
 
 #include "dpoly.h"
 #include "mpint.h"
+#include "sopt_math.h"
 
 namespace s23 {
 
@@ -64,7 +65,7 @@ S23_HD double L2_lognorm_d(const DPoly &p, double s)
     tt = ldexp(tt * 3.14159265358979323846 / (double)(d + 1), -2 * d);
     if (isnan(tt) || isinf(tt))
         tt = DBL_MAX;
-    return log(tt) / 2;
+    return sopt_log(tt) / 2;
 }
 
 S23_HD void L2_skewness_derivative_numerator(DPoly &dP, const DPoly &p)

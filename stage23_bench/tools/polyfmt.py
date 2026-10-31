@@ -95,7 +95,12 @@ def multiplier(raw, opt):
 def parse_msieve_p(path):
     """Blocks of msieve -npr output: dicts with e (Murphy E), norm, alpha, rroots,
     exp_E (the seed's sopt exp_E, if annotated), skew, Y0, Y1, c0..cd."""
-    out, cur = [], None
+    return list(iter_msieve_p(path))
+
+
+def iter_msieve_p(path):
+    """Stream the same blocks as parse_msieve_p without retaining the full file."""
+    cur = None
     head = re.compile(r'# norm (\S+) alpha (\S+) e (\S+) rroots (\d+)(?: exp_E (\S+))?')
     with open(path) as fh:
         for line in fh:
@@ -112,11 +117,10 @@ def parse_msieve_p(path):
             if m:
                 cur[m.group(1)] = int(m.group(2))
                 if m.group(1) == 'Y1':
-                    out.append(cur)
+                    yield cur
                     cur = None
             elif line.startswith('skew:'):
                 cur['skew'] = float(line.split()[1])
-    return out
 
 
 def parse_cado_ropt(path):

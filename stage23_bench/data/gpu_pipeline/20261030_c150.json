@@ -1,0 +1,568 @@
+{
+  "date": "2026-10-30",
+  "updated_utc": "2026-10-31T00:49:36.081703+00:00",
+  "n": 799978930956747867785215233823645943969684917015699031185987367606287530253867749801414305474665472515810960371736589795705809088462960143774600413313,
+  "digits": 150,
+  "findings": [
+    "All three optimizers found the same winning rotation cell. The apparent CADO/msieve gap primarily comes from nonprimitive msieve exports being undervalued by its printed score and cut before common rescoring.",
+    "The first msieve-original file contains 70 exports with coefficient gcd 2. Five are exact translations of twice the CADO winner; candidate 57 (zero-based) prints MurphyE=5.668e-12 but scores 7.230907e-12 after normalization under the common scorer.",
+    "The previous comparison retained three candidates per rational family by printed score, missing that candidate. The corrected shortlist retains distinct leaders plus every distinct content-reduced export and normalizes explicitly before scoring.",
+    "Corrected common standard MurphyE: normalized msieve 7.230907e-12, GPU 7.230667e-12, CADO 7.228422e-12. These are effectively tied, not a demonstrated sieve-speed difference.",
+    "All 2782 disputed initial outputs match this host CPU port and current linked CADO exactly. The imported CADO reference differs; the exact source of that cross-build/environment difference is not isolated.",
+    "All 3200 depth exports match CPU replay byte for byte. The original queue validation error is retained because 147 initial outputs remain worse than the imported reference."
+  ],
+  "common_scores": {
+    "cado_inv": {
+      "standard_murphy": 7.228422e-12,
+      "lattice_score": 196642700.0
+    },
+    "cado_orig": {
+      "standard_murphy": 7.228422e-12,
+      "lattice_score": 196642700.0
+    },
+    "gpu_pipeline": {
+      "standard_murphy": 7.230667e-12,
+      "lattice_score": 196729400.0
+    },
+    "msieve_inv": {
+      "standard_murphy": 7.230907e-12,
+      "lattice_score": 196750200.0
+    },
+    "msieve_orig": {
+      "standard_murphy": 7.230907e-12,
+      "lattice_score": 196750200.0
+    }
+  },
+  "corrected_winners": {
+    "standard_murphy": {
+      "cpu": {
+        "method": "msieve_orig",
+        "index": 57,
+        "reported_murphy": 5.668e-12,
+        "source_content": 2,
+        "poly": {
+          "n": 799978930956747867785215233823645943969684917015699031185987367606287530253867749801414305474665472515810960371736589795705809088462960143774600413313,
+          "Y0": -248748166307945447392337959437,
+          "Y1": 1350405662433741047,
+          "c0": 189804549527999839218350501816118420,
+          "c1": -163658696470704479693069726654,
+          "c2": -204848534127144709298410,
+          "c3": 66341102950178788,
+          "c4": 188480679,
+          "c5": -2520,
+          "skew": 3171886.46
+        },
+        "skew_candidates": [
+          3171886.46,
+          3305071.4
+        ],
+        "standard_murphy": 7.230907e-12,
+        "standard_skew": 3171886.46,
+        "lattice_score": 196750200.0,
+        "lattice_skew": 3305071.4,
+        "job_murphy": 1.336649e-07,
+        "per_q": [
+          198.2495,
+          182.8072,
+          170.6775,
+          160.711,
+          154.0002,
+          147.8814,
+          144.0273
+        ],
+        "declared_scores": {
+          "standard_murphy": 7.230907e-12,
+          "lattice_score": 196702300.0,
+          "job_murphy": 1.336815e-07,
+          "per_q": [
+            198.1819,
+            182.7584,
+            170.6646,
+            160.6517,
+            153.9532,
+            147.8644,
+            143.9851
+          ],
+          "skew": 3171886.46
+        }
+      },
+      "gpu": {
+        "method": "gpu_pipeline",
+        "index": 0,
+        "label": "murphy/s0001/0",
+        "poly": {
+          "n": 799978930956747867785215233823645943969684917015699031185987367606287530253867749801414305474665472515810960371736589795705809088462960143774600413313,
+          "Y0": -248748082146613347534294687256,
+          "Y1": 1350405662433741047,
+          "skew": 3097128.9,
+          "c0": 178825244673374365114720481242759963,
+          "c1": -188419216799086161713988691186,
+          "c2": -192446512140446624208892,
+          "c3": 66290208936117256,
+          "c4": -596789121,
+          "c5": -2520
+        },
+        "skew_candidates": [
+          3243019.45965856,
+          3097128.9
+        ],
+        "standard_murphy": 7.230667e-12,
+        "standard_skew": 3097128.9,
+        "lattice_score": 196729400.0,
+        "lattice_skew": 3243019.45965856,
+        "job_murphy": 1.336738e-07,
+        "per_q": [
+          198.2204,
+          182.7999,
+          170.6702,
+          160.6826,
+          153.9925,
+          147.8681,
+          143.9745
+        ],
+        "declared_scores": {
+          "standard_murphy": 7.230527e-12,
+          "lattice_score": 196729400.0,
+          "job_murphy": 1.336738e-07,
+          "per_q": [
+            198.2204,
+            182.7999,
+            170.6702,
+            160.6826,
+            153.9925,
+            147.8681,
+            143.9745
+          ],
+          "skew": 3243019.45965856
+        }
+      },
+      "ratio": 0.9999668091430302,
+      "transform": {
+        "t": 62323,
+        "rotation": [
+          0
+        ],
+        "negated": false
+      }
+    },
+    "lattice_score": {
+      "cpu": {
+        "method": "msieve_orig",
+        "index": 57,
+        "reported_murphy": 5.668e-12,
+        "source_content": 2,
+        "poly": {
+          "n": 799978930956747867785215233823645943969684917015699031185987367606287530253867749801414305474665472515810960371736589795705809088462960143774600413313,
+          "Y0": -248748166307945447392337959437,
+          "Y1": 1350405662433741047,
+          "c0": 189804549527999839218350501816118420,
+          "c1": -163658696470704479693069726654,
+          "c2": -204848534127144709298410,
+          "c3": 66341102950178788,
+          "c4": 188480679,
+          "c5": -2520,
+          "skew": 3305071.4
+        },
+        "skew_candidates": [
+          3171886.46,
+          3305071.4
+        ],
+        "standard_murphy": 7.230907e-12,
+        "standard_skew": 3171886.46,
+        "lattice_score": 196750200.0,
+        "lattice_skew": 3305071.4,
+        "job_murphy": 1.336649e-07,
+        "per_q": [
+          198.2495,
+          182.8072,
+          170.6775,
+          160.711,
+          154.0002,
+          147.8814,
+          144.0273
+        ],
+        "declared_scores": {
+          "standard_murphy": 7.230907e-12,
+          "lattice_score": 196702300.0,
+          "job_murphy": 1.336815e-07,
+          "per_q": [
+            198.1819,
+            182.7584,
+            170.6646,
+            160.6517,
+            153.9532,
+            147.8644,
+            143.9851
+          ],
+          "skew": 3171886.46
+        }
+      },
+      "gpu": {
+        "method": "gpu_pipeline",
+        "index": 0,
+        "label": "murphy/s0001/0",
+        "poly": {
+          "n": 799978930956747867785215233823645943969684917015699031185987367606287530253867749801414305474665472515810960371736589795705809088462960143774600413313,
+          "Y0": -248748082146613347534294687256,
+          "Y1": 1350405662433741047,
+          "skew": 3243019.45965856,
+          "c0": 178825244673374365114720481242759963,
+          "c1": -188419216799086161713988691186,
+          "c2": -192446512140446624208892,
+          "c3": 66290208936117256,
+          "c4": -596789121,
+          "c5": -2520
+        },
+        "skew_candidates": [
+          3243019.45965856,
+          3097128.9
+        ],
+        "standard_murphy": 7.230667e-12,
+        "standard_skew": 3097128.9,
+        "lattice_score": 196729400.0,
+        "lattice_skew": 3243019.45965856,
+        "job_murphy": 1.336738e-07,
+        "per_q": [
+          198.2204,
+          182.7999,
+          170.6702,
+          160.6826,
+          153.9925,
+          147.8681,
+          143.9745
+        ],
+        "declared_scores": {
+          "standard_murphy": 7.230527e-12,
+          "lattice_score": 196729400.0,
+          "job_murphy": 1.336738e-07,
+          "per_q": [
+            198.2204,
+            182.7999,
+            170.6702,
+            160.6826,
+            153.9925,
+            147.8681,
+            143.9745
+          ],
+          "skew": 3243019.45965856
+        }
+      },
+      "ratio": 0.9998942821913269,
+      "transform": {
+        "t": 62323,
+        "rotation": [
+          0
+        ],
+        "negated": false
+      }
+    }
+  },
+  "validation": {
+    "angles": 256000,
+    "lattices": 256,
+    "samples": 4096,
+    "stream": 2
+  },
+  "settings": {
+    "params": "job:29,30,14,10000000",
+    "lattice": "14,8192",
+    "qband": "10000000,30000000,7",
+    "lpbr": 29,
+    "lpba": 30,
+    "rlim": 15000000,
+    "alim": 23000000,
+    "profile_id": "c146_user_20261003",
+    "profile_snapshot": {
+      "id": "c146_user_20261003",
+      "digits": 146,
+      "degree": 5,
+      "recorded": "2026-10-03",
+      "evidence": "measured_test_sieve",
+      "lpbr": 29,
+      "lpba": 30,
+      "rlim": 15000000,
+      "alim": 23000000,
+      "side": "algebraic",
+      "region": {
+        "label": "CADO las I=14",
+        "logI": 14,
+        "J": 8192,
+        "points": 134217728
+      },
+      "q": {
+        "min": 10000000,
+        "max": 30000000,
+        "model_samples": 7
+      },
+      "source": {
+        "path": "stage23_bench/data/c146/test_sieve/README.txt",
+        "sha256": "1c01f9c6f94437cf8263348991d036d0b90281f67a80e97178c7d3b3bf59ec9a"
+      },
+      "notes": "Second test uses user c145-style settings. Four 4000-wide windows; timing overlapped another job. Region J follows the saved scoring convention.",
+      "mfbr": 58,
+      "mfba": 58,
+      "rlambda": 2.0,
+      "alambda": 1.94
+    },
+    "catalog_sha256": "e3fac3581bd361d307de0e093e641268488c6be15c051656521404524d6d4b30",
+    "provisional": true,
+    "source": "Inherited historical profile; not confirmed for this input.",
+    "note": "Model comparison only; no new test sieving."
+  },
+  "content": {
+    "original_msieve_exports": 48866,
+    "nonprimitive_original_exports": 70,
+    "unique_normalized_configurations": 25,
+    "hits": [
+      {
+        "msieve_index": 57,
+        "printed_murphy": 5.668e-12,
+        "content": 2,
+        "transform_to_twice_cado": {
+          "t": 226042,
+          "rotation": [
+            0
+          ],
+          "negated": false
+        }
+      },
+      {
+        "msieve_index": 160,
+        "printed_murphy": 5.668e-12,
+        "content": 2,
+        "transform_to_twice_cado": {
+          "t": 226042,
+          "rotation": [
+            0
+          ],
+          "negated": false
+        }
+      },
+      {
+        "msieve_index": 267,
+        "printed_murphy": 5.668e-12,
+        "content": 2,
+        "transform_to_twice_cado": {
+          "t": 226042,
+          "rotation": [
+            0
+          ],
+          "negated": false
+        }
+      },
+      {
+        "msieve_index": 365,
+        "printed_murphy": 5.668e-12,
+        "content": 2,
+        "transform_to_twice_cado": {
+          "t": 226042,
+          "rotation": [
+            0
+          ],
+          "negated": false
+        }
+      },
+      {
+        "msieve_index": 470,
+        "printed_murphy": 5.668e-12,
+        "content": 2,
+        "transform_to_twice_cado": {
+          "t": 226042,
+          "rotation": [
+            0
+          ],
+          "negated": false
+        }
+      }
+    ],
+    "example_source_poly": {
+      "norm": 1.767388e-14,
+      "alpha": -5.591898,
+      "e": 5.668e-12,
+      "rroots": 3,
+      "exp_E": 37.76,
+      "skew": 3171886.46,
+      "c0": 379609099055999678436701003632236840,
+      "c1": -327317392941408959386139453308,
+      "c2": -409697068254289418596820,
+      "c3": 132682205900357576,
+      "c4": 376961358,
+      "c5": -5040,
+      "Y0": -248748166307945447392337959437,
+      "Y1": 1350405662433741047,
+      "n": 799978930956747867785215233823645943969684917015699031185987367606287530253867749801414305474665472515810960371736589795705809088462960143774600413313
+    },
+    "example_primitive_poly": {
+      "norm": 1.767388e-14,
+      "alpha": -5.591898,
+      "e": 5.668e-12,
+      "rroots": 3,
+      "exp_E": 37.76,
+      "skew": 3171886.46,
+      "c0": 189804549527999839218350501816118420,
+      "c1": -163658696470704479693069726654,
+      "c2": -204848534127144709298410,
+      "c3": 66341102950178788,
+      "c4": 188480679,
+      "c5": -2520,
+      "Y0": -248748166307945447392337959437,
+      "Y1": 1350405662433741047,
+      "n": 799978930956747867785215233823645943969684917015699031185987367606287530253867749801414305474665472515810960371736589795705809088462960143774600413313
+    },
+    "seed_to_twice_cado": {
+      "t": -1175567,
+      "rotation": [
+        -1337403,
+        3
+      ],
+      "negated": false
+    },
+    "rotation_cell": {
+      "u": 3,
+      "v": 2189298
+    },
+    "note": "The CADO scorer itself normalizes nonprimitive inputs, but cannot recover a candidate already discarded by the printed-score shortlist."
+  },
+  "initial_sopt": {
+    "total": 362672,
+    "equal_to_imported_reference": 359890,
+    "different_from_imported_reference": 2782,
+    "worse_than_imported_reference": 147,
+    "tolerance": 1e-06,
+    "max_exp_E_loss": 1.3761853080000037,
+    "disputed_current_cpu_audit": {
+      "disputed": 2782,
+      "current_cpu_matches_saved_gpu": 2782,
+      "current_cado_matches_port": 2782,
+      "imported_reference_build_header": [
+        "# (692ecb7e6) /home/kylea/cado-nfs/build/MSI/polyselect/sopt -inputpolys sopt_output/chunk_00.ms",
+        "# Compiled with gcc 15.2.0",
+        "# Compilation flags (C) -Werror=all -Werror=extra -std=c99 -Wall -Wextra -O2 -march=native",
+        "# Compilation flags (C++) -Werror=extra -Werror=all -export-dynamic -std=c++20 -Wno-c++11-compat -Wall -Wextra -O2 -march=native  -Wno-literal-suffix",
+        "# Reading polynomials from sopt_output/chunk_00.ms",
+        ""
+      ]
+    },
+    "differences_in_selected_top1000": [
+      1309,
+      1717,
+      19224,
+      20404,
+      46332,
+      59653,
+      60909,
+      84981,
+      99819,
+      102675,
+      109993,
+      148902,
+      166426,
+      195438,
+      294514,
+      306455,
+      354906
+    ],
+    "losses_in_selected_top1000": [
+      20404,
+      148902,
+      166426
+    ],
+    "scope": "Replayed all disputed rows against local CADO, not a new full 362672-input local CPU pass. No new GPU execution in this review."
+  },
+  "depth_audit": {
+    "exports": 3200,
+    "status": "passed",
+    "seconds": 20.8313679129933,
+    "record": {
+      "path": "stage23_gpu/runs/20261030_c150_review/depth/summary.json",
+      "sha256": "736b1f1a2095d6a4d6301371d64fd312497d2d406e32d93252fdc299a5ccd3ef"
+    }
+  },
+  "pipeline": {
+    "seconds": 2409.2153848379967,
+    "searches": 316,
+    "raw_inputs": 362672,
+    "partial_murphy_searches": 0,
+    "queue_result": {
+      "stage": "complete with validation errors",
+      "errors": {
+        "audit": "queue_audit: exit 1; see /home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c150/queue_audit.log"
+      },
+      "winner": "/home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c150/results/best.poly",
+      "updated": 1793402936.9774263
+    },
+    "gpu_resopt_effort": 50,
+    "imported_cpu_resopt_effort": 10,
+    "imported_cpu_ropt_effort": 10
+  },
+  "tests": [
+    "4 final-scoring tests passed, including a low-printed-score content candidate below the cutoff and duplicate export slots",
+    "stage23_bench/tools/regress.py passed all checks",
+    "Corrected comparison completed; exported winners read back exactly and all resultants verify"
+  ],
+  "limitations": [
+    "Inherited C146 lattice profile is provisional; no test sieving or matched-budget CPU/GPU timing.",
+    "Still a shortlist comparison for primitive msieve exports; all distinct nonprimitive exports now enter common rescoring.",
+    "Imported initial-sopt discrepancies remain valid cross-reference findings; compiler/libm/version cause has not been isolated."
+  ],
+  "provenance": [
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c150/comparison/summary.json",
+      "sha256": "3fe6b6deae172e86b81cb674fdefd941bc0256f56f69f109d2f65bf07cd63c46"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c150/comparison_content_20261030/summary.json",
+      "sha256": "01030e617458f03aaa9fa515f63df142bf34879cc7cbdb78e37dbb7a9780fd9d"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c150/sopt_audit/sopt/verification.json",
+      "sha256": "22f9cf1919234cacec8346d6cab5be7cb62bfe5fb196d853868f22aba40674c3"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c150/results/summary.json",
+      "sha256": "e9a607c3640168998e822e473db595d197c7ac57ad9d036971bbebe68e4c33cb"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c150/bin/s23_sopt.json",
+      "sha256": "b52ff22168103e793bf9b0f93d782c4a39f9c8275bf06e9c330df47aa7fc8309"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c150/bin/cado_murphy.json",
+      "sha256": "17334637783473c5134eaed2a84f08f0588686256f32907af9eb2ec1342bfbed"
+    },
+    {
+      "path": "stage23_gpu/runs/20261030_c150_review/current_cpu.out",
+      "sha256": "e7f813449b06dc318a79118342352c359f4b67e699dba2ddee8d4d9f0f8edff0"
+    },
+    {
+      "path": "stage23_gpu/runs/20261030_c150_review/current_cpu.err",
+      "sha256": "6669c0c52ed118e5e15a3a0ce0b37a7f1a60d6b487255e0afe385aab683de737"
+    },
+    {
+      "path": "stage23_gpu/runs/20261030_c150_review/current_cpu_audit.json",
+      "sha256": "dd1f950c97c3f96ea883e4c5b3c5f46a18579b9d32abe43ab96e88b31cabc2e8"
+    },
+    {
+      "path": "stage23_gpu/runs/20261030_c150_review/content_comparison.json",
+      "sha256": "f92e052203a7a136b906e74da2e2e1b60a0117847b6866a9becddd4dbc0645f5"
+    }
+  ],
+  "source_hashes": [
+    {
+      "path": "stage23_bench/tools/final_scoring.py",
+      "sha256": "ace2b5f3e87df08e45b773b04deb1e77d144062154bb893d0c83a2bf4956e802"
+    },
+    {
+      "path": "stage23_bench/tools/polyfmt.py",
+      "sha256": "5f3a4598661a8cd96829f6d86fc6f76754f57f58ee35858bcfd2c4ceb1c31701"
+    },
+    {
+      "path": "stage23_bench/runs/20261027_jobs/compare.py",
+      "sha256": "718ea09d366ecd04d2021eb1f71658d705f4c7b340111b12b4daebb173480082"
+    },
+    {
+      "path": "stage23_gpu/tests/test_final_scoring.py",
+      "sha256": "6540784f0bfe2e15bf0ee7edf69b3f6b64acd43781c42e57992f83d2278effe1"
+    }
+  ]
+}

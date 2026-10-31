@@ -1,0 +1,774 @@
+{
+  "mode": "perturb",
+  "source_sha256": "1c688e04794001541cf482117b584c656c434c26fdfcab1ada3ec34263befd25",
+  "cpu_binary_sha256": "3802235ab069ed071a7e8a901ab3e51455bd2cfd3db512db428c4b0c480a5b53",
+  "experimental_binary_sha256": "a77e9b6cb7a6ad5a8a645f1e5620f6bdb50e6b6c152c9ba72c1193479ba7fab1",
+  "source_hashes": {
+    "stage23_gpu/include/sopt.h": "83ea23c14a58cf110501b53cc85425decec41aed60a975dd8d45448e7c2c25d5",
+    "stage23_gpu/include/norms.h": "d47b53730f4a1d57cf5a8ad3b8cbb61a0a8e59a046f0264d204f5ee92fd75757",
+    "stage23_gpu/tools/s23_sopt.cu": "3e63ed6ea5d2b100ccc71cfc81b335260002dbc002409eb18b41136ebf9bc70f",
+    "stage23_gpu/tools/sopt_trace.h": "148123d39641bdfd67ca2113d1c4cdbc78324f1a7451b03a1e9c2e52e2231a6c",
+    "stage23_bench/runs/20261029_sopt_descent/trace.py": "a50bbbdd32e071723446f18d7eb39d66c949989f68fb3ae052e2ccc3b94302cb"
+  },
+  "device_executed": false,
+  "interpretation": "Synthetic perturbation is not a CUDA math implementation or a device check.",
+  "cases": [
+    {
+      "run": "c181",
+      "cpu_matches_reference": true,
+      "seed": 10,
+      "integer_difference_phases": [
+        "descent",
+        "reduce"
+      ],
+      "matches_cpu_coefficients": false,
+      "matches_saved_gpu_coefficients": true,
+      "cpu_objective": 51.588754074737125,
+      "trial_objective": 51.642560712108995,
+      "changed_descent_candidates": [
+        2,
+        4,
+        6,
+        7,
+        16
+      ]
+    },
+    {
+      "run": "c179_576203",
+      "cpu_matches_reference": true,
+      "seed": 7,
+      "integer_difference_phases": [
+        "descent",
+        "reduce"
+      ],
+      "matches_cpu_coefficients": false,
+      "matches_saved_gpu_coefficients": true,
+      "cpu_objective": 50.49297382230766,
+      "trial_objective": 50.66759473186607,
+      "changed_descent_candidates": [
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "recorded": "2026-10-29",
+  "details_directory": "stage23_gpu/runs/20261029_sopt_descent_repro/",
+  "verification": {
+    "cpu_trace_tests": 4,
+    "cuda_binary_cpu_trace_tests": 4,
+    "c146_cpu_acceptance": {
+      "polynomials": 13000,
+      "identical_to_cado": 13000,
+      "fallbacks": 0
+    },
+    "device_phase_comparison": "pending; GPU occupied",
+    "numerical_implementation_changed": false,
+    "cuda_build": {
+      "compiled": true,
+      "sha256": "752ed8ce7bfe757fccd6a323b50d3b36b04329428c406880bb7a140679dfed26",
+      "device_executed": false
+    }
+  },
+  "prior_scratch_poison_checks": {
+    "bytes": [
+      0,
+      85,
+      165,
+      255
+    ],
+    "cases": 2,
+    "all_cpu_phase_traces_identical": true,
+    "all_cpu_outputs_match_cado": true,
+    "details_directory": "stage23_gpu/runs/20261028_sopt_debug/",
+    "limitation": "CPU scratch initialization check only; does not rule out device state errors."
+  },
+  "objective_note": "Objectives are internal sopt values; the original corpus report holds independently rescored CADO exp_E values.",
+  "seed_selection": {
+    "method": "Post-hoc selection from a deterministic synthetic perturbation search, not a statistical model of device error.",
+    "cases": {
+      "c181": {
+        "nonzero_seeds_tried": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "control_seed": 0,
+        "exact_saved_gpu_hit_seeds": [
+          10
+        ],
+        "hit_count": 1,
+        "trials": 16,
+        "hit_rate": 0.0625
+      },
+      "c179_576203": {
+        "nonzero_seeds_tried": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "control_seed": 0,
+        "exact_saved_gpu_hit_seeds": [
+          7
+        ],
+        "hit_count": 1,
+        "trials": 16,
+        "hit_rate": 0.0625
+      }
+    },
+    "summary_sha256": "089c79defe3c5b23d7d3df21a4cb3f7d3adf0a332e42d4cf36863305f340586e"
+  },
+  "review_followup": {
+    "fresh_build_perturbation": {
+      "mode": "perturb",
+      "source_sha256": "1c688e04794001541cf482117b584c656c434c26fdfcab1ada3ec34263befd25",
+      "cpu_binary_sha256": "da29323a6a7bb443ab9b12ed0d7701503c092aa22611c9396f25a76ea1f7a646",
+      "experimental_binary_sha256": "65c2c5b49ee35b31d05a291cac27a031484157e3eb83e06c82f3af24aeb32b56",
+      "build_manifest_sha256": "263f4043f86e47afd8a2dbdaaef87add68dc6d19543c9256907717c426972759",
+      "reproducer_sha256": "b91772c455fd2b3be0dfb350ba88a80c6a70c330188291c644789bdaeabf4f05",
+      "context": null,
+      "device_executed": false,
+      "interpretation": "Synthetic perturbation is not a CUDA math implementation or a device check.",
+      "cases": [
+        {
+          "run": "c181",
+          "cpu_matches_current_cado": true,
+          "cpu_matches_historical_reference": true,
+          "seed": 10,
+          "integer_difference_phases": [
+            "descent",
+            "reduce"
+          ],
+          "matches_cpu_coefficients": false,
+          "matches_saved_gpu_coefficients": true,
+          "cpu_objective": 51.588754074737125,
+          "trial_objective": 51.642560712108995,
+          "changed_descent_candidates": [
+            2,
+            4,
+            6,
+            7,
+            16
+          ]
+        },
+        {
+          "run": "c179_576203",
+          "cpu_matches_current_cado": true,
+          "cpu_matches_historical_reference": true,
+          "seed": 7,
+          "integer_difference_phases": [
+            "descent",
+            "reduce"
+          ],
+          "matches_cpu_coefficients": false,
+          "matches_saved_gpu_coefficients": true,
+          "cpu_objective": 50.49297382230766,
+          "trial_objective": 50.66759473186607,
+          "changed_descent_candidates": [
+            5,
+            6,
+            7
+          ]
+        }
+      ]
+    },
+    "prepared_batch_contexts": {
+      "c181": {
+        "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c181/preprocess/msieve.dat.deduped.ms",
+        "source_sha256": "80c38d4e875a7a1a6b0fd6c1345efac6c26ba9c642f5ad1e1178ecdb64a3e9a6",
+        "input_sha256": "d86e545996a9fc8bf7372842ea8033ac14ef781e33a126f109821c4f4e97eee3",
+        "original_index_zero_based": 1005278,
+        "first_index_zero_based": 999424,
+        "trace_index": 5854,
+        "polynomials": 8192,
+        "execution": {
+          "batch": 4096,
+          "threads": 2,
+          "slice": 10.0,
+          "device": 0,
+          "original_workers": 12288
+        },
+        "full_prefix": false,
+        "warmup_batches": 1,
+        "limitation": "Preserves input order and batch boundaries, not nondeterministic warp scheduling or allocator bytes."
+      },
+      "c179_576203": {
+        "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c179_576203/preprocess/msieve.dat.deduped.ms",
+        "source_sha256": "8345878b0755706d693a5230ebf7fbce76a56abebf197e3e2834b6b8c7ce53c0",
+        "input_sha256": "1099d4a035b112186a23556cc4d8bf64cdbcc8a7cd8ebc22e4a3ac1da3eb7ba0",
+        "original_index_zero_based": 1074518,
+        "first_index_zero_based": 1069056,
+        "trace_index": 5462,
+        "polynomials": 8192,
+        "execution": {
+          "batch": 4096,
+          "threads": 2,
+          "slice": 10.0,
+          "device": 0,
+          "original_workers": 12288
+        },
+        "full_prefix": false,
+        "warmup_batches": 1,
+        "limitation": "Preserves input order and batch boundaries, not nondeterministic warp scheduling or allocator bytes."
+      }
+    },
+    "host_log": {
+      "glibc": "2.39",
+      "libm": "/lib/x86_64-linux-gnu/libm.so.6",
+      "sha256": "fce00b6f25f459cf4ae0b7fae4257909a1a8a86f9149e7c029a5d617baf1ccd0",
+      "log_symbol_version": "GLIBC_2.29",
+      "resolved_kernel_offset": "0x79d50",
+      "fma_instructions_observed": true,
+      "method": "Resolved log wrapper PLT/GOT after calling log(2), then disassembled the selected kernel.",
+      "note": "Host-specific observation. A portable compatibility implementation must select/validate the host variant and contraction pattern."
+    },
+    "device_executed": false,
+    "cpu_batch_context": {
+      "mode": "cpu",
+      "source_sha256": "1c688e04794001541cf482117b584c656c434c26fdfcab1ada3ec34263befd25",
+      "cpu_binary_sha256": "da29323a6a7bb443ab9b12ed0d7701503c092aa22611c9396f25a76ea1f7a646",
+      "experimental_binary_sha256": null,
+      "build_manifest_sha256": "885115968a81336d336a3261820cb7fa0c6109d4a82d16336d4d04b11d6aa9e4",
+      "reproducer_sha256": "d1b8822f08f1a93be6408c6a1f8bda0a982b6a769a857a09d5b446ae321d8537",
+      "context": {
+        "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c181/preprocess/msieve.dat.deduped.ms",
+        "source_sha256": "80c38d4e875a7a1a6b0fd6c1345efac6c26ba9c642f5ad1e1178ecdb64a3e9a6",
+        "input_sha256": "d86e545996a9fc8bf7372842ea8033ac14ef781e33a126f109821c4f4e97eee3",
+        "original_index_zero_based": 1005278,
+        "first_index_zero_based": 999424,
+        "trace_index": 5854,
+        "polynomials": 8192,
+        "execution": {
+          "batch": 4096,
+          "threads": 2,
+          "slice": 10.0,
+          "device": 0,
+          "original_workers": 12288
+        },
+        "full_prefix": false,
+        "warmup_batches": 1,
+        "limitation": "Preserves input order and batch boundaries, not nondeterministic warp scheduling or allocator bytes."
+      },
+      "device_executed": false,
+      "interpretation": "Unmodified numerical implementation.",
+      "cases": [
+        {
+          "run": "c181",
+          "cpu_matches_current_cado": true,
+          "cpu_matches_historical_reference": true,
+          "replay_workers": null,
+          "seed": 0,
+          "integer_difference_phases": [],
+          "matches_cpu_coefficients": true,
+          "matches_saved_gpu_coefficients": false,
+          "cpu_objective": 51.588754074737125,
+          "trial_objective": 51.588754074737125,
+          "changed_descent_candidates": []
+        }
+      ],
+      "all_outputs_vs_current_cado": {
+        "identical": 8192,
+        "compared": 8192
+      }
+    },
+    "tests": {
+      "trace": 4,
+      "reproducer_and_queue": 6,
+      "cuda_build_cpu_trace": 4,
+      "device_execution": false
+    },
+    "fresh_cuda_build": {
+      "manifest": "stage23_gpu/runs/20261029_sopt_review_cuda_build/build.json",
+      "sha256": "85ae35f0ba94c186432e3bb10c27cabd9aa9dd75ab358c956a279f13be21718a",
+      "dependency_hashes": 307,
+      "binaries_sha256": {
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_cuda_build/s23_sopt_cpu": "da29323a6a7bb443ab9b12ed0d7701503c092aa22611c9396f25a76ea1f7a646",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_cuda_build/s23_sopt": "51b2b98884e319ad001e3fa9d677ceaa8e8855a0e7036a9a262493e5323b898c"
+      },
+      "device_executed": false
+    }
+  },
+  "host_log_prototype": {
+    "samples": 2006680,
+    "fma_mismatches": 0,
+    "nonfma_mismatches": 302,
+    "date": "2026-10-29",
+    "production_enabled": false,
+    "device_executed": true,
+    "sample_description": "1,000,000 random positive finite bit patterns; 1,000,000 near-one inputs; representable powers of two and neighboring values; 128 table boundaries and neighbors.",
+    "seed": "0x534f5054",
+    "host_glibc": "2.39",
+    "source_license": "LGPL-2.1-or-later; retained in downloaded source and generated header.",
+    "source_provenance": {
+      "e_log.c": {
+        "url": "https://raw.githubusercontent.com/bminor/glibc/glibc-2.39/sysdeps/ieee754/dbl-64/e_log.c",
+        "sha256": "a645fd8877ca71441cbf4268ab1bdd2ca38f3054ebfe15d75e820742f75770ae"
+      },
+      "e_log_data.c": {
+        "url": "https://raw.githubusercontent.com/bminor/glibc/glibc-2.39/sysdeps/ieee754/dbl-64/e_log_data.c",
+        "sha256": "614b871035d0511f2ebfdbc5f7305f1974d2087ae3fba6aeed0f42dd5f091ba5"
+      },
+      "math_config.h": {
+        "url": "https://raw.githubusercontent.com/bminor/glibc/glibc-2.39/sysdeps/ieee754/dbl-64/math_config.h",
+        "sha256": "b49c1a791fbc260bfe77889bdc7ebdb3f1c3c87fbede3a4e47622d0863ddbd12"
+      }
+    },
+    "cases": {
+      "c181": {
+        "all_five_cpu_phases_identical": true,
+        "matches_cado": true
+      },
+      "c179_576203": {
+        "all_five_cpu_phases_identical": true,
+        "matches_cado": true
+      }
+    },
+    "limitation": "GPU batch-context validation on this RTX 5070 and host glibc FMA variant. Other host libm variants remain unverified; production defaults are unchanged.",
+    "files_sha256": {
+      "host_log.h": "baeccf41575af5b47b910cd2577321cda84a28c73cf22e66060f62468ce4e358",
+      "probe.cpp": "c1d70b5b5f3d4c3e3015f994ecdf994364d38258db468a33411087e546c161db",
+      "probe.cu": "4dd5dcd19b3028e52d21ced64f28badc8b30e749caa50de0e924ebdcf38504d4",
+      "probe": "f157ba40738b3cea71a9a493dd8e1fed73337db5c8f3c2f5364f67e52d9d10f4",
+      "probe_cuda": "8beeb3573c8b6c2a7473bdaabfe7808f0f369b40cb197800030bb67dc81e395c",
+      "s23_sopt_log_cpu": "11908ca2a7a8df98be72a20e6eb016c7600efe8afb89eafd4fd7839dde78834e",
+      "s23_sopt_log_gpu": "c8bc8d063cdd6cd9152b39b0ba549cd2b91f6e1e56e09c9b41196724db0bba95"
+    },
+    "cuda_probe_compiles_without_warnings": true,
+    "build_recipe": "stage23_gpu/runs/20261029_host_log/sopt_build.json",
+    "cuda_sopt_build": {
+      "command": [
+        "/usr/local/cuda/bin/nvcc",
+        "-I/home/kylea/msieve-s/stage23_gpu/runs/20261029_host_log",
+        "-O2",
+        "-std=c++17",
+        "-arch=sm_120",
+        "--fmad=false",
+        "-I/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_cuda_build/source/include",
+        "-I/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_cuda_build/source/tools",
+        "-Xcompiler",
+        "-fopenmp",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_cuda_build/source/tools/s23_sopt.cu",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_cuda_build/cado_io.o",
+        "-o",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261029_host_log/s23_sopt_log_gpu",
+        "/home/kylea/cado-nfs/build/DESKTOP-3J4UC68/polyselect/libpolyselect_common.a",
+        "/home/kylea/cado-nfs/build/DESKTOP-3J4UC68/utils/libutils.a",
+        "-lgmp",
+        "-lm",
+        "-lpthread",
+        "-lstdc++",
+        "-lgomp"
+      ],
+      "frozen_base_build_sha256": "85ae35f0ba94c186432e3bb10c27cabd9aa9dd75ab358c956a279f13be21718a",
+      "device_executed": false
+    },
+    "device_comparison_commands": "stage23_gpu/runs/20261029_host_log/device_commands.json",
+    "cuda_binary_cpu_trace_tests_passed": 4
+  },
+  "gpu_regressions": {
+    "started": "2026-10-29T18:18:09.411327+00:00",
+    "device_executed": true,
+    "note": "Original failing batches plus one warmup batch; scheduling and original allocation bytes are not deterministic replays.",
+    "runs": [
+      {
+        "case": "c181",
+        "mode": "native",
+        "argv": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_cuda_build/s23_sopt",
+          "-inputpolys",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_context_c181/context.poly",
+          "-batch",
+          "4096",
+          "-t",
+          "2",
+          "-slice",
+          "10.0",
+          "-dev",
+          "0",
+          "-trace",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_host_log/c181_gpu_native.jsonl",
+          "-trace-index",
+          "5854"
+        ],
+        "seconds": 20.045260926010087,
+        "returncode": 0,
+        "binary_sha256": "51b2b98884e319ad001e3fa9d677ceaa8e8855a0e7036a9a262493e5323b898c",
+        "context": {
+          "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c181/preprocess/msieve.dat.deduped.ms",
+          "source_sha256": "80c38d4e875a7a1a6b0fd6c1345efac6c26ba9c642f5ad1e1178ecdb64a3e9a6",
+          "input_sha256": "d86e545996a9fc8bf7372842ea8033ac14ef781e33a126f109821c4f4e97eee3",
+          "original_index_zero_based": 1005278,
+          "first_index_zero_based": 999424,
+          "trace_index": 5854,
+          "polynomials": 8192,
+          "execution": {
+            "batch": 4096,
+            "threads": 2,
+            "slice": 10.0,
+            "device": 0,
+            "original_workers": 12288
+          },
+          "full_prefix": false,
+          "warmup_batches": 1,
+          "limitation": "Preserves input order and batch boundaries, not nondeterministic warp scheduling or allocator bytes."
+        },
+        "polynomials": 8192,
+        "identical_coefficients": 8191,
+        "differences": [
+          {
+            "local_index": 5854,
+            "original_index_zero_based": 1005278,
+            "cpu_exp_E": 51.70351857,
+            "gpu_exp_E": 51.757513506,
+            "gpu_minus_cpu_exp_E": 0.05399493600000227
+          }
+        ],
+        "invalid": [],
+        "worse_beyond_1e_6": 1,
+        "workers": 12288,
+        "original_worker_count_matches": true,
+        "target_matches_cpu": false,
+        "target_matches_historical_gpu": true,
+        "integer_difference_phases": [
+          "descent",
+          "reduce"
+        ],
+        "changed_descent_candidates": [
+          2
+        ],
+        "target_cpu_objective": 51.588754074737125,
+        "target_gpu_objective": 51.642560712109,
+        "trace_sha256": "0adabf6356e0a102e7941718dbf9fc687d77b1fc2f730dcb14f9d6f098fe95fe",
+        "output_sha256": "02e2355d82a809082463ba2d9a194e4f54bbb758d72748bfdf991fbfd0598d5d",
+        "all_trace_fields_except_backend_equal": false,
+        "exact_phase_differences": [
+          "descent",
+          "reduce"
+        ]
+      },
+      {
+        "case": "c181",
+        "mode": "matched_log",
+        "argv": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_host_log/s23_sopt_log_gpu",
+          "-inputpolys",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_context_c181/context.poly",
+          "-batch",
+          "4096",
+          "-t",
+          "2",
+          "-slice",
+          "10.0",
+          "-dev",
+          "0",
+          "-trace",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_host_log/c181_gpu_matched_log.jsonl",
+          "-trace-index",
+          "5854"
+        ],
+        "seconds": 21.722191320033744,
+        "returncode": 0,
+        "binary_sha256": "c8bc8d063cdd6cd9152b39b0ba549cd2b91f6e1e56e09c9b41196724db0bba95",
+        "context": {
+          "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c181/preprocess/msieve.dat.deduped.ms",
+          "source_sha256": "80c38d4e875a7a1a6b0fd6c1345efac6c26ba9c642f5ad1e1178ecdb64a3e9a6",
+          "input_sha256": "d86e545996a9fc8bf7372842ea8033ac14ef781e33a126f109821c4f4e97eee3",
+          "original_index_zero_based": 1005278,
+          "first_index_zero_based": 999424,
+          "trace_index": 5854,
+          "polynomials": 8192,
+          "execution": {
+            "batch": 4096,
+            "threads": 2,
+            "slice": 10.0,
+            "device": 0,
+            "original_workers": 12288
+          },
+          "full_prefix": false,
+          "warmup_batches": 1,
+          "limitation": "Preserves input order and batch boundaries, not nondeterministic warp scheduling or allocator bytes."
+        },
+        "polynomials": 8192,
+        "identical_coefficients": 8192,
+        "differences": [],
+        "invalid": [],
+        "worse_beyond_1e_6": 0,
+        "workers": 12288,
+        "original_worker_count_matches": true,
+        "target_matches_cpu": true,
+        "target_matches_historical_gpu": false,
+        "integer_difference_phases": [],
+        "changed_descent_candidates": [],
+        "target_cpu_objective": 51.588754074737125,
+        "target_gpu_objective": 51.588754074737125,
+        "trace_sha256": "2ff6be2e94771c1c1449db5e1aff6e2342ae82ff46b9baec26c660648a349302",
+        "output_sha256": "b3986335f29102d0f4b4c8434a647fc6b3df3d2fbf70ef8e674b7545ad09176b",
+        "all_trace_fields_except_backend_equal": true,
+        "exact_phase_differences": []
+      },
+      {
+        "case": "c179_576203",
+        "mode": "native",
+        "argv": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_cuda_build/s23_sopt",
+          "-inputpolys",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_context_c179/context.poly",
+          "-batch",
+          "4096",
+          "-t",
+          "2",
+          "-slice",
+          "10.0",
+          "-dev",
+          "0",
+          "-trace",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_host_log/c179_576203_gpu_native.jsonl",
+          "-trace-index",
+          "5462"
+        ],
+        "seconds": 22.912828412023373,
+        "returncode": 0,
+        "binary_sha256": "51b2b98884e319ad001e3fa9d677ceaa8e8855a0e7036a9a262493e5323b898c",
+        "context": {
+          "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c179_576203/preprocess/msieve.dat.deduped.ms",
+          "source_sha256": "8345878b0755706d693a5230ebf7fbce76a56abebf197e3e2834b6b8c7ce53c0",
+          "input_sha256": "1099d4a035b112186a23556cc4d8bf64cdbcc8a7cd8ebc22e4a3ac1da3eb7ba0",
+          "original_index_zero_based": 1074518,
+          "first_index_zero_based": 1069056,
+          "trace_index": 5462,
+          "polynomials": 8192,
+          "execution": {
+            "batch": 4096,
+            "threads": 2,
+            "slice": 10.0,
+            "device": 0,
+            "original_workers": 12288
+          },
+          "full_prefix": false,
+          "warmup_batches": 1,
+          "limitation": "Preserves input order and batch boundaries, not nondeterministic warp scheduling or allocator bytes."
+        },
+        "polynomials": 8192,
+        "identical_coefficients": 8191,
+        "differences": [
+          {
+            "local_index": 5462,
+            "original_index_zero_based": 1074518,
+            "cpu_exp_E": 50.609474282,
+            "gpu_exp_E": 50.783730401,
+            "gpu_minus_cpu_exp_E": 0.17425611899999893
+          }
+        ],
+        "invalid": [],
+        "worse_beyond_1e_6": 1,
+        "workers": 12288,
+        "original_worker_count_matches": true,
+        "target_matches_cpu": false,
+        "target_matches_historical_gpu": true,
+        "integer_difference_phases": [
+          "descent",
+          "reduce"
+        ],
+        "changed_descent_candidates": [
+          5
+        ],
+        "target_cpu_objective": 50.49297382230766,
+        "target_gpu_objective": 50.667594731866075,
+        "trace_sha256": "f1ab6286a9f3e33f07e3a1b7e441920663bcf9ca31ed7d29f665bcaadd582fac",
+        "output_sha256": "69f7604c6b858898ebe3f34875fe3e4bae2125d3f83f1467d808f7d52d77666e",
+        "all_trace_fields_except_backend_equal": false,
+        "exact_phase_differences": [
+          "descent",
+          "reduce"
+        ]
+      },
+      {
+        "case": "c179_576203",
+        "mode": "matched_log",
+        "argv": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_host_log/s23_sopt_log_gpu",
+          "-inputpolys",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_context_c179/context.poly",
+          "-batch",
+          "4096",
+          "-t",
+          "2",
+          "-slice",
+          "10.0",
+          "-dev",
+          "0",
+          "-trace",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_host_log/c179_576203_gpu_matched_log.jsonl",
+          "-trace-index",
+          "5462"
+        ],
+        "seconds": 21.357215135009028,
+        "returncode": 0,
+        "binary_sha256": "c8bc8d063cdd6cd9152b39b0ba549cd2b91f6e1e56e09c9b41196724db0bba95",
+        "context": {
+          "source": "/home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c179_576203/preprocess/msieve.dat.deduped.ms",
+          "source_sha256": "8345878b0755706d693a5230ebf7fbce76a56abebf197e3e2834b6b8c7ce53c0",
+          "input_sha256": "1099d4a035b112186a23556cc4d8bf64cdbcc8a7cd8ebc22e4a3ac1da3eb7ba0",
+          "original_index_zero_based": 1074518,
+          "first_index_zero_based": 1069056,
+          "trace_index": 5462,
+          "polynomials": 8192,
+          "execution": {
+            "batch": 4096,
+            "threads": 2,
+            "slice": 10.0,
+            "device": 0,
+            "original_workers": 12288
+          },
+          "full_prefix": false,
+          "warmup_batches": 1,
+          "limitation": "Preserves input order and batch boundaries, not nondeterministic warp scheduling or allocator bytes."
+        },
+        "polynomials": 8192,
+        "identical_coefficients": 8192,
+        "differences": [],
+        "invalid": [],
+        "worse_beyond_1e_6": 0,
+        "workers": 12288,
+        "original_worker_count_matches": true,
+        "target_matches_cpu": true,
+        "target_matches_historical_gpu": false,
+        "integer_difference_phases": [],
+        "changed_descent_candidates": [],
+        "target_cpu_objective": 50.49297382230766,
+        "target_gpu_objective": 50.49297382230766,
+        "trace_sha256": "4299436985812f6f15c9c06b8c2560860fd32f7432e0b472dc4e1ee933528ac3",
+        "output_sha256": "7aed66154425b70a697e7648c5474849a8d2f4a7abfc60fdf62ae0316d7681a7",
+        "all_trace_fields_except_backend_equal": true,
+        "exact_phase_differences": []
+      }
+    ]
+  },
+  "extended_gpu_regressions": {
+    "device_executed": true,
+    "historical_differences": [
+      {
+        "mode": "cpu",
+        "seconds": 2.8561150379828177,
+        "argv": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_cuda_build/s23_sopt",
+          "-t",
+          "2",
+          "-batch",
+          "4096",
+          "-compare",
+          "-inputpolys",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_host_log/historical_differences_raw.poly",
+          "-cpu"
+        ],
+        "binary_sha256": "51b2b98884e319ad001e3fa9d677ceaa8e8855a0e7036a9a262493e5323b898c",
+        "matches_current_cpu": 46,
+        "total": 46,
+        "matches_current_cado": 46,
+        "compared_with_cado": 46,
+        "matches_historical_gpu": 0,
+        "output_sha256": "b41052d95c74e07f4c190b3846a17ee7bb188eb136fd31970b87ba08786c33f4"
+      },
+      {
+        "mode": "native",
+        "seconds": 2.5463205280248076,
+        "argv": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_sopt_review_cuda_build/s23_sopt",
+          "-t",
+          "2",
+          "-batch",
+          "4096",
+          "-compare",
+          "-inputpolys",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_host_log/historical_differences_raw.poly"
+        ],
+        "binary_sha256": "51b2b98884e319ad001e3fa9d677ceaa8e8855a0e7036a9a262493e5323b898c",
+        "matches_current_cpu": 0,
+        "total": 46,
+        "matches_current_cado": 0,
+        "compared_with_cado": 46,
+        "matches_historical_gpu": 46,
+        "output_sha256": "08801b4f989d28fcf44eae8f4a05acceb8814759ed475271f465db77da76cb16"
+      },
+      {
+        "mode": "matched_log",
+        "seconds": 2.19866740697762,
+        "argv": [
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_host_log/s23_sopt_log_gpu",
+          "-t",
+          "2",
+          "-batch",
+          "4096",
+          "-compare",
+          "-inputpolys",
+          "/home/kylea/msieve-s/stage23_gpu/runs/20261029_host_log/historical_differences_raw.poly"
+        ],
+        "binary_sha256": "c8bc8d063cdd6cd9152b39b0ba549cd2b91f6e1e56e09c9b41196724db0bba95",
+        "matches_current_cpu": 46,
+        "total": 46,
+        "matches_current_cado": 46,
+        "compared_with_cado": 46,
+        "matches_historical_gpu": 0,
+        "output_sha256": "be9e6383a2a248972533e3080e9ede7c8b4360b992f220eda951cebb3fc34c99"
+      }
+    ],
+    "c146": {
+      "argv": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261029_host_log/s23_sopt_log_gpu",
+        "-t",
+        "2",
+        "-inputpolys",
+        "/home/kylea/msieve-s/stage23_gpu/build/fixture_raw_all.poly"
+      ],
+      "seconds": 31.756304929032922,
+      "acceptance_returncode": 0,
+      "identical": 13000,
+      "total": 13000,
+      "fixture_sha256": "f951f30f09610e11bcac144121b895229dea870691710212387798aaff9f0fc8",
+      "output_sha256": "ae49ea3462f9eee6ad5652410ab34cb16345e3f7dffc5accb7df41b6dea294cf"
+    }
+  },
+  "gpu_validation_summary": {
+    "completed_utc": "2026-10-29T18:35:33.701908+00:00",
+    "gpu": "NVIDIA GeForce RTX 5070",
+    "production_enabled": false,
+    "device_executed": true,
+    "context_polynomials": 16384,
+    "matched_log_context_exact": 16384,
+    "native_regressions_reproduced": 2,
+    "historical_differences_tested": 46,
+    "matched_log_historical_exact": 46,
+    "native_historical_outputs_reproduced": 46,
+    "c146_exact": 13000,
+    "c146_total": 13000,
+    "full_corpus_rerun": false,
+    "performance_claim": null,
+    "script_sha256": "d48d0fbc21c97ae7a7ffd96a3444f86032caec9ff38f74a9e245b422e503945c"
+  }
+}

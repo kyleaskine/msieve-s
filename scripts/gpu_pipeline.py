@@ -49,12 +49,13 @@ REFINEMENT_OPTIONS = {
 ROPT_OPTIONS = {**SCREEN_OPTIONS, **REFINEMENT_OPTIONS}
 # Bump only the affected format/algorithm when saved results become incompatible.
 # Source hashes are provenance, not an instruction to repeat expensive work.
-STEP_SCHEMAS = {'index_e0': 1, 'index_resopt': 1, 'seeds': 2}
+STEP_SCHEMAS = {'index_e0': 1, 'index_resopt': 1, 'seeds': 2, 'score_final': 3, 'export': 3}
 sys.path.insert(0, str(ROOT / 'stage23_bench/tools'))
 from content_seeds import content_seeds
 from polyfmt import (cado_murphy_binary, cado_poly_text, iter_sopt,
                      msieve_ms_line, read_cado_blocks, resultant)
-from score_polys import score_bounds
+from score_polys import score_bounds, scored_skew
+from final_scoring import normalize_row
 
 
 def digest(path):
@@ -196,7 +197,8 @@ class Run:
         self.stop = threading.Event()
         self.state_lock = threading.Lock()
         sources = [Path(__file__), ROOT / 'stage23_bench/tools/polyfmt.py',
-                   ROOT / 'stage23_bench/tools/content_seeds.py', ROOT / 'stage23_bench/tools/score_polys.py']
+                   ROOT / 'stage23_bench/tools/content_seeds.py', ROOT / 'stage23_bench/tools/score_polys.py',
+                   ROOT / 'stage23_bench/tools/final_scoring.py']
         self.version = {str(p.relative_to(ROOT)): digest(p) for p in sources}
 
     def state(self, stage, **extra):
@@ -687,12 +689,15 @@ def search(run, args, seeds, binary, phase, cap, n, accurate=False, save_pool=Fa
 
 
 def score(run, args, rows, binary, name, final=False):
+    rows = [normalize_row(row) for row in rows]
     dst = run.path / 'scores' / (name + '.json')
     pool = dst.with_suffix('.poly')
     tsv = dst.with_suffix('.tsv')
     bounds = score_bounds(args.params)
     argv = [binary, '-t', args.threads, '-K', 16000 if final else 4000,
-            '-Keval', 256000 if final else 16000, '-Bf', bounds['Bf'], '-Bg', bounds['Bg'], '-area', bounds['area']]
+            '-Keval', 256000 if final else 16000]
+    if bounds is not None:
+        argv += ['-Bf', bounds['Bf'], '-Bg', bounds['Bg'], '-area', bounds['area']]
     if args.lattice:
         argv += ['-lattice', args.lattice, '-qband', args.qband, '-nlat', 256 if final else 32,
                  '-npts', 4096 if final else 2048, '-latseed', 2 if final else 0]
@@ -701,6 +706,9 @@ def score(run, args, rows, binary, name, final=False):
     argv.append(pool)
 
     def action():
+        if final and any(not math.isfinite(r['poly'].get('skew', float('nan'))) or
+                         r['poly']['skew'] <= 0 for r in rows):
+            raise ValueError(f'{name}: final validation requires a finite positive declared skew')
         pool.write_text('\n'.join(cado_poly_text(r['poly']) for r in rows))
         run.command(f'score_{name}', argv, tsv)
         lines = tsv.read_text().splitlines()
@@ -710,11 +718,13 @@ def score(run, args, rows, binary, name, final=False):
         for i, (row, line) in enumerate(zip(rows, lines)):
             fields = line.split('\t')
             values = list(map(float, fields[1:]))
-            if int(fields[0]) != i or not all(math.isfinite(x) for x in values) or min(values[:2]) <= 0:
+            skew = scored_skew(fields[2], row['poly']['skew'] if final else None)
+            if int(fields[0]) != i or not all(math.isfinite(x) for x in values) or min(values[0], skew) <= 0:
                 raise ValueError(f'{name}: invalid score row {i}')
-            value, skew = values[:2]
+            value = values[0]
             murphy = values[2] if args.lattice else value
-            scored.append(dict(row, score=value, murphy=murphy, poly=dict(row['poly'], skew=skew)))
+            scored.append(dict(row, score=value, murphy=murphy,
+                               poly=dict(row['poly'], skew=skew)))
         write_json(dst, sorted(scored, key=lambda row: -row['score']))
 
     run.step(f'score_{name}', dict(rows=rows, argv=list(map(str, argv)), binary=digest(binary)), [pool, tsv, dst], action)
@@ -739,6 +749,28 @@ def unique_rows(rows):
     for row in rows:
         unique.setdefault(cado_poly_text(row['poly']), row)
     return list(unique.values())
+
+
+def validate_finalists(run, args, rows, scorer):
+    """Keep declared controls and both standard/job Murphy skew proposals.
+
+    Proposals use the coarse grid. Only the independent final evaluation chooses
+    the exported configuration; no control is discarded because a proposal won
+    on the search grid. In lattice mode a standard-Murphy skew can still be the
+    better lattice configuration, as the C170 regression demonstrates.
+    """
+    controls = unique_rows([normalize_row(row) for row in rows])
+    inputs = unique_rows([dict(row, poly={k:v for k,v in row['poly'].items() if k != 'skew'})
+                          for row in controls])
+    candidates = [dict(row, configuration='declared') for row in controls]
+    for name, params in [('standard', 'default'), ('job', args.params)]:
+        if name == 'job' and params == 'default':
+            continue
+        proposal_args = argparse.Namespace(**vars(args))
+        proposal_args.params, proposal_args.lattice, proposal_args.qband = params, '', ''
+        proposals = score(run, proposal_args, inputs, scorer, 'final_' + name + '_proposals')
+        candidates.extend(dict(row, configuration=name + '_skew_proposal') for row in proposals)
+    return score(run, args, unique_rows(candidates), scorer, 'final', final=True)
 
 
 def validate_ropt_features(run, args, ropt):
@@ -787,7 +819,11 @@ def pipeline(run, args, info):
             # Preserve their selected skew and translation during independent validation.
             finalists.extend(rows)
     # Keep controls from the coarse passes and remove only exact duplicate configurations.
-    validated = score(run, args, unique_rows(finalists), scorer, 'final', final=True)
+    validated = validate_finalists(run, args, finalists, scorer)
+    export_results(run, args, info, len(seeds), settings, validated)
+
+
+def export_results(run, args, info, search_count, settings, validated):
     results = run.path / 'results'
     outputs = [results / 'best.poly', results / 'finalists.poly', results / 'summary.json', results / 'report.txt']
 
@@ -796,7 +832,9 @@ def pipeline(run, args, info):
             validate_poly(row['poly'], info['n'])
         winner = validated[0]
         outputs[0].write_text(cado_poly_text(winner['poly']))
-        outputs[1].write_text('\n'.join(f"# {r['phase']} {r['search']} score {r['score']:.12g}\n" +
+        outputs[1].write_text('\n'.join(f"# {r['phase']} {r['search']} rank {r['rank']} "
+                                       f"configuration {r.get('configuration', 'declared')} "
+                                       f"source_content {r.get('source_content', 1)} score {r['score']:.12g}\n" +
                                        cado_poly_text(r['poly']) for r in validated))
         objective = 'lattice band model' if args.lattice else 'MurphyE'
         partial = []
@@ -804,18 +842,22 @@ def pipeline(run, args, info):
             result = read_json(log)
             if result['returncode']:
                 partial.append(dict(search=log.stem, returncode=result['returncode'], log=str(log.with_suffix('.log'))))
-        summary = dict(n=info['n'], input_polynomials=info['count'], searches=len(seeds),
+        summary = dict(n=info['n'], input_polynomials=info['count'], searches=search_count,
                        objective=objective, settings=settings, winner=winner, finalists=validated,
+                       final_scoring=dict(policy='primitive-declared-plus-standard-and-job-skews-v2',
+                           fixed_declared_skew=True, murphy_angles=256000,
+                           lattice_stream=2 if args.lattice else None),
                        partial_murphy_searches=partial,
                        note='Model ranking; no test sieving performed. Host scoring and size model still use CPU.')
         write_json(outputs[2], summary)
         outputs[3].write_text(f"GPU polynomial optimization complete\nRun: {run.path}\n"
-                              f"Inputs: {info['count']}; breadth searches: {len(seeds)}\n"
+                              f"Inputs: {info['count']}; breadth searches: {search_count}\n"
                               f"Ranking: {objective}; {args.params}\n"
-                              f"Winner: {winner['phase']} {winner['search']}\n"
+                              f"Winner: {winner['phase']} {winner['search']} "
+                              f"({winner.get('configuration', 'declared')})\n"
                               f"Score: {winner['score']:.9g}; MurphyE: {winner['murphy']:.9g}\n"
                               f"Polynomial: {outputs[0]}\nFinalists: {outputs[1]}\n"
-                              "Final validation: 256,000 MurphyE angles; exact resultants checked.\n"
+                              "Final validation: declared controls and skew proposals; fixed-skew scoring at 256,000 MurphyE angles; exact resultants checked.\n"
                               f"Partial MurphyE searches: {len(partial)} (valid outputs retained; details in summary.json).\n"
                               "Model ranking; no test sieving performed.\n")
 

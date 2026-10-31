@@ -11,6 +11,7 @@ import io
 import json
 import os
 from pathlib import Path
+from types import SimpleNamespace
 import shutil
 import subprocess
 import sys
@@ -122,7 +123,10 @@ elif '-search' in args:
 else:
     for i, (_, p) in enumerate(g.read_cado_blocks(args[-1])):
         skew = p.get('skew', 1000.) if '-useskew' in args else 1500.
+        if (base / 'standard-skew').exists() and '-Bf' not in args and '-useskew' not in args: skew = 3000.
         value = skew / 1e10
+        if (base / 'refinement-worse').exists() and skew == 2000.: value /= 4
+        if (base / 'round-skew').exists(): skew = round(skew, 1)
         if '-lattice' in args:
             print(f'{{i}}\\t{{value}}\\t{{skew}}\\t{{value / 2}}\\t3\\t4')
         else:
@@ -171,6 +175,48 @@ else:
         self.invoke('pipeline', run, '--resume')
         self.invoke('report', run)
         self.assertEqual(before, self.calls())
+
+    def test_final_validation_keeps_stronger_declared_control(self):
+        run = self.base / 'run'
+        (self.base / 'refinement-worse').touch()
+        self.invoke('all', run, '--input', self.raw, *self.params())
+        result = driver.read_json(run / 'results/summary.json')
+        self.assertEqual(result['winner']['phase'], 'breadth')
+        self.assertEqual(result['winner']['poly']['skew'], 1500.)
+        self.assertTrue(any(r['phase'] == 'murphy' and r['poly']['skew'] == 2000.
+                            for r in result['finalists']))
+        exported = driver.read_cado_blocks(run / 'results/best.poly')[0][1]
+        self.assertEqual(exported['skew'], 1500.)
+        final_call = next(c for c in self.calls() if 'scores/final.poly' in c)
+        self.assertIn('-useskew', final_call)
+        self.assertIn('-latseed 2', final_call)
+
+    def test_final_standard_skew_proposal_can_improve_export(self):
+        run = self.base / 'run'
+        (self.base / 'standard-skew').touch()
+        self.invoke('all', run, '--input', self.raw, *self.params())
+        result = driver.read_json(run / 'results/summary.json')
+        self.assertEqual(result['winner']['poly']['skew'], 3000.)
+        self.assertEqual(result['winner']['configuration'], 'standard_skew_proposal')
+        self.assertIn('configuration standard_skew_proposal', (run / 'results/finalists.poly').read_text())
+        self.assertIn('(standard_skew_proposal)', (run / 'results/report.txt').read_text())
+        self.assertTrue(any(r['phase'] == 'murphy' and r['poly']['skew'] == 2000.
+                            for r in result['finalists']))
+        self.assertEqual(result['final_scoring']['lattice_stream'], 2)
+        self.assertEqual(driver.read_cado_blocks(run / 'results/best.poly')[0][1]['skew'], 3000.)
+
+    def test_final_score_preserves_input_precision_and_requires_skew(self):
+        (self.base / 'round-skew').touch()
+        args = SimpleNamespace(threads=1, params='job:29,30,14,10e6', lattice='', qband='')
+        run = driver.Run(self.base / 'score')
+        row = dict(poly=dict(self.p, skew=1500.123))
+        scored = driver.score(run, args, [row], self.executable, 'final', final=True)
+        self.assertEqual(scored[0]['poly']['skew'], 1500.123)
+        self.assertEqual(scored[0]['score'], 1500.123 / 1e10)
+        for skew in (0., -1., float('nan'), float('inf')):
+            with self.assertRaisesRegex(ValueError, 'declared skew'):
+                driver.score(run, args, [dict(poly=dict(self.p, skew=skew))],
+                             self.executable, 'final', final=True)
 
     def test_failed_search_is_retried_and_corrupted_output_repaired(self):
         run = self.base / 'run'

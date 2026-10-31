@@ -1,0 +1,1345 @@
+{
+  "date": "2026-10-29",
+  "correction": {
+    "date": "2026-10-30",
+    "report": "20261030_integration.json",
+    "note": "The retained original comparison/pipeline_export values below reoptimize skews and do not measure actual declared exports. Superseded for ranking claims by the October 30 fixed-configuration comparison; input/depth audits remain valid."
+  },
+  "reviewed_utc": "2026-10-30T01:28:19.154126+00:00",
+  "runs": [
+    {
+      "name": "c170_418691",
+      "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+      "digits": 170,
+      "completed_utc": "2026-10-30T00:44:55.685639+00:00",
+      "source": "/home/kylea/msieve-s/backup_20261029_150315",
+      "frozen_input": {
+        "mode": "raw",
+        "source": "/home/kylea/msieve-s/backup_20261029_150315/msieve.dat.deduped.ms",
+        "sha256": "ea185a8dfe4ffe5bd7f362a09965165e5ab3bebf365084db1bb86a2453bcc8ad",
+        "snapshot": "inputs/source.raw"
+      },
+      "binaries": {
+        "s23_sopt": {
+          "sha256": "69b90e13b9a681d9a14fca57671d220aadc81320f46d665fa021b03ef63e20bb",
+          "saved_source": "/home/kylea/msieve-s/stage23_gpu/build/s23_sopt"
+        },
+        "s23_ropt": {
+          "sha256": "ce0d5c8d3f7d7ac34d3e59f0c58e8ca75e102de1bc6737c6ed278aac800eee5e",
+          "saved_source": "/home/kylea/msieve-s/stage23_gpu/build/s23_ropt"
+        },
+        "s23_ropt_cpu": {
+          "sha256": "aae289aae800d027804a64eb30214f5d0c9bb95e35f4ce3bc95994353fbfbbe3",
+          "saved_source": "/home/kylea/msieve-s/stage23_gpu/build/s23_ropt_cpu"
+        },
+        "cado_murphy": {
+          "sha256": "91e10d4c146d189a96a785d17f64bc9ac1a2edb0327bac4e7a7d24320d02aad5",
+          "saved_source": "/home/kylea/msieve-s/stage23_bench/tools/cado_murphy"
+        }
+      },
+      "execution_settings": {
+        "run_dir": "/home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c170_418691",
+        "extract": 1000,
+        "resopt_effort": 50,
+        "seeds": 300,
+        "threads": 2,
+        "device": 0,
+        "workers": 2,
+        "ropt_batch_size": 16,
+        "launch": 30,
+        "slice": 10.0,
+        "budget": 3.0,
+        "maxcells": 200000000000.0,
+        "depth_maxcells": 6000000000000.0,
+        "depth_seeds": 16,
+        "murphy_seeds": 4,
+        "rerank": 4096,
+        "alpha_screen": "",
+        "alpha_screen_exact_size": false,
+        "alpha_screen_gpu": false,
+        "alpha_screen_check": false,
+        "refine_gpu": true,
+        "refine_check": false,
+        "murphy_gpu": true,
+        "murphy_check": false,
+        "keep": 200,
+        "score_top": 32,
+        "finalists": 32,
+        "maxlines": 1000,
+        "umax": 20000,
+        "residue": "",
+        "classes": "",
+        "class_explore": -1,
+        "u_scan": 0,
+        "u_basins": 4,
+        "u_radius": 128,
+        "params": "job:31,32,14,40000000",
+        "lattice": "14,8192",
+        "qband": "40000000,150000000,7",
+        "sopt_binary": "/home/kylea/msieve-s/stage23_gpu/build/s23_sopt",
+        "ropt_binary": "/home/kylea/msieve-s/stage23_gpu/build/s23_ropt"
+      },
+      "scoring": {
+        "params": "job:31,32,14,40000000",
+        "lattice": "14,8192",
+        "qband": "40000000,150000000,7",
+        "lpbr": 31,
+        "lpba": 32,
+        "rlim": 80000000,
+        "alim": 120000000,
+        "profile_id": "c171_testsieve_20261016",
+        "profile_snapshot": {
+          "id": "c171_testsieve_20261016",
+          "digits": 171,
+          "degree": 5,
+          "recorded": "2026-10-16",
+          "evidence": "user_reported_test_sieve",
+          "lpbr": 31,
+          "lpba": 32,
+          "rlim": 80000000,
+          "alim": 120000000,
+          "side": "algebraic",
+          "region": {
+            "label": "gnfs-lasieve4I14e",
+            "logI": 14,
+            "J": 8192,
+            "points": 134217728
+          },
+          "q": {
+            "min": 40000000,
+            "max": 150000000,
+            "model_samples": 7
+          },
+          "source": {
+            "path": "stage23_bench/data/c171/gpu_ropt/testsieve_user_20261016.json",
+            "sha256": "047c50ae6697e274c4a4299e96342e8a69df3ca929cd06d6ee2d0505e573693f"
+          },
+          "notes": "Six user-reported test windows over this range; final production q endpoint was provisional. Supersedes the earlier C168-derived 30/31, 25M-100M model for C171.",
+          "mfbr": 60,
+          "mfba": 92,
+          "rlambda": 2.35,
+          "alambda": 3.5,
+          "lss": 0
+        },
+        "catalog_sha256": "e3fac3581bd361d307de0e093e641268488c6be15c051656521404524d6d4b30",
+        "provisional": true,
+        "source": "Inherited historical profile; not confirmed for this input.",
+        "note": "Model comparison only; no new test sieving."
+      },
+      "input_polynomials": 770700,
+      "searches": 314,
+      "timings": {
+        "pipeline_seconds": 3929.409308568982,
+        "queue_audit_seconds": 82.92507074499736,
+        "queue_compare_seconds": 36.0162553479895
+      },
+      "queue_result": {
+        "stage": "complete",
+        "errors": {},
+        "winner": "/home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c170_418691/results/best.poly",
+        "updated": 1793321095.685639
+      },
+      "partial_murphy_searches": [],
+      "initial_sopt": {
+        "polynomials": 770700,
+        "identical": 770698,
+        "different": 2,
+        "worse_at_full_precision": 0,
+        "tolerance": 1e-06,
+        "differences": [
+          {
+            "index": 129309,
+            "cpu": {
+              "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+              "Y0": -1225929429787655581290837998678891,
+              "Y1": 293419449645530955931,
+              "c0": -24268885100666004304631718828278928337115,
+              "c1": 988946408653340812223236405987550,
+              "c2": 26490507516149164215687250433,
+              "c3": -205433679288194638754,
+              "c4": 787217713649523,
+              "c5": 5307120,
+              "skew": 4167697.375,
+              "lognorm": 55.72,
+              "exp_E": 48.68,
+              "alpha": -1.49,
+              "proj": -2.06,
+              "rroots": 3
+            },
+            "gpu": {
+              "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+              "Y0": -1225929429787655581290837998678891,
+              "Y1": 293419449645530955931,
+              "c0": -24268890004383723455254043991630923052679,
+              "c1": 988946408654514490021818529811274,
+              "c2": 26490507516149164215687250433,
+              "c3": -205433679288194638754,
+              "c4": 787217713649523,
+              "c5": 5307120,
+              "skew": 4167697.301,
+              "lognorm": 55.72,
+              "exp_E": 48.68,
+              "alpha": -1.9,
+              "proj": -2.06,
+              "rroots": 3
+            },
+            "cpu_exp_E": 48.67991659,
+            "gpu_exp_E": 48.679916557,
+            "gain": 3.2999999177718564e-08,
+            "raw": {
+              "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+              "Y0": -1225938134508423004193803851792116,
+              "Y1": 293419449645530955931,
+              "c0": -604056081733625641381051233930457,
+              "c1": -293406809825099744630875335479061,
+              "c2": 422624872805364996476150391893122,
+              "c3": -234806656148406672855,
+              "c4": -1027,
+              "c5": 15120
+            },
+            "index_base": 1,
+            "selected_in_gpu_top1000": false,
+            "extracted_evidence": {
+              "path": "stage23_gpu/runs/20261029_followup_review/c170_418691_129309.out",
+              "sha256": "135eb9169d9c3b4eafb221c9ba480a77c2220f85a4c1a5c740a4e9779887429f"
+            }
+          },
+          {
+            "index": 678559,
+            "cpu": {
+              "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+              "Y0": -995409223555237141616266204548442,
+              "Y1": 1873566153538209309457,
+              "c0": -5302734410873389812352039670181233490879,
+              "c1": -6402457682938625252106613760689389,
+              "c2": 32117252879932765732813256653,
+              "c3": 7972968220634243126904,
+              "c4": -8217862694867160,
+              "c5": -182541240,
+              "skew": 1484310.682,
+              "lognorm": 55.67,
+              "exp_E": 48.79,
+              "alpha": 0.34,
+              "proj": -2.19,
+              "rroots": 5
+            },
+            "gpu": {
+              "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+              "Y0": -995409223555237141616266204548442,
+              "Y1": 1873566153538209309457,
+              "c0": -5302735406282613367589181286447438039321,
+              "c1": -6402457682936751685953075551379932,
+              "c2": 32117252879932765732813256653,
+              "c3": 7972968220634243126904,
+              "c4": -8217862694867160,
+              "c5": -182541240,
+              "skew": 1484310.691,
+              "lognorm": 55.67,
+              "exp_E": 48.79,
+              "alpha": -1.83,
+              "proj": -2.19,
+              "rroots": 5
+            },
+            "cpu_exp_E": 48.789599815,
+            "gpu_exp_E": 48.789599801,
+            "gain": 1.4000001158365194e-08,
+            "raw": {
+              "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+              "Y0": -995426092848860147393851484482236,
+              "Y1": 1873566153538209309457,
+              "c0": 128256400897381356785377487068721,
+              "c1": 56150882663031351911668911214502,
+              "c2": 447603670961659953420681088076724,
+              "c3": -879068387224636150436,
+              "c4": 65160,
+              "c5": 42840
+            },
+            "index_base": 1,
+            "selected_in_gpu_top1000": false,
+            "extracted_evidence": {
+              "path": "stage23_gpu/runs/20261029_followup_review/c170_418691_678559.out",
+              "sha256": "16ba34c52dcc10b4e331f9eb093e2ed200ca78f10433442011e479a7467f65ec"
+            }
+          }
+        ],
+        "elapsed_seconds": 56.210081815719604,
+        "cpu_source": "/home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c170_418691/cpu_reference/cado_sopt_unsorted.txt"
+      },
+      "depth_audit": {
+        "exports_verified": 3200,
+        "cpu_gpu_bytes_equal": true,
+        "files": [
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0001.poly",
+              "sha256": "2cc307d8e89c535245cc9a37f0089a86cbba1c026c99030ab8df3c880bd8e68c"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0001.poly",
+              "sha256": "2cc307d8e89c535245cc9a37f0089a86cbba1c026c99030ab8df3c880bd8e68c"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0002.poly",
+              "sha256": "a134778c326d183f5651fd99cc61f826672b68767c0366cd3b196e117088ad29"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0002.poly",
+              "sha256": "a134778c326d183f5651fd99cc61f826672b68767c0366cd3b196e117088ad29"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0012.poly",
+              "sha256": "1587db3039882d5e2d4ef5794dd2c0872d5b9701738a48255be3194c69ff138b"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0012.poly",
+              "sha256": "1587db3039882d5e2d4ef5794dd2c0872d5b9701738a48255be3194c69ff138b"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0019.poly",
+              "sha256": "9e1773233218f1a332c669b0c97090668a55ecb1a9d069fd40b73071e5efb14f"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0019.poly",
+              "sha256": "9e1773233218f1a332c669b0c97090668a55ecb1a9d069fd40b73071e5efb14f"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0026.poly",
+              "sha256": "4b3d8916ea1c0c38e344ca56f0671ac24ef3777c796d257a773c5b2d03eadeae"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0026.poly",
+              "sha256": "4b3d8916ea1c0c38e344ca56f0671ac24ef3777c796d257a773c5b2d03eadeae"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0045.poly",
+              "sha256": "c61ec8588ee350ca7172c496d6f8effd02d18f4583e02432e8f8807c9515dc06"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0045.poly",
+              "sha256": "c61ec8588ee350ca7172c496d6f8effd02d18f4583e02432e8f8807c9515dc06"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0046.poly",
+              "sha256": "7c22c4d0eef64d3983ea3accd160612ab98f1726bfdbdafdc9704563849ab2d1"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0046.poly",
+              "sha256": "7c22c4d0eef64d3983ea3accd160612ab98f1726bfdbdafdc9704563849ab2d1"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0049.poly",
+              "sha256": "9645110054e3acacc4844fdb08e2ba66d62fab5ad9d236acda8a4b6df69a0b06"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0049.poly",
+              "sha256": "9645110054e3acacc4844fdb08e2ba66d62fab5ad9d236acda8a4b6df69a0b06"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0052.poly",
+              "sha256": "ba4a4805df388d2f30d7abda067c67987de21870c0cd5b3691cdc65e7ba30831"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0052.poly",
+              "sha256": "ba4a4805df388d2f30d7abda067c67987de21870c0cd5b3691cdc65e7ba30831"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0055.poly",
+              "sha256": "86b47a77a2d62163b35fbd26664fee3fa8da8b1f3e7f1b570518926da387a0fa"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0055.poly",
+              "sha256": "86b47a77a2d62163b35fbd26664fee3fa8da8b1f3e7f1b570518926da387a0fa"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0058.poly",
+              "sha256": "8552d586987405ddd9cca723e489923fafb85fdda1244405cbd1d9a12e6bc44f"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0058.poly",
+              "sha256": "8552d586987405ddd9cca723e489923fafb85fdda1244405cbd1d9a12e6bc44f"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0089.poly",
+              "sha256": "e7e24f451d10eed5d4527c0dedc107e3bf45b11e0b2c05e9c6f4bc2bc060d070"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0089.poly",
+              "sha256": "e7e24f451d10eed5d4527c0dedc107e3bf45b11e0b2c05e9c6f4bc2bc060d070"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0114.poly",
+              "sha256": "e70f18d749a64c34eb161bd899221fc00101435098ff228462785b3f7f4cb858"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0114.poly",
+              "sha256": "e70f18d749a64c34eb161bd899221fc00101435098ff228462785b3f7f4cb858"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0164.poly",
+              "sha256": "1c4fb5c328b6fbddac44a4874bbbf090e53a2a97fa4d691895cdceb4ce176059"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0164.poly",
+              "sha256": "1c4fb5c328b6fbddac44a4874bbbf090e53a2a97fa4d691895cdceb4ce176059"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0190.poly",
+              "sha256": "0be13e115be6d3b7f67ca2a310213570d89b2b695a313ed23ef721298dab62da"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0190.poly",
+              "sha256": "0be13e115be6d3b7f67ca2a310213570d89b2b695a313ed23ef721298dab62da"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth/s0237.poly",
+              "sha256": "f8ace607c6106c563aa1298d2a4f2e0b18b96179ed0cab99f2843f9438050667"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/depth_audit/s0237.poly",
+              "sha256": "f8ace607c6106c563aa1298d2a4f2e0b18b96179ed0cab99f2843f9438050667"
+            },
+            "exports": 200
+          }
+        ]
+      },
+      "comparison": {
+        "screened": 2260,
+        "finalist_count": 27,
+        "validation": {
+          "angles": 256000,
+          "lattices": 256,
+          "samples": 4096,
+          "stream": 2
+        },
+        "winners": {
+          "standard_murphy": {
+            "cpu": {
+              "method": "cado_orig",
+              "index": 1,
+              "poly": {
+                "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+                "Y0": -1034841027203248271824005057247821,
+                "Y1": 391430229897112440401,
+                "c0": -7865002735971499821616449516631524404240,
+                "c1": -920501644089323029896252085640772,
+                "c2": 226448931532723509724363537,
+                "c3": 676906528224171306,
+                "c4": -473445006974,
+                "c5": 35280,
+                "skew": 11909093.968,
+                "lognorm": 50.44,
+                "alpha": -6.22,
+                "MurphyE": 4.705e-13
+              },
+              "standard_murphy": 4.72082e-13,
+              "standard_skew": 14300192.7,
+              "lattice_score": 575657900.0,
+              "lattice_skew": 14300192.7,
+              "job_murphy": 7.923407e-08,
+              "per_q": [
+                119.118,
+                107.1176,
+                99.0081,
+                92.5779,
+                88.5375,
+                85.0175,
+                82.5325
+              ]
+            },
+            "gpu": {
+              "method": "gpu_pipeline",
+              "index": 2,
+              "label": "breadth/s0002/0",
+              "poly": {
+                "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+                "Y0": -1034841027203248271824005057247821,
+                "Y1": 391430229897112440401,
+                "c0": -7865002735971499821616449516631524404240,
+                "c1": -920501644089323029896252085640772,
+                "c2": 226448931532723509724363537,
+                "c3": 676906528224171306,
+                "c4": -473445006974,
+                "c5": 35280,
+                "skew": 14300192.7
+              },
+              "standard_murphy": 4.72082e-13,
+              "standard_skew": 14300192.7,
+              "lattice_score": 575657900.0,
+              "lattice_skew": 14300192.7,
+              "job_murphy": 7.923407e-08,
+              "per_q": [
+                119.118,
+                107.1176,
+                99.0081,
+                92.5779,
+                88.5375,
+                85.0175,
+                82.5325
+              ]
+            },
+            "ratio": 1.0,
+            "transform": {
+              "t": 0,
+              "rotation": [
+                0
+              ],
+              "negated": false
+            }
+          },
+          "lattice_score": {
+            "cpu": {
+              "method": "cado_orig",
+              "index": 0,
+              "poly": {
+                "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+                "Y0": -1754343176299108860144625010922072,
+                "Y1": 1350903045751772826863,
+                "c0": 23269054856233958953467879921180173492026,
+                "c1": -2430044291775224432101119979758661,
+                "c2": -950801495386158365600829311,
+                "c3": 12332564179494365320,
+                "c4": 1186509460876,
+                "c5": -5040,
+                "skew": 20962081.347,
+                "lognorm": 50.81,
+                "alpha": -6.65,
+                "MurphyE": 4.632e-13
+              },
+              "standard_murphy": 4.644521e-13,
+              "standard_skew": 28215801.6,
+              "lattice_score": 582832700.0,
+              "lattice_skew": 27611195.1,
+              "job_murphy": 7.820085e-08,
+              "per_q": [
+                120.0651,
+                109.1945,
+                100.9946,
+                93.7522,
+                89.3093,
+                85.5401,
+                82.7298
+              ]
+            },
+            "gpu": {
+              "method": "gpu_pipeline",
+              "index": 1,
+              "label": "breadth/s0001/0",
+              "poly": {
+                "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+                "Y0": -1754343176299108860144625010922072,
+                "Y1": 1350903045751772826863,
+                "c0": 23269054856233958953467879921180173492026,
+                "c1": -2430044291775224432101119979758661,
+                "c2": -950801495386158365600829311,
+                "c3": 12332564179494365320,
+                "c4": 1186509460876,
+                "c5": -5040,
+                "skew": 27611195.1
+              },
+              "standard_murphy": 4.644521e-13,
+              "standard_skew": 28215801.6,
+              "lattice_score": 582832700.0,
+              "lattice_skew": 27611195.1,
+              "job_murphy": 7.820085e-08,
+              "per_q": [
+                120.0651,
+                109.1945,
+                100.9946,
+                93.7522,
+                89.3093,
+                85.5401,
+                82.7298
+              ]
+            },
+            "ratio": 1.0,
+            "transform": {
+              "t": 0,
+              "rotation": [
+                0
+              ],
+              "negated": false
+            }
+          }
+        }
+      },
+      "pipeline_export": {
+        "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/results/best.poly",
+        "selection": {
+          "search": "s0001",
+          "parent": 1,
+          "phase": "murphy",
+          "rank": 0,
+          "label": "u 2 v 8394009 t -2682729 MurphyE 7.82022748074914e-08 lognorm 50.788721 lognorm_at_murphy_skew 51.150687 alpha_s -6.314848 control 7.8200286133905603e-08 proposal 7.82022748074914e-08 accepted 1 calls 122 limited 0 alpha -6.652287",
+          "poly": {
+            "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+            "Y0": -1754342920627198421164099798830692,
+            "Y1": 1350903045751772826863,
+            "skew": 27761121.2,
+            "c0": 22775172709954729413772838302862141887566,
+            "c1": -2788584298735535123428073183758381,
+            "c2": -943544653797620448102854111,
+            "c3": 13228994006636892360,
+            "c4": 1181740108876,
+            "c5": -5040
+          },
+          "score": 582868400.0,
+          "murphy": 7.820219e-08
+        },
+        "independent_rescore": {
+          "method": "gpu_pipeline",
+          "index": 0,
+          "label": "murphy/s0001/0",
+          "poly": {
+            "n": 41869190458567282394534682224111287060712103471134994047694224817645966164884837220514257423426515444766386534608397895913887464419504232653466063423238936489662973352617,
+            "Y0": -1754342920627198421164099798830692,
+            "Y1": 1350903045751772826863,
+            "skew": 27761121.2,
+            "c0": 22775172709954729413772838302862141887566,
+            "c1": -2788584298735535123428073183758381,
+            "c2": -943544653797620448102854111,
+            "c3": 13228994006636892360,
+            "c4": 1181740108876,
+            "c5": -5040
+          },
+          "standard_murphy": 4.643608e-13,
+          "standard_skew": 26512258.7,
+          "lattice_score": 582720200.0,
+          "lattice_skew": 26512258.7,
+          "job_murphy": 7.819643e-08,
+          "per_q": [
+            120.1243,
+            109.2012,
+            100.9997,
+            93.6624,
+            89.2734,
+            85.5181,
+            82.7116
+          ]
+        },
+        "independent_gpu_over_cpu": {
+          "standard_murphy": 0.9836443668684678,
+          "lattice_score": 0.9998069771994605
+        }
+      }
+    },
+    {
+      "name": "c152",
+      "n": 16273663420298428230583140319166907644233995594739232048821072852607365917367887257773312807074616381970239273254832258257562987678558761121530866553451,
+      "digits": 152,
+      "completed_utc": "2026-10-30T01:20:35.098767+00:00",
+      "source": "/home/kylea/msieve-s",
+      "frozen_input": {
+        "mode": "raw",
+        "source": "/home/kylea/msieve-s/msieve.dat.deduped.ms",
+        "sha256": "6f5958d2fe0a6d1a5162b3d45a2342a59f72d67f575c0006981d81cfed387743",
+        "snapshot": "inputs/source.raw"
+      },
+      "binaries": {
+        "s23_sopt": {
+          "sha256": "69b90e13b9a681d9a14fca57671d220aadc81320f46d665fa021b03ef63e20bb",
+          "saved_source": "/home/kylea/msieve-s/stage23_gpu/build/s23_sopt"
+        },
+        "s23_ropt": {
+          "sha256": "ce0d5c8d3f7d7ac34d3e59f0c58e8ca75e102de1bc6737c6ed278aac800eee5e",
+          "saved_source": "/home/kylea/msieve-s/stage23_gpu/build/s23_ropt"
+        },
+        "s23_ropt_cpu": {
+          "sha256": "aae289aae800d027804a64eb30214f5d0c9bb95e35f4ce3bc95994353fbfbbe3",
+          "saved_source": "/home/kylea/msieve-s/stage23_gpu/build/s23_ropt_cpu"
+        },
+        "cado_murphy": {
+          "sha256": "91e10d4c146d189a96a785d17f64bc9ac1a2edb0327bac4e7a7d24320d02aad5",
+          "saved_source": "/home/kylea/msieve-s/stage23_bench/tools/cado_murphy"
+        }
+      },
+      "execution_settings": {
+        "run_dir": "/home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c152",
+        "extract": 1000,
+        "resopt_effort": 50,
+        "seeds": 300,
+        "threads": 2,
+        "device": 0,
+        "workers": 2,
+        "ropt_batch_size": 16,
+        "launch": 30,
+        "slice": 10.0,
+        "budget": 3.0,
+        "maxcells": 200000000000.0,
+        "depth_maxcells": 6000000000000.0,
+        "depth_seeds": 16,
+        "murphy_seeds": 4,
+        "rerank": 4096,
+        "alpha_screen": "",
+        "alpha_screen_exact_size": false,
+        "alpha_screen_gpu": false,
+        "alpha_screen_check": false,
+        "refine_gpu": true,
+        "refine_check": false,
+        "murphy_gpu": true,
+        "murphy_check": false,
+        "keep": 200,
+        "score_top": 32,
+        "finalists": 32,
+        "maxlines": 1000,
+        "umax": 20000,
+        "residue": "",
+        "classes": "",
+        "class_explore": -1,
+        "u_scan": 0,
+        "u_basins": 4,
+        "u_radius": 128,
+        "params": "job:29,30,14,10000000",
+        "lattice": "14,8192",
+        "qband": "10000000,30000000,7",
+        "sopt_binary": "/home/kylea/msieve-s/stage23_gpu/build/s23_sopt",
+        "ropt_binary": "/home/kylea/msieve-s/stage23_gpu/build/s23_ropt"
+      },
+      "scoring": {
+        "params": "job:29,30,14,10000000",
+        "lattice": "14,8192",
+        "qband": "10000000,30000000,7",
+        "lpbr": 29,
+        "lpba": 30,
+        "rlim": 15000000,
+        "alim": 23000000,
+        "profile_id": "c146_user_20261003",
+        "profile_snapshot": {
+          "id": "c146_user_20261003",
+          "digits": 146,
+          "degree": 5,
+          "recorded": "2026-10-03",
+          "evidence": "measured_test_sieve",
+          "lpbr": 29,
+          "lpba": 30,
+          "rlim": 15000000,
+          "alim": 23000000,
+          "side": "algebraic",
+          "region": {
+            "label": "CADO las I=14",
+            "logI": 14,
+            "J": 8192,
+            "points": 134217728
+          },
+          "q": {
+            "min": 10000000,
+            "max": 30000000,
+            "model_samples": 7
+          },
+          "source": {
+            "path": "stage23_bench/data/c146/test_sieve/README.txt",
+            "sha256": "1c01f9c6f94437cf8263348991d036d0b90281f67a80e97178c7d3b3bf59ec9a"
+          },
+          "notes": "Second test uses user c145-style settings. Four 4000-wide windows; timing overlapped another job. Region J follows the saved scoring convention.",
+          "mfbr": 58,
+          "mfba": 58,
+          "rlambda": 2.0,
+          "alambda": 1.94
+        },
+        "catalog_sha256": "e3fac3581bd361d307de0e093e641268488c6be15c051656521404524d6d4b30",
+        "provisional": true,
+        "source": "Inherited historical profile; not confirmed for this input.",
+        "note": "Model comparison only; no new test sieving."
+      },
+      "input_polynomials": 371723,
+      "searches": 313,
+      "timings": {
+        "pipeline_seconds": 2281.0472925810027,
+        "queue_audit_seconds": 32.38770232599927,
+        "queue_compare_seconds": 15.090336053981446
+      },
+      "queue_result": {
+        "stage": "complete",
+        "errors": {},
+        "winner": "/home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c152/results/best.poly",
+        "updated": 1793323235.098767
+      },
+      "partial_murphy_searches": [],
+      "initial_sopt": {
+        "polynomials": 371723,
+        "identical": 371723,
+        "different": 0,
+        "worse_at_full_precision": 0,
+        "tolerance": 1e-06,
+        "differences": [],
+        "elapsed_seconds": 15.700494527816772,
+        "cpu_source": "/home/kylea/msieve-s/stage23_gpu/runs/20261028_existing_jobs/c152/cpu_reference/cado_sopt_unsorted.txt"
+      },
+      "depth_audit": {
+        "exports_verified": 3200,
+        "cpu_gpu_bytes_equal": true,
+        "files": [
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0001.poly",
+              "sha256": "09e7ba8026fb88bf172bf265384b319a32e4eb7f63ba24b0930d9ccb9d5e263f"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0001.poly",
+              "sha256": "09e7ba8026fb88bf172bf265384b319a32e4eb7f63ba24b0930d9ccb9d5e263f"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0002.poly",
+              "sha256": "82bce3abb241ec135af84be346f213efd29ca65b9abb81085e684bdfe485edd4"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0002.poly",
+              "sha256": "82bce3abb241ec135af84be346f213efd29ca65b9abb81085e684bdfe485edd4"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0009.poly",
+              "sha256": "b9fdef0d4f173a6a2d0c1165c431ff20764c061040e2f7726a14c89d9bef95ff"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0009.poly",
+              "sha256": "b9fdef0d4f173a6a2d0c1165c431ff20764c061040e2f7726a14c89d9bef95ff"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0010.poly",
+              "sha256": "0571f7f023e917ccb12459f322b57d9b5c53647fd06db99f8e3bf08ed2a194b2"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0010.poly",
+              "sha256": "0571f7f023e917ccb12459f322b57d9b5c53647fd06db99f8e3bf08ed2a194b2"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0013.poly",
+              "sha256": "f863263646c152ad865ea182b5ff3c7cd6407b6de71aba3c46dab7058deb6af6"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0013.poly",
+              "sha256": "f863263646c152ad865ea182b5ff3c7cd6407b6de71aba3c46dab7058deb6af6"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0015.poly",
+              "sha256": "034570b98284ca54ab92e628cbf20e2c83db476024de24e4d89bfe289c2ce99a"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0015.poly",
+              "sha256": "034570b98284ca54ab92e628cbf20e2c83db476024de24e4d89bfe289c2ce99a"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0029.poly",
+              "sha256": "d7d2a2516855b3801703b8b47792d498b426c9701edabbf1d4b24fb49a1e6c08"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0029.poly",
+              "sha256": "d7d2a2516855b3801703b8b47792d498b426c9701edabbf1d4b24fb49a1e6c08"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0031.poly",
+              "sha256": "b481c2d8052697204b77d3a814fb313f5d65390d2adde9b4b583b96559687891"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0031.poly",
+              "sha256": "b481c2d8052697204b77d3a814fb313f5d65390d2adde9b4b583b96559687891"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0045.poly",
+              "sha256": "f44ecdb1c14c25ab1588768988dcdead2df6f5a8cda65240a3630162e64f728c"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0045.poly",
+              "sha256": "f44ecdb1c14c25ab1588768988dcdead2df6f5a8cda65240a3630162e64f728c"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0062.poly",
+              "sha256": "ca47e164258d22733cd4ca4642216a34e393753543b38f133d08febac3a5f11e"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0062.poly",
+              "sha256": "ca47e164258d22733cd4ca4642216a34e393753543b38f133d08febac3a5f11e"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0071.poly",
+              "sha256": "baaaadc203bc7b68ab24e6c0eacea6c46ae0bdb711026647237e61607e2dabe1"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0071.poly",
+              "sha256": "baaaadc203bc7b68ab24e6c0eacea6c46ae0bdb711026647237e61607e2dabe1"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0086.poly",
+              "sha256": "8e2e94e9d95520106e1d7f3a6e137ec80ad7be0baaf9d479dd7b5c20b657694d"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0086.poly",
+              "sha256": "8e2e94e9d95520106e1d7f3a6e137ec80ad7be0baaf9d479dd7b5c20b657694d"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0090.poly",
+              "sha256": "eaec0474bad2e28a97c25836f4266d41c053e1c636c6096157c4c3ff6e1c977b"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0090.poly",
+              "sha256": "eaec0474bad2e28a97c25836f4266d41c053e1c636c6096157c4c3ff6e1c977b"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0127.poly",
+              "sha256": "71b5b2b12d46c711829743e82e93e41b2545cb45384909da33d69d65551839aa"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0127.poly",
+              "sha256": "71b5b2b12d46c711829743e82e93e41b2545cb45384909da33d69d65551839aa"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0138.poly",
+              "sha256": "7ef99e7933cee970ccef90e5b4815ea825d7e7e2b8aa0611c6bd452d0c1bb5cd"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0138.poly",
+              "sha256": "7ef99e7933cee970ccef90e5b4815ea825d7e7e2b8aa0611c6bd452d0c1bb5cd"
+            },
+            "exports": 200
+          },
+          {
+            "gpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth/s0193.poly",
+              "sha256": "2ce75d09d7e5f3f02348cdb88be5794a3183039495ae1df38d81eaa403b6f541"
+            },
+            "cpu": {
+              "path": "stage23_gpu/runs/20261028_existing_jobs/c152/depth_audit/s0193.poly",
+              "sha256": "2ce75d09d7e5f3f02348cdb88be5794a3183039495ae1df38d81eaa403b6f541"
+            },
+            "exports": 200
+          }
+        ]
+      },
+      "comparison": {
+        "screened": 1924,
+        "finalist_count": 21,
+        "validation": {
+          "angles": 256000,
+          "lattices": 256,
+          "samples": 4096,
+          "stream": 2
+        },
+        "winners": {
+          "standard_murphy": {
+            "cpu": {
+              "method": "msieve_orig",
+              "index": 27,
+              "poly": {
+                "n": 16273663420298428230583140319166907644233995594739232048821072852607365917367887257773312807074616381970239273254832258257562987678558761121530866553451,
+                "e": 5.999e-12,
+                "skew": 2833400.03,
+                "c0": 39753042636438302142609146339455680,
+                "c1": 2494596008727606729715482364298,
+                "c2": -1687847096515769505143439,
+                "c3": -523601270516086517,
+                "c4": 183734544066,
+                "c5": 32760,
+                "Y0": -312414862269123367521611588049,
+                "Y1": 81471496833508471591
+              },
+              "standard_murphy": 5.997611e-12,
+              "standard_skew": 3006245.2,
+              "lattice_score": 173186900.0,
+              "lattice_skew": 3006245.2,
+              "job_murphy": 1.172797e-07,
+              "per_q": [
+                173.9985,
+                160.8291,
+                150.2634,
+                141.6246,
+                135.413,
+                130.2611,
+                127.2244
+              ]
+            },
+            "gpu": {
+              "method": "gpu_pipeline",
+              "index": 0,
+              "label": "murphy/s0010/0",
+              "poly": {
+                "n": 16273663420298428230583140319166907644233995594739232048821072852607365917367887257773312807074616381970239273254832258257562987678558761121530866553451,
+                "Y0": -312417212640335517407508516808,
+                "Y1": 81471496833508471591,
+                "skew": 2836237.4,
+                "c0": -33605595065146530842871157168640202,
+                "c1": 2590656553368287011594012734233,
+                "c2": -1641621348272263424483844,
+                "c3": -544530852014319053,
+                "c4": 179009077866,
+                "c5": 32760
+              },
+              "standard_murphy": 5.998992e-12,
+              "standard_skew": 2832400.3,
+              "lattice_score": 173296800.0,
+              "lattice_skew": 2832400.3,
+              "job_murphy": 1.173126e-07,
+              "per_q": [
+                174.1118,
+                160.936,
+                150.3963,
+                141.5889,
+                135.5651,
+                130.3811,
+                127.2612
+              ]
+            },
+            "ratio": 1.0002302583478655,
+            "transform": {
+              "t": -28849,
+              "rotation": [
+                0
+              ],
+              "negated": false
+            }
+          },
+          "lattice_score": {
+            "cpu": {
+              "method": "msieve_orig",
+              "index": 27,
+              "poly": {
+                "n": 16273663420298428230583140319166907644233995594739232048821072852607365917367887257773312807074616381970239273254832258257562987678558761121530866553451,
+                "e": 5.999e-12,
+                "skew": 2833400.03,
+                "c0": 39753042636438302142609146339455680,
+                "c1": 2494596008727606729715482364298,
+                "c2": -1687847096515769505143439,
+                "c3": -523601270516086517,
+                "c4": 183734544066,
+                "c5": 32760,
+                "Y0": -312414862269123367521611588049,
+                "Y1": 81471496833508471591
+              },
+              "standard_murphy": 5.997611e-12,
+              "standard_skew": 3006245.2,
+              "lattice_score": 173186900.0,
+              "lattice_skew": 3006245.2,
+              "job_murphy": 1.172797e-07,
+              "per_q": [
+                173.9985,
+                160.8291,
+                150.2634,
+                141.6246,
+                135.413,
+                130.2611,
+                127.2244
+              ]
+            },
+            "gpu": {
+              "method": "gpu_pipeline",
+              "index": 0,
+              "label": "murphy/s0010/0",
+              "poly": {
+                "n": 16273663420298428230583140319166907644233995594739232048821072852607365917367887257773312807074616381970239273254832258257562987678558761121530866553451,
+                "Y0": -312417212640335517407508516808,
+                "Y1": 81471496833508471591,
+                "skew": 2836237.4,
+                "c0": -33605595065146530842871157168640202,
+                "c1": 2590656553368287011594012734233,
+                "c2": -1641621348272263424483844,
+                "c3": -544530852014319053,
+                "c4": 179009077866,
+                "c5": 32760
+              },
+              "standard_murphy": 5.998992e-12,
+              "standard_skew": 2832400.3,
+              "lattice_score": 173296800.0,
+              "lattice_skew": 2832400.3,
+              "job_murphy": 1.173126e-07,
+              "per_q": [
+                174.1118,
+                160.936,
+                150.3963,
+                141.5889,
+                135.5651,
+                130.3811,
+                127.2612
+              ]
+            },
+            "ratio": 1.0006345745550038,
+            "transform": {
+              "t": -28849,
+              "rotation": [
+                0
+              ],
+              "negated": false
+            }
+          }
+        }
+      },
+      "pipeline_export": {
+        "path": "stage23_gpu/runs/20261028_existing_jobs/c152/results/best.poly",
+        "selection": {
+          "search": "s0010",
+          "parent": 10,
+          "phase": "murphy",
+          "rank": 0,
+          "label": "u 1 v -1026760 t -775880 MurphyE 1.1731117203422957e-07 lognorm 46.022686 lognorm_at_murphy_skew 46.530641 alpha_s -6.693813 control 1.1705151817273411e-07 proposal 1.1731117203422957e-07 accepted 1 calls 134 limited 0 alpha -7.215670",
+          "poly": {
+            "n": 16273663420298428230583140319166907644233995594739232048821072852607365917367887257773312807074616381970239273254832258257562987678558761121530866553451,
+            "Y0": -312417212640335517407508516808,
+            "Y1": 81471496833508471591,
+            "skew": 2836237.4,
+            "c0": -33605595065146530842871157168640202,
+            "c1": 2590656553368287011594012734233,
+            "c2": -1641621348272263424483844,
+            "c3": -544530852014319053,
+            "c4": 179009077866,
+            "c5": 32760
+          },
+          "score": 173295300.0,
+          "murphy": 1.173119e-07
+        },
+        "independent_rescore": {
+          "method": "gpu_pipeline",
+          "index": 0,
+          "label": "murphy/s0010/0",
+          "poly": {
+            "n": 16273663420298428230583140319166907644233995594739232048821072852607365917367887257773312807074616381970239273254832258257562987678558761121530866553451,
+            "Y0": -312417212640335517407508516808,
+            "Y1": 81471496833508471591,
+            "skew": 2836237.4,
+            "c0": -33605595065146530842871157168640202,
+            "c1": 2590656553368287011594012734233,
+            "c2": -1641621348272263424483844,
+            "c3": -544530852014319053,
+            "c4": 179009077866,
+            "c5": 32760
+          },
+          "standard_murphy": 5.998992e-12,
+          "standard_skew": 2832400.3,
+          "lattice_score": 173296800.0,
+          "lattice_skew": 2832400.3,
+          "job_murphy": 1.173126e-07,
+          "per_q": [
+            174.1118,
+            160.936,
+            150.3963,
+            141.5889,
+            135.5651,
+            130.3811,
+            127.2612
+          ]
+        },
+        "independent_gpu_over_cpu": {
+          "standard_murphy": 1.0002302583478655,
+          "lattice_score": 1.0006345745550038
+        }
+      }
+    }
+  ],
+  "totals": {
+    "runs": 2,
+    "input_polynomials": 1142423,
+    "identical_initial_outputs": 1142421,
+    "differing_initial_outputs": 2,
+    "size_score_regressions": 0,
+    "depth_exports_verified": 6400,
+    "pipeline_seconds": 6210.456601149985
+  },
+  "findings": [
+    "Both new jobs completed their pipeline, initial-size audit, depth replay and independent shortlist comparison.",
+    "Corrected C170 shortlist comparison: standard Murphy GPU/CPU=1.0000008473025277; lattice GPU/CPU=1.0, preserving both declared and proposed configurations.",
+    "The original C170 actual export scores 582868400 in the independent lattice model, above the old CPU control score 582832700. The earlier export-regression claim was incorrect because the comparison changed its skew.",
+    "Corrected C152 shortlist comparison: standard Murphy GPU/CPU=0.9999686623838591; lattice GPU/CPU=1.000091758526185, preserving both declared and proposed configurations.",
+    "C170 has two initial coefficient differences, with GPU exp_E lower by 3.3e-8 and 1.4e-8. Neither input is selected into the GPU top 1000. C152 initial outputs all match exactly.",
+    "The frozen sopt binaries differ from the matched-log prototype. These completed jobs do not validate its production integration."
+  ],
+  "next_steps": [
+    "Production integration and final-ranking replays are validated; see 20261030_integration.json for all 8,028,269 exact corpus outputs and the separate scope of later jobs."
+  ],
+  "limitations": [
+    "Shortlist comparison, not exhaustive rescoring of all CPU msieve exports.",
+    "Both lattice profiles are inherited and provisional for these inputs; no test sieving was performed.",
+    "Small lattice-score differences have no statistical significance estimate and are not measured sieve speedups.",
+    "Pipeline wall times have no matched full CPU timing control.",
+    "No new GPU execution or initial full-output audit was performed during this write-up. Existing audits were checked; saved binaries, depth outputs and winner identities were verified again.",
+    "Binary hashes identify executables; they alone do not establish which source headers produced them."
+  ],
+  "provenance": [
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/prepared.json",
+      "sha256": "b2769b821f8e9fc605a2d036aa2aaaee725ba8ce051802694eaa134b5901ac43"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/settings.json",
+      "sha256": "155f68bcab701a7903cc0df3049f966107ad3a9ce34828963fb88fba860dbb80"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/scoring.json",
+      "sha256": "e2c948eeae750159a63b7a7101a663e6e781863de4eced22bc34a671b7dd5fd4"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/queue_result.json",
+      "sha256": "22717a2f514b71b7384ac635e2c126fb29856d5098c90dbf4c651b4a7e75b051"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/migration_audit.json",
+      "sha256": "62a1cd0358bae57d5949a986bcb0ad244c895bff90c4b8a5d7fa2308611bc14d"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/comparison/summary.json",
+      "sha256": "ae62214debd3feb8da1a6ae52ec0154eed6ce2efb3f98abdcc4f2a2889a15993"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/results/summary.json",
+      "sha256": "fe54afbdc2193e512e90adcc45e2d95e5d8c09e08c982561278309e78362dc02"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/results/best.poly",
+      "sha256": "69e618518165bfc854b76717901e90390830b7ee816f50b0d593e54b59ecafae"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/pipeline_execution.json",
+      "sha256": "902262ae0852c39010aa1bb42f9b825ddd23aa74cf0809e8fb1ccad9f976d7b1"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/queue_audit_execution.json",
+      "sha256": "71c8e23754f4dab6d72e7eb531eebf9ea65ca42d5df8423e4ce571dd35d48ab4"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c170_418691/queue_compare_execution.json",
+      "sha256": "dc4d88aaf00a4ab249696da22f581f61898efda0e627b82fead3a2b8e4994b78"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c152/prepared.json",
+      "sha256": "12c6fcdac52388c5ad21c9ad0bdf240dc682cbde8e6472e92f1888f2312b5e30"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c152/settings.json",
+      "sha256": "68c3630986a612a36b4c1483c6baa6226f2af9d32330d68492a3ca7661761c11"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c152/scoring.json",
+      "sha256": "dc8424f7e28033e5f891b389bcf4a33a92d408a19cf7e4f31f7715e664a68da1"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c152/queue_result.json",
+      "sha256": "2ffc6a948fd150b5781ae153a9fe7c8ed8c621ac13846d78eb762732d0a6f963"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c152/migration_audit.json",
+      "sha256": "873a56d0dceb6595b85c33fbf2681dff3755a71726b878d97c5f4fb1a61aed8f"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c152/comparison/summary.json",
+      "sha256": "54aa657f06e7d5946249e26ac568c21a827a4a91829415f9acdd97b31b095791"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c152/results/summary.json",
+      "sha256": "46e99b47c2f0e0179caa69313f1835c9c1723aa5d693bbb1fc83cbb22444c6f7"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c152/results/best.poly",
+      "sha256": "7951f9d11d8deee1a2bc8f2db8c80e3f8561f70d388cdf8005e713becfe22fa1"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c152/pipeline_execution.json",
+      "sha256": "fbb156292d15653adc5a6fa3a964515cce615aa1c9a5c417ec887ffa5615905b"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c152/queue_audit_execution.json",
+      "sha256": "ffb0e52f25c02b3bff24be4413ed631f514fdb0809dbfc5143d64ae1d252abaf"
+    },
+    {
+      "path": "stage23_gpu/runs/20261028_existing_jobs/c152/queue_compare_execution.json",
+      "sha256": "d5e4fdd5176968b8df96993262fac437aa395fd4bcd819615765b4d4c4dee04c"
+    }
+  ],
+  "reproduction_script": {
+    "path": "stage23_gpu/runs/20261029_followup_review/summarize.py",
+    "sha256": "73da9241313c74565f47d0c82c7edab3e8b4dcbb9cfbabf9bc72801695b15711"
+  },
+  "historical_findings": [
+    "Both new jobs completed their pipeline, initial-size audit, depth replay and independent shortlist comparison.",
+    "C170 contains exact CPU-winning coefficient sets in its breadth finalists and ties CPU under both common scoring metrics.",
+    "C170 results/best.poly is a different, lattice-selected Murphy refinement. Independent rescoring puts that export 1.63556% below the CPU standard MurphyE winner and 0.01930% below the CPU lattice winner. Do not conflate the best shortlist result with the exported polynomial.",
+    "C152 exported winner improves standard MurphyE by 0.02303% and modeled lattice score by 0.06346% over the CPU msieve_orig winner; the polynomials differ by translation -28849.",
+    "C170 has two initial coefficient differences, with GPU exp_E lower by 3.3e-8 and 1.4e-8. Neither input is selected into the GPU top 1000. C152 initial outputs all match exactly.",
+    "The frozen sopt binaries differ from the matched-log prototype. These completed jobs do not validate its production integration."
+  ],
+  "historical_next_steps": [
+    "Integrate host-compatible log behavior with compatibility checks and validate the full corpus; include the two new C170 raw fixtures.",
+    "Check final export selection against independent rescoring: C170 retains the CPU winner but exports a refinement that ranks lower on the independent lattice stream."
+  ]
+}

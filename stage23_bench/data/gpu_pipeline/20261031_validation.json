@@ -1,0 +1,281 @@
+{
+  "date": "2026-10-31",
+  "recorded_utc": "2026-10-31T12:53:42.853587+00:00",
+  "status": "passed",
+  "scope": "CPU suite and focused current-source GPU validation only; full historical corpus excluded.",
+  "build": {
+    "seconds": 278.0852814100217,
+    "manifest": {
+      "path": "stage23_gpu/runs/20261031_focused_validation/frozen_build/build.json",
+      "sha256": "febaa801ab8518bf074f96d3e25edfeb83c1f2665b84e5f3845980e51abd11b0"
+    },
+    "gpu_binary_sha256": "2107e32fec0d693d183280154373cc89bfa1f9271b0c72adfc4eab9d4c4761bd",
+    "gpu_binary": "stage23_gpu/runs/20261031_focused_validation/frozen_build/s23_sopt",
+    "production_cuda_executable_replaced": false
+  },
+  "cpu_suite": {
+    "command": [
+      "make",
+      "-C",
+      "stage23_gpu",
+      "-j4",
+      "test"
+    ],
+    "seconds": 345.6848674820503,
+    "python_cases": 117,
+    "python_skipped": 13,
+    "skip_reason": "CUDA-only cases in the default CPU build; focused device checks are separate.",
+    "native_and_scorer_checks": "Passed, including GMP/CADO arithmetic, root-search, 172067 rho comparisons, 2100 Murphy comparisons, pipeline, traces, scoring and export regressions.",
+    "log": {
+      "path": "stage23_gpu/runs/20261031_focused_validation/cpu_suite_retry.log",
+      "sha256": "277fd8f7b03d878c922ff7fb406d89e76d79cab8fd4627487ac7f996c0d0d775"
+    },
+    "status_record": {
+      "path": "stage23_gpu/runs/20261031_focused_validation/cpu_suite_retry.json",
+      "sha256": "a31f77244da45d4358d25ae52352dc561e49e4394f373ff6c7ae8a6793297e34"
+    }
+  },
+  "failure_found_and_fixed": {
+    "initial_run": {
+      "path": "stage23_gpu/runs/20261031_focused_validation/cpu_suite.json",
+      "sha256": "4d05b14d3fc845ed2b763b4d655f5b4ecdffc324263708eb0eeb20d4342cca60"
+    },
+    "initial_log": {
+      "path": "stage23_gpu/runs/20261031_focused_validation/cpu_suite.log",
+      "sha256": "661f898db831dfb08eba0086c5c2359f6c141f2ae8eb9ff883be01af56539dab"
+    },
+    "cause": "Shared score reader treated refinement column 2 (training score) as a fixed-score skew whenever input skew was preserved.",
+    "fix": "Restrict skew round-trip decoding to -useskew score output, excluding the -refine protocol.",
+    "regression_coverage": "Existing lattice refinement and partial-failure CLI checks pass; fixed-skew integration check now uses 100000.123456789."
+  },
+  "focused": {
+    "gpu_polynomial_outputs_checked": 47214,
+    "command_execution_seconds": 471.3043657360831,
+    "timing_note": "Sum of per-command monotonic durations, including CPU reference checks; build time is separate.",
+    "checks": [
+      {
+        "name": "host_log_ndebug",
+        "returncode": 0,
+        "seconds": 0.4239287350792438,
+        "stdout": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/host_log_ndebug.out",
+          "sha256": "fd741c6e5bb7a27542ba7935c6d1fa68263e06c7167b209935b146646faa6830"
+        },
+        "stderr": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/host_log_ndebug.err",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "device_log_check",
+        "returncode": 0,
+        "seconds": 0.8923615439562127,
+        "stdout": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/device_log_check.out",
+          "sha256": "f59f14452fefa353fccbe312e005b2864d8263da52c56fa426ad8b4919d3e2f4"
+        },
+        "stderr": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/device_log_check.err",
+          "sha256": "71fe40e3a8fe1042c44582bb798c24e66d5968cace5fe465b37215f5adb2bb24"
+        }
+      },
+      {
+        "name": "unsupported_host_fallback",
+        "returncode": 0,
+        "seconds": 0.9726050159661099,
+        "polynomials": 48,
+        "aggregate_fallback_only": true,
+        "stdout": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/unsupported_host_fallback.out",
+          "sha256": "8b2fd015f50a1f4a46025d3996b643dac1ba7cbd241f0bc0341e6cb3c3807317"
+        },
+        "stderr": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/unsupported_host_fallback.err",
+          "sha256": "171df37d81fc49f249326963dba218e5597337f1183f632e8446925485b522fe"
+        }
+      },
+      {
+        "name": "all48_cpu",
+        "returncode": 0,
+        "seconds": 1.8979049579938874,
+        "stdout": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/all48_cpu.out",
+          "sha256": "6c254b39b53fb326ab5cb78290cd67b5989156f742ed10de05c067afd14e50c3"
+        },
+        "stderr": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/all48_cpu.err",
+          "sha256": "e357f7738cdaa1b8336762884ffc5681cc312bda780b72617fe670176380e9fc"
+        }
+      },
+      {
+        "name": "all48_gpu",
+        "returncode": 0,
+        "seconds": 2.1831314540468156,
+        "exact": 48,
+        "stdout": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/all48_gpu.out",
+          "sha256": "6ce35cff74b853ad13c81e0e356c862d5928cbd7a3582089769a0ab22c1d9e62"
+        },
+        "stderr": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/all48_gpu.err",
+          "sha256": "9344b976169f230e970129d4c8dcde55a33615a3edf2f8b198c281d873325090"
+        }
+      },
+      {
+        "name": "c181_context",
+        "returncode": 0,
+        "seconds": 17.58862492395565,
+        "exact": 8192,
+        "all_trace_phases_exact": true,
+        "stdout": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c181_context.out",
+          "sha256": "b3986335f29102d0f4b4c8434a647fc6b3df3d2fbf70ef8e674b7545ad09176b"
+        },
+        "stderr": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c181_context.err",
+          "sha256": "27ee5f3d2134d9f1d53a8350285c858e3ae4f6fd8e38b9a53e254f6b51b6423d"
+        }
+      },
+      {
+        "name": "c179_576203_context",
+        "returncode": 0,
+        "seconds": 17.387305316980928,
+        "exact": 8192,
+        "all_trace_phases_exact": true,
+        "stdout": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c179_576203_context.out",
+          "sha256": "7aed66154425b70a697e7648c5474849a8d2f4a7abfc60fdf62ae0316d7681a7"
+        },
+        "stderr": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c179_576203_context.err",
+          "sha256": "ef3c91b078c740f266919a14b1281beffe816251f84882cc70ae6b937b3b6751"
+        }
+      },
+      {
+        "name": "c146_e0_gpu",
+        "returncode": 0,
+        "seconds": 29.77506896900013,
+        "exact": 13000,
+        "stdout": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c146_e0_gpu.out",
+          "sha256": "ae49ea3462f9eee6ad5652410ab34cb16345e3f7dffc5accb7df41b6dea294cf"
+        },
+        "stderr": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c146_e0_gpu.err",
+          "sha256": "6068462e66776473439e556812248eb1719704e230a408c0fc8ab4a52771590b"
+        }
+      },
+      {
+        "name": "c146_e50_gpu",
+        "returncode": 0,
+        "seconds": 177.65385149605572,
+        "exact": 3000,
+        "stdout": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c146_e50_gpu.out",
+          "sha256": "b9bcf7075b990c205b6b4b8f5bf61c6fad7af5f36b9265c5c56cb16075ac8830"
+        },
+        "stderr": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c146_e50_gpu.err",
+          "sha256": "3ca8cc9d949b5542a98d577ecbf1c1f528823604b9b4541cf2284b7c70549037"
+        }
+      },
+      {
+        "name": "c161_e0_gpu",
+        "returncode": 0,
+        "seconds": 23.50559288309887,
+        "exact": 11000,
+        "stdout": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c161_e0_gpu.out",
+          "sha256": "ef6c02f90ed55187c6c622e4d12d3b6934a0dda5b06f0383a7a513cdc3df91a6"
+        },
+        "stderr": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c161_e0_gpu.err",
+          "sha256": "e2bbdafbd0ef31420f47572a850e9fd94d93e5ac267e54da055235a056d75bed"
+        }
+      },
+      {
+        "name": "c161_e50_gpu",
+        "returncode": 0,
+        "seconds": 73.39328913995996,
+        "exact": 1000,
+        "stdout": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c161_e50_gpu.out",
+          "sha256": "fadfc7a826453a028debf4f0b7f82226656ea48ebb28075857f186dc008ce21c"
+        },
+        "stderr": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c161_e50_gpu.err",
+          "sha256": "ab92c17afb6df1b0d30807446a113d50c578ccfbc95731219e3df2755dd26109"
+        }
+      },
+      {
+        "name": "c150_cpu",
+        "returncode": 0,
+        "seconds": 89.05816183704883,
+        "exact": 2782,
+        "stdout": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c150_cpu.out",
+          "sha256": "e7f813449b06dc318a79118342352c359f4b67e699dba2ddee8d4d9f0f8edff0"
+        },
+        "stderr": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c150_cpu.err",
+          "sha256": "87d28fb9d6472a8f2a47c0bfe6d0b158b1959b1640e9de530e5765d075e7b046"
+        }
+      },
+      {
+        "name": "c150_gpu",
+        "returncode": 0,
+        "seconds": 36.57253946294077,
+        "exact": 2782,
+        "reference": "fresh CPU port and linked current CADO",
+        "stdout": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c150_gpu.out",
+          "sha256": "b832878039ad3bc0e16f2d184ef2fcdea7ca673fbf1c59d2d9a3cb75794fa762"
+        },
+        "stderr": {
+          "path": "stage23_gpu/runs/20261031_focused_validation/c150_gpu.err",
+          "sha256": "be0b6ffbc1f2fde83d4bb3e01460047d5bee39ef4a450947596e06bac8d9edab"
+        }
+      }
+    ],
+    "plan": {
+      "path": "stage23_gpu/runs/20261031_focused_validation/gpu_plan.json",
+      "sha256": "dff63712698940997dfff16ec46c03129b33aa266213ebc930b81c03328794f0"
+    },
+    "driver": {
+      "path": "stage23_gpu/runs/20261031_focused_validation/gpu_focused.py",
+      "sha256": "2fa500d5d8cc4d309ccf8ccb1e152ba4ddb116e03ae8f98a9ba568330771905f"
+    },
+    "status_record": {
+      "path": "stage23_gpu/runs/20261031_focused_validation/gpu_status.json",
+      "sha256": "62d1c38d0ec45c93dd577dde915f4a55fd6047fff8217bdacaa4ed4b99c21f9f"
+    },
+    "reference_scope": "48 historical discrepancies and C150: current CPU port and linked CADO; batch contexts: saved CPU outputs and complete target phase traces; C146/C161: saved CADO fixtures.",
+    "log_probe_samples_per_variant": 2006680,
+    "log_variants": [
+      "FMA",
+      "scalar"
+    ],
+    "mismatch_rejection_verified": true,
+    "ndebug_host_checks_passed": true,
+    "unsupported_host_aggregate_fallback_passed": true
+  },
+  "full_corpus_run": false,
+  "limits": [
+    "The 8028269-input replay remains evidence for the earlier October 30 binary, not this build.",
+    "C150 imported cross-build CADO differences remain unresolved; this run verifies agreement with current linked CADO.",
+    "No new test sieving, performance benchmark, or GPU root-refinement suite was run."
+  ],
+  "source_hashes": {
+    "scripts/gpu_pipeline.py": "4bd733e75b724be715b293fbbcaba0ec893e6aa7c719d3c64c324415d3b2a56e",
+    "stage23_bench/tools/score_polys.py": "6b9886a59e98e76becd6506b7394b6c3fab9a08736651244b97c88f0973b447a",
+    "stage23_bench/tools/final_scoring.py": "1d6a4da5ff3af095bfce8d2ef1a8bd08d609c12597930a9f9303495cd3366032",
+    "stage23_bench/tools/cado_murphy.cpp": "d0e9e96b0df26313a70a8e92c7624b831c1d75707715a1824d4b1f6448dc8ee9",
+    "stage23_bench/tools/regress.py": "ffcff5c39eb6862349eb1c7d10a44e365902dab9185b7316d00b7be8c23054e0",
+    "stage23_gpu/include/host_log.h": "5a4f18572e17d46df8bd654575e08b680503b411abb32b7fb56ca2cb3bc16b8e",
+    "stage23_gpu/include/sopt_math.h": "f862afdcf693d37eec05c089eee7fe5544f09587b851b9a3d887c56a779a16f6",
+    "stage23_gpu/include/norms.h": "6c5e694ee03bbcb5215db71b3eece8f19622dd3e168aea5d6d168612cb1ecd81",
+    "stage23_gpu/include/sopt.h": "8a48c4255e0f644c3de712e34acd3cafce1b91c236a997e2153075fff1189d70",
+    "stage23_gpu/include/alpha_proj.h": "8600ace9b232efa6514dc44b95e628c4a47aa2eeb48291170ffb9d31227d0303",
+    "stage23_gpu/tools/s23_sopt.cu": "3cae3f00dce2229cbf01a54885e16455ff02323a58b8e5f2f2e896e03e3f8754"
+  }
+}

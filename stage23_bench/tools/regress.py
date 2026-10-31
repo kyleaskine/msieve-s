@@ -165,7 +165,7 @@ def refinement_check():
           f'gain {100*gain:+.4f}%, refined / msieve {ratio:.6f}')
     # Direct fixed-skew evaluation must not silently optimize the declared skew.
     args.eval_points = args.points = 1000
-    odd = translated_pair(p, -1234567, 1e5)
+    odd = translated_pair(p, -1234567, 100000.123456789)
     fixed = score_murphy([odd], p['n'], args)[0]
     check('refinement: fixed-skew evaluation', fixed[1] == odd['skew'] and fixed[2] == 0,
           f'skew {fixed[1]}, dt {fixed[2]}')

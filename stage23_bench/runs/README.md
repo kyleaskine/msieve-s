@@ -196,3 +196,94 @@ They take the run directory as an argument; each file's docstring or header says
   The study README maps all thirteen findings to fixes. Compact evidence is
   `data/root_coverage/review_20261027/`. Previous prototype speed/quality numbers
   are historical; this check does not establish new performance.
+- `20261028_existing_jobs/`: the first six completed GPU pipelines cover C148, C164, two
+  C179 inputs, C181 and the union of both C190 stage1 runs. The follow-up
+  [compact report](../data/gpu_pipeline/20261028.json) compares 6,885,846 initial
+  outputs. All 19,200 depth exports match CPU replay exactly. Two initial
+  size-optimization outputs are worse than CADO beyond tolerance; both are
+  outside the selected top 1000, and CPU execution of the frozen port matches
+  CADO on their isolated inputs. The October 29 matched-log prototype fixes
+  both in GPU batch replay; the October 30 production integration is implemented,
+  with focused new-build GPU checks and all 8,028,269 saved corpus outputs
+  matching their CPU references exactly.
+  Common rescoring favors C190's 60060 CPU run by 10.49% in standard MurphyE;
+  the GPU union result is 0.11% above that CPU winner. Lattice settings are
+  provisional and no test sieving was performed. Full review scripts and
+  artifacts are local under `stage23_gpu/runs/20261028_results_review/`.
+  Queue preparation now pins C190 to its two dated October 28 backups and
+  checks that all inputs have the same composite. C164 uses the saved input
+  and CPU references under `stage23_gpu/runs/20261029_queue_sources/c164/`
+  (hard links to the immutable completed run, not live repository files).
+  `--only` refreshes all per-job results before aggregating status. Background
+  launch records are kept separately in `background/PID.json`; `owner.json`
+  identifies the process that acquired the queue lock and records its finish.
+  The [October 29 follow-up](../data/gpu_pipeline/20261029_followup.json) adds
+  C170 (`418691…`) and C152: both jobs and their audits completed successfully.
+  Of 1,142,423 initial outputs, two C170 coefficient differences are within
+  score tolerance and neither enters the top 1000; all 6,400 depth exports match
+  CPU replay exactly. The October 30 correction withdraws the claimed C170
+  export regression: the old comparison changed the exported skew. Actual
+  fixed-skew scoring puts the export above that control. Corrected comparisons
+  and new final-ranking replays are in the
+  [integration report](../data/gpu_pipeline/20261030_integration.json).
+  Pipeline times were 1h 05m 29s and 38m 01s;
+  no matched CPU timing or test sieve was performed. The report preserves the
+  two raw differing inputs and distinguishes shortlist winners from exports.
+  The aggregate queue still reports the older C181/C179 validation failures;
+  neither new job introduced a validation failure. The matched-log prototype
+  was not used by these runs.
+  The later [C150 review](../data/gpu_pipeline/20261030_c150.json) recovers a
+  msieve candidate that the printed-score shortlist discarded: its coefficients
+  have gcd 2, and after normalization it ties the CADO/GPU winning family near
+  `7.23e-12` standard MurphyE. Comparison now includes every distinct
+  content-reduced msieve export and deduplicates its three per-family leaders.
+  C150's 2,782 initial differences against imported CADO all match local CADO
+  on CPU replay; 147 remain worse than the imported reference, so that queue
+  audit error is preserved. All 3,200 depth exports match CPU replay exactly.
+  Corrected comparison and diagnostics remain under ignored run directories.
+- `20261029_sopt_descent/`: CPU phase diagnosis of the two initial-sopt losses.
+  `trace.py perturb --run-dir NEW_DIRECTORY` reproduces both saved GPU outputs
+  with one-ULP lognorm perturbations in copied headers, while the integer
+  translation/LLL/deduplication phases stay unchanged. The seed-zero controls
+  match all CPU phases. This is a sensitivity experiment, not a CUDA math
+  simulation. `trace.py gpu` explicitly runs a device comparison when the GPU
+  is free. Full traces and binaries
+  stay under ignored `stage23_gpu/runs/`; the
+  [compact result](../data/gpu_pipeline/20261029_sopt_descent.json) records the
+  experiment and provenance. That diagnostic initially left production math
+  unchanged; the later October 30 integration is recorded separately.
+  Context replay accepts `--case NAME --context-run ORIGINAL_RUN` and preserves
+  the failing 4096-input batch plus preceding batches (`--full-prefix` for all).
+  `--prepare-only` extracted and verified 8192 inputs per case without GPU work.
+  The post-hoc perturbation search tried 16 seeds per case, with one exact
+  saved-GPU match each; both denominators are retained in the compact result.
+  New runs compile from frozen sources and record dependency/library/compiler
+  provenance. The earlier report's source hashes alone did not prove that its
+  copied executables matched those headers.
+  GPU follow-up reproduced both losses in their batch contexts; the matched-log
+  prototype matches all 16,384 outputs and both complete target traces to CPU.
+  It also matches all 46 historically differing inputs and all 13,000 C146
+  acceptance outputs to CADO. The original binary reproduced all 46 historical
+  GPU outputs. Detailed execution/audit scripts are local under
+  `stage23_gpu/runs/20261029_host_log/`. October 30 adds production host-variant
+  selection, startup device validation and unsupported-host CPU fallback. Host
+  checks pass. The new build also passes device log checks, all 48 historically
+  differing inputs against current CADO, and both 8192-input batch contexts and
+  target traces against CPU. All 28,000 C146/C161 effort-0/50 fixture outputs and
+  all 8,028,269 outputs in the eight-job replay also match their CPU references
+  exactly. The later C150 job is outside that corpus.
+  Final-ranking replays on C170/C152 preserve all
+  declared controls and independently score additional skew proposals, with
+  exported-file readback checks. Full artifacts remain ignored under
+  `stage23_gpu/runs/20261030_shipping/`.
+  A subsequent October 30 code-review follow-up changes the remaining sopt
+  objective logs, common content normalization, skew precision and report
+  provenance. It also pins C152 to saved queue inputs under
+  `stage23_gpu/runs/20261030_queue_sources/c152` (hard links, no bulk data copy).
+  October 31 CPU and focused GPU validation passed after fixing a refinement
+  output-parsing bug. All 47,214 focused outputs and complete target batch
+  traces match their references; see
+  [the compact report](../data/gpu_pipeline/20261031_validation.json).
+  Logs and fresh frozen builds are under
+  `stage23_gpu/runs/20261031_focused_validation/`. The full corpus was not rerun;
+  its results above remain evidence for the earlier implementation.
