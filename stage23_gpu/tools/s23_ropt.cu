@@ -810,7 +810,10 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
 #endif
     S.proj = !noproj;
     std::vector<float> PT;
-    rs_proj_tables(S, PT);
+    {
+        S23_ROPT_RANGE("host_projective_tables");
+        rs_proj_tables(S, PT);
+    }
     const char *alpha_what = noproj ? "affine roots, p^e <= 200" : "affine roots p^e <= 200, projective p^(e+3)";
     std::vector<float> T(S.ntab);
     if (cell) {
@@ -1319,6 +1322,7 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
     size_t murphy_skipped = 0, murphy_failed = 0, murphy_accepted = 0, murphy_limited = 0, murphy_count = 0;
     if (!window) {
         const auto t2 = std::chrono::steady_clock::now();
+        S23_ROPT_RANGE("final_refinement");
         const size_t nout = (size_t)std::max(refine, top);
         const size_t nref = std::min(best.size(), std::max(nout, (size_t)rerank));
         const size_t nproxy = screen_options ? std::min(best.size(), (size_t)screen_count) : nref;
@@ -1436,6 +1440,7 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
         // Optimize every member of the larger proxy pool BEFORE the output cut.
         // Keval validates each proposal and ranks its retained configuration.
         if (murphy) {
+            S23_ROPT_RANGE("murphy_phase");
             fprintf(stderr, "s23_ropt: MurphyE refining %zu cells before the %zu-output cut "
                             "(K=%d, Keval=%d, maxeval=%d)\n", nref, nout, mc.K, mc.Keval, mc.maxeval);
             murphy_cells.resize(nref);
@@ -1473,7 +1478,7 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
             }
 #ifdef __CUDACC__
             if (murphy_gpu) {
-                size_t gpu_cells = 0, fallbacks = 0;
+                size_t gpu_cells = 0, fallbacks = 0, calls = 0, integrals = 0, uploads = 0;
                 double error = 0, alpha_error = 0;
                 for (auto &worker : session.murphy_workers) worker->abort = nullptr;
                 if (audit_abort.load()) return 2;
@@ -1483,12 +1488,17 @@ static int ropt_job(int argc, char **argv, RoptSession &session, RoptJobPaths *p
                 }
                 for (const auto &worker : session.murphy_workers) {
                     if (worker->audit_failed) return 2;
+                    calls += worker->calls;
+                    integrals += worker->integrals;
+                    uploads += worker->uploads;
                     error = std::max(error, worker->max_relative_error);
                     alpha_error = std::max(alpha_error, worker->max_alpha_error);
                 }
                 printf("# MurphyE GPU: %zu cells, %zu host fallbacks%s; max integral relative error %.12g; "
                        "max alpha error %.12g\n", gpu_cells, fallbacks,
                        murphy_check ? " (CPU integral and alpha audit)" : " (unchecked)", error, alpha_error);
+                printf("# MurphyE GPU work: %zu calls, %zu integrals, %zu angle uploads\n",
+                       calls, integrals, uploads);
             }
 #endif
             std::vector<size_t> ranked;

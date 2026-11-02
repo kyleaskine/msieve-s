@@ -5,6 +5,7 @@
 #include "murphy_search.h"
 #include "polyselect_alpha.h"
 #include "polyselect_norms.h"
+#include "ropt_profile.h"
 
 using namespace s23_murphy;
 
@@ -24,6 +25,8 @@ bool murphy_config_valid(const MurphyConfig &c)
 static MurphyIntegralInput integral_input(cado_poly_srcptr p, double skew,
                                          double af, double ag, const Ctx &c)
 {
+    // Attribute preparation at batch granularity: an NVTX push/pop for every
+    // point can dominate this small conversion and bias its measured cost.
     MurphyIntegralInput in;
     in.degree = p->pols[ALG_SIDE]->deg;
     const polynomial<double> f(p->pols[ALG_SIDE]), g(p->pols[RAT_SIDE]);
@@ -39,6 +42,7 @@ static MurphyIntegralInput integral_input(cado_poly_srcptr p, double skew,
 static double device_best_skew(cado_poly_srcptr p, double af, double ag,
                                const Ctx &c, MurphyEvaluator &e, bool &ok)
 {
+    S23_ROPT_RANGE("initial_skew_search");
     const auto f = p->pols[ALG_SIDE];
     double s0 = pow(fabs(mpz_get_d(mpz_poly_coeff_const(f, 0)) /
                          mpz_get_d(mpz_poly_coeff_const(f, f->deg))), 1.0 / f->deg);
@@ -86,8 +90,12 @@ MurphyResult murphy_refine(cio_poly &q, const MurphyConfig &c, MurphyEvaluator *
     const Ctx train{c.Bf, c.Bg, c.area, c.K}, eval{c.Bf, c.Bg, c.area, c.Keval};
     // One canonical alpha source for CPU, CUDA and recoverable fallbacks. A
     // checked device refinement additionally audits its supplied full alpha.
-    const double af = get_alpha(p->pols[ALG_SIDE], get_alpha_bound());
-    const double ag = get_alpha(p->pols[RAT_SIDE], get_alpha_bound());
+    double af, ag;
+    {
+        S23_ROPT_RANGE("host_canonical_alpha");
+        af = get_alpha(p->pols[ALG_SIDE], get_alpha_bound());
+        ag = get_alpha(p->pols[RAT_SIDE], get_alpha_bound());
+    }
     struct EvaluationStopped {};
     try {
         if (evaluator && (evaluator->cancelled() ||
@@ -102,8 +110,23 @@ MurphyResult murphy_refine(cio_poly &q, const MurphyConfig &c, MurphyEvaluator *
         bool ok = true;
         const double initial = evaluator ? device_best_skew(p, af, ag, train, *evaluator, ok) : 0;
         if (!ok) throw EvaluationStopped{};
-        const auto r = s23_murphy::refine_pair(p, af, ag, train, initial, c.maxeval, 0,
-            [&](double skew) { return score(skew, train); },
+        const auto r = s23_murphy::refine_pair_batched(p, af, ag, train, initial, c.maxeval, 0,
+            [&](double s0, const SearchPoint *points, size_t n, double *values) {
+                std::vector<MurphyIntegralInput> inputs;
+                if (evaluator) inputs.reserve(n);
+                {
+                    S23_ROPT_RANGE("host_search_input_preparation");
+                    for (size_t i = 0; i < n; ++i) {
+                        translate_pair(p, points[i].t);
+                        const double skew = s0 * exp2(points[i].z);
+                        if (evaluator) inputs.push_back(integral_input(p, skew, af, ag, train));
+                        else values[i] = murphy_at(p, skew, af, ag, train);
+                        translate_pair(p, -points[i].t);
+                    }
+                }
+                if (evaluator && (evaluator->cancelled() ||
+                    !evaluator->evaluate(inputs.data(), n, values))) throw EvaluationStopped{};
+            },
             [&](double skew) {
                 const double e = score(skew, eval);
                 return std::array<double, 2>{e, e};

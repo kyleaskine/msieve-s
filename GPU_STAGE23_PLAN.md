@@ -21,7 +21,40 @@ poly by poly; the ropt of M2 is our own design.)
 Speed alone is not the motivation. The CPU pipeline takes about 2 h, while stage 1 takes
 about 24 h on a rented 5090.
 
-## Current status (updated 2026-10-31)
+## Current status (updated 2026-11-01)
+
+The first overhead reduction now batches independent MurphyE pattern-search
+trials, preserving the scalar evaluation sequence, cache, budget and tie order.
+On 48 saved C150/C192/C208 candidates, two-worker warm job medians improved
+from 0.830 to 0.402 seconds on the internal steady clock (2.07x); exports stayed byte-identical. The separate
+96-candidate trace executed the same 33,706 integrals with 83% fewer launches.
+See `stage23_bench/data/gpu_refinement/20261031_batching.json` and the reusable
+`stage23_bench/tools/bench_murphy.py`. This is final-refinement timing, not a
+whole-pipeline speedup.
+
+The November 1 profiles now attribute the remaining costs. Warm 48-candidate
+passes measure about 0.39 seconds internally; a separate 256-candidate C150 pass
+measures 1.76 seconds on that clock. Repeated `cudaSetDevice` inside MurphyE evaluation costs about
+98 ms / 546 ms respectively, summed across two workers. Numerical host work
+is much smaller, and actual device copies take only 1.15 ms per small pass.
+Next: move device selection to worker/job setup with correct thread ownership,
+then measure the remaining submission/wait overhead. Preserve CPU alpha and
+size canonicalization. Replay-only projective tables and redundant device size
+search are separate smaller opportunities; their relative costs depend strongly
+on pool size. The profiles and worker sweep are in
+`stage23_bench/data/gpu_refinement/20261101_profile.json`; all 5,344 exported
+polynomials matched baseline bytes. No numerical change or production rebuild
+was made for this profiling study.
+
+The subsequent review fixes benchmark layout inference, optional CUDA trace
+tables, default scoring bounds and pool conventions; adds translated-proposal
+failure/cancellation coverage; makes profiling flags trigger rebuilds; and
+removes per-point NVTX overhead. New benchmark medians use separately recorded
+wall time. Historical steady/Nsight measurements remain labeled with their
+original clocks rather than rescaled. Focused CPU checks pass, including the
+360-case historical search hash and 96 byte-identical replay exports. Device
+binding, grouped translations and search-cache optimizations remain the next
+measured changes; no numerical optimization was bundled into these fixes.
 
 The October 30 review follow-up extends matched log to the remaining sopt
 objective terms and fixes scoring normalization/provenance and orchestration

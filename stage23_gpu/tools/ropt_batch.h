@@ -15,6 +15,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include "ropt_profile.h"
 
 struct RoptJobPaths {
     std::vector<std::string> inputs, outputs;
@@ -114,6 +115,7 @@ int ropt_batch(const char *manifest, const char *program, Validate validate, Exe
         return 2;
     }
     const auto start = std::chrono::steady_clock::now();
+    const auto wall_start = std::chrono::system_clock::now();
     size_t partial = 0;
     for (size_t j = 0; j < jobs.size(); ++j) {
         auto &args = jobs[j];
@@ -128,8 +130,14 @@ int ropt_batch(const char *manifest, const char *program, Validate validate, Exe
             return 2;
         }
         const auto before = std::chrono::steady_clock::now();
-        const int status = execute(int(args.size()), argv.data());
+        const auto wall_before = std::chrono::system_clock::now();
+        int status;
+        {
+            S23_ROPT_RANGE("ropt_job");
+            status = execute(int(args.size()), argv.data());
+        }
         const double seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - before).count();
+        const double wall_seconds = std::chrono::duration<double>(std::chrono::system_clock::now() - wall_before).count();
         fflush(nullptr);
         if (events_fd >= 0 && dprintf(events_fd, "end %zu %d %.6f %lld\n", j + 1, status, seconds,
                 (long long)lseek(STDOUT_FILENO, 0, SEEK_CUR)) < 0) {
@@ -137,6 +145,9 @@ int ropt_batch(const char *manifest, const char *program, Validate validate, Exe
             return 2;
         }
         printf("# batch job %zu status %d, %.6f s\n", j + 1, status, seconds);
+        // Keep the existing event/log clock for consumers; benchmark wall time
+        // separately because steady_clock has run fast on this WSL2 host.
+        printf("# batch job %zu wall %.6f s\n", j + 1, wall_seconds);
         fflush(stdout);
         if (status && status != 3) {
             fprintf(stderr, "s23_ropt: batch stopped at job %zu; earlier completed exports retained\n", j + 1);
@@ -146,5 +157,7 @@ int ropt_batch(const char *manifest, const char *program, Validate validate, Exe
     }
     printf("# batch: %zu jobs complete, %zu partial, %.6f s\n", jobs.size(), partial,
            std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count());
+    printf("# batch wall: %.6f s\n",
+           std::chrono::duration<double>(std::chrono::system_clock::now() - wall_start).count());
     return partial ? 3 : 0;
 }

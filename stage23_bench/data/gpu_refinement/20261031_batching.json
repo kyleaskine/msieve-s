@@ -1,0 +1,786 @@
+{
+  "schema": 1,
+  "date": "2026-10-31",
+  "scope": "Saved-pool final refinement only: no size-model/root search or pipeline scoring. Not a full-corpus test or whole-pipeline speedup.",
+  "change": "Batch the 21 independent coarse starts and up to eight uncached neighbors per pattern-search step; preserve scalar order, cache, budget, exact translations and validation.",
+  "hardware": "NVIDIA GeForce RTX 5070 (sm_120), WSL2; two OpenMP workers",
+  "settings": {
+    "threads": 2,
+    "search_angles": 16000,
+    "validation_angles": 64000,
+    "maxeval": 384,
+    "candidates_per_case": 16,
+    "warmup_passes": 1,
+    "measured_passes": 5
+  },
+  "cases": [
+    {
+      "tag": "c150",
+      "count": 16,
+      "params": "job:29,30,14,10e6",
+      "seed": "n: 799978930956747867785215233823645943969684917015699031185987367606287530253867749801414305474665472515810960371736589795705809088462960143774600413313\nY0: -248746273567215329298982814814\nY1: 1350405662433741047\nc0: 93795671924621119356226658615802\nc1: -40688363759254716992996488936\nc2: 13872884869223319500179\nc3: 35784423068855264\nc4: -34943585442\nc5: -5040\nskew: 1063635.407\n",
+      "pool": "S23_ROPT_POOL 1\n1.3 1\n799978930956747867785215233823645943969684917015699031185987367606287530253867749801414305474665472515810960371736589795705809088462960143774600413313\n-248746273567215329298982814814\n1350405662433741047\n93795671924621119356226658615802\n-40688363759254716992996488936\n13872884869223319500179\n35784423068855264\n-34943585442\n-5040\n16\n3 2189298 11.431174278259277 36.005914225116868 44.570844228887836 -1169753\n-1 229590 10.427414894104004 36.994041399607674 44.254084203976788 286294\n8 -9773667 11.43880558013916 37.12547952103602 45.700330217250837 -244122\n13 28040968 10.791426658630371 37.21770208583176 44.950960184085154 -3557854\n8 10575333 10.78154468536377 37.248345964281008 44.968757497287818 -2254098\n-2 1591363 10.637221336364746 37.248687082391768 44.781478261699846 579804\n1 80128 10.236860275268555 37.274767991839724 44.287089791722757 -407923\n13 30361468 10.825789451599121 37.296393574001939 45.074323303114703 -3544968\n1 225427 10.215201377868652 37.30151390588837 44.285679139151526 -458947\n-1 -6771690 10.861669540405273 37.319938250294904 45.144512094855671 -1237088\n8 11963853 10.649625778198242 37.343560586851488 44.892477540543112 -2422448\n8 11092983 10.658246040344238 37.377647704108327 44.937770998589748 -2322890\n1 1148272 10.194988250732422 37.389125646328587 44.347013814314643 -715446\n1 -281156 10.154121398925781 37.398200309664105 44.302961570301527 -304146\n23 7287438 11.490313529968262 37.409121926242115 46.050932957234764 -843312\n1 -82496 10.114899635314941 37.434895678167564 44.288668646110899 -350815\nEND\n",
+      "sources": {
+        "stage23_gpu/runs/20261028_existing_jobs/c150/seeds/s0001.poly": "e8ffcd17887a840c3e52c716e2a64517dc4d3a1f1a7246d5ed58e481c27e46ee",
+        "stage23_gpu/runs/20261028_existing_jobs/c150/depth/s0001.pool": "b6a6d16376215b4759eddd5d3cfaf72fb641dafb4201ced4b898c48251474fea"
+      }
+    },
+    {
+      "tag": "c192",
+      "count": 16,
+      "params": "job:32,33,15,80e6",
+      "seed": "n: 970137671032597847775481145969913289969436931189728453724304265243876304116067045536862610616610038007662192714697454871633967746240559613115499546579676197722961272656328233636785191370677953\nY0: -23389162594254140639896811991964828052\nY1: 207799140317397110892323\nc0: 18001706611005426547105601303698089784265399318\nc1: 280791997290235643571821579131974456150\nc2: -18880289774276187064127423370622\nc3: -57581417469720947435479\nc4: 695357336054874\nc5: -831600\nskew: 110685609.371\n",
+      "pool": "S23_ROPT_POOL 1\n1.3 1\n970137671032597847775481145969913289969436931189728453724304265243876304116067045536862610616610038007662192714697454871633967746240559613115499546579676197722961272656328233636785191370677953\n-23389162594254140639896811991964828052\n207799140317397110892323\n18001706611005426547105601303698089784265399318\n280791997290235643571821579131974456150\n-18880289774276187064127423370622\n-57581417469720947435479\n695357336054874\n-831600\n16\n-34 -4452472541 12.993332862854004 49.522611871907962 60.118348035652076 109401057\n-82 3728589211 12.744355201721191 49.6041452392313 59.876210443502757 80164653\n-34 -2174576921 12.804594993591309 49.644513547727527 59.99489048143014 80764252\n-34 6310451059 13.167275428771973 49.750117037466396 60.57197853690387 68211524\n-112 3920080921 12.656929016113281 49.773051695100747 59.931462858081922 82602449\n-34 -5754737141 12.880252838134766 49.778227117920018 60.226959249529123 113822969\n-34 3358244659 12.91517162322998 49.840129280147501 60.334255832380386 46370669\n-112 -1011445679 12.968194007873535 49.875260015913113 60.438315668182618 58209181\n-34 -1673925341 12.608741760253906 49.877281831159763 59.973049561523752 70653555\n-34 -9591206141 12.97812557220459 49.942001056407982 60.51796774230786 112129145\n-100 4000885537 12.203125953674316 49.94226824520662 59.510735427017138 94008416\n-10 -290631773 12.53300666809082 49.956584919774315 59.953897030326289 10957691\n-100 3809199889 12.183686256408691 50.009456842009527 59.552652417374738 94835729\n-34 579697459 12.446103096008301 50.014744317165864 59.899081784010562 31808500\n-34 -3982803341 12.423270225524902 50.230935661476678 60.085590396692965 105682995\n-94 5374167199 12.295585632324219 50.342438940551119 60.031103704606515 90010127\nEND\n",
+      "sources": {
+        "stage23_gpu/runs/20261023_gpu_refine/inputs/c192.poly": "a4bcdd47f5143966730e841e35b504008ac36d3b500e45c3925ff833e0141405",
+        "stage23_gpu/runs/20261023_gpu_refine/inputs/c192_murphy.pool": "9003d50db37511afdaddcc0905b454e6d29213ca7e2df582229b7082ebe13ca4"
+      }
+    },
+    {
+      "tag": "c208",
+      "count": 16,
+      "params": "job:34,35,16,80e6",
+      "seed": "n: 4136624823966461711412539872679142662765222458478919632590970169265801634616021014487871356747276432576691021923141092182040847318730274326972882201160040283953623928070578856350386690080628584269005039191069\nY0: -15231978013097425942466308251322858201152\nY1: 590447320875448257014861\nc0: 249594976120836054163172015947218249432348474\nc1: -11151178665609756698844244813206385204293\nc2: -3282415529030178400602166811075\nc3: 25110959465395157051253695\nc4: 1508631445372758\nc5: -30270240\nskew: 32300042.704\n",
+      "pool": "S23_ROPT_POOL 1\n1.3 1\n4136624823966461711412539872679142662765222458478919632590970169265801634616021014487871356747276432576691021923141092182040847318730274326972882201160040283953623928070578856350386690080628584269005039191069\n-15231978013097425942466308251322858201152\n590447320875448257014861\n249594976120836054163172015947218249432348474\n-11151178665609756698844244813206385204293\n-3282415529030178400602166811075\n25110959465395157051253695\n1508631445372758\n-30270240\n16\n147 4704054682 13.31890869140625 54.695047607738942 65.714032348600981 -31789016\n7 7721916662 13.33122444152832 54.843644387476367 65.878639603497092 17723726\n147 7819893562 13.126941680908203 54.953787832896232 65.723215460110808 -58734794\n147 -3461592038 13.078731536865234 54.983211823306192 65.689966263264907 38827507\n147 17115102562 13.15007495880127 54.997774561868582 65.797275450344145 -113345069\n147 -448483478 13.070511817932129 55.002777798964871 65.698846604310546 12770140\n147 993039682 13.06221866607666 55.017807404862836 65.703095112796404 303846\n147 -8112730838 12.942873954772949 55.146118677817761 65.676258261056503 79050561\n7 -697294138 13.035996437072754 55.155858601997622 65.807057412226115 -8606492\n147 7343941162 12.894024848937988 55.255176970563838 65.72181271621713 -54618758\n187 -6729476038 12.866100311279297 55.336478938946797 65.766812785643793 69778162\n7 797830262 12.80506420135498 55.468782422090698 65.819769325886085 -3930644\n47 -2478354338 12.707113265991211 55.503415901058432 65.727066588880916 -6861138\n7 -1860332938 12.658999443054199 55.63606625362857 65.797168971632942 -12243776\n7 -162075538 12.608462333679199 55.716203495969644 65.811607971786515 -6932651\n7 -174864538 12.226305961608887 56.212898044452267 65.811499236577731 -6972647\nEND\n",
+      "sources": {
+        "stage23_gpu/runs/20261023_gpu_refine/inputs/c208.poly": "8e77b6d43cd0e9480c47b580e070347b61e8f511ef53792e196d9ecd38b6cbc1",
+        "stage23_gpu/runs/20261023_gpu_refine/inputs/c208_murphy.pool": "c3f9ad57faa6de01c5b0964759215d8ed2bc61a7843cd12d01a1b883ac3569a9"
+      }
+    }
+  ],
+  "timing_pairs": [
+    {
+      "baseline": {
+        "label": "baseline_gpu",
+        "binary_sha256": "7f0f9de5bef1df7d273c0a3053e840b000c9642e72ff38e2b6d90baf33f32181",
+        "repeats": 5,
+        "median_job_pass_seconds": 0.892189,
+        "job_pass_seconds": [
+          0.893114,
+          0.878553,
+          0.892189,
+          0.910941,
+          0.810572
+        ],
+        "median_refine_pass_seconds": 0.86,
+        "median_refine_seconds": {
+          "c150": 0.3,
+          "c192": 0.27,
+          "c208": 0.29
+        },
+        "median_job_seconds": {
+          "c150": 0.300825,
+          "c192": 0.278554,
+          "c208": 0.298894
+        }
+      },
+      "batched": {
+        "label": "candidate_gpu",
+        "binary_sha256": "7f0dc3b7a08859f31bc85ab71a8dd422d7cfd1f9bc57a03946f8cc82b4b4e788",
+        "repeats": 5,
+        "median_job_pass_seconds": 0.403387,
+        "job_pass_seconds": [
+          0.409922,
+          0.403387,
+          0.39527100000000004,
+          0.403231,
+          0.407455
+        ],
+        "median_refine_pass_seconds": 0.39,
+        "median_refine_seconds": {
+          "c150": 0.13,
+          "c192": 0.13,
+          "c208": 0.13
+        },
+        "median_job_seconds": {
+          "c150": 0.130842,
+          "c192": 0.135821,
+          "c208": 0.136451
+        }
+      }
+    },
+    {
+      "baseline": {
+        "label": "baseline_followup",
+        "binary_sha256": "7f0f9de5bef1df7d273c0a3053e840b000c9642e72ff38e2b6d90baf33f32181",
+        "repeats": 5,
+        "median_job_pass_seconds": 0.830332,
+        "job_pass_seconds": [
+          0.836298,
+          0.885796,
+          0.808222,
+          0.830332,
+          0.813612
+        ],
+        "median_refine_pass_seconds": 0.81,
+        "median_refine_seconds": {
+          "c150": 0.27,
+          "c192": 0.26,
+          "c208": 0.27
+        },
+        "median_job_seconds": {
+          "c150": 0.27098,
+          "c192": 0.271379,
+          "c208": 0.284318
+        }
+      },
+      "batched": {
+        "label": "candidate_followup",
+        "binary_sha256": "7f0dc3b7a08859f31bc85ab71a8dd422d7cfd1f9bc57a03946f8cc82b4b4e788",
+        "repeats": 5,
+        "median_job_pass_seconds": 0.399104,
+        "job_pass_seconds": [
+          0.39547699999999997,
+          0.40225,
+          0.399104,
+          0.40074600000000005,
+          0.398107
+        ],
+        "median_refine_pass_seconds": 0.37,
+        "median_refine_seconds": {
+          "c150": 0.12,
+          "c192": 0.13,
+          "c208": 0.12
+        },
+        "median_job_seconds": {
+          "c150": 0.127781,
+          "c192": 0.136099,
+          "c208": 0.135718
+        }
+      }
+    }
+  ],
+  "production_timing": {
+    "label": "production_timed",
+    "binary_sha256": "4863c217062e1146ca299c87eed2555906b7eaa61301ef4c9978e3d7222e076d",
+    "repeats": 5,
+    "median_job_pass_seconds": 0.40190899999999996,
+    "job_pass_seconds": [
+      0.402542,
+      0.402538,
+      0.39717800000000003,
+      0.40190899999999996,
+      0.399661
+    ],
+    "median_refine_pass_seconds": 0.38,
+    "median_refine_seconds": {
+      "c150": 0.13,
+      "c192": 0.13,
+      "c208": 0.13
+    },
+    "median_job_seconds": {
+      "c150": 0.129517,
+      "c192": 0.135557,
+      "c208": 0.135926
+    }
+  },
+  "production_speedup_vs_followup_baseline": 2.0659701574236955,
+  "profiling": {
+    "runs": [
+      {
+        "label": "baseline_profile_solo",
+        "candidates": 96,
+        "murphy_launches": 12682,
+        "integrals": 33706,
+        "batch_histogram": {
+          "1": 12490,
+          "28": 96,
+          "193": 96
+        },
+        "cuda_api_sum": [
+          {
+            "Time (%)": "77.2",
+            "Total Time (ns)": "1840308060",
+            "Num Calls": "25368",
+            "Avg (ns)": "72544.5",
+            "Med (ns)": "51087.5",
+            "Min (ns)": "3559",
+            "Max (ns)": "4810731",
+            "StdDev (ns)": "216429.8",
+            "Name": "cudaMemcpyAsync"
+          },
+          {
+            "Time (%)": "16.5",
+            "Total Time (ns)": "394307277",
+            "Num Calls": "12694",
+            "Avg (ns)": "31062.5",
+            "Med (ns)": "15859.0",
+            "Min (ns)": "3901",
+            "Max (ns)": "1977956",
+            "StdDev (ns)": "39559.0",
+            "Name": "cudaLaunchKernel"
+          },
+          {
+            "Time (%)": "4.4",
+            "Total Time (ns)": "105430071",
+            "Num Calls": "20",
+            "Avg (ns)": "5271503.5",
+            "Med (ns)": "44993.0",
+            "Min (ns)": "24180",
+            "Max (ns)": "15601244",
+            "StdDev (ns)": "7229636.3",
+            "Name": "cudaMemcpy"
+          },
+          {
+            "Time (%)": "1.3",
+            "Total Time (ns)": "29835063",
+            "Num Calls": "12690",
+            "Avg (ns)": "2351.1",
+            "Med (ns)": "2259.0",
+            "Min (ns)": "363",
+            "Max (ns)": "747685",
+            "StdDev (ns)": "8016.5",
+            "Name": "cudaStreamSynchronize"
+          },
+          {
+            "Time (%)": "0.3",
+            "Total Time (ns)": "6267867",
+            "Num Calls": "12694",
+            "Avg (ns)": "493.8",
+            "Med (ns)": "474.0",
+            "Min (ns)": "77",
+            "Max (ns)": "91209",
+            "StdDev (ns)": "1821.4",
+            "Name": "cuKernelGetName"
+          },
+          {
+            "Time (%)": "0.2",
+            "Total Time (ns)": "3655993",
+            "Num Calls": "12",
+            "Avg (ns)": "304666.1",
+            "Med (ns)": "9247.0",
+            "Min (ns)": "1918",
+            "Max (ns)": "2171660",
+            "StdDev (ns)": "641880.8",
+            "Name": "cudaMalloc"
+          },
+          {
+            "Time (%)": "0.1",
+            "Total Time (ns)": "1558160",
+            "Num Calls": "13",
+            "Avg (ns)": "119858.5",
+            "Med (ns)": "4066.0",
+            "Min (ns)": "1609",
+            "Max (ns)": "966555",
+            "StdDev (ns)": "274139.9",
+            "Name": "cudaFree"
+          },
+          {
+            "Time (%)": "0.1",
+            "Total Time (ns)": "1338828",
+            "Num Calls": "2",
+            "Avg (ns)": "669414.0",
+            "Med (ns)": "669414.0",
+            "Min (ns)": "629948",
+            "Max (ns)": "708880",
+            "StdDev (ns)": "55813.4",
+            "Name": "cudaStreamCreateWithFlags"
+          },
+          {
+            "Time (%)": "0.1",
+            "Total Time (ns)": "1249745",
+            "Num Calls": "1",
+            "Avg (ns)": "1249745.0",
+            "Med (ns)": "1249745.0",
+            "Min (ns)": "1249745",
+            "Max (ns)": "1249745",
+            "StdDev (ns)": "0.0",
+            "Name": "cuLibraryLoadData"
+          },
+          {
+            "Time (%)": "0.0",
+            "Total Time (ns)": "9445",
+            "Num Calls": "2",
+            "Avg (ns)": "4722.5",
+            "Med (ns)": "4722.5",
+            "Min (ns)": "3835",
+            "Max (ns)": "5610",
+            "StdDev (ns)": "1255.1",
+            "Name": "cudaStreamDestroy"
+          },
+          {
+            "Time (%)": "0.0",
+            "Total Time (ns)": "8883",
+            "Num Calls": "1",
+            "Avg (ns)": "8883.0",
+            "Med (ns)": "8883.0",
+            "Min (ns)": "8883",
+            "Max (ns)": "8883",
+            "StdDev (ns)": "0.0",
+            "Name": "cuModuleGetLoadingMode"
+          },
+          {
+            "Time (%)": "0.0",
+            "Total Time (ns)": "3526",
+            "Num Calls": "3",
+            "Avg (ns)": "1175.3",
+            "Med (ns)": "1124.0",
+            "Min (ns)": "1124",
+            "Max (ns)": "1278",
+            "StdDev (ns)": "88.9",
+            "Name": "cuLibraryGetKernel"
+          }
+        ],
+        "cuda_gpu_kern_sum": [
+          {
+            "Time (%)": "89.7",
+            "Total Time (ns)": "774839250",
+            "Instances": "12682",
+            "Avg (ns)": "61097.6",
+            "Med (ns)": "38651.0",
+            "Min (ns)": "38052",
+            "Max (ns)": "2926419",
+            "StdDev (ns)": "209453.2",
+            "Name": "murphy_integrals(const MurphyIntegralInput *, const double2 *, double *)"
+          },
+          {
+            "Time (%)": "8.5",
+            "Total Time (ns)": "73290155",
+            "Instances": "6",
+            "Avg (ns)": "12215025.8",
+            "Med (ns)": "12242406.5",
+            "Min (ns)": "10908825",
+            "Max (ns)": "13313140",
+            "StdDev (ns)": "985244.1",
+            "Name": "rs_screen_prepare(const s23::RsizePoly<(int)16> *, RsScreenDeviceCell *, int)"
+          },
+          {
+            "Time (%)": "1.8",
+            "Total Time (ns)": "15545391",
+            "Instances": "6",
+            "Avg (ns)": "2590898.5",
+            "Med (ns)": "2323439.5",
+            "Min (ns)": "2241509",
+            "Max (ns)": "3775859",
+            "StdDev (ns)": "596948.4",
+            "Name": "rs_screen_alpha(RsScreenDeviceCell *, const unsigned int *, const double *, int)"
+          }
+        ],
+        "cuda_gpu_mem_time_sum": [
+          {
+            "Time (%)": "69.2",
+            "Total Time (ns)": "8913284",
+            "Count": "12688",
+            "Avg (ns)": "702.5",
+            "Med (ns)": "704.0",
+            "Min (ns)": "281",
+            "Max (ns)": "5104",
+            "StdDev (ns)": "190.7",
+            "Operation": "[CUDA memcpy Device-to-Host]"
+          },
+          {
+            "Time (%)": "30.8",
+            "Total Time (ns)": "3967423",
+            "Count": "12700",
+            "Avg (ns)": "312.4",
+            "Med (ns)": "281.0",
+            "Min (ns)": "246",
+            "Max (ns)": "27845",
+            "StdDev (ns)": "387.4",
+            "Operation": "[CUDA memcpy Host-to-Device]"
+          }
+        ]
+      },
+      {
+        "label": "production_profile_solo",
+        "candidates": 96,
+        "murphy_launches": 2206,
+        "integrals": 33706,
+        "batch_histogram": {
+          "1": 196,
+          "2": 236,
+          "3": 68,
+          "4": 164,
+          "5": 12,
+          "6": 480,
+          "7": 90,
+          "8": 672,
+          "21": 96,
+          "28": 96,
+          "193": 96
+        },
+        "cuda_api_sum": [
+          {
+            "Time (%)": "83.0",
+            "Total Time (ns)": "966682102",
+            "Num Calls": "4416",
+            "Avg (ns)": "218904.5",
+            "Med (ns)": "83505.5",
+            "Min (ns)": "4398",
+            "Max (ns)": "4924534",
+            "StdDev (ns)": "510534.1",
+            "Name": "cudaMemcpyAsync"
+          },
+          {
+            "Time (%)": "9.4",
+            "Total Time (ns)": "109228659",
+            "Num Calls": "20",
+            "Avg (ns)": "5461433.0",
+            "Med (ns)": "45417.5",
+            "Min (ns)": "25040",
+            "Max (ns)": "20217074",
+            "StdDev (ns)": "7686759.9",
+            "Name": "cudaMemcpy"
+          },
+          {
+            "Time (%)": "6.3",
+            "Total Time (ns)": "73691565",
+            "Num Calls": "2218",
+            "Avg (ns)": "33224.3",
+            "Med (ns)": "18322.0",
+            "Min (ns)": "3946",
+            "Max (ns)": "2077552",
+            "StdDev (ns)": "53302.7",
+            "Name": "cudaLaunchKernel"
+          },
+          {
+            "Time (%)": "0.6",
+            "Total Time (ns)": "7473049",
+            "Num Calls": "2214",
+            "Avg (ns)": "3375.4",
+            "Med (ns)": "3218.0",
+            "Min (ns)": "363",
+            "Max (ns)": "77577",
+            "StdDev (ns)": "3357.8",
+            "Name": "cudaStreamSynchronize"
+          },
+          {
+            "Time (%)": "0.2",
+            "Total Time (ns)": "2025257",
+            "Num Calls": "13",
+            "Avg (ns)": "155789.0",
+            "Med (ns)": "6017.0",
+            "Min (ns)": "1356",
+            "Max (ns)": "1325437",
+            "StdDev (ns)": "371578.2",
+            "Name": "cudaFree"
+          },
+          {
+            "Time (%)": "0.1",
+            "Total Time (ns)": "1576169",
+            "Num Calls": "2",
+            "Avg (ns)": "788084.5",
+            "Med (ns)": "788084.5",
+            "Min (ns)": "738592",
+            "Max (ns)": "837577",
+            "StdDev (ns)": "69993.0",
+            "Name": "cudaStreamCreateWithFlags"
+          },
+          {
+            "Time (%)": "0.1",
+            "Total Time (ns)": "1562677",
+            "Num Calls": "12",
+            "Avg (ns)": "130223.1",
+            "Med (ns)": "8646.0",
+            "Min (ns)": "2039",
+            "Max (ns)": "684865",
+            "StdDev (ns)": "231574.0",
+            "Name": "cudaMalloc"
+          },
+          {
+            "Time (%)": "0.1",
+            "Total Time (ns)": "1411082",
+            "Num Calls": "2218",
+            "Avg (ns)": "636.2",
+            "Med (ns)": "562.0",
+            "Min (ns)": "99",
+            "Max (ns)": "61673",
+            "StdDev (ns)": "1483.2",
+            "Name": "cuKernelGetName"
+          },
+          {
+            "Time (%)": "0.1",
+            "Total Time (ns)": "1067337",
+            "Num Calls": "1",
+            "Avg (ns)": "1067337.0",
+            "Med (ns)": "1067337.0",
+            "Min (ns)": "1067337",
+            "Max (ns)": "1067337",
+            "StdDev (ns)": "0.0",
+            "Name": "cuLibraryLoadData"
+          },
+          {
+            "Time (%)": "0.0",
+            "Total Time (ns)": "9930",
+            "Num Calls": "2",
+            "Avg (ns)": "4965.0",
+            "Med (ns)": "4965.0",
+            "Min (ns)": "3339",
+            "Max (ns)": "6591",
+            "StdDev (ns)": "2299.5",
+            "Name": "cudaStreamDestroy"
+          },
+          {
+            "Time (%)": "0.0",
+            "Total Time (ns)": "8464",
+            "Num Calls": "1",
+            "Avg (ns)": "8464.0",
+            "Med (ns)": "8464.0",
+            "Min (ns)": "8464",
+            "Max (ns)": "8464",
+            "StdDev (ns)": "0.0",
+            "Name": "cuModuleGetLoadingMode"
+          },
+          {
+            "Time (%)": "0.0",
+            "Total Time (ns)": "3891",
+            "Num Calls": "3",
+            "Avg (ns)": "1297.0",
+            "Med (ns)": "1235.0",
+            "Min (ns)": "1080",
+            "Max (ns)": "1576",
+            "StdDev (ns)": "253.7",
+            "Name": "cuLibraryGetKernel"
+          }
+        ],
+        "cuda_gpu_kern_sum": [
+          {
+            "Time (%)": "86.2",
+            "Total Time (ns)": "550952800",
+            "Instances": "2206",
+            "Avg (ns)": "249751.9",
+            "Med (ns)": "141720.5",
+            "Min (ns)": "38264",
+            "Max (ns)": "2715284",
+            "StdDev (ns)": "478349.7",
+            "Name": "murphy_integrals(const MurphyIntegralInput *, const double2 *, double *)"
+          },
+          {
+            "Time (%)": "11.5",
+            "Total Time (ns)": "73352054",
+            "Instances": "6",
+            "Avg (ns)": "12225342.3",
+            "Med (ns)": "12252341.5",
+            "Min (ns)": "10940726",
+            "Max (ns)": "13564310",
+            "StdDev (ns)": "1096828.5",
+            "Name": "rs_screen_prepare(const s23::RsizePoly<(int)16> *, RsScreenDeviceCell *, int)"
+          },
+          {
+            "Time (%)": "2.3",
+            "Total Time (ns)": "14689412",
+            "Instances": "6",
+            "Avg (ns)": "2448235.3",
+            "Med (ns)": "2460690.5",
+            "Min (ns)": "2251965",
+            "Max (ns)": "2636257",
+            "StdDev (ns)": "188470.6",
+            "Name": "rs_screen_alpha(RsScreenDeviceCell *, const unsigned int *, const double *, int)"
+          }
+        ],
+        "cuda_gpu_mem_time_sum": [
+          {
+            "Time (%)": "63.5",
+            "Total Time (ns)": "1513604",
+            "Count": "2212",
+            "Avg (ns)": "684.3",
+            "Med (ns)": "704.0",
+            "Min (ns)": "316",
+            "Max (ns)": "3238",
+            "StdDev (ns)": "182.9",
+            "Operation": "[CUDA memcpy Device-to-Host]"
+          },
+          {
+            "Time (%)": "36.5",
+            "Total Time (ns)": "869085",
+            "Count": "2224",
+            "Avg (ns)": "390.8",
+            "Med (ns)": "316.0",
+            "Min (ns)": "246",
+            "Max (ns)": "28056",
+            "StdDev (ns)": "835.2",
+            "Operation": "[CUDA memcpy Host-to-Device]"
+          }
+        ]
+      }
+    ],
+    "note": "Both retained traces ran without concurrent benchmark/build work. Profiling times are diagnostic only; API durations overlap across workers and may include blocking GPU work. They must not be added to kernel times or treated as pure launch overhead. Initial overlapping traces are excluded."
+  },
+  "exports": {
+    "cpu": {
+      "sha256": {
+        "c150": "f93ca9ad5e9f30837ba816303c285fd8263a3c64e265bdee0f6c919f37275789",
+        "c192": "8b9ef70d9fe977657f9e4c605fc1391e525e6347cd3be09984027c93ec672e6a",
+        "c208": "d6e57961050e9e554a64a56110c34bd4e436e91ba49963c601cda285a84fc830"
+      },
+      "matching_runs": [
+        "baseline_cpu",
+        "candidate_cpu"
+      ]
+    },
+    "gpu": {
+      "sha256": {
+        "c150": "a4edd3285f71e9abfc42a9a950f6a172efb239ff8d6801c1f2553efa7bbbb531",
+        "c192": "627341f65e38d257457833d38d2a55761eeb89363142adab69ca4a9f770fa989",
+        "c208": "465bc0a460f945269cf92b891f9367a9859b53cce2b783b93ed729bf47dfb8a4"
+      },
+      "matching_runs": [
+        "baseline_gpu",
+        "candidate_gpu",
+        "candidate_checked",
+        "baseline_followup",
+        "candidate_followup",
+        "baseline_profile_solo",
+        "production_checked",
+        "production_profile_solo",
+        "production_timed"
+      ]
+    }
+  },
+  "validation": {
+    "checks": {
+      "cpu_checks": [
+        {
+          "tag": "search",
+          "seconds": 0.003800119971856475,
+          "returncode": 0
+        },
+        {
+          "tag": "cell",
+          "seconds": 0.5692431699717417,
+          "returncode": 0
+        },
+        {
+          "tag": "ranking",
+          "seconds": 2.2407865580171347,
+          "returncode": 0
+        },
+        {
+          "tag": "batch",
+          "seconds": 1.6335810699965805,
+          "returncode": 0
+        },
+        {
+          "tag": "scoring",
+          "seconds": 1.6798395999940112,
+          "returncode": 0
+        },
+        {
+          "tag": "cpu_exports",
+          "seconds": 8.320660504046828,
+          "returncode": 0
+        }
+      ],
+      "gpu_checks": [
+        {
+          "tag": "checked",
+          "seconds": 8.429525012965314,
+          "returncode": 0
+        },
+        {
+          "tag": "cuda_faults",
+          "seconds": 0.31677185697481036,
+          "returncode": 0
+        },
+        {
+          "tag": "gpu_cli",
+          "seconds": 10.545647749910131,
+          "returncode": 0
+        },
+        {
+          "tag": "baseline_followup",
+          "seconds": 5.381615246995352,
+          "returncode": 0
+        },
+        {
+          "tag": "candidate_followup",
+          "seconds": 2.8424128340557218,
+          "returncode": 0
+        }
+      ],
+      "final_checks": [
+        {
+          "tag": "baseline_profile_solo",
+          "seconds": 5.336041710921563,
+          "returncode": 0
+        },
+        {
+          "tag": "production_checked",
+          "seconds": 8.364950723014772,
+          "returncode": 0
+        },
+        {
+          "tag": "production_cli",
+          "seconds": 10.146040257066488,
+          "returncode": 0
+        },
+        {
+          "tag": "production_batch",
+          "seconds": 3.7608799239387736,
+          "returncode": 1
+        }
+      ],
+      "final_checks_retry": [
+        {
+          "tag": "production_profile_solo",
+          "seconds": 3.747411340009421,
+          "returncode": 0
+        },
+        {
+          "tag": "production_batch",
+          "seconds": 4.445485681062564,
+          "returncode": 0
+        },
+        {
+          "tag": "production_timed",
+          "seconds": 3.0589097760384902,
+          "returncode": 0
+        }
+      ]
+    },
+    "search_oracle": {
+      "historical_commit": "1b19a1c5c287ac6893ea4973c7ebda32eafcc874",
+      "cases": 360,
+      "trace_hash": "851ed84a01367c65",
+      "coverage": "Ordered evaluation coordinates and complete search results, ties, two basins, non-finite objectives, boundaries and mid-neighborhood budgets."
+    },
+    "max_integral_relative_error": 1.54865366913e-14,
+    "max_alpha_error": 3.5527136788e-15,
+    "regression_notes": [
+      "3 CPU Murphy ranking tests, including independent 256k evaluation; 35 scorer/content/lattice/refinement checks; 9 invalid-cell/fallback/cancellation/alpha cases.",
+      "CPU batch: 6 pass, 2 CUDA skips; production GPU batch: all 8 pass. GPU refinement: all 6 pass, including independent scores and session recovery.",
+      "Final GPU batch first failed only on a stale pre-existing diagnostic assertion (using CPU screen). Updated it for the shared alpha/size evaluator; all exact fallback exports, resource reuse and recovery assertions then passed.",
+      "Full host suite and multi-million-input sopt corpus were not repeated for this Murphy-only change."
+    ]
+  },
+  "provenance": {
+    "baseline_commit": "1b19a1c5c287ac6893ea4973c7ebda32eafcc874",
+    "baseline_manifest_sha256": "8e47fae878fdb1538cf49f7f2678a0d05627690925d4c14b4024edce2d3bc2fa",
+    "production_manifest_sha256": "75fbf3ffa9e1a46fbe8e3b55dc2ec8f8c64431fa24702ff48c440997ed10614f",
+    "dependency_count": 520,
+    "numerical_patch_sha256": "934b1f44ed5ad6434199ef7356e084d5074cabd61320dbd2ebf0b6f4013d7447",
+    "production_binaries": {
+      "stage23_gpu/build/s23_ropt": "4863c217062e1146ca299c87eed2555906b7eaa61301ef4c9978e3d7222e076d",
+      "stage23_gpu/build/s23_ropt_cpu": "0b05f5997162a32bbdf6b7d091d18a60777e47589c0a54c2a56ee99f3c796d5d",
+      "stage23_bench/tools/cado_murphy": "c35419df01100141c8d9884b2d8685a228fa751c23d1c90d14218d15f548cf58"
+    },
+    "changed_source_sha256": {
+      "stage23_bench/tools/murphy_search.h": "eecbd1e5f58f4887728cbdcf435591a26cc0c29ab8fd3b8d129a3df04ddfc905",
+      "stage23_gpu/tools/murphy_rank.cpp": "235119de0cfb1f37614ebea0e9aedf56b07f7d8039af9f1bb47710e024e2e666",
+      "stage23_gpu/tools/s23_ropt.cu": "4788fa6a31648d1d58469c0951feb0fc982b8dbab6eb809a86d5a170bfb9396e",
+      "stage23_gpu/Makefile": "42d930751daf208a9eb66fc9263ecf091fdb606f268a85f40ddc9416a77a5cc0",
+      "stage23_gpu/tests/test_murphy_search.cpp": "23b9100d8dff9eef60e851ac37f0f3e61f4980253977bfd5d5a92b72c2f1889e",
+      "stage23_bench/tools/bench_murphy.py": "8cf7da6c01caf9c2ebf16020dcae1e92d3eff1f1dd2b4e9cf1a70e6d81a67a8a"
+    },
+    "compiler_versions": {
+      "gcc": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+      "g++": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+      "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2026 NVIDIA Corporation\nBuilt on Tue_Sep_01_08:45:21_PDT_2026\nCuda compilation tools, release 13.4, V13.4.92\nBuild cuda_13.4.r13.4/compiler.38855100_0"
+    },
+    "cado_static_libraries": {
+      "/home/kylea/cado-nfs/build/DESKTOP-3J4UC68/polyselect/libpolyselect_common.a": "31e4b29fa908d8a543c5621cbaaef57d337ff1546ec200eaffc2c3dd5248431d",
+      "/home/kylea/cado-nfs/build/DESKTOP-3J4UC68/utils/libutils.a": "9ac3c7a5c72670df944b4be62844a39bbd3d2b427eb17aae9a59f2ec30db06dc"
+    }
+  },
+  "artifacts": {
+    "directory": "stage23_gpu/runs/20261031_murphy_batch",
+    "note": "Ignored raw traces, logs, binaries and complete compiler-dependency manifests; embedded small input pools make this report independently replayable."
+  },
+  "remaining": "Profile host size canonicalization, canonical full alpha and exact coefficient preparation next. Keep CPU parity/canonicalization until each numerical migration is validated.",
+  "timing_clock_note": {
+    "added": "2026-11-01 review follow-up",
+    "job_and_phase_timings": "Historical records use std::chrono::steady_clock; outer process timings use time.monotonic. These are internal-clock measurements, not wall-clock benchmarks.",
+    "cuda_profiles": "Nsight timestamps; not independently calibrated to host wall time.",
+    "correction": "No retrospective scale factor applied. The 3-5% WSL2 drift was measured on October 4; the rate during these captures was not independently measured. Comparisons used the same internal clock on both sides."
+  }
+}

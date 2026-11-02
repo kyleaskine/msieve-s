@@ -4,6 +4,7 @@
 #include <cmath>
 #include "murphy_rank.h"
 #include "rhost.h"
+#include "ropt_profile.h"
 
 struct MurphyCell {
     cio_poly poly;
@@ -21,11 +22,15 @@ struct MurphyCell {
                 int64_t u, int64_t v, int64_t t, double lognorm, double alpha,
                 const MurphyConfig &config, MurphyEvaluator *evaluator = nullptr)
     {
+        S23_ROPT_RANGE("murphy_cell");
         // Nonfinite proxy metrics and fixed-width overflows predate MurphyE.
         // Exclude them as before, without turning a good seed into a failed run.
-        if (!std::isfinite(lognorm) || !std::isfinite(alpha) ||
-            !s23::rs_written_poly(poly, seed, size, u, v, t, content))
-            return;
+        {
+            S23_ROPT_RANGE("host_exact_pair");
+            if (!std::isfinite(lognorm) || !std::isfinite(alpha) ||
+                !s23::rs_written_poly(poly, seed, size, u, v, t, content))
+                return;
+        }
         attempted = true;
         result = murphy_refine(poly, config, evaluator, evaluator ? &alpha : nullptr);
         long total;

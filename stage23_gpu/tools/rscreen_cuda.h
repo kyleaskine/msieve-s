@@ -2,6 +2,7 @@
  * untouched so the caller can use CPU screening or final refinement. */
 #pragma once
 #include "rscreen.h"
+#include "ropt_profile.h"
 
 struct RsScreenDeviceCell {
     int64_t u, v, t;
@@ -138,6 +139,7 @@ static bool rs_screen_gpu(std::vector<RsCandidate> &cells, const RsizePoly<RS_LP
                           const cio_poly &p, int bound, double aw, int dev, bool check,
                           size_t &fallbacks, RsScreenWorkspace &workspace, bool final_refine = false)
 {
+    S23_ROPT_RANGE("gpu_alpha_size_phase");
     std::vector<uint32_t> primes;
     if (!rs_screen_primes(bound, primes)) {
         fprintf(stderr, "s23_ropt: GPU alpha bound/capacity unsupported; using CPU\n");
@@ -210,6 +212,7 @@ static bool rs_screen_gpu(std::vector<RsCandidate> &cells, const RsizePoly<RS_LP
                 nf += h[j].failed != 0;
             }
             if (final_refine && !h[j].failed) {
+                S23_ROPT_RANGE("host_size_canonicalization");
                 if (!canonical_ready) {
                     Int<RS_LP> f[6];
                     double content = 0;

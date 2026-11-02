@@ -6,6 +6,7 @@
 #pragma once
 #include <atomic>
 #include "murphy_rank.h"
+#include "ropt_profile.h"
 #include "murphy_rho.h"
 #include "../../stage23_bench/tools/murphy_quadrature.h"
 
@@ -123,6 +124,7 @@ struct MurphyCudaEvaluator : MurphyEvaluator {
     }
 
     bool evaluate(const MurphyIntegralInput *in, size_t n, double *out) override {
+        S23_ROPT_RANGE("murphy_gpu_evaluate");
         if (unavailable || cancelled() || !n || n > 256) return false;
         const int K = in[0].K;
         // Bound cache allocation even for library callers. Larger orders retain
@@ -131,7 +133,10 @@ struct MurphyCudaEvaluator : MurphyEvaluator {
         for (size_t i = 0; i < n; ++i)
             if (in[i].K != K || in[i].degree < 1 || in[i].degree > CIO_MAXDEG ||
                 !(in[i].skew > 0) || !std::isfinite(in[i].skew)) return false;
-        if (!good(cudaSetDevice(device))) return false;
+        {
+            S23_ROPT_RANGE("murphy_cuda_select_device");
+            if (!good(cudaSetDevice(device))) return false;
+        }
         if (!stream && !good(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking))) return false;
         if (capacity < n) {
             if (!good(cudaStreamSynchronize(stream))) return false;
@@ -162,13 +167,17 @@ struct MurphyCudaEvaluator : MurphyEvaluator {
         }
         recent = slot;
         const int blocks = std::min(256, (K + 1023) / 1024);
-        if (!good(cudaMemcpyAsync(inputs, in, n * sizeof(*in), cudaMemcpyHostToDevice, stream))) return false;
-        murphy_integrals<<<dim3(blocks, n), 256, 0, stream>>>(inputs, angles[slot], partial);
-        if (!good(cudaGetLastError()) ||
-            !good(cudaMemcpyAsync(host_partial.data(), partial, n * blocks * sizeof(double),
-                                  cudaMemcpyDeviceToHost, stream)) ||
-            !good(cudaStreamSynchronize(stream))) return false;
+        {
+            S23_ROPT_RANGE("murphy_cuda_submit_wait");
+            if (!good(cudaMemcpyAsync(inputs, in, n * sizeof(*in), cudaMemcpyHostToDevice, stream))) return false;
+            murphy_integrals<<<dim3(blocks, n), 256, 0, stream>>>(inputs, angles[slot], partial);
+            if (!good(cudaGetLastError()) ||
+                !good(cudaMemcpyAsync(host_partial.data(), partial, n * blocks * sizeof(double),
+                                      cudaMemcpyDeviceToHost, stream)) ||
+                !good(cudaStreamSynchronize(stream))) return false;
+        }
         ++calls; integrals += n;
+        S23_ROPT_RANGE("host_integral_reduce_audit");
         for (size_t i = 0; i < n; ++i) {
             double sum = 0;
             for (int b = 0; b < blocks; ++b) sum += host_partial[i * blocks + b];

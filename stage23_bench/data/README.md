@@ -6,6 +6,20 @@ pools and copies of source trees belong in the ignored `stage23_gpu/runs/`
 area. Export full snapshots there with `save.py` or `archive.py`; only promote
 the summaries and fixtures needed to review or reproduce a specific result.
 
+The [October 31 MurphyE batching report](gpu_refinement/20261031_batching.json)
+embeds three small saved pools (48 candidates total), baseline/comparison timings,
+CUDA call counts, validation and provenance. Reproduce it with
+`../tools/bench_murphy.py`; full traces, builds and logs stay in the ignored
+`stage23_gpu/runs/20261031_murphy_batch/` directory.
+
+The [November 1 refinement profiles](gpu_refinement/20261101_profile.json)
+retain the CPU/CUDA breakdown, worker sweep, exact-export checks and a separate
+256-candidate C150 fixture (the report's `cases` entry). Optional NVTX ranges
+and `../tools/profile_murphy.py` make the attribution reproducible. Repeated
+device selection and submission/wait overhead are the first targets; CPU
+canonicalization is comparatively inexpensive. Raw traces and separate builds
+remain in ignored `stage23_gpu/runs/20261101_refinement_profile/`.
+
 ## October 27–28 evidence consolidation
 
 The pending change originally contained 651 files: 30 source, test, config,

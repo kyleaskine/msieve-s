@@ -43,6 +43,7 @@ class RoptBatch(unittest.TestCase):
             self.assertIn('4 jobs complete, 0 partial', text)
             self.assertIn('vs brute force: 0 differ', text)
             for j, (out, pool) in enumerate(expected):
+                self.assertRegex(text, rf'# batch job {j+1} wall [\d.]+ s')
                 self.assertEqual((base / f'batch {j}.poly').read_bytes(), out)
                 self.assertEqual((base / f'batch {j}.pool').read_bytes(), pool)
 
@@ -200,7 +201,7 @@ int main(int argc, char **argv) {
             batch = base / 'jobs.tsv'
             manifest(batch, jobs)
             p = self.invoke(['-batch', batch])
-            self.assertIn('using CPU screen', p.stderr)
+            self.assertRegex(p.stderr, r'GPU alpha/size evaluation unavailable \([^\n]+\); using CPU')
             self.assertIn('6 jobs complete', p.stdout)
             self.assertIn('device setups 2, buffer allocations 3, prime uploads 4', p.stdout)
             for j, content in enumerate(expected):

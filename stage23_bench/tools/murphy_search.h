@@ -155,38 +155,54 @@ struct SearchResult {
     bool limited = false;
 };
 
-template <typename Objective>
-static SearchResult pattern_search(long scale, int maxeval, Objective objective)
+// The coarse starts and each fixed-center neighborhood are independent. Admit
+// uncached points in scalar order before submitting them together; cached points
+// remain usable even when a preceding point exhausts the budget.
+template <typename BatchObjective>
+static SearchResult pattern_search_batched(long scale, int maxeval, BatchObjective objective)
 {
     SearchResult out{};
     const long radius = scale * 4;
     const long mint = std::max(1L, scale / 2048);
     const double mins = 1.0 / 512;
     std::map<std::pair<long, double>, double> cache;
-    auto score = [&](long t, double z) {
-        if (t < -radius || t > radius || fabs(z) > 2)
-            return -1.0;
-        const auto key = std::make_pair(t, z);
-        auto it = cache.find(key);
-        if (it != cache.end())
-            return it->second;
-        if (out.calls >= maxeval) {
-            out.limited = 1;
-            return -1.0;
+    auto score = [&](SearchPoint *points, size_t n) {
+        std::vector<SearchPoint> pending;
+        pending.reserve(n);
+        for (size_t i = 0; i < n; ++i) {
+            const auto &p = points[i];
+            if (p.t < -radius || p.t > radius || fabs(p.z) > 2) continue;
+            const auto key = std::make_pair(p.t, p.z);
+            if (cache.find(key) != cache.end()) continue;
+            if (out.calls + int(pending.size()) >= maxeval) {
+                out.limited = true;
+                continue;
+            }
+            // Reserve the key so a duplicate in this batch uses one evaluation.
+            cache[key] = NAN;
+            pending.push_back(p);
         }
-        const double v = objective(t, z);
-        out.calls++;
-        cache[key] = std::isfinite(v) ? v : -1.0;
-        return cache[key];
+        if (!pending.empty()) {
+            std::vector<double> values(pending.size());
+            objective(pending.data(), pending.size(), values.data());
+            out.calls += int(pending.size());
+            for (size_t i = 0; i < pending.size(); ++i)
+                cache[{pending[i].t, pending[i].z}] = std::isfinite(values[i]) ? values[i] : -1.0;
+        }
+        for (size_t i = 0; i < n; ++i) {
+            const auto it = cache.find({points[i].t, points[i].z});
+            points[i].value = it == cache.end() ? -1.0 : it->second;
+        }
     };
-    SearchPoint best{0, 0, score(0, 0)};
-    out.initial = best.value;
-    std::vector<SearchPoint> starts{best};
+    std::vector<SearchPoint> starts{{0, 0, 0}};
     // A small broad grid helps cross a shallow dip before local refinement.
     for (int a : {-4, -2, -1, 0, 1, 2, 4})
         for (double z : {-1.0, 0.0, 1.0})
             if (a || z != 0) // the unchanged polynomial is already present
-                starts.push_back({a * scale, z, score(a * scale, z)});
+                starts.push_back({a * scale, z, 0});
+    score(starts.data(), starts.size());
+    SearchPoint best = starts[0];
+    out.initial = best.value;
     std::stable_sort(starts.begin(), starts.end(), [](const SearchPoint &a, const SearchPoint &b) {
         return a.value > b.value;
     });
@@ -215,14 +231,16 @@ static SearchResult pattern_search(long scale, int maxeval, Objective objective)
         // an uncached, in-bounds evaluation is actually refused.
         while (!out.limited) {
             SearchPoint next = cur;
+            std::array<SearchPoint, 8> neighbors;
+            size_t count = 0;
             for (int a = -1; a <= 1; a++)
                 for (int b = -1; b <= 1; b++) {
                     if (!a && !b) continue;
-                    SearchPoint q{cur.t + a * dt, cur.z + b * dz, 0};
-                    q.value = score(q.t, q.z);
-                    if (q.value > next.value)
-                        next = q;
+                    neighbors[count++] = {cur.t + a * dt, cur.z + b * dz, 0};
                 }
+            score(neighbors.data(), count);
+            for (const auto &q : neighbors)
+                if (q.value > next.value) next = q;
             if (next.value > cur.value)
                 cur = next;
             else {
@@ -238,6 +256,14 @@ static SearchResult pattern_search(long scale, int maxeval, Objective objective)
     return out;
 }
 
+template <typename Objective>
+static SearchResult pattern_search(long scale, int maxeval, Objective objective)
+{
+    return pattern_search_batched(scale, maxeval, [&](const SearchPoint *points, size_t n, double *values) {
+        for (size_t i = 0; i < n; ++i) values[i] = objective(points[i].t, points[i].z);
+    });
+}
+
 struct Refinement {
     double start_skew = 0, skew = 0, train0 = 0, train1 = 0, eval0 = 0, eval1 = 0, e0 = 0, e1 = 0;
     long t = 0;
@@ -248,12 +274,14 @@ struct Refinement {
 /* Shared search/validation orchestration. initial_skew > 0 preserves a declared
  * control; zero selects the MurphyE grid optimum. evaluate(s) returns {objective,
  * MurphyE}, allowing the lattice caller to validate both without duplicating the
- * search. Leaves p at the exact proposal; selection is the caller's policy.
+ * search. objective(s0, points, n, values) evaluates translations and log2-skew
+ * offsets relative to p/s0, leaving p unchanged. Leaves p at the exact proposal;
+ * selection is the caller's policy.
  */
-template <typename Objective, typename Validation>
-static Refinement refine_pair(cado_poly p, double af, double ag, const Ctx &train,
+template <typename BatchObjective, typename Validation>
+static Refinement refine_pair_batched(cado_poly p, double af, double ag, const Ctx &train,
                               double initial_skew, int maxeval, long trans,
-                              Objective objective, Validation evaluate)
+                              BatchObjective objective, Validation evaluate)
 {
     Refinement out;
     double s0 = initial_skew;
@@ -263,11 +291,8 @@ static Refinement refine_pair(cado_poly p, double af, double ag, const Ctx &trai
         return out;
     out.start_skew = s0;
     const long scale = trans ? trans : std::max(1L, (long)llround(s0 / 2));
-    const auto search = pattern_search(scale, maxeval, [&](long t, double z) {
-        translate_pair(p, t);
-        const double value = objective(s0 * exp2(z));
-        translate_pair(p, -t);
-        return value;
+    const auto search = pattern_search_batched(scale, maxeval, [&](const SearchPoint *points, size_t n, double *values) {
+        objective(s0, points, n, values);
     });
     out.train0 = search.initial;
     out.train1 = search.best.value;
@@ -283,6 +308,23 @@ static Refinement refine_pair(cado_poly p, double af, double ag, const Ctx &trai
     out.eval1 = proposal[0];
     out.e1 = proposal[1];
     return out;
+}
+
+// CPU callers retain scalar objective evaluation and exact GMP translations.
+// A device caller can instead prepare the same inputs and submit one batch.
+template <typename Objective, typename Validation>
+static Refinement refine_pair(cado_poly p, double af, double ag, const Ctx &train,
+                              double initial_skew, int maxeval, long trans,
+                              Objective objective, Validation evaluate)
+{
+    return refine_pair_batched(p, af, ag, train, initial_skew, maxeval, trans,
+        [&](double s0, const SearchPoint *points, size_t n, double *values) {
+            for (size_t i = 0; i < n; ++i) {
+                translate_pair(p, points[i].t);
+                values[i] = objective(s0 * exp2(points[i].z));
+                translate_pair(p, -points[i].t);
+            }
+        }, evaluate);
 }
 
 static inline bool proposal_improves(const Refinement &r, double min_gain = 0)

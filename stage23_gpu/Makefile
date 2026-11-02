@@ -94,6 +94,7 @@ $(BUILD)/test_rclass_rank: tests/test_rclass_rank.cpp $(HEADERS) $(BUILD)/cado_i
 
 test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_rselect $(BUILD)/test_rscan $(BUILD)/test_rclass $(BUILD)/test_rclass_rank $(BUILD)/test_rscreen $(CASES) $(BUILD)/murphy_rank_probe $(BUILD)/s23_ropt_cpu $(BUILD)/s23_sopt_cpu $(BUILD)/test_murphy_integral $(BUILD)/test_murphy_cell $(BUILD)/test_murphy_rho
 	./$(BUILD)/test_host_log
+	./$(BUILD)/test_murphy_search
 	./$(BUILD)/test_mpint
 	./$(BUILD)/test_lll $(CASES)
 	python3 tests/test_sopt_trace.py
@@ -106,6 +107,7 @@ test: $(BUILD)/test_mpint $(BUILD)/test_lll $(BUILD)/test_rsieve $(BUILD)/test_r
 	./$(BUILD)/test_rclass_rank ../stage23_bench/data/c161/winners/sopt.poly ../stage23_bench/data/c168/content/s0051.poly
 	python3 ../stage23_bench/tools/regress.py
 	python3 tests/test_murphy_rank.py
+	python3 tests/test_murphy_benchmark.py
 	python3 tests/test_refine_failures.py
 	python3 tests/test_pipeline.py
 	python3 tests/test_final_scoring.py
@@ -156,15 +158,30 @@ $(BUILD)/s23_sopt: $(SOPT_SRC) $(BUILD)/cado_io.o $(CADO_LIB_FILES)
 s23_sopt_cpu: $(BUILD)/s23_sopt_cpu
 s23_sopt: $(BUILD)/s23_sopt
 
-MURPHY_HEADERS := tools/murphy_rank.h ../stage23_bench/tools/murphy_search.h ../stage23_bench/tools/murphy_quadrature.h
+MURPHY_HEADERS := tools/murphy_rank.h tools/ropt_profile.h ../stage23_bench/tools/murphy_search.h ../stage23_bench/tools/murphy_quadrature.h
+# Opt-in profiling build: make BUILD=runs/profile/build ROPT_PROFILE=1 s23_ropt.
+# Prefer a separate directory so profiling does not replace production artifacts.
+ROPT_PROFILE ?= 0
+NVTX_INCLUDE ?= /usr/local/cuda/include
+ifeq ($(ROPT_PROFILE),1)
+ROPT_PROFILE_FLAGS := -DS23_ROPT_PROFILE -I$(NVTX_INCLUDE)
+endif
 # Keep host scoring portable when the tree/binaries move to a rented GPU host.
 # Disable implicit contraction: scalar rounding/order must match MurphyE exactly.
 MURPHY_FLAGS := -O2 -ffp-contract=off -std=c++20 -Wall -Wextra
+.PHONY: FORCE_ROPT_FLAGS
+FORCE_ROPT_FLAGS:
+
+# Rebuild on profiling/compiler/flag changes even in an existing BUILD directory.
+# Leave the timestamp alone when the configuration has not changed.
+$(BUILD)/ropt-build-flags: FORCE_ROPT_FLAGS | $(BUILD)
+	@printf '%s\n' '$(CXX)' '$(NVCC)' '$(CUDA)' '$(MURPHY_FLAGS)' '$(ROPT_HOST_FLAGS)' '$(ROPT_PROFILE_FLAGS)' > $@.tmp
+	@if cmp -s $@.tmp $@; then rm -f $@.tmp; else mv -f $@.tmp $@; fi
 $(BUILD)/test_murphy_rho: tests/test_murphy_rho.cpp include/murphy_rho.h $(CADO_LIB_FILES) Makefile | $(BUILD)
 	$(CXX) $(CXXFLAGS) -ffp-contract=off -o $@ $< $(CADO_LIBS)
 
-$(BUILD)/murphy_rank.o: tools/murphy_rank.cpp $(MURPHY_HEADERS) tools/cado_io.h Makefile $(CADO_LIB_FILES) | $(BUILD)
-	$(CXX) $(MURPHY_FLAGS) $(CADO_INC) $(addsuffix /embedded,$(filter %/utils,$(CADO_INC))) \
+$(BUILD)/murphy_rank.o: tools/murphy_rank.cpp $(MURPHY_HEADERS) tools/cado_io.h Makefile $(CADO_LIB_FILES) $(BUILD)/ropt-build-flags | $(BUILD)
+	$(CXX) $(MURPHY_FLAGS) $(ROPT_PROFILE_FLAGS) $(CADO_INC) $(addsuffix /embedded,$(filter %/utils,$(CADO_INC))) \
 		-I../stage23_bench/tools -c -o $@ $<
 
 ROPT_SRC := tools/s23_ropt.cu tools/rsieve_cuda.h tools/rscreen_cuda.h tools/murphy_cuda.h tools/ropt_batch.h tools/cado_io.h tools/murphy_cell.h $(MURPHY_HEADERS) $(HEADERS)
@@ -183,6 +200,12 @@ $(BUILD)/test_murphy_integral: tests/test_murphy_integral.cpp $(MURPHY_HEADERS) 
 	$(CXX) $(MURPHY_FLAGS) $(CADO_INC) $(addsuffix /embedded,$(filter %/utils,$(CADO_INC))) \
 		-Itools -I../stage23_bench/tools -fopenmp -o $@ $< $(BUILD)/cado_io.o $(CADO_LIBS)
 
+$(BUILD)/test_murphy_search: tests/test_murphy_search.cpp $(MURPHY_HEADERS) Makefile $(CADO_LIB_FILES) | $(BUILD)
+	$(CXX) $(MURPHY_FLAGS) $(CADO_INC) $(addsuffix /embedded,$(filter %/utils,$(CADO_INC))) \
+		-I../stage23_bench/tools -o $@ $< $(CADO_LIBS)
+
+test: $(BUILD)/test_murphy_search
+
 # -mfma (x86-64 only): the explicit fma() of the CADO-matched root finding (include/dpoly.h)
 # becomes one instruction instead of a libm call; same results, the size model's skewness about
 # 1.7x faster. The binary then needs FMA3 (Haswell, Zen or later). With it the host compiler could
@@ -192,12 +215,12 @@ ifneq ($(findstring x86_64,$(shell $(CXX) -dumpmachine)),)
 ROPT_HOST_FLAGS += -mfma
 endif
 
-$(BUILD)/s23_ropt_cpu: $(ROPT_SRC) $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIB_FILES)
-	$(CXX) -O3 $(ROPT_HOST_FLAGS) -std=c++17 -fopenmp -Iinclude -Itools -x c++ tools/s23_ropt.cu \
+$(BUILD)/s23_ropt_cpu: $(ROPT_SRC) Makefile $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIB_FILES) $(BUILD)/ropt-build-flags
+	$(CXX) -O3 $(ROPT_HOST_FLAGS) $(ROPT_PROFILE_FLAGS) -std=c++17 -fopenmp -Iinclude -Itools -x c++ tools/s23_ropt.cu \
 		-x none $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o -o $@ $(CADO_LIBS)
 
-$(BUILD)/s23_ropt: $(ROPT_SRC) $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIB_FILES)
-	$(NVCC) -O3 -std=c++17 -arch=sm_$(CUDA) --fmad=false -Iinclude -Itools \
+$(BUILD)/s23_ropt: $(ROPT_SRC) Makefile $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIB_FILES) $(BUILD)/ropt-build-flags
+	$(NVCC) -O3 -std=c++17 -arch=sm_$(CUDA) --fmad=false -Iinclude -Itools $(ROPT_PROFILE_FLAGS) \
 		-Xcompiler -fopenmp,$(subst $(eval) ,$(comma),$(ROPT_HOST_FLAGS)) \
 		-o $@ tools/s23_ropt.cu $(BUILD)/cado_io.o $(BUILD)/murphy_rank.o $(CADO_LIBS) -lgomp
 

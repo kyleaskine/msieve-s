@@ -615,8 +615,10 @@ must agree. The legacy screen keeps its original canonicalization policy.
 
 `-murphy-gpu`, with `-murphy` and explicit job bounds, moves the homogeneous norm,
 Dickman-rho and quadrature evaluations to CUDA. The 193-point initial skew grid
-and its 28 refinements run in batches; subsequent objective calls use the same
-bounded host pattern search and exact GMP translations. All paths use CADO's
+and its 28 refinements run in batches. The 21 coarse pattern-search starts and
+each eight-neighbor step also batch their uncached trials, preserving evaluation
+order, tie handling and the strict budget. Search control and exact GMP translations
+remain on the host. All paths use CADO's
 full algebraic and rational alpha on the host, including recoverable fallbacks.
 The initial skew batches share one coefficient conversion. Per-worker
 CUDA streams/buffers and two angle grids survive seeds in `-batch` mode.
@@ -628,6 +630,89 @@ cancels the job across workers, prevents export, and does not retry on CPU.
 Recoverable resource/evaluation failure restarts that candidate from its
 unchanged input on CPU. Each batch job resets failure flags and error statistics;
 a transient allocation failure is retried in the next job.
+Per-job logs report MurphyE calls, integrals and angle uploads, so later overhead
+changes can distinguish fewer launches from less search work.
+
+The [October 31 batching baseline](../stage23_bench/data/gpu_refinement/20261031_batching.json)
+retains 16-candidate pools for each of C150, C192 and C208. With two workers and
+16k/64k quadrature, warm saved-pool job medians fell from 0.830 to 0.402 seconds
+per 48 candidates (2.07x). Refinement-only medians were 0.81 and 0.38 seconds
+(phase logs round to hundredths). A separate 96-candidate CUDA trace recorded
+12,682 versus 2,206 MurphyE launches for the same 33,706 integrals. CPU/GPU
+exports each match their respective pre-change baselines, byte for byte;
+checked and unchecked GPU exports also agree. This measures saved-pool final
+refinement, excluding the root search and pipeline scoring. These historical
+job/phase timings used `steady_clock`, not wall time; they have not been
+retrospectively rescaled using the older WSL2 clock-drift observation below.
+
+Replay the embedded inputs from the repository root with a fresh label:
+
+```bash
+python3 stage23_bench/tools/bench_murphy.py \
+  --cases stage23_bench/data/gpu_refinement/20261031_batching.json \
+  --run-dir /tmp/murphy-benchmark --binary stage23_gpu/build/s23_ropt \
+  --label gpu --gpu --repeats 5
+```
+
+Add `--check` for integral/alpha audits or `--profile` for a short Nsight CUDA
+trace; those instrumented timings are separate from the unchecked baseline.
+Current benchmark records use `time.time()` for process elapsed time and the
+binary's separate `system_clock` job timings for the warm-pass median. Internal
+`steady_clock` measurements remain separately labeled diagnostics. Legacy
+binaries without wall-timing output produce a null wall median. Pool alpha
+weight/projective mode come from the pool header; `params: "default"` uses the
+standard scorer bounds explicitly.
+
+The [November 1 profiles](../stage23_bench/data/gpu_refinement/20261101_profile.json)
+measure the remaining work. In a warm 48-candidate pass, the Nsight job range
+is about 395 ms and the union of device kernel/copy activity is 264 ms.
+Across two workers, repeated `cudaSetDevice` takes 98 ms, canonical alpha 21 ms,
+exact search-input preparation 10 ms (including coefficient conversion), and
+host size canonicalization 3 ms. These worker elapsed totals overlap and must
+not be added to GPU time or treated as predicted wall-time savings. Actual
+device copies take 1.15 ms. A 256-candidate C150 replay confirms the device-call
+cost scales (546 ms across workers; unprofiled internal-clock job median 1.76 s). More workers
+did not help in the small-pool sweep. All 5,344 exported polynomials matched
+their baseline bytes; the checked replay passed with no fallbacks.
+Nsight timestamps were not independently calibrated to host wall time. The
+original per-point conversion ranges included marker overhead; current builds
+only instrument aggregate input preparation, so those historical conversion
+times should not be read as isolated uninstrumented operation costs.
+
+The first experiment should bind the CUDA device at worker/job setup instead
+of every evaluation, preserving device/thread ownership and recovery. Keep the
+CPU correctness safeguards. Projective sieve tables still built during replay
+and GPU size search followed by host canonicalization are smaller candidates
+for removing duplicate work; the latter's cost is much less significant with
+larger pools. This study excludes root search, SOPT and pipeline scoring.
+
+For CPU attribution, build optional NVTX markers in a **separate build directory**
+(normal builds have no NVTX dependency or marker overhead). From the repository
+root, using fresh output paths:
+
+```bash
+make -C stage23_gpu BUILD=runs/profile/build ROPT_PROFILE=1 -j2 s23_ropt
+python3 stage23_bench/tools/bench_murphy.py \
+  --cases stage23_bench/data/gpu_refinement/20261031_batching.json \
+  --run-dir /tmp/murphy-profile --binary stage23_gpu/runs/profile/build/s23_ropt \
+  --label ranges --gpu --repeats 5 --profile
+nsys export --type sqlite --output /tmp/murphy-profile/ranges/cuda.sqlite \
+  /tmp/murphy-profile/ranges/cuda.nsys-rep
+python3 stage23_bench/tools/profile_murphy.py /tmp/murphy-profile/ranges/cuda.sqlite \
+  --output /tmp/murphy-profile/ranges/summary.json
+```
+
+`NVTX_INCLUDE` can override `/usr/local/cuda/include`. Add `--cpu-sample` to the
+benchmark for process-tree CPU sampling, measuring that overhead separately.
+To replay the 256-candidate fixture, use `20261101_profile.json` as `--cases`.
+The summarizer infers warm-up jobs and pass width from the adjacent benchmark
+`result.json`, including older records, and rejects conflicting explicit counts.
+For a standalone trace, supply both `--warmup-jobs` and `--cases-per-pass`, or
+point `--benchmark-result` at its metadata. CPU-only traces report unavailable
+GPU timings as null. GPU busy time uses interval unions, avoiding double counting
+concurrent kernels. Nested host ranges report inclusive and self times.
+The build records profiling flags and rebuilds when they change in an existing
+directory; separate build directories keep production artifacts intact.
 
 Example, using an existing seed-bound pool with matching alpha weight:
 
@@ -905,11 +990,13 @@ Details and numbers in `../GPU_STAGE23_PLAN.md` (M2, "Breadth run, c168").
   polynomial again: c146 effort 0 on 8 threads 40.6 s (43.3 s wall), back to the old
   sequential speed (42 s; the batch-phased CPU path took 54 s), still 13,000/13,000
   identical.
-- **Clocks on this WSL2 machine:** CLOCK_MONOTONIC (`steady_clock`, which the tools'
-  own timings use) runs 3-5% fast against the Windows host; wall time from `date` or
-  `/usr/bin/time` matches the host. So the tools' "optimizing", sieve and size-model
-  times read 3-5% high (a GPU effort-50 run printed 64.5 s optimizing in 63.3 s of wall
-  time). Compare wall times with wall times.
+- **Clocks on this WSL2 machine:** on October 4, CLOCK_MONOTONIC (`steady_clock`)
+  was measured 3-5% fast against the Windows host; realtime wall time matched
+  the host. A GPU effort-50 run printed 64.5 s optimizing in 63.3 s of wall time.
+  This is a historical observation, not a fixed correction factor: a short
+  November 1 CPU replay measured 6.234269 s wall and 6.234268 s steady per warm
+  pass. Benchmarks now record wall and internal job times separately. Compare
+  like clocks; do not silently relabel internal timings as wall time.
 - **Review checks and fixes (2026-10-04, details in the plan's "Review checks" and
   "Fixes"):**
   - MurphyE at CADO's 1,000 sample points is noisy: it reads high by a median 0.17%, up

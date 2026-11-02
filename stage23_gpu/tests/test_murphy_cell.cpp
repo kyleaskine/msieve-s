@@ -27,27 +27,66 @@ int main(int argc, char **argv)
                  i == 2 ? MurphyConfig{} : config);
         bad += i == 2 ? (!c.attempted || !c.failed()) : (c.attempted || c.failed());
     }
-    // Fail after both skew batches and the initial objective. At failure the
-    // search has translated its private working polynomial; fallback must use
-    // the original caller input, not that partially searched representation.
+    // Cover failure in a search batch AND in held-out proposal validation,
+    // where refine_pair_batched has left its working polynomial translated.
+    // Both must restart from the untouched caller input.
     struct FailingEvaluator : MurphyEvaluator {
-        int calls = 0;
+        int calls = 0, validations = 0;
+        bool proposal = false, translated_failure = false, fatal = false, stopped = false;
+        double original_g0 = 0;
+        MurphyIntegralInput control{};
+        bool cancelled() const override { return stopped; }
         bool evaluate(const MurphyIntegralInput *input, size_t n, double *output) override {
-            if (++calls >= 4) return false;
-            for (size_t i = 0; i < n; ++i) output[i] = murphy_integral_reference(input[i]);
+            ++calls;
+            if (calls == 1) original_g0 = input[0].g[0];
+            if (n == 1 && input[0].K == 64000) {
+                if (++validations == 1) control = input[0];
+                if (proposal && validations == 2) {
+                    for (int i = 0; i <= input[0].degree; ++i)
+                        translated_failure |= input[0].f[i] != control.f[i];
+                    for (int i = 0; i < 2; ++i)
+                        translated_failure |= input[0].g[i] != control.g[i];
+                    stopped = fatal;
+                    return false;
+                }
+            }
+            if (!proposal && calls == 4) return false;
+            for (size_t i = 0; i < n; ++i) {
+                // Steer the proposal case to a nonzero translation regardless
+                // of this fixture's true local optimum or host libm rounding.
+                // These training scores are discarded on failure; recovery
+                // must still match a complete, real CPU search of the input.
+                output[i] = proposal && input[i].K != 64000
+                    ? (input[i].g[0] == original_g0 ? 1.0 : 2.0)
+                    : murphy_integral_reference(input[i]);
+            }
             return true;
         }
-    } evaluator;
+    };
     cio_poly expected, recovered;
     cio_init(&expected); cio_init(&recovered);
     cio_set(&expected, &p); cio_set(&recovered, &p);
     const auto reference = murphy_refine(expected, config);
-    const auto fallback = murphy_refine(recovered, config, &evaluator);
-    bad += !reference.valid || !fallback.valid || !fallback.fallback || fallback.gpu ||
-           fallback.score != reference.score || fallback.skew != reference.skew ||
-           fallback.translation != reference.translation || evaluator.calls < 4;
-    for (int i = 0; i <= p.deg; ++i) bad += mpz_cmp(expected.f[i], recovered.f[i]) != 0;
-    for (int i = 0; i < 2; ++i) bad += mpz_cmp(expected.g[i], recovered.g[i]) != 0;
+    for (int mode = 0; mode < 3; ++mode) {
+        FailingEvaluator evaluator;
+        evaluator.proposal = mode != 0;
+        evaluator.fatal = mode == 2;
+        cio_set(&recovered, &p);
+        const auto fallback = murphy_refine(recovered, config, &evaluator);
+        if (evaluator.proposal)
+            bad += evaluator.validations != 2 || !evaluator.translated_failure;
+        if (evaluator.fatal) {
+            bad += fallback.valid || fallback.fallback || !evaluator.stopped;
+        } else {
+            bad += !reference.valid || !fallback.valid || !fallback.fallback || fallback.gpu ||
+                   fallback.score != reference.score || fallback.skew != reference.skew ||
+                   fallback.translation != reference.translation || evaluator.calls < 4;
+        }
+        const cio_poly &want = evaluator.fatal ? p : expected;
+        bad += mpz_cmp(want.n, recovered.n) != 0 || want.deg != recovered.deg;
+        for (int i = 0; i <= p.deg; ++i) bad += mpz_cmp(want.f[i], recovered.f[i]) != 0;
+        for (int i = 0; i < 2; ++i) bad += mpz_cmp(want.g[i], recovered.g[i]) != 0;
+    }
     struct Oracle : MurphyEvaluator {
         bool audit = false, stopped = false, fail_integral = false;
         int calls = 0;
@@ -92,6 +131,6 @@ int main(int argc, char **argv)
     overflow.refine(p, size, 0, 0, LONG_MAX, 1, 1, config);
     bad += overflow.attempted || overflow.failed();
     cio_clear(&p);
-    printf("MurphyE invalid-cell/fallback/cancellation/alpha checks: 9 cases, %d failures\n", bad);
+    printf("MurphyE invalid-cell/fallback/cancellation/alpha checks: 11 cases, %d failures\n", bad);
     return bad ? 1 : 0;
 }
