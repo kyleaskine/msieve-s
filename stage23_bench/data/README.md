@@ -60,6 +60,19 @@ that all four CPU root-optimization passes missed. It has more than twice the
 CPU winner's skew. Under a 15e region its lead shrinks to 1.7%, and it loses 7.4%
 at the lowest q. The runs are in ignored `stage23_gpu/runs/20261103_new_jobs/`.
 
+The November 4 test sieves (plan item 2) are in `cNNN/testsieve_20261104/` for
+C194, C179, C192, C196 and C170. Each was made with the user's real sieving
+settings by `../tools/pair_testsieve.py` and saved with its `--save`.
+- **Files:** `results.json` holds every window's verified counts, clustered 95%
+  intervals, timings, GPU readings, relation-file hashes, and the lattice-model
+  comparison with its scorer hash. Alongside it are the manifest, the sieved
+  jobs and the source polynomials.
+- **Results:** depth beat breadth by 7–11% in yield on C179, C192 and C196. The
+  C194 GPU winner beat the CPU's by 5.3%. C170 was a near-tie. See
+  [the plan](../../GPU_STAGE23_PLAN.md#current-priorities), item 2.
+- **Raw data:** relation files, logs and command records are in ignored
+  `stage23_gpu/runs/20261104_testsieve/`.
+
 ## October 27–28 evidence consolidation
 
 The pending change originally contained 651 files: 30 source, test, config,

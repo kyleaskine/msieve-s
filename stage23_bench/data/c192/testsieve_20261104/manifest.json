@@ -1,0 +1,50 @@
+{
+  "settings": {
+    "polys": {
+      "breadth": "/tmp/claude-1000/-home-kylea-msieve-s/74cfa196-25d1-4f85-b4db-564c573b34f3/scratchpad/c192_breadth.poly",
+      "depth": "/tmp/claude-1000/-home-kylea-msieve-s/74cfa196-25d1-4f85-b4db-564c573b34f3/scratchpad/c192_depth.poly"
+    },
+    "rlim": 160000000,
+    "alim": 240000000,
+    "lpbr": 32,
+    "lpba": 33,
+    "mfbr": 62,
+    "mfba": 95,
+    "logI": 15,
+    "J": 16384,
+    "sq_side": 1,
+    "band": [
+      80000000,
+      420000000
+    ],
+    "points": 9,
+    "width": 20000,
+    "q0s": [
+      80000000,
+      122497500,
+      164995000,
+      207492500,
+      249990000,
+      292487500,
+      334985000,
+      377482500,
+      419980000
+    ],
+    "params": "job:32,33,14.5,80e6",
+    "siever": "/home/kylea/code/cuda-sieve/bench"
+  },
+  "created": 1793817282.551585,
+  "poly_sources": {
+    "breadth": "839a7f2676162024863d77eb0f8a341acfc5693408c9d4237be47fa95ff71411",
+    "depth": "66cc5c8aabc684fc7a2c56368c4dd4fd17bf55eb091b2e75726d28b0240acd3f"
+  },
+  "sha256": {
+    "jobs/breadth.job": "988ee3cd9c024257ed20589b930ee74907010be54a52818d68fc5d6da6ba489a",
+    "jobs/depth.job": "3512120f461b3fc853d5b37500139f5db6157d43f2a0bc115d4e5bd369790e85",
+    "bin/bench": "2c0b13b8cef5af27f6887d06c7e2c39ddcd2d316267d44b9d8fe0b52889a47e7",
+    "bin/fbgen_gpu": "936aeec08adf9d5dc249ec1a9327839747e2dff005a9f6d697cf8795150e09fd",
+    "bin/normscan": "1c002a42cf1c4fd792b8f0bfa76ef0cc44afd5c661dfb05a57c6239cfdbd08ff",
+    "sources/breadth.poly": "839a7f2676162024863d77eb0f8a341acfc5693408c9d4237be47fa95ff71411",
+    "sources/depth.poly": "66cc5c8aabc684fc7a2c56368c4dd4fd17bf55eb091b2e75726d28b0240acd3f"
+  }
+}

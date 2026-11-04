@@ -1,0 +1,697 @@
+{
+  "settings": {
+    "polys": {
+      "cpu": "/home/kylea/msieve-s/stage23_gpu/runs/20261103_new_jobs/c194/comparison/lattice_score_cpu.poly",
+      "gpu": "/home/kylea/msieve-s/stage23_gpu/runs/20261103_new_jobs/c194/results/best.poly"
+    },
+    "rlim": 160000000,
+    "alim": 240000000,
+    "lpbr": 32,
+    "lpba": 33,
+    "mfbr": 62,
+    "mfba": 95,
+    "logI": 15,
+    "J": 16384,
+    "sq_side": 1,
+    "band": [
+      100000000,
+      500000000
+    ],
+    "points": 9,
+    "width": 20000,
+    "q0s": [
+      100000000,
+      149997500,
+      199995000,
+      249992500,
+      299990000,
+      349987500,
+      399985000,
+      449982500,
+      499980000
+    ],
+    "params": "job:32,33,14.5,100e6",
+    "siever": "/home/kylea/code/cuda-sieve/bench"
+  },
+  "midpoints": [
+    100010000.0,
+    150007500.0,
+    200005000.0,
+    250002500.0,
+    300000000.0,
+    349997500.0,
+    399995000.0,
+    449992500.0,
+    499990000.0
+  ],
+  "weights": [
+    1357637.8957226465,
+    2655740.989640631,
+    2615772.978806318,
+    2585589.693129301,
+    2561440.1052560974,
+    2541370.9406188047,
+    2524238.6224020855,
+    2509317.3763602036,
+    1248558.5033439582
+  ],
+  "band": {
+    "cpu": {
+      "relations": 698669791.5343264,
+      "se_relations": 1298615.0597146794,
+      "gpu_seconds": 731598.8847086278,
+      "gpu_days": 8.467579684127637,
+      "relations_per_second": 954.9902359577599
+    },
+    "gpu": {
+      "relations": 735359429.117773,
+      "se_relations": 1325759.7259250379,
+      "gpu_seconds": 737918.179082143,
+      "gpu_days": 8.54071966530258,
+      "relations_per_second": 996.5324746877051
+    }
+  },
+  "ratios": {
+    "gpu/cpu": {
+      "ratio": 1.0525135593781343,
+      "low": 1.0471854031359498,
+      "high": 1.0578688256706081
+    }
+  },
+  "throughput_ratios": {
+    "gpu/cpu": 1.0435001711701088
+  },
+  "per_window": {
+    "gpu/cpu": [
+      {
+        "q0": 100000000,
+        "ratio": 0.9760900029012329,
+        "low": 0.9636411557087853,
+        "high": 0.9886996711581431,
+        "time": 0.9978511952726297
+      },
+      {
+        "q0": 149997500,
+        "ratio": 1.0151156001022095,
+        "low": 1.0015828611088502,
+        "high": 1.0288311847010332,
+        "time": 1.007654455986878
+      },
+      {
+        "q0": 199995000,
+        "ratio": 1.0386037680965727,
+        "low": 1.0242559976639043,
+        "high": 1.0531525219912448,
+        "time": 1.0044211108040897
+      },
+      {
+        "q0": 249992500,
+        "ratio": 1.0520939066471668,
+        "low": 1.0363137691175888,
+        "high": 1.0681143311900734,
+        "time": 1.0081529378689906
+      },
+      {
+        "q0": 299990000,
+        "ratio": 1.0684163181950794,
+        "low": 1.0520317048262553,
+        "high": 1.085056109762445,
+        "time": 1.0118946474086659
+      },
+      {
+        "q0": 349987500,
+        "ratio": 1.0743002569901057,
+        "low": 1.0578468454194139,
+        "high": 1.091009579663134,
+        "time": 1.0099914359120754
+      },
+      {
+        "q0": 399985000,
+        "ratio": 1.0891054310726758,
+        "low": 1.0721798966160985,
+        "high": 1.1062981536359737,
+        "time": 1.011490950876185
+      },
+      {
+        "q0": 449982500,
+        "ratio": 1.0783695541444531,
+        "low": 1.061113971727219,
+        "high": 1.095905742728877,
+        "time": 1.012420566146736
+      },
+      {
+        "q0": 499980000,
+        "ratio": 1.1083118950682838,
+        "low": 1.0910149886275997,
+        "high": 1.1258830259472536,
+        "time": 1.0107277471730935
+      }
+    ]
+  },
+  "rows": [
+    {
+      "poly": "cpu",
+      "q0": 100000000,
+      "width": 20000,
+      "order": 0,
+      "pairs": 1077,
+      "primes": 680,
+      "relations": 46343,
+      "unique_relations": 46338,
+      "duplicates": 5,
+      "ambiguous_special_q": 6,
+      "rel_per_pair": 43.02506963788301,
+      "se_rel_per_pair": 0.2033827041948991,
+      "ms_per_pair": 37.23,
+      "rel_per_second": 1155.655912916546,
+      "board_watts": 239.35897435897436,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "3 %, 2726 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "1 %, 2725 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "481b5aeb6180e0ae1cebb619310ba2d3a0d1630e91a5c1d28dd3392a2f207d3c"
+    },
+    {
+      "poly": "gpu",
+      "q0": 100000000,
+      "width": 20000,
+      "order": 1,
+      "pairs": 1093,
+      "primes": 709,
+      "relations": 45904,
+      "unique_relations": 45902,
+      "duplicates": 2,
+      "ambiguous_special_q": 2,
+      "rel_per_pair": 41.99634034766697,
+      "se_rel_per_pair": 0.19035168157904164,
+      "ms_per_pair": 37.15,
+      "rel_per_second": 1130.4533068012645,
+      "board_watts": 239.2052631578947,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "1 %, 2725 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2724 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "5069a368f09370fcdbbae738b0027a10e924c6f1b918136c9e6adcf5aefb6758"
+    },
+    {
+      "poly": "gpu",
+      "q0": 149997500,
+      "width": 20000,
+      "order": 0,
+      "pairs": 1099,
+      "primes": 696,
+      "relations": 43952,
+      "unique_relations": 43950,
+      "duplicates": 2,
+      "ambiguous_special_q": 2,
+      "rel_per_pair": 39.9909008189263,
+      "se_rel_per_pair": 0.18345276463819046,
+      "ms_per_pair": 36.86,
+      "rel_per_second": 1084.9403369214947,
+      "board_watts": 240.46153846153845,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2724 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2724 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "aca512f1b4a79f94047ed201a3cf538c8c1657789c7cf8eab7b9c3497c487c98"
+    },
+    {
+      "poly": "cpu",
+      "q0": 149997500,
+      "width": 20000,
+      "order": 1,
+      "pairs": 1047,
+      "primes": 674,
+      "relations": 41248,
+      "unique_relations": 41247,
+      "duplicates": 1,
+      "ambiguous_special_q": 1,
+      "rel_per_pair": 39.39541547277937,
+      "se_rel_per_pair": 0.20027678522350964,
+      "ms_per_pair": 36.58,
+      "rel_per_second": 1076.965977932733,
+      "board_watts": 240.16216216216216,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "1 %, 2724 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "1 %, 2724 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "3a29bd5607eaacd8120df08c03c72bc10ecd4712c925ff73ab088061ad82294b"
+    },
+    {
+      "poly": "cpu",
+      "q0": 199995000,
+      "width": 20000,
+      "order": 0,
+      "pairs": 1029,
+      "primes": 649,
+      "relations": 37970,
+      "unique_relations": 37970,
+      "duplicates": 0,
+      "ambiguous_special_q": 0,
+      "rel_per_pair": 36.899902818270164,
+      "se_rel_per_pair": 0.18573366913076433,
+      "ms_per_pair": 36.19,
+      "rel_per_second": 1019.615993873174,
+      "board_watts": 241.28055555555557,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2724 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2724 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "df07a7d56c6c0441a2ad43ef030e171718ca623fd1954cde7d3f728f0b6f4770"
+    },
+    {
+      "poly": "gpu",
+      "q0": 199995000,
+      "width": 20000,
+      "order": 1,
+      "pairs": 1005,
+      "primes": 649,
+      "relations": 38517,
+      "unique_relations": 38516,
+      "duplicates": 1,
+      "ambiguous_special_q": 1,
+      "rel_per_pair": 38.32437810945274,
+      "se_rel_per_pair": 0.19176943845456637,
+      "ms_per_pair": 36.35,
+      "rel_per_second": 1054.3157664223586,
+      "board_watts": 240.70285714285714,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2724 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2775 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "6524a551f3210af4de950b076b319263ec9abeddd7852823e008d6180bd30307"
+    },
+    {
+      "poly": "gpu",
+      "q0": 249992500,
+      "width": 20000,
+      "order": 0,
+      "pairs": 1013,
+      "primes": 638,
+      "relations": 36892,
+      "unique_relations": 36892,
+      "duplicates": 0,
+      "ambiguous_special_q": 0,
+      "rel_per_pair": 36.418558736426455,
+      "se_rel_per_pair": 0.1924432454254572,
+      "ms_per_pair": 35.86,
+      "rel_per_second": 1015.5760941557852,
+      "board_watts": 240.70857142857142,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2775 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "c562ea348d70bc947a779c7aa517a55f4240b44fb8c8d502fec3b7a6e6c15962"
+    },
+    {
+      "poly": "cpu",
+      "q0": 249992500,
+      "width": 20000,
+      "order": 1,
+      "pairs": 1058,
+      "primes": 664,
+      "relations": 36623,
+      "unique_relations": 36623,
+      "duplicates": 0,
+      "ambiguous_special_q": 0,
+      "rel_per_pair": 34.61531190926276,
+      "se_rel_per_pair": 0.19436986730105452,
+      "ms_per_pair": 35.57,
+      "rel_per_second": 973.1603010757032,
+      "board_watts": 241.6277777777778,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "27be34fefce248b8b383799270ee4f6d6d91b95613a0ed1657e7b28ed820ffd3"
+    },
+    {
+      "poly": "cpu",
+      "q0": 299990000,
+      "width": 20000,
+      "order": 0,
+      "pairs": 1012,
+      "primes": 654,
+      "relations": 33223,
+      "unique_relations": 33222,
+      "duplicates": 1,
+      "ambiguous_special_q": 2,
+      "rel_per_pair": 32.82806324110672,
+      "se_rel_per_pair": 0.1903614534620359,
+      "ms_per_pair": 35.31,
+      "rel_per_second": 929.7100889579925,
+      "board_watts": 240.9848484848485,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "c23c0fcab3e5268ba537ce84af5b1d0c17acc7d7875287931942f92fe51cf9ca"
+    },
+    {
+      "poly": "gpu",
+      "q0": 299990000,
+      "width": 20000,
+      "order": 1,
+      "pairs": 1040,
+      "primes": 648,
+      "relations": 36479,
+      "unique_relations": 36477,
+      "duplicates": 2,
+      "ambiguous_special_q": 2,
+      "rel_per_pair": 35.074038461538464,
+      "se_rel_per_pair": 0.18739872690483078,
+      "ms_per_pair": 35.73,
+      "rel_per_second": 981.6411548149584,
+      "board_watts": 240.61428571428573,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "88a5e9cb781aaf084605fdcb368f8152f60aec81ea9fbaa3909cc5c7cba3a4cc"
+    },
+    {
+      "poly": "gpu",
+      "q0": 349987500,
+      "width": 20000,
+      "order": 0,
+      "pairs": 1002,
+      "primes": 647,
+      "relations": 34090,
+      "unique_relations": 34090,
+      "duplicates": 0,
+      "ambiguous_special_q": 0,
+      "rel_per_pair": 34.02195608782435,
+      "se_rel_per_pair": 0.19467067118033307,
+      "ms_per_pair": 35.38,
+      "rel_per_second": 961.6154914591393,
+      "board_watts": 241.63030303030303,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "eef633ebd24ca860baba615b7e32d17ba1ad3f3be078d7d3b8e0772a701b65f5"
+    },
+    {
+      "poly": "cpu",
+      "q0": 349987500,
+      "width": 20000,
+      "order": 1,
+      "pairs": 1024,
+      "primes": 652,
+      "relations": 32429,
+      "unique_relations": 32429,
+      "duplicates": 0,
+      "ambiguous_special_q": 0,
+      "rel_per_pair": 31.6689453125,
+      "se_rel_per_pair": 0.17133242290029305,
+      "ms_per_pair": 35.03,
+      "rel_per_second": 904.0521071224664,
+      "board_watts": 241.65714285714284,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "4aa473aca6f43fb25dafb50f48ca233ac193f0c19dcab283c8ec16f61459938a"
+    },
+    {
+      "poly": "cpu",
+      "q0": 399985000,
+      "width": 20000,
+      "order": 0,
+      "pairs": 1020,
+      "primes": 643,
+      "relations": 31079,
+      "unique_relations": 31079,
+      "duplicates": 0,
+      "ambiguous_special_q": 0,
+      "rel_per_pair": 30.469607843137254,
+      "se_rel_per_pair": 0.1751957358137617,
+      "ms_per_pair": 34.81,
+      "rel_per_second": 875.3119173552788,
+      "board_watts": 241.28571428571428,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "a941eea308d241ae32115e6a212665b2d070a8fe53ba2bad199fb1700da5a09b"
+    },
+    {
+      "poly": "gpu",
+      "q0": 399985000,
+      "width": 20000,
+      "order": 1,
+      "pairs": 975,
+      "primes": 621,
+      "relations": 32355,
+      "unique_relations": 32355,
+      "duplicates": 0,
+      "ambiguous_special_q": 0,
+      "rel_per_pair": 33.184615384615384,
+      "se_rel_per_pair": 0.18417056871137968,
+      "ms_per_pair": 35.21,
+      "rel_per_second": 942.4770060952962,
+      "board_watts": 240.778125,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "afc1cde6f52af72a2fea8dc33c0303321706e1eed2131774a24e104f73686386"
+    },
+    {
+      "poly": "gpu",
+      "q0": 449982500,
+      "width": 20000,
+      "order": 0,
+      "pairs": 980,
+      "primes": 625,
+      "relations": 30683,
+      "unique_relations": 30683,
+      "duplicates": 0,
+      "ambiguous_special_q": 0,
+      "rel_per_pair": 31.309183673469388,
+      "se_rel_per_pair": 0.18466500158968782,
+      "ms_per_pair": 35.05,
+      "rel_per_second": 893.2720020961309,
+      "board_watts": 241.91818181818184,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2776 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "da79e1f0301b1d13b148326438f31bb27e929eec422c1bed2e1d2866eae7a153"
+    },
+    {
+      "poly": "cpu",
+      "q0": 449982500,
+      "width": 20000,
+      "order": 1,
+      "pairs": 1035,
+      "primes": 637,
+      "relations": 30050,
+      "unique_relations": 30050,
+      "duplicates": 0,
+      "ambiguous_special_q": 0,
+      "rel_per_pair": 29.033816425120772,
+      "se_rel_per_pair": 0.16665763449758667,
+      "ms_per_pair": 34.62,
+      "rel_per_second": 838.6428776753545,
+      "board_watts": 241.52647058823527,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2776 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "1f12152532d77dda59007c33ddbc51c699cb355ab712faafce49a9eadeace519"
+    },
+    {
+      "poly": "cpu",
+      "q0": 499980000,
+      "width": 20000,
+      "order": 0,
+      "pairs": 1047,
+      "primes": 660,
+      "relations": 29579,
+      "unique_relations": 29579,
+      "duplicates": 0,
+      "ambiguous_special_q": 1,
+      "rel_per_pair": 28.25119388729704,
+      "se_rel_per_pair": 0.1618770512139269,
+      "ms_per_pair": 34.49,
+      "rel_per_second": 819.1126090837065,
+      "board_watts": 242.44,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "fda86b2655d2dd2fae7ecdc4ae82ea56fe6e2b305114a4e4eed9dad71f6bfdca"
+    },
+    {
+      "poly": "gpu",
+      "q0": 499980000,
+      "width": 20000,
+      "order": 1,
+      "pairs": 961,
+      "primes": 597,
+      "relations": 30090,
+      "unique_relations": 30090,
+      "duplicates": 0,
+      "ambiguous_special_q": 0,
+      "rel_per_pair": 31.311134235171696,
+      "se_rel_per_pair": 0.17594492741506446,
+      "ms_per_pair": 34.86,
+      "rel_per_second": 898.1966217777308,
+      "board_watts": 240.71875,
+      "gpu_before": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "gpu_after": {
+        "apps": [],
+        "gpu": "0 %, 2767 MiB"
+      },
+      "verified": true,
+      "relation_sha256": "b0e45fc8a3e35ae6f996fc1c55c419efceee7ade4951caa17bd3f6095a567d79"
+    }
+  ],
+  "verified_relations": 647506,
+  "duplicates_removed": 14,
+  "busy_windows": 0,
+  "engine_commits": [
+    "5996c23f-dirty"
+  ],
+  "caveat": "Yield intervals are 95%, clustered by special-q prime within each window and independent between windows. Timing is one unreplicated run per window. Projected relations do not remove duplicates between special-q of a full run.",
+  "model": {
+    "cpu": {
+      "skew": 159612677.09709993,
+      "murphy_e": 1.302529e-08,
+      "relations_per_q": [
+        67.6061,
+        61.8784,
+        57.8012,
+        54.6869,
+        52.2119,
+        49.9616,
+        48.1369,
+        46.2247,
+        44.7951
+      ]
+    },
+    "gpu": {
+      "skew": 371490480.2278674,
+      "murphy_e": 1.349764e-08,
+      "relations_per_q": [
+        63.9018,
+        60.9242,
+        58.4212,
+        56.1236,
+        54.2192,
+        52.2799,
+        50.7253,
+        49.1418,
+        47.8442
+      ]
+    }
+  },
+  "model_ratios": {
+    "gpu/cpu": {
+      "band": 1.023998898282216,
+      "per_window": [
+        0.9452076070058767,
+        0.9845794332109428,
+        1.0107264209047562,
+        1.0262713739487885,
+        1.0384452586479327,
+        1.0464016364567987,
+        1.053771638805158,
+        1.063106953641668,
+        1.0680677127632263
+      ]
+    }
+  },
+  "model_params": "job:32,33,14.5,100e6",
+  "model_scorer_sha256": "c35419df01100141c8d9884b2d8685a228fa751c23d1c90d14218d15f548cf58",
+  "raw_artifacts": "/home/kylea/msieve-s/stage23_gpu/runs/20261104_testsieve/c194"
+}

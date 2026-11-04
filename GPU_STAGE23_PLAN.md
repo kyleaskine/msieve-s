@@ -24,11 +24,11 @@ about 24 h on a rented 5090.
 
 ## Current priorities
 
-Updated 2026-11-03. This is the authoritative execution order for the stage-2/3
+Updated 2026-11-04. This is the authoritative execution order for the stage-2/3
 pipeline. It supersedes the older "Next" lists below and the scheduling in
 `ROPT_OPTIMIZATION_PLAN.md`; those retain design details and historical evidence.
-Item 1 is complete; the rest is pending. Test sieving is the next substantial
-project, while further MurphyE speed work is deferred.
+Item 1 is complete (committed in 8fe61b9). Item 2 has started with C194; the rest
+is pending. Further MurphyE speed work is deferred.
 
 1. **Promote validated binaries and measure host overhead together.** Prefer
    existing validated artifacts after checking source/dependency hashes, build
@@ -76,10 +76,10 @@ project, while further MurphyE speed work is deferred.
    audit was also exact. Its GPU winner leads the CPU's by 6.1% in standard
    MurphyE and 3.2% in the lattice model: depth found a cell on seed 3 that every
    CPU pass missed. Its skew is 2.2 times the CPU winner's. Under a 15e region it
-   leads by 1.7% but loses 7.4% at q = 80M, so this is a test-sieve candidate.
-   Item 1 is complete.
+   leads by 1.7% but loses 7.4% at q = 80M, so this is a test-sieve candidate
+   (sieved 2026-11-04; see item 2). Item 1 is complete.
 
-   *Code review, same evening (uncommitted):* the build check now also catches an
+   *Code review, same evening:* the build check now also catches an
    SOPT binary that make did not rebuild after a flag or variable change, versioned
    and `ccache`-launched compilers, and an `#include` that resolves to another file.
    It uses the make variables recorded in the manifest, not the caller's
@@ -144,6 +144,126 @@ project, while further MurphyE speed work is deferred.
    support checking model magnitudes: the model picked the correct winner but
    understated its advantage. They do not establish a universal minimum gain
    that the model can resolve.
+
+   *C194, GPU versus CPU winner (2026-11-04,
+   [results](stage23_bench/data/c194/testsieve_20261104/results.json)):* this was the first
+   case run with the user's real settings: lpb 32/33, mfb 62/95, lims 160M/240M,
+   a 15e region (logI 15, J 16384) on the algebraic side, and q from 100M to 500M.
+   The tool was the new `stage23_bench/tools/pair_testsieve.py`. It sieves nine
+   matched windows of width 20,000 with the order rotated, about 1,000 (q, rho)
+   pairs per window, and 647,506 verified relations in all. Its intervals are
+   clustered by special-q prime. Skews: 371.5M for the GPU poly (as published)
+   and 159.6M for the CPU poly (its lattice-best skew; the model puts it within
+   0.02% of its standard-MurphyE skew, 167.7M).
+   - **Yield:** the GPU poly gives 1.0525 [1.0472, 1.0579] times the CPU poly's
+     over the band. The lattice model predicted 1.0240 at the same windows.
+   - **Per window:** the measured ratio rises from 0.976 at 100M to 1.108 at
+     500M, with one dip (1.089 at 400M, then 1.078 at 450M).
+   - **Model offset:** the model's ratios have the same shape but sit lower at
+     every window, by 1.5 points at 450M and 2.6–4.0 points elsewhere. The
+     crossover, which the model put near 175M, is about 130M by linear
+     interpolation.
+   - **Throughput:** GPU poly about 1.0435 of the CPU's; it is about 1% slower
+     per pair. This is from one timing run per window, with GPU utilization
+     0–3% and memory in use 2.72–2.78 GB (the desktop's) just before and after
+     each window.
+     Under WSL2 nvidia-smi lists no processes, so that is the only evidence of
+     no contention.
+
+   So the high-skew poly was not overrated here; the model understated it. Since
+   the gap barely changes with q, it is probably not the lattice-skew effect
+   (which grows as q falls). The cause has not been measured. One untested
+   candidate: the model's smoothness bounds are derived from lpb and an
+   equivalent I, so they ignore the real lims and the three-large-prime
+   algebraic mfb.
+
+   *C179 and C192 pilots, depth versus breadth winner (2026-11-04):* these used the
+   same tool and design (nine windows of width 20,000, rotated order). Each poly is
+   the saved `scores/final.json` row behind the plan's figure, at its saved skew:
+   - C179: row 1 versus row 8 of `20261028_existing_jobs/c179_358030`
+     ([results](stage23_bench/data/c179/testsieve_20261104/results.json)).
+   - C192: row 1 versus row 6 of `20261019_c192`
+     ([results](stage23_bench/data/c192/testsieve_20261104/results.json)).
+
+   Settings are the user's, given 2026-11-04. Both used a 15e region on the
+   algebraic side.
+
+   | Case | lpb | mfb | lims | q band | Measured yield, depth/breadth | Model, real settings | Saved model | Throughput |
+   | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+   | C179 | 31/32 | 60/92 | 120M/160M | 30–130M | 1.0710 [1.0676, 1.0743] | 1.0361 | 1.0398 | 1.044 |
+   | C192 | 32/33 | 62/95 | 160M/240M | 80–420M | 1.1132 [1.1081, 1.1184] | 1.0258 | 1.0254 | 1.060 |
+
+   Relation counts: 1,632,714 verified for C179 and 749,615 for C192.
+
+   The depth winner leads at every window in both cases: C179 by 3.5–9.3%, C192
+   by 9.1–13.0%. **The pilot rule is met:** each keeps the predicted sign with more
+   than the full predicted gain, and the intervals are narrow. So depth is
+   retained, and the optional pipeline test-sieve phase is the next step. In both
+   cases the depth poly is 2–5% slower per pair, plausibly because more relations
+   mean more cofactorization. Single-run throughput still improves, by 4.4% and
+   6.0%. Per-window time ratios scatter (C179 1.005–1.076, C192 1.031–1.097), so
+   the throughput figures are provisional until the timing is repeated.
+
+   *C170 and C196 pilots (2026-11-04):* the same design, with the user's settings.
+   - **C170:** lpb 30/31, mfb 58/89, lims 80M/120M, 14e (logI 14, J 8192), q from
+     40M to 160M; the target is about 175M relations. The pair is the
+     comparison's `lattice_score_gpu.poly` (c5 −70560, skew 18.2M) against
+     `lattice_score_cpu.poly` (msieve, c5 15120, skew 69.5M).
+     [Results](stage23_bench/data/c170/testsieve_20261104/results.json).
+   - **C196 518428…:** same as C194, but q from 100M to 550M. The pair is row 0
+     (depth, skew 218.5M) against row 5 (breadth, skew 168.5M) of
+     `20261022_three_jobs/c196`; both are seed s0002 with u=15.
+     [Results](stage23_bench/data/c196/testsieve_20261104/results.json).
+
+   All five measured cases, with the model at the user's settings and the same
+   windows:
+
+   | Case | Comparison | Measured yield | Model | Measured / model | Throughput | Alpha change | Skew |
+   | --- | --- | --- | --- | --- | --- | --- | --- |
+   | C194 | GPU / CPU | 1.0525 [1.0472, 1.0579] | 1.0240 | +2.8% | 1.044 | −0.60 | 160M → 371M |
+   | C179 | depth / breadth | 1.0710 [1.0676, 1.0743] | 1.0361 | +3.4% | 1.044 | +0.07 | 33M → 51M |
+   | C192 | depth / breadth | 1.1132 [1.1081, 1.1184] | 1.0258 | +8.5% | 1.060 | −1.68 | 187M → 197M |
+   | C196 | depth / breadth | 1.0818 [1.0757, 1.0880] | 1.0161 | +6.5% | 1.061 | −0.29 | 168M → 219M |
+   | C170 | GPU / CPU lattice winner | 0.9927 [0.9875, 0.9979] | 0.9901 | +0.3% | 1.014 | +1.75 | 70M → 18M |
+
+   **Depth versus breadth:** in all three cases the depth winner yields 7–11% more
+   and leads at every window. It sieves 2–5% slower per pair, leaving 4–6% more
+   throughput in single, unreplicated timing runs. Depth is clearly worth keeping
+   on yield. The throughput figures need repeated timing before they are quoted
+   as a speed benefit.
+
+   **C170:** the model was right. The CPU's high-skew lattice winner yields 0.7%
+   more, and the interval excludes a tie. But the GPU poly is about 2% faster per
+   pair at almost every window, so it gets about 1.4% more throughput. Both reach
+   175M relations at q ≈ 136M, in 0.75–0.76 GPU-days. In practice it is a tie, with
+   timing unreplicated. Standard MurphyE preferred the GPU poly by about 6%; the
+   lattice model's correction toward the high-skew poly was the right size.
+
+   **The model understates depth/deeper-search winners, by about 3–8.5%.** The
+   miss has no consistent trend in q: C194 ranges 1.5–4.0 points across windows
+   and C196 4.8–8.4. Alpha does not explain it: C179's pair
+   has the same alpha but still a 3.4% miss. C170's GPU poly has alpha worse by
+   1.75 and shows no miss. Skew does not explain the size either: C192's skews
+   differ by only about 5%, yet it has the largest miss, and its typical rational
+   norms are within 0.04 bits. The cause is unknown. In practice:
+   - The model's ranking was right in all five cases.
+   - Predicted gains for depth winners are conservative.
+   - Near-ties within a few percent cannot be trusted in either direction.
+
+   *Tool review, same day (`/code-review xhigh`):* `pair_testsieve.py` now:
+   - sieves each window from scratch (`bench --restart`) and counts it only once
+     its relation file is final, since bench exits 0 after a clean signal stop;
+   - checks inputs, `--params` and every window's special-q roots before
+     creating the run;
+   - waits for GPU utilization of at most 30% before each window;
+   - passes the special-q side to the model and records the scorer's hash;
+   - lets `--report` take new `--params` and mark the run complete;
+   - saves only six summary files per pair.
+
+   Re-reporting reproduced all five cases' measured and model ratios exactly.
+   Raw runs (relation files, logs, command records) are in the ignored
+   `stage23_gpu/runs/20261104_testsieve/`; they were moved out of
+   `stage23_gpu/build/`, which `make clean` deletes.
 
    **Pilot decision rule:** predeclare the q-band weighting, primary normalized
    yield comparison, sampling budget and uncertainty criterion. If both C179 and

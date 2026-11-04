@@ -1,0 +1,50 @@
+{
+  "settings": {
+    "polys": {
+      "cpu": "/home/kylea/msieve-s/stage23_gpu/runs/20261027_c170/comparison/lattice_score_cpu.poly",
+      "gpu": "/home/kylea/msieve-s/stage23_gpu/runs/20261027_c170/comparison/lattice_score_gpu.poly"
+    },
+    "rlim": 80000000,
+    "alim": 120000000,
+    "lpbr": 30,
+    "lpba": 31,
+    "mfbr": 58,
+    "mfba": 89,
+    "logI": 14,
+    "J": 8192,
+    "sq_side": 1,
+    "band": [
+      40000000,
+      160000000
+    ],
+    "points": 9,
+    "width": 20000,
+    "q0s": [
+      40000000,
+      54997500,
+      69995000,
+      84992500,
+      99990000,
+      114987500,
+      129985000,
+      144982500,
+      159980000
+    ],
+    "params": "job:30,31,13.5,40e6",
+    "siever": "/home/kylea/code/cuda-sieve/bench"
+  },
+  "created": 1793818612.9701006,
+  "poly_sources": {
+    "cpu": "4c8d20b179a3da198b043b89778b8f6c99173be29e2dc17cfdcec3a595a0a892",
+    "gpu": "13c494db51c0ccb4a9d8407fb6d69354d5f8f3abc12c2a3eb4f11f992ec34549"
+  },
+  "sha256": {
+    "jobs/cpu.job": "fac6c21484ca92afe89cf125638e1d74184288373df12d52c14272b8a8129bd4",
+    "jobs/gpu.job": "52ed81f122aa7aba461ba6f7458828eee52894d812475c46b6ddfa55f51c300b",
+    "bin/bench": "2c0b13b8cef5af27f6887d06c7e2c39ddcd2d316267d44b9d8fe0b52889a47e7",
+    "bin/fbgen_gpu": "936aeec08adf9d5dc249ec1a9327839747e2dff005a9f6d697cf8795150e09fd",
+    "bin/normscan": "1c002a42cf1c4fd792b8f0bfa76ef0cc44afd5c661dfb05a57c6239cfdbd08ff",
+    "sources/cpu.poly": "4c8d20b179a3da198b043b89778b8f6c99173be29e2dc17cfdcec3a595a0a892",
+    "sources/gpu.poly": "13c494db51c0ccb4a9d8407fb6d69354d5f8f3abc12c2a3eb4f11f992ec34549"
+  }
+}

@@ -139,7 +139,7 @@ def murphy(polys, n, args):
 def lattice_scores(polys, n, args):
     """[(band relations, skew, MurphyE at that skew, [relations per special-q at each q])]"""
     extra = ['-lattice', args.lattice, '-qband', args.qband] + (['-useskew'] if args.useskew else [])
-    for name in ('nlat', 'npts', 'latseed'):
+    for name in ('nlat', 'npts', 'latseed', 'sqside'):
         if getattr(args, name, None) is not None:
             extra += ['-' + name, str(getattr(args, name))]
     res = _run_cado_murphy(polys, n, args, extra, keep_skew=args.useskew)
