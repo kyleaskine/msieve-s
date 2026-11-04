@@ -582,19 +582,79 @@ original 4096-input batch size, verifies source checkpoint hashes, and compares
 output as a stream against saved audited CPU references; it does not write
 another multi-gigabyte output copy. A new binary requires a new corpus run
 directory; resuming an old one reuses its frozen binary and completed checks.
-The following full replay has **not** been run for the October 31 build:
+`--threads N` sets the host threads (default 2, as in every earlier replay);
+the manifest records it, and resuming with a different count is rejected.
+
+**November 2 full replay of the October 31 build:** all 8,028,269 outputs match
+their CPU references exactly at eight threads, in 2.63 hours of wall time. Paired
+runs of the same binary, ABBA order on 32,768 C190 and C152 inputs, take 1.27x
+less wall time at eight threads than at two, with byte-identical output; GPU idle
+falls from about 33% to 12%. This binary and the November 1 ROPT build are now the
+production executables in `build/`; see the
+[release record](../stage23_bench/data/gpu_pipeline/20261103_release.json). Editing
+this Makefile makes `make` rebuild ROPT over the promoted binary, because the
+ROPT targets depend on it.
 
 ```sh
 python3 stage23_gpu/tests/run_sopt_corpus.py \
-  --run-dir stage23_gpu/runs/20261031_focused_validation/full_corpus \
-  --binary stage23_gpu/runs/20261031_focused_validation/frozen_build/s23_sopt --prepare-only
+  --run-dir stage23_gpu/runs/NEW_REPLAY --binary BINARY --threads 8 --prepare-only
 # When the GPU is available (or wait for a full minute of idle usage):
-python3 stage23_gpu/tests/run_sopt_corpus.py \
-  --run-dir stage23_gpu/runs/20261031_focused_validation/full_corpus --wait-gpu
+python3 stage23_gpu/tests/run_sopt_corpus.py --run-dir stage23_gpu/runs/NEW_REPLAY --wait-gpu
 ```
 
 The context-replay CPU checks also passed all 8192 outputs for each composite
 against current CADO, with both traced targets identical to isolated execution.
+
+### Build manifests (2026-11-03)
+
+The driver checks `build/s23_sopt` and `build/s23_ropt` against their manifests,
+`build/s23_sopt.provenance.json` and `build/s23_ropt.provenance.json`, when a run
+first freezes them (for `pipeline` and `all`, before any work). A manifest holds the
+binary's SHA-256, the commands `make -n -B` prints for it, the make variables it was
+recorded with, and the SHA-256 of every file the compilers report reading (`-M`,
+including system and CUDA headers), the linked CADO libraries and the ROPT flag stamp.
+The check reruns make and the compilers' dependency listing with the recorded
+variables, ignoring the caller's environment, and compares content, commands and the
+list of inputs, not timestamps. A Makefile comment does not matter. Changed flags,
+sources or headers do, as does an `#include` that now resolves to another file, or a
+binary that differs from the recorded one. Compilers are recognized by name,
+including versioned names (`g++-13`) and launchers (`ccache`); any other command that
+compiles sources is an error rather than an untracked input.
+
+```sh
+make -C stage23_gpu s23_sopt s23_ropt
+python3 stage23_bench/tools/build_provenance.py record stage23_gpu/build/s23_sopt stage23_gpu/build/s23_ropt
+python3 stage23_bench/tools/build_provenance.py verify stage23_gpu/build/s23_sopt stage23_gpu/build/s23_ropt
+```
+
+Run `record` right after `make`, with the same make variables (`CUDA=89 ... record`
+after `make CUDA=89 ...`). It refuses a binary older than any input or this Makefile,
+one built with ROPT flags other than the current configuration's (for example a
+`ROPT_PROFILE=1` build), and bytes an existing manifest recorded under other commands.
+The SOPT rule has no flag stamp or Makefile dependency, so `make` does not rebuild it
+after a flag change; `record` then asks for `make -B` or a deleted binary. Without an
+earlier manifest it cannot tell which flags built an SOPT binary, nor how a copied
+binary was built. A flag stamp for SOPT would need a Makefile edit, which rebuilds
+ROPT. For a
+promoted artifact, `import` checks every current input against hashes a
+validation recorded instead. The current manifests were imported this way:
+- SOPT from `runs/20261031_focused_validation/frozen_build/build.json`, with snapshot paths
+  mapped onto this tree.
+- ROPT from `runs/20261101_review_validation/provenance.json`.
+
+All 350 and 522 inputs match. The SOPT validation listed host dependencies with
+`-MM`, so 14 glibc fortify headers were absent from it. `import` accepts unrecorded
+inputs only from system toolchain directories, only when gcc, g++ and nvcc report
+the versions the validation recorded, and it lists them in the manifest. The
+October 31 build used its own commands rather than this Makefile's. Its flags are
+identical; only the `-I` order for `cado_io.c` differs, and no header name exists
+in both `include/` and `tools/`.
+
+A moved CADO build or toolchain needs a new record, because external paths are
+absolute. `--allow-unverified-build` overrides the check for experiments. The
+tests (`tests/test_build_provenance.py`, using a small gcc project) run directly
+rather than from `make test`. Adding them there would edit this Makefile and
+rebuild ROPT.
 
 ## GPU finalist refinement and quadrature (updated 2026-10-26)
 
@@ -679,12 +739,16 @@ original per-point conversion ranges included marker overhead; current builds
 only instrument aggregate input preparation, so those historical conversion
 times should not be read as isolated uninstrumented operation costs.
 
-The first experiment should bind the CUDA device at worker/job setup instead
-of every evaluation, preserving device/thread ownership and recovery. Keep the
-CPU correctness safeguards. Projective sieve tables still built during replay
-and GPU size search followed by host canonicalization are smaller candidates
-for removing duplicate work; the latter's cost is much less significant with
-larger pools. This study excludes root search, SOPT and pipeline scoring.
+Further MurphyE speed experiments are deferred under
+[the current project priorities](../GPU_STAGE23_PLAN.md#current-priorities):
+promote validated binaries while measuring host overhead, calibrate finalists
+with test sieves, then evaluate coverage at equal elapsed time. If MurphyE
+optimization resumes, binding the CUDA device at worker/job setup is a measured
+opportunity, preserving device/thread ownership and recovery. Keep the CPU
+correctness safeguards. Projective sieve tables still built during replay and
+GPU size search followed by host canonicalization are smaller candidates for
+removing duplicate work; the latter's cost is much less significant with larger
+pools. This study excludes root search, SOPT and pipeline scoring.
 
 For CPU attribution, build optional NVTX markers in a **separate build directory**
 (normal builds have no NVTX dependency or marker overhead). From the repository
@@ -713,6 +777,15 @@ GPU timings as null. GPU busy time uses interval unions, avoiding double countin
 concurrent kernels. Nested host ranges report inclusive and self times.
 The build records profiling flags and rebuilds when they change in an existing
 directory; separate build directories keep production artifacts intact.
+
+The [review-fix validation](../stage23_bench/data/gpu_refinement/20261101_validation.json)
+passes on CPU and CUDA at commit `42f5f59`, including real profiling-on/off
+rebuilds and a CPU-only six-job trace that previously risked a threefold
+misattribution. All 1,096 benchmark exports were checked: 1,094 matched historical
+bytes, and the two new default-bound/weight exports matched the CPU configuration.
+The checked CUDA replays had no unexpected fallbacks and a maximum integral
+relative error of 1.55e-14. This was the focused regression suite, not the full
+SOPT corpus or a root-search run.
 
 Example, using an existing seed-bound pool with matching alpha weight:
 

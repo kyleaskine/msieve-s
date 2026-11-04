@@ -365,18 +365,52 @@ def cado_compile_args(build=None):
     return incs, libs, ['-lgmp', '-lm', '-lpthread', '-lstdc++']
 
 
+_file_hashes = {}
+
+
+def _file_sha256(path):
+    """SHA-256 of a file; cached within this process while its size and mtime hold."""
+    st = os.stat(path)
+    key = (path, st.st_size, st.st_mtime_ns)
+    if key not in _file_hashes:
+        import hashlib
+        with open(path, 'rb') as f:
+            _file_hashes[key] = hashlib.file_digest(f, 'sha256').hexdigest()
+    return _file_hashes[key]
+
+
 def _cado_tool(name, src_name, cmd, headers=()):
     """Path of a helper built from src_name against the configured CADO build, built on
-    first use and rebuilt when its source or CADO's libs change. cmd(incs, libs, ldflags,
+    first use and rebuilt when its compiler command or the content of its source, local
+    headers or CADO's libs changes. NAME.build.json records those; timestamps are not
+    trusted, since copies and checkouts change them freely. cmd(incs, libs, ldflags,
     binary, src) gives the compiler command."""
+    import json
     here = os.path.dirname(os.path.abspath(__file__))
     binary, src = os.path.join(here, name), os.path.join(here, src_name)
     incs, libs, ldflags = cado_compile_args()
-    newest = max(os.path.getmtime(f) for f in [src, __file__] + libs + [os.path.join(here, h) for h in headers])
-    if os.path.exists(binary) and os.path.getmtime(binary) >= newest:
-        return binary
+    inputs = [src] + [os.path.join(here, h) for h in headers] + libs
+    build = dict(command=cmd(incs, libs, ldflags, binary, src), inputs={p: _file_sha256(p) for p in inputs})
+    stamp = binary + '.build.json'
+    try:
+        with open(stamp) as f:
+            if json.load(f) == build and os.path.isfile(binary):
+                return binary
+    except (OSError, ValueError):
+        pass
     import subprocess
-    subprocess.run(cmd(incs, libs, ldflags, binary, src), check=True)
+    # Concurrent callers may build at once: each writes its own file and renames it.
+    tmp = f'{binary}.{os.getpid()}.tmp'
+    try:
+        subprocess.run(cmd(incs, libs, ldflags, tmp, src), check=True)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+        raise
+    os.replace(tmp, binary)
+    with open(stamp + f'.{os.getpid()}.tmp', 'w') as f:
+        json.dump(build, f, indent=1)
+    os.replace(stamp + f'.{os.getpid()}.tmp', stamp)
     return binary
 
 

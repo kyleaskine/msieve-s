@@ -31,8 +31,21 @@ from sopt_compare import invalid_reason
 NAMES = ('c152', 'c170_418691', 'c148', 'c164', 'c179_358030', 'c179_576203', 'c181', 'c190')
 
 
+DEFAULT_THREADS = 2  # every replay before --threads existed
+
+
 def read(path):
     return json.loads(path.read_text())
+
+
+def resolve_threads(plan, requested):
+    """A run directory keeps one thread count, so its timings stay comparable."""
+    saved = plan.get('threads', DEFAULT_THREADS) if plan else None
+    if saved is None:
+        return DEFAULT_THREADS if requested is None else requested
+    if requested is not None and requested != saved:
+        raise ValueError(f'run directory uses {saved} threads, not {requested}; use a new --run-dir')
+    return saved
 
 
 def key(poly):
@@ -45,8 +58,8 @@ def audit_path(run):
     return run / 'sopt_audit/sopt/verification.json'
 
 
-def prepare(dest, binary):
-    report = dict(created_utc=datetime.now(timezone.utc).isoformat(), status='prepared',
+def prepare(dest, binary, threads):
+    report = dict(created_utc=datetime.now(timezone.utc).isoformat(), status='prepared', threads=threads,
                   reference='checkpoint-verified saved outputs plus all audited CPU corrections', jobs=[])
     for name in NAMES:
         run = BASE / name
@@ -109,13 +122,14 @@ def execute(job, plan, dest, wait=False):
             raise ValueError('source changed: ' + source['path'])
     corrections = {r['index']: r for r in read(Path(job['audit']['path']))['differences']}
     wait_available(wait)
-    command = [plan['binary'], '-t', '2', '-batch', '4096', '-slice', '10',
+    threads = resolve_threads(plan, None)
+    command = [plan['binary'], '-t', str(threads), '-batch', '4096', '-slice', '10',
                '-inputpolys', job['sources']['raw']['path']]
-    record = dict(name=job['name'], status='running', command=command, count=0, differences=[],
+    record = dict(name=job['name'], status='running', command=command, threads=threads, count=0, differences=[],
                   script_sha256=sha(Path(__file__)), binary_sha256=plan['binary_sha256'])
     path = dest / (job['name'] + '.json')
     save(path, record)
-    start = time.monotonic()
+    start, wall_start = time.monotonic(), time.time()
     with (dest / (job['name'] + '.stderr')).open('wb') as err:
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=err, bufsize=0, start_new_session=True)
         try:
@@ -147,14 +161,14 @@ def execute(job, plan, dest, wait=False):
                                                       invalid=reason, scores=scores))
                 record['count'] = index
                 if index % 50000 == 0:
-                    record['seconds'] = time.monotonic() - start
+                    record.update(seconds=time.monotonic()-start, wall_seconds=time.time()-wall_start)
                     save(path, record)
                     print(job['name'], index, '/', job['count'], 'differences', len(record['differences']), flush=True)
             code = proc.wait(timeout=60)
             if code or record['count'] != job['count']:
                 raise RuntimeError(f'process/count failure: exit={code}, count={record["count"]}')
             record.update(status='passed' if not record['differences'] else 'differences',
-                          returncode=code, seconds=time.monotonic()-start)
+                          returncode=code, seconds=time.monotonic()-start, wall_seconds=time.time()-wall_start)
         except BaseException as error:
             if proc.poll() is None:
                 os.killpg(proc.pid, signal.SIGTERM)
@@ -162,7 +176,8 @@ def execute(job, plan, dest, wait=False):
                 except subprocess.TimeoutExpired:
                     os.killpg(proc.pid, signal.SIGKILL)
                     proc.wait()
-            record.update(status='failed', error=str(error), seconds=time.monotonic()-start)
+            record.update(status='failed', error=str(error), seconds=time.monotonic()-start,
+                          wall_seconds=time.time()-wall_start)
             raise
         finally:
             proc.stdout.close()
@@ -174,16 +189,21 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--run-dir', type=Path, required=True)
     ap.add_argument('--binary', type=Path, default=ROOT / 'stage23_gpu/build/s23_sopt')
+    ap.add_argument('--threads', type=int, help=f'host threads, saved in the manifest (new runs: {DEFAULT_THREADS})')
     ap.add_argument('--prepare-only', action='store_true')
     ap.add_argument('--wait-gpu', action='store_true', help='wait for one minute of idle GPU usage before each job')
     args = ap.parse_args()
+    if args.threads is not None and args.threads < 1:
+        ap.error('--threads must be positive')
     dest = args.run_dir.resolve()
     if not dest.is_relative_to(ROOT / 'stage23_gpu/runs'):
         ap.error('--run-dir must be under stage23_gpu/runs')
     dest.mkdir(parents=True, exist_ok=True)
     lock = (dest / 'runner.lock').open('a')
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    plan = read(dest / 'manifest.json') if (dest / 'manifest.json').exists() else prepare(dest, args.binary)
+    saved = read(dest / 'manifest.json') if (dest / 'manifest.json').exists() else None
+    threads = resolve_threads(saved, args.threads)
+    plan = saved or prepare(dest, args.binary, threads)
     if sha(Path(plan['binary'])) != plan['binary_sha256']:
         raise ValueError('frozen regression executable changed')
     if args.prepare_only:
@@ -195,8 +215,16 @@ def main():
         result = execute(job, plan, dest, args.wait_gpu)
         if result['status'] != 'passed':
             raise RuntimeError('coefficient differences recorded: ' + job['name'])
+    jobs = [read(dest / (job['name'] + '.json')) for job in plan['jobs']]
+    # 'seconds' is the steady clock (fast on WSL2), as in the job records. Jobs that
+    # passed under the older runner have no wall time: leave that total unset
+    # rather than count them as zero.
+    unmeasured = [j['name'] for j in jobs if 'wall_seconds' not in j]
     save(dest / 'summary.json', dict(status='passed', total=plan['total'], exact=plan['total'],
-                                    binary_sha256=plan['binary_sha256']))
+                                    binary_sha256=plan['binary_sha256'], threads=threads,
+                                    seconds=sum(j['seconds'] for j in jobs),
+                                    wall_seconds=None if unmeasured else sum(j['wall_seconds'] for j in jobs),
+                                    jobs_without_wall_seconds=unmeasured))
 
 
 if __name__ == '__main__':

@@ -5,7 +5,17 @@ baselines remain the existing dense root sieve and CPU hybrid. The immediate
 target is degree five on one GPU with at most two concurrent searches and short
 kernel launches.
 
-## Priorities after pipeline integration
+## Current scheduling
+
+The authoritative order is in
+[GPU_STAGE23_PLAN.md — Current priorities](GPU_STAGE23_PLAN.md#current-priorities),
+updated November 2: promote validated binaries while measuring host overhead,
+calibrate finalists with test sieves, then evaluate root coverage at equal
+elapsed-time budgets. Further MurphyE speed work is deferred. This document
+retains root-search designs and dated evidence; its older "Next" statements
+describe the work proposed at those checkpoints.
+
+## Historical workstreams after pipeline integration (October 30–31)
 
 The later October 30 review edits passed the CPU suite and focused GPU checks
 on October 31, including 47,214 exact outputs and the original batch traces.
@@ -23,8 +33,9 @@ C146/C161 effort-0/50 fixtures and all 8,028,269 saved corpus outputs pass exact
 against their CPU references. The earlier C170
 export regression was caused by the comparison replacing its declared skew,
 not by the pipeline's lattice decision. See
-`stage23_bench/data/gpu_pipeline/20261030_integration.json`. Once validation is
-complete, the search and performance priorities below remain.
+`stage23_bench/data/gpu_pipeline/20261030_integration.json`. The workstreams below
+record the earlier roadmap, not the current execution order. MurphyE batching
+was subsequently implemented; its further speed work is now deferred.
 
 1. **Wider selective root search:** discover distant size basins and search good
    small-prime residue classes without lowering the norm budget so aggressively.

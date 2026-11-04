@@ -163,9 +163,41 @@ bytes into `RUN/inputs/` before preprocessing; a live source is read only up to
 its initial byte length, and the snapshot must contain complete polynomial blocks.
 Resuming uses that snapshot. Use a new run directory to consume more input or
 change search/scoring settings. Execution settings (`--device`, `--threads`,
-`--workers`, `--launch`, `--slice`, `--ropt-batch-size`, `--refine-check`,
-`--murphy-check`) can change on resume. Logs record actual
-commands, and `execution.json` saves the latest execution settings.
+`--sopt-threads`, `--score-threads`, `--ropt-threads`, `--workers`, `--launch`,
+`--slice`, `--ropt-batch-size`, `--refine-check`, `--murphy-check`) can change
+on resume. Logs record actual commands, and `execution.json` saves the latest
+execution settings.
+
+`--threads` sets host threads for every phase. The phase options override it:
+`--sopt-threads` for size optimization (initial and re-optimization),
+`--score-threads` for the `cado_murphy` scoring of breadth, depth and finalists,
+and `--ropt-threads` for each root-optimization worker, including the accurate
+MurphyE (`murphy`) searches. Blank or unset means `--threads`. `[gpu]
+sopt_threads` is separate from `[preprocessing] sopt_threads`, which sets the
+CPU path's CADO sopt workers. A resumed run keeps its saved thread counts; an
+explicit `--threads` replaces the saved per-phase counts, except those given
+again. For example, `--threads 2 --sopt-threads 8 --score-threads 8` keeps two
+threads in each of the two concurrent root searches. Size optimization at eight
+threads used 1.27x less wall time than at two on C190/C152 samples, with
+identical output. A C194 job with 1.6M inputs took 70.6 minutes at that setting
+([November 3 record](stage23_bench/data/gpu_pipeline/20261103_new_jobs.json)).
+
+A run checks `s23_sopt` and `s23_ropt` against their build manifests
+(`BINARY.provenance.json`) the first time it freezes them: the binary's hash,
+the hash of every compiler input and linked library, the list of inputs the
+compilers now report, and the current `make -n -B` commands must all match.
+The check uses the make variables recorded in the manifest, not the caller's
+environment. `pipeline` and `all` check both binaries before any work starts,
+and `preprocess` checks `s23_sopt`; a later `pipeline` on that run checks
+`s23_ropt` when it freezes it. After `make s23_sopt s23_ropt`, record new
+manifests with `python3 stage23_bench/tools/build_provenance.py record
+stage23_gpu/build/s23_sopt stage23_gpu/build/s23_ropt`, with the same make
+variables as the build (`CUDA=89 ... record` after `make CUDA=89`).
+`--allow-unverified-build` accepts an unmatched binary, or one that cannot be
+checked (no make or compiler), and records the reason in `RUN/bin/NAME.json`.
+Binaries already frozen into a run resume without this check. `cado_murphy`
+needs no manifest: it is rebuilt whenever its compiler command or the content of
+its sources or CADO's libraries changes.
 
 Source hashes are provenance. Explicit per-stage schema versions determine
 checkpoint compatibility; unrelated script edits do not invalidate completed

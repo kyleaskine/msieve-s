@@ -1,0 +1,452 @@
+{
+  "schema": 1,
+  "date": "2026-11-01",
+  "status": "passed",
+  "commit": "42f5f59dee41d786edc926b62d7eb6230a97d0a8",
+  "scope": "Focused validation of MurphyE batching and the benchmark/profile review fixes. No full host suite, SOPT corpus, root-search sweep, or performance optimization.",
+  "hardware": "NVIDIA GeForce RTX 5070, sm_120, WSL2; at most two OpenMP workers for numerical GPU runs.",
+  "implementation_changes_required": false,
+  "tests": {
+    "benchmark_profile_build_regressions": 13,
+    "historical_search_cases": 360,
+    "historical_search_trace_hash": "851ed84a01367c65",
+    "invalid_cell_fallback_cancellation_alpha_cases": 11,
+    "independent_cpu_ranking_tests": 3,
+    "gpu_refinement_tests": 6,
+    "gpu_batch_recovery_tests": 8,
+    "gpu_fault_audit": "passed; invalid integrals/alpha, peer cancellation and per-job resource recovery",
+    "gpu_tests_skipped": 0
+  },
+  "results": {
+    "benchmarks_polynomials": {
+      "gpu_timed": 192,
+      "cpu_profile": 6,
+      "gpu_after_toggle": 96,
+      "gpu_defaults": 2,
+      "gpu_checked": 96,
+      "cpu_replay": 96,
+      "gpu_profile": 96,
+      "gpu_profile_256": 512
+    },
+    "baseline_byte_matches": 1094,
+    "total_benchmark_polynomials": 1096,
+    "new_gpu_default_matches_cpu": true,
+    "checked_gpu_polynomials": 98,
+    "max_integral_relative_error": 1.54865366913e-14,
+    "max_alpha_error": 3.5527136788e-15,
+    "profile_layouts": {
+      "gpu_profile": {
+        "warmup_jobs": 3,
+        "cases_per_pass": 3,
+        "passes": 1,
+        "cuda_tables_present": [
+          "CUPTI_ACTIVITY_KIND_KERNEL",
+          "CUPTI_ACTIVITY_KIND_MEMCPY",
+          "CUPTI_ACTIVITY_KIND_OVERHEAD",
+          "CUPTI_ACTIVITY_KIND_RUNTIME",
+          "CUPTI_ACTIVITY_KIND_SYNCHRONIZATION"
+        ]
+      },
+      "gpu_profile_256": {
+        "warmup_jobs": 1,
+        "cases_per_pass": 1,
+        "passes": 1,
+        "cuda_tables_present": [
+          "CUPTI_ACTIVITY_KIND_KERNEL",
+          "CUPTI_ACTIVITY_KIND_MEMCPY",
+          "CUPTI_ACTIVITY_KIND_OVERHEAD",
+          "CUPTI_ACTIVITY_KIND_RUNTIME",
+          "CUPTI_ACTIVITY_KIND_SYNCHRONIZATION"
+        ]
+      },
+      "cpu_profile": {
+        "warmup_jobs": 1,
+        "cases_per_pass": 1,
+        "passes": 5,
+        "cuda_tables_present": []
+      }
+    },
+    "per_point_nvtx_ranges_absent": true,
+    "conflicting_layout_rejected": true,
+    "real_build_toggle_rebuilt_both_binaries_and_object": true,
+    "cpu_object_and_binary_hashes_match_initial": true,
+    "gpu_rebuild_difference": "Only nvcc temporary .cudafe1.cpp filename in ELF .strtab (six bytes); normalized files identical.",
+    "unchanged_flags_no_rebuild": true,
+    "production_binaries_unchanged": true,
+    "clock_anomalies": [
+      {
+        "label": "cpu_cell",
+        "observed_wall_seconds": -1.3600926399230957,
+        "excluded_from_timing": true
+      }
+    ]
+  },
+  "benchmark_inputs": [
+    "stage23_bench/data/gpu_refinement/20261031_batching.json",
+    "stage23_bench/data/gpu_refinement/20261101_profile.json"
+  ],
+  "new_parameter_case": "First C150 pool row with count=1, alpha weight 2.5, projective flag 0 and params=default. Both warm-up and measured exports validated.",
+  "measurement_notes": [
+    "This is correctness validation, not a new speedup claim. One standalone CPU fault check crossed a wall-clock adjustment; its negative outer elapsed time is retained below and excluded from timing conclusions.",
+    "Benchmark job clocks are separately labeled system_clock wall and steady_clock diagnostics. Nsight timestamps have not been independently calibrated against the host wall clock.",
+    "The CPU-only six-job trace inferred one warm-up job and five measured passes; the contradictory three-case override was rejected.",
+    "Toggling profiling rebuilt the CUDA binary, CPU binary and shared object in both directions. Repeating the final flags changed no output timestamps. The CUDA rebuild differed only in the nvcc temporary filename, not executable contents.",
+    "Production binaries were left unchanged. Tested binaries and full logs are in the ignored raw-artifact directory."
+  ],
+  "builds": {
+    "normal_snapshot": {
+      "s23_ropt": {
+        "sha256": "4d9545b874e5545c5bb9c943e478e9db673faf3487aeec2d33bf83626ad8a3d8",
+        "mtime_ns": 1793580784854018244
+      },
+      "s23_ropt_cpu": {
+        "sha256": "d8d4e9173d810e8eb3f00d7ef8d379b32e2f31ff1e69f317627ae440d6a0c81d",
+        "mtime_ns": 1793580769222740053
+      },
+      "murphy_rank.o": {
+        "sha256": "c7c667fddf7f73794c4e4855555dc8f5e6da358d73d87beb43a6add86983db92",
+        "mtime_ns": 1793580759791374023
+      },
+      "ropt-build-flags": {
+        "sha256": "b3b6749f1f5bd1acc7f3284faa23fa6c9de411899eaadf49babc3b2b46e909e3",
+        "mtime_ns": 1793580756436906983
+      }
+    },
+    "profile_snapshot": {
+      "s23_ropt": {
+        "sha256": "10421a7e2a6ae2aac992fa9e14c6277d16dd96fab87c78f16976b07b944bb410",
+        "mtime_ns": 1793580966669021899
+      },
+      "s23_ropt_cpu": {
+        "sha256": "4c54e2b8d9bc2a30d32e4e76d367468fb4bf6e70eefaff955c976feec4e7d203",
+        "mtime_ns": 1793580959733948128
+      },
+      "murphy_rank.o": {
+        "sha256": "9d667ce29f8f33e064144b877406db0441abe62930bf46e28d962f56a04d679a",
+        "mtime_ns": 1793580953801273326
+      },
+      "ropt-build-flags": {
+        "sha256": "7a54c4e8a2c093cf5169e445e32a0499f0506c94f341c2a83bf48aba950eb5c6",
+        "mtime_ns": 1793580951662919681
+      }
+    },
+    "off_snapshot": {
+      "s23_ropt": {
+        "sha256": "f454165688eeada04ad78fd12ca95e226be1e6017e2b53978e1c3aab4f064823",
+        "mtime_ns": 1793580994126496985
+      },
+      "s23_ropt_cpu": {
+        "sha256": "d8d4e9173d810e8eb3f00d7ef8d379b32e2f31ff1e69f317627ae440d6a0c81d",
+        "mtime_ns": 1793580987878919358
+      },
+      "murphy_rank.o": {
+        "sha256": "c7c667fddf7f73794c4e4855555dc8f5e6da358d73d87beb43a6add86983db92",
+        "mtime_ns": 1793580982319441311
+      },
+      "ropt-build-flags": {
+        "sha256": "b3b6749f1f5bd1acc7f3284faa23fa6c9de411899eaadf49babc3b2b46e909e3",
+        "mtime_ns": 1793580980711368702
+      }
+    }
+  },
+  "reference_scorer_sha256": "c35419df01100141c8d9884b2d8685a228fa751c23d1c90d14218d15f548cf58",
+  "provenance": {
+    "file": "stage23_gpu/runs/20261101_review_validation/provenance.json",
+    "sha256": "a7903c520e27e869c1cf4f32cb3d52a467e95952295c2850fd85e82ba22f6143",
+    "compiler_dependency_count": 534,
+    "tools": {
+      "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2026 NVIDIA Corporation\nBuilt on Tue_Sep_01_08:45:21_PDT_2026\nCuda compilation tools, release 13.4, V13.4.92\nBuild cuda_13.4.r13.4/compiler.38855100_0",
+      "g++": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+      "nsys": "NVIDIA Nsight Systems version 2026.3.2.476-263238834031v0"
+    }
+  },
+  "checks": [
+    {
+      "label": "cpu_search",
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build/test_murphy_search"
+      ],
+      "wall_seconds": 0.006776571273803711,
+      "returncode": 0,
+      "log_sha256": "e7474a29bc1a1dbfc27366ad94e01116597c891693de16735d56277eb2f054fb"
+    },
+    {
+      "label": "cpu_cell",
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build/test_murphy_cell",
+        "stage23_bench/data/c181/translation/gpu.poly"
+      ],
+      "wall_seconds": -1.3600926399230957,
+      "returncode": 0,
+      "log_sha256": "b9e71673218afc3438ff936107526744e1cdaff26478a85a729ebb3d9a3c57b4"
+    },
+    {
+      "label": "cpu_rank",
+      "command": [
+        "/usr/bin/python3",
+        "-c",
+        "import sys,unittest;from pathlib import Path;sys.path.insert(0,'stage23_gpu/tests');import test_murphy_rank as t;t.BUILD=Path(sys.argv[1]);r=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromModule(t));sys.exit(not r.wasSuccessful())",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build"
+      ],
+      "wall_seconds": 3.619960308074951,
+      "returncode": 0,
+      "log_sha256": "939b885e3458a5be81a0185fce7468411c29763681e909c4ebaaa81f484a918d"
+    },
+    {
+      "label": "cpu_replay",
+      "command": [
+        "/usr/bin/python3",
+        "stage23_bench/tools/bench_murphy.py",
+        "--cases",
+        "stage23_bench/data/gpu_refinement/20261031_batching.json",
+        "--run-dir",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation",
+        "--binary",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build/s23_ropt_cpu",
+        "--label",
+        "cpu_replay",
+        "--repeats",
+        "1"
+      ],
+      "wall_seconds": 14.405680418014526,
+      "returncode": 0,
+      "log_sha256": "e41ba33d15e642eacb6b063d70114985b7ec4c7ab13644345d252c6e99bc7d6c"
+    },
+    {
+      "label": "gpu_faults",
+      "command": [
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build/test_murphy_cuda"
+      ],
+      "wall_seconds": 0.5177943706512451,
+      "returncode": 0,
+      "log_sha256": "43c2ba6c6c7f945d207197860363914e375b1beea2bf096766b750133e26c529"
+    },
+    {
+      "label": "gpu_refinement",
+      "command": [
+        "/usr/bin/python3",
+        "stage23_gpu/tests/test_refinement_gpu.py"
+      ],
+      "wall_seconds": 7.60918116569519,
+      "returncode": 0,
+      "log_sha256": "0d98a2307f18e9223d065493518af21bcb35ff3de6d029bcd01968acda8488c0",
+      "S23_ROPT_BIN": "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build/s23_ropt"
+    },
+    {
+      "label": "gpu_batch",
+      "command": [
+        "/usr/bin/python3",
+        "stage23_gpu/tests/test_ropt_batch.py"
+      ],
+      "wall_seconds": 4.507401704788208,
+      "returncode": 0,
+      "log_sha256": "b14258b65c90c1be2f6a566bb8064b07fa0a66788d1bf94694116ee0f6f5a746",
+      "S23_ROPT_BIN": "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build/s23_ropt"
+    },
+    {
+      "label": "gpu_checked",
+      "command": [
+        "/usr/bin/python3",
+        "stage23_bench/tools/bench_murphy.py",
+        "--cases",
+        "stage23_bench/data/gpu_refinement/20261031_batching.json",
+        "--run-dir",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation",
+        "--binary",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build/s23_ropt",
+        "--label",
+        "gpu_checked",
+        "--repeats",
+        "1",
+        "--gpu",
+        "--check"
+      ],
+      "wall_seconds": 9.804398536682129,
+      "returncode": 0,
+      "log_sha256": "8f8e8d78b3e2897cf2be4f3b1359f4c286b616381ffbf3483b5621b1eec45f0f"
+    },
+    {
+      "label": "gpu_timed",
+      "command": [
+        "/usr/bin/python3",
+        "stage23_bench/tools/bench_murphy.py",
+        "--cases",
+        "stage23_bench/data/gpu_refinement/20261031_batching.json",
+        "--run-dir",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation",
+        "--binary",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build/s23_ropt",
+        "--label",
+        "gpu_timed",
+        "--repeats",
+        "3",
+        "--gpu"
+      ],
+      "wall_seconds": 2.080556869506836,
+      "returncode": 0,
+      "log_sha256": "5dbd19180e3ec2bfce5e555cf27cb928a322f5c2c9a9201444b5cb237c8bb6d3"
+    },
+    {
+      "label": "gpu_defaults",
+      "command": [
+        "/usr/bin/python3",
+        "stage23_bench/tools/bench_murphy.py",
+        "--cases",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/edge_cases.json",
+        "--run-dir",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation",
+        "--binary",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build/s23_ropt",
+        "--label",
+        "gpu_defaults",
+        "--repeats",
+        "1",
+        "--gpu",
+        "--check"
+      ],
+      "wall_seconds": 0.8725249767303467,
+      "returncode": 0,
+      "log_sha256": "914156087be021aac8693ac3964fd431538041c65216cc7a380eaf5e5d1acb33"
+    },
+    {
+      "label": "build_profile",
+      "command": [
+        "make",
+        "-C",
+        "stage23_gpu",
+        "BUILD=/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build",
+        "-j2",
+        "s23_ropt",
+        "s23_ropt_cpu",
+        "ROPT_PROFILE=1"
+      ],
+      "wall_seconds": 15.065179109573364,
+      "returncode": 0,
+      "log_sha256": "55c249a0b6264752e49038a5eeffa97c38a7c07272090c3077a351e1eb245a72"
+    },
+    {
+      "label": "gpu_profile",
+      "command": [
+        "/usr/bin/python3",
+        "stage23_bench/tools/bench_murphy.py",
+        "--cases",
+        "stage23_bench/data/gpu_refinement/20261031_batching.json",
+        "--run-dir",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation",
+        "--binary",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build/s23_ropt",
+        "--label",
+        "gpu_profile",
+        "--repeats",
+        "1",
+        "--gpu",
+        "--profile"
+      ],
+      "wall_seconds": 4.0026445388793945,
+      "returncode": 0,
+      "log_sha256": "e70e16a7e7836890e8ba273dce78f3576b2cade6522e046f8a5b55e81d605af1"
+    },
+    {
+      "label": "gpu_profile_256",
+      "command": [
+        "/usr/bin/python3",
+        "stage23_bench/tools/bench_murphy.py",
+        "--cases",
+        "stage23_bench/data/gpu_refinement/20261101_profile.json",
+        "--run-dir",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation",
+        "--binary",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build/s23_ropt",
+        "--label",
+        "gpu_profile_256",
+        "--repeats",
+        "1",
+        "--gpu",
+        "--profile"
+      ],
+      "wall_seconds": 7.016477823257446,
+      "returncode": 0,
+      "log_sha256": "28d5969d89f471706147eb7ce8a5b936c351c4390217eeb1445b41e8d8e639d1"
+    },
+    {
+      "label": "cpu_profile",
+      "command": [
+        "/usr/bin/python3",
+        "stage23_bench/tools/bench_murphy.py",
+        "--cases",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/edge_cases.json",
+        "--run-dir",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation",
+        "--binary",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build/s23_ropt_cpu",
+        "--label",
+        "cpu_profile",
+        "--repeats",
+        "5",
+        "--profile"
+      ],
+      "wall_seconds": 2.947322368621826,
+      "returncode": 0,
+      "log_sha256": "17e3101d5b9671848c3e0100ee2935704c31d7ef559028c04ffea184a3ed97b9"
+    },
+    {
+      "label": "build_profile_off",
+      "command": [
+        "make",
+        "-C",
+        "stage23_gpu",
+        "BUILD=/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build",
+        "-j2",
+        "s23_ropt",
+        "s23_ropt_cpu",
+        "ROPT_PROFILE=0"
+      ],
+      "wall_seconds": 13.479530811309814,
+      "returncode": 0,
+      "log_sha256": "6b80758a941fa49e95e4c05c0cb0797f1540710c7b4c53e75d72be5c161e13d9"
+    },
+    {
+      "label": "build_noop",
+      "command": [
+        "make",
+        "-C",
+        "stage23_gpu",
+        "BUILD=/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build",
+        "-j2",
+        "s23_ropt",
+        "s23_ropt_cpu",
+        "ROPT_PROFILE=0"
+      ],
+      "wall_seconds": 0.06464409828186035,
+      "returncode": 0,
+      "log_sha256": "96b8331dae708959eca3b44f396af324df31d2c468c650ad84a37360636387cc"
+    },
+    {
+      "label": "gpu_after_toggle",
+      "command": [
+        "/usr/bin/python3",
+        "stage23_bench/tools/bench_murphy.py",
+        "--cases",
+        "stage23_bench/data/gpu_refinement/20261031_batching.json",
+        "--run-dir",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation",
+        "--binary",
+        "/home/kylea/msieve-s/stage23_gpu/runs/20261101_review_validation/build/s23_ropt",
+        "--label",
+        "gpu_after_toggle",
+        "--repeats",
+        "1",
+        "--gpu"
+      ],
+      "wall_seconds": 1.274674654006958,
+      "returncode": 0,
+      "log_sha256": "891347f081bb7b3294fd850937ff1e5f5edbe4750d0f68a0ba79018506ab2e06"
+    }
+  ],
+  "standalone_benchmark_regressions_log_sha256": "61dc502c8a1ce65343e954bd3ea577e41a839a92ec9932e2950b694ca8e0868c",
+  "raw_artifacts": {
+    "path": "stage23_gpu/runs/20261101_review_validation",
+    "ignored": true,
+    "bytes": 46658669
+  }
+}

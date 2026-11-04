@@ -6,6 +6,11 @@ pools and copies of source trees belong in the ignored `stage23_gpu/runs/`
 area. Export full snapshots there with `save.py` or `archive.py`; only promote
 the summaries and fixtures needed to review or reproduce a specific result.
 
+Current scheduling follows
+[GPU_STAGE23_PLAN.md — Current priorities](../../GPU_STAGE23_PLAN.md#current-priorities):
+validated binaries and host overhead, test-sieve calibration, then coverage at
+equal elapsed time. Dated evidence below does not define a separate task queue.
+
 The [October 31 MurphyE batching report](gpu_refinement/20261031_batching.json)
 embeds three small saved pools (48 candidates total), baseline/comparison timings,
 CUDA call counts, validation and provenance. Reproduce it with
@@ -16,9 +21,44 @@ The [November 1 refinement profiles](gpu_refinement/20261101_profile.json)
 retain the CPU/CUDA breakdown, worker sweep, exact-export checks and a separate
 256-candidate C150 fixture (the report's `cases` entry). Optional NVTX ranges
 and `../tools/profile_murphy.py` make the attribution reproducible. Repeated
-device selection and submission/wait overhead are the first targets; CPU
-canonicalization is comparatively inexpensive. Raw traces and separate builds
+device selection and submission/wait overhead are measured opportunities now
+deferred behind test sieving and coverage; CPU canonicalization is comparatively
+inexpensive. Raw traces and separate builds
 remain in ignored `stage23_gpu/runs/20261101_refinement_profile/`.
+
+The [November 1 review-fix validation](gpu_refinement/20261101_validation.json)
+checks commit `42f5f59` on CPU and CUDA, including real profiling-flag rebuilds,
+one-case/CPU-only trace summaries, fault recovery and exact exports. All focused
+checks passed: 1,094 replay exports matched historical bytes, and the two new
+default-parameter GPU exports matched the CPU polynomial and skew. Full logs
+and isolated builds are under ignored `stage23_gpu/runs/20261101_review_validation/`.
+
+The [November 3 release record](gpu_pipeline/20261103_release.json) covers plan
+item 1's SOPT replay and promotion. The October 31 SOPT build matches all
+8,028,269 corpus outputs exactly at eight host threads. Paired 2/8-thread runs
+give 1.27x less wall time with identical output. It and the November 1 ROPT
+build replaced the production binaries in `stage23_gpu/build/`; the old ones are
+kept in `stage23_gpu/build/pre_20261103_promotion/`. Logs, paired timings and the
+report generator are in ignored `stage23_gpu/runs/20261102_release/`.
+
+The [November 3 preprocessing profile](gpu_pipeline/20261103_preprocess_profile.json)
+measures the driver's CPU steps on a 10% C190 sample. Deduplication and sopt
+indexing take 3.5–6.6% of job wall time, while the GPU is idle. No single
+component dominates: parsing, validation, formatting and SQLite each take 60–90
+seconds on C190. Exact prototypes kept outputs byte-identical but saved no more
+than the measurement noise, so no change was made. Scripts and cProfile output are
+in ignored `stage23_gpu/runs/20261103_preprocess_profile/`.
+
+The [November 3 new jobs](gpu_pipeline/20261103_new_jobs.json) record whole-job
+wall-clock phase timings at 8 SOPT/scoring threads for a new C194 and the
+1 November C161 backup. Each phase is compared with an October 28 two-thread run.
+Both audits match every CPU sopt output and all 3,200 depth exports. C161's GPU
+result ties msieve's winner, with the same rotation at a different translation.
+On C194 the GPU winner is 6.1% ahead by standard MurphyE and 3.2% ahead by the
+job lattice model. It comes from CPU seed 3, where the depth pass found a cell
+that all four CPU root-optimization passes missed. It has more than twice the
+CPU winner's skew. Under a 15e region its lead shrinks to 1.7%, and it loses 7.4%
+at the lowest q. The runs are in ignored `stage23_gpu/runs/20261103_new_jobs/`.
 
 ## October 27–28 evidence consolidation
 

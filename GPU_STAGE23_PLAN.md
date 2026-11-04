@@ -1,6 +1,7 @@
 # GPU size-opt + root-opt (stages 2 and 3): plan
 
 > Started 2026-10-02. Companion docs:
+> - `ROPT_OPTIMIZATION_PLAN.md`: root-search design, experiments and loss audits.
 > - `POLYSELECT_RANKING_IMPROVEMENT_PLAN.md`: ranking and objective work (Murphy-E blind spots, E′, lattice geometry).
 > - `POLYSELECT_OPTIMIZATION_NOTES.md`: stage-1 GPU kernels.
 >
@@ -21,7 +22,176 @@ poly by poly; the ropt of M2 is our own design.)
 Speed alone is not the motivation. The CPU pipeline takes about 2 h, while stage 1 takes
 about 24 h on a rented 5090.
 
-## Current status (updated 2026-11-01)
+## Current priorities
+
+Updated 2026-11-03. This is the authoritative execution order for the stage-2/3
+pipeline. It supersedes the older "Next" lists below and the scheduling in
+`ROPT_OPTIMIZATION_PLAN.md`; those retain design details and historical evidence.
+Item 1 is complete; the rest is pending. Test sieving is the next substantial
+project, while further MurphyE speed work is deferred.
+
+1. **Promote validated binaries and measure host overhead together.** Prefer
+   existing validated artifacts after checking source/dependency hashes, build
+   flags, binary hashes and runtime compatibility. The November 2 read-only
+   check confirmed the frozen SOPT hash and all 351 recorded build dependencies
+   against current files. Its path is
+   `stage23_gpu/runs/20261031_focused_validation/frozen_build/s23_sopt`; the
+   [October 31 validation](stage23_bench/data/gpu_pipeline/20261031_validation.json)
+   records its manifest and checks. ROPT has a separate validated build under
+   `stage23_gpu/runs/20261101_review_validation/normal_snapshot/`, documented in the
+   [November 1 validation](stage23_bench/data/gpu_refinement/20261101_validation.json);
+   that run's `build/` holds the later profiling-toggle rebuild.
+   Verify each artifact's provenance before promotion; rebuild and revalidate
+   only if it is missing or incompatible. Do not rebuild merely to refresh its
+   timestamp, or assume a rebuild must have the same binary hash.
+
+   *Status 2026-11-03:* the replay, paired timing and promotion are done; see the
+   [release record](stage23_bench/data/gpu_pipeline/20261103_release.json). The
+   frozen SOPT matches all 8,028,269 corpus outputs exactly at eight threads.
+   Paired 2/8-thread runs of it on C190 and C152 show 1.27x less wall time with
+   identical output. Both validated builds are now in `stage23_gpu/build/`, with
+   the old binaries kept in `build/pre_20261103_promotion/`.
+
+   Later on November 3 the remaining code landed (uncommitted):
+   - *Provenance check:* a new run checks `s23_sopt`/`s23_ropt` against hash
+     manifests (`stage23_bench/tools/build_provenance.py`; see
+     `stage23_gpu/README.md`, "Build manifests"). The promoted binaries' manifests
+     were imported from their validation records, and all inputs match.
+   - *Thread split:* `--sopt-threads`, `--score-threads` and `--ropt-threads` are
+     execution settings that default to `--threads`.
+   - *Preprocessing profile:* no change chosen
+     ([profile](stage23_bench/data/gpu_pipeline/20261103_preprocess_profile.json)).
+     Deduplication plus sopt indexing is 3.5–6.6% of job wall time, split across
+     parsing, validation, formatting and SQLite. Exact micro-optimizations would
+     save only 1–2 minutes on C190.
+
+   *Whole-job check, done the same evening*
+   ([record](stage23_bench/data/gpu_pipeline/20261103_new_jobs.json)): the new
+   C194 and the 1 November C161 backup ran at `--threads 2 --sopt-threads 8
+   --score-threads 8`. C194, with 1.6M inputs, took 70.6 min. Per input, sopt was
+   1.34–1.47x faster than the October 28 C164/C190 runs at two threads, and breadth
+   scoring was 3–5x faster, even with ECM loading the CPU. C161's audit matched all
+   879,259 CPU sopt outputs and 3,200 depth exports. Its GPU winner ties msieve's,
+   with the same rotation at a different translation (0.99998 MurphyE). C194's
+   audit was also exact. Its GPU winner leads the CPU's by 6.1% in standard
+   MurphyE and 3.2% in the lattice model: depth found a cell on seed 3 that every
+   CPU pass missed. Its skew is 2.2 times the CPU winner's. Under a 15e region it
+   leads by 1.7% but loses 7.4% at q = 80M, so this is a test-sieve candidate.
+   Item 1 is complete.
+
+   *Code review, same evening (uncommitted):* the build check now also catches an
+   SOPT binary that make did not rebuild after a flag or variable change, versioned
+   and `ccache`-launched compilers, and an `#include` that resolves to another file.
+   It uses the make variables recorded in the manifest, not the caller's
+   environment. It runs before the input snapshot, and a check that cannot run (no
+   make) counts as unverified, so `--allow-unverified-build` still applies.
+   `cado_murphy` is rebuilt by content rather than by timestamp. An explicit
+   `--threads` on resume replaces the saved per-phase counts. The remaining gap: an
+   SOPT binary with no earlier manifest can be recorded under flags other than the
+   ones that built it. Closing that needs an SOPT flag stamp in the Makefile, and
+   any Makefile edit makes `make` rebuild the promoted ROPT.
+
+   Guidance kept from the original item: keep a CPU-light configuration available
+   rather than replacing `--threads 2` with `--threads 8` globally. Do not infer
+   that a feature is absent because a binary's timestamp predates the commit that
+   recorded its source; production ROPT's hash matches the
+   [October 31 batched build](stage23_bench/data/gpu_refinement/20261031_batching.json).
+
+2. **Calibrate finalist selection with actual test sieves.** Start with paired
+   controls that test distinct model claims, prioritizing the larger predicted
+   gains before trying to resolve near-ties:
+
+   | Case (input prefix) | Comparison | Saved model difference within one scoring pass |
+   | --- | --- | --- |
+   | C179, 358030… | Depth versus breadth winner, different families | Depth +3.98% |
+   | C192, 970137… | Depth versus breadth winner, different families | Depth +2.54% |
+   | C196, 518428… | Depth versus breadth winner in the same family, both u=15 | Depth +1.44% |
+   | C170, 290487… | GPU finalist versus CPU lattice winner, different families | GPU about −0.88% |
+
+   The C196 pair is saved under
+   `stage23_gpu/runs/20261022_three_jobs/c196/scores/final.json`; it is a different
+   input from the previously test-sieved C196 beginning 177740…. Its actual
+   settings still need confirmation. C170 beginning 418691… is the other,
+   effectively tied job and is not this calibration case.
+
+   Replace C152 in the initial pilot: the earlier +0.96% refinement claim compared
+   scoring passes with different sampling settings. Comparing candidates within
+   each saved final pass gives roughly +0.05% median and +0.36% maximum refinement
+   gain across the inspected jobs, with original controls winning on some jobs.
+   These are model scores. Small refinement gains remain a later, more expensive
+   calibration question; preserve the unrefined controls throughout.
+
+   Confirm and save each job's real parameters: siever/version, side, LPB/MFB,
+   factor-base limits, lambda/cofactoring settings, region geometry, candidate
+   skew and intended special-q range. Reuse `config/sieve_profiles.json` for
+   provenance, but do not silently promote provisional profiles to real settings.
+
+   Freeze candidates and the siever, use matched q windows across the intended
+   range, alternate candidate order and repeat measurements. Compare verified
+   unique relation yield normalized for the actual special-q work, and useful
+   relations per second. Report variation across q windows and timing repeats;
+   extend sampling when a difference is too small to resolve. A fixed count of
+   three windows does not specify precision. As an optimistic planning floor,
+   independent equal-exposure Poisson counts give a relative 95% interval
+   half-width of about `1.96 * sqrt(2/N)`, with N relations per polynomial.
+   Matching that width to 0.36% needs about 600,000 relations per polynomial;
+   matching 0.88% needs about 100,000. These are not powered sample-size guarantees
+   and omit q-window clustering and timing variation. Roughly 25 minutes for four
+   finalists over three windows, extrapolated from C196 177740…, is only an
+   initial screening estimate. C170 needs an explicit relation/precision budget.
+
+   The [C196 test sieves](stage23_bench/data/c196/testsieve/measurements.json)
+   support checking model magnitudes: the model picked the correct winner but
+   understated its advantage. They do not establish a universal minimum gain
+   that the model can resolve.
+
+   **Pilot decision rule:** predeclare the q-band weighting, primary normalized
+   yield comparison, sampling budget and uncertainty criterion. If both C179 and
+   C192 retain the predicted sign and at least half the predicted yield gain,
+   with uncertainty small enough to support that threshold, retain depth and
+   start the optional pipeline test-sieve phase with a few diverse finalists.
+   Check throughput as well before claiming a practical speed benefit. If either
+   comparison reliably reverses, widen the finalist set and re-examine depth
+   allocation and model/profile assumptions. Smaller positive effects or broad
+   intervals are inconclusive: extend the prespecified sampling or retain the
+   controls and report an unresolved result. This is a pilot decision, not a
+   claim of general calibration across all jobs. Do not change default selection
+   on the strength of one window or an assumed profile.
+
+3. **Evaluate coverage at equal elapsed-time budgets.** Measure the corrected
+   class planner against dense search, and compare concentrating work on the top
+   eight families with the existing breadth/depth policy at the same measured
+   elapsed-time allowance. Use each seed's `-plan` table and meaningful next
+   budget steps to allocate additional work; do not simply double every cell cap.
+   Historical C208 trials gave two of sixteen seeds no new budget under a flat
+   cap. Include planning, refinement and scoring in the time allowance and record
+   actual elapsed time; equal cell caps are not equal elapsed time.
+   Preserve baseline candidates because larger caps/class counts do not produce
+   nested survivor pools.
+
+   Include the five reported depth-gain jobs, a sample of no-gain jobs, known
+   loss cases and held-out inputs. Reserve exploration outside the leading eight
+   families: observed winners ranked eighth or better do not establish that
+   unsearched families below the depth cutoff are uncompetitive. Track actual
+   finalists through proposal and retention cuts, then test-sieve promising
+   differences. The corrected planner has correctness validation; the published
+   2.0–2.6x timings and 3–11% losses belong to the pre-review prototype and do not
+   measure its corrected quality or speed. Keep dense search as the default.
+
+**Deferred:** further MurphyE device-binding, translation grouping, cache and
+submission-overhead optimizations. Revisit them if whole-pipeline measurements
+show a worthwhile saving; retain the current CPU alpha/size canonicalization
+and correctness checks. Effort-0 SOPT candidate pruning is a later experiment
+requiring finalist-retention and held-out quality evidence before relaxing
+byte-for-byte parity. No implementation or new validation is claimed by this
+priority update.
+
+## Current status (updated 2026-11-02)
+
+The records below describe implementation and validation at their stated dates.
+Scheduling follows [Current priorities](#current-priorities). Older references
+such as "Next, item 3" refer to the historical October 4–5 work package below,
+not the current numbered list.
 
 The first overhead reduction now batches independent MurphyE pattern-search
 trials, preserving the scalar evaluation sequence, cache, budget and tie order.
@@ -37,11 +207,11 @@ passes measure about 0.39 seconds internally; a separate 256-candidate C150 pass
 measures 1.76 seconds on that clock. Repeated `cudaSetDevice` inside MurphyE evaluation costs about
 98 ms / 546 ms respectively, summed across two workers. Numerical host work
 is much smaller, and actual device copies take only 1.15 ms per small pass.
-Next: move device selection to worker/job setup with correct thread ownership,
-then measure the remaining submission/wait overhead. Preserve CPU alpha and
-size canonicalization. Replay-only projective tables and redundant device size
-search are separate smaller opportunities; their relative costs depend strongly
-on pool size. The profiles and worker sweep are in
+Deferred opportunities include moving device selection to worker/job setup with
+correct thread ownership, then measuring remaining submission/wait overhead.
+Preserve CPU alpha and size canonicalization. Replay-only projective tables and
+redundant device size search are separate smaller opportunities; their relative
+costs depend strongly on pool size. The profiles and worker sweep are in
 `stage23_bench/data/gpu_refinement/20261101_profile.json`; all 5,344 exported
 polynomials matched baseline bytes. No numerical change or production rebuild
 was made for this profiling study.
@@ -53,8 +223,17 @@ removes per-point NVTX overhead. New benchmark medians use separately recorded
 wall time. Historical steady/Nsight measurements remain labeled with their
 original clocks rather than rescaled. Focused CPU checks pass, including the
 360-case historical search hash and 96 byte-identical replay exports. Device
-binding, grouped translations and search-cache optimizations remain the next
-measured changes; no numerical optimization was bundled into these fixes.
+binding, grouped translations and search-cache optimizations are now deferred
+under the current priorities; no numerical optimization was bundled into these fixes.
+
+The focused CPU/CUDA validation of commit `42f5f59` now passes: 13 benchmark/build
+regressions, 360 historical search cases, 11 fault cases, three independent CPU
+ranking tests, six GPU refinement tests, eight GPU batch tests and the CUDA fault
+audit. Of 1,096 replay exports, 1,094 match historical bytes and the two new
+parameter-case exports match the CPU configuration. Real profiling toggles and
+one-case/CPU-only trace summaries also pass. See
+`stage23_bench/data/gpu_refinement/20261101_validation.json`; production binaries
+remain unchanged and the full corpus was not rerun.
 
 The October 30 review follow-up extends matched log to the remaining sopt
 objective terms and fixes scoring normalization/provenance and orchestration
@@ -103,8 +282,9 @@ without making class search a safe dense replacement. Four new C170/C184 seeds
 were held out from policy development. These timings use the study's frozen
 binary; there is no matched elapsed-budget, full-pipeline or test-sieve claim.
 The actual MurphyE leaders can differ from the historical exact-alpha traces.
-Next: preserve dense/root-driven coverage while adding size/u diversity, and
-track competing v residues through the proposal and selection cuts. Evidence:
+The coverage workstream should preserve dense/root-driven coverage while adding
+size/u diversity, and track competing v residues through proposal and selection
+cuts; its scheduling follows the current priorities. Evidence:
 `stage23_bench/runs/20261027_root_coverage/README.md` and
 `stage23_bench/data/root_coverage/20261027/`.
 
@@ -244,9 +424,11 @@ from their saved starts; two device translations differed at indistinguishable
 norms before this final pass. On C208, median screen-plus-refinement time fell
 from 6.22 s to 2.20 s (full broad refinement: 10.96 s). C171's smaller phase fell
 from 0.68 s to 0.37 s, but fresh-process context overhead offset the gain.
-Defaults and pipeline forwarding are unchanged. Next migration work is
-persistent/batched seed execution and the remaining full-refinement/scoring
-host work, followed by equal-time search and actual sieve-yield validation.
+At this October 18 checkpoint, defaults and pipeline forwarding were unchanged.
+The then-planned migration work was persistent/batched seed execution and the
+remaining full-refinement/scoring host work, followed by equal-time search and
+actual sieve-yield validation. Subsequent implementations are recorded below;
+this is not the current task order.
 
 Persistent seed execution is now available through standalone `-batch FILE`.
 It retains the CUDA context, screening buffers and prime tables while resetting
@@ -503,8 +685,10 @@ Where an older claim turned out wrong or weaker than first written, it is marked
     the original as a control.
   - "16,000 points is within 0.02% of 256,000" was measured on the c168 winners. It is
     evidence, not an error guarantee.
-- **Next, as a concrete work package** (revised 2026-10-04 after the second and third
-  reviews, and 2026-10-05 after the c208 run):
+- **Historical work package** (revised 2026-10-04 after the second and third
+  reviews, and 2026-10-05 after the c208 run; superseded for scheduling by
+  [Current priorities](#current-priorities)). Numbering is retained for older
+  "Next, item N" references:
   1. **A loss-audit corpus.** Gather the known losses: the large capped losses (flat
      seeds), the loss at the full budget (seed 234), the content cases, and any seed
      close enough to the incumbent to matter.
@@ -552,7 +736,7 @@ Where an older claim turned out wrong or weaker than first written, it is marked
   3. **A selective search over wider regions**, replacing the budget-lowering cap. Run
      the dense GPU kernel inside promising residue classes (u, v) = (u0, v0) + M·(i, j),
      rather than meeting the budget mainly by narrowing the norm range.
-     - **c208 makes this the first priority.** msieve's winners on its best seeds sit
+     - **c208 made this the October 5 priority.** msieve's winners on its best seeds sit
        1.3–2.1 nats above the best line minimum, at u = 189 to 2014. Reaching them
        densely costs 3e12–4e13 cells per seed at budget 2.25 (seed 27: about 20 min of
        sieving). At c168 size the dense search could afford its bands; at c208 size it
@@ -2162,8 +2346,9 @@ re-sopt rank 4, and msieve's ropt on that seed got less.
 
 ### Size model speed: measurements and options (2026-10-10)
 
-A list of what to try, in order. It extends "A faster size model" (Next, item 2) and the
-"Size model" item under Next steps. *Items 2 and 4, and more, were implemented the same day:
+A historical experiment order from October 10, not the current task queue. It
+extends "A faster size model" (historical Next, item 2) and the old "Size model"
+next step. *Items 2 and 4, and more, were implemented the same day:
 see "Size model speedup, implemented" below, which also corrects the split in this table.*
 
 **Where the time goes.** In the C185 breadth pass (4 workers × `-t 4`, about 9 ECM

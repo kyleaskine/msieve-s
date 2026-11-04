@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "date": "2026-11-03",
+  "question": "Plan item 1's last check: whole jobs at --threads 2 --sopt-threads 8 --score-threads 8 with wall-clock phase timings; GPU results for the new top-level C194 job and the unprocessed 2026-11-01 C161 backup.",
+  "runs": "stage23_gpu/runs/20261103_new_jobs/ (queue.py; ignored)",
+  "settings": {
+    "common": "jobs.py pipeline settings: --extract 1000 --resopt-effort 50 --seeds 300 --workers 2 --launch 30 --ropt-batch-size 16 --refine-gpu --murphy-gpu",
+    "threads": {"threads": 2, "sopt_threads": 8, "score_threads": 8, "ropt_threads": "default (2)"},
+    "binaries": {"s23_sopt": "2107e32fec0d693d183280154373cc89bfa1f9271b0c72adfc4eab9d4c4761bd",
+                 "s23_ropt": "4d9545b874e5545c5bb9c943e478e9db673faf3487aeec2d33bf83626ad8a3d8",
+                 "provenance": "both new runs printed 'matches its recorded build' (350 / 522 inputs, validation origin)"},
+    "conditions": "the user's ECM held CPU load near 14-15 of 16 logical CPUs throughout; the October 28 comparison runs' load is not recorded"
+  },
+  "timing_method": "wall = differences of checkpoint file mtimes from the pipeline start (wall clock); steady = summed checkpoint seconds (steady clock, 6-10% fast on WSL2). Breadth/depth/murphy steady sums add two concurrent workers.",
+  "jobs": [
+    {
+      "job": "C194", "n_prefix": "243211985068", "source": "~/msieve-s/msieve.dat.ms (2026-11-03 08:41, sha256 d38d366e...)",
+      "inputs": 1674956, "unique": 1609910,
+      "profile": {"id": "c196_user_20261012", "reason": "tie at two digits with c192_provisional_20261019; chose the measured test-sieve profile for the user's GPU siever", "params": "job:32,33,16.5,80000000", "lattice": "17,32768", "qband": "80000000,450000000,7"},
+      "wall_s": {"total": 4234, "raw": 122, "sopt_e0": 2095, "index_e0": 187, "resopt": 70, "breadth": 661, "score_breadth": 71, "depth": 915, "score_depth": 4, "murphy": 91, "score_final": 16},
+      "sopt_e0_steady_ms_per_poly": 1.418,
+      "winner": {"phase": "murphy", "search": "s0003", "configuration": "declared", "lattice_score": 4.020218e9, "job_murphy": 4.877322e-9,
+                 "cado_default_murphy": {"K256000": 1.6639e-14, "K1000": 1.6671e-14, "skew": 371490480.2},
+                 "poly": {"Y1": "220487869793609621403301", "Y0": "-42272267838389679040490202687961031195", "c5": 180180, "c4": "51829498462569",
+                          "c3": "-82899370799743182397352", "c2": "-14083995826589968141469749370056",
+                          "c1": "4040980692114508840963904248233082869552", "c0": "-82721010378584381811347572373199670563732148368"}},
+      "cpu_reference": "the user's CPU pipeline on the same msieve.dat.ms (sha256 checked), finished 2026-11-03 16:49 and attached afterwards (attach_cpu.py); its dedupe also gave 1,609,910",
+      "audit": {"initial_sopt_identical_to_cpu": 1609910, "different": 0, "depth_exports_cpu_gpu_byte_equal": 3200},
+      "comparison": {
+        "standard_murphy_gpu_over_cpu": 1.060567, "lattice_score_gpu_over_cpu": 1.031640,
+        "cpu_winner": "msieve_orig index 7142, seed Y1 88101822546057559603897 (CPU and GPU seed #8), CADO default MurphyE 1.568852e-14, skew 1.68e8; CADO orig/inv reached the same cell (1.568835e-14)",
+        "gpu_winner": "murphy/s0003/0/declared, seed Y1 220487869793609621403301 (CPU and GPU seed #3), 1.663872e-14, skew 3.71e8",
+        "per_q_lattice_cpu": [265.906, 227.8541, 205.9596, 195.298, 187.0098, 178.944, 172.3373],
+        "per_q_lattice_gpu": [263.3218, 238.4408, 219.658, 204.1253, 191.5934, 179.8386, 174.5761],
+        "on_seed_3": {"best_cpu": {"msieve": 1.5548e-14, "cado_inv": 1.5531e-14, "cado_orig": 1.5204e-14}, "gpu": 1.6656e-14,
+                      "reading": "CPU root optimizers searched seed 3 but missed the u=-113 cell; GPU breadth also missed it (u=-8, lattice 3.758e9, rank 2) and depth found it (+6.8% over breadth on that seed)"},
+        "on_seed_8": "GPU breadth 3.895e9 vs CPU 3.897e9 lattice: tie",
+        "profile_sensitivity": {"c192_provisional_20261019 (15e, logI 15, J 16384, q 80M-500M)": {"lattice_score_gpu_over_cpu": 1.017137,
+            "per_q_cpu": [70.3628, 61.879, 56.4854, 52.6004, 49.6033, 47.0099, 44.9817],
+            "per_q_gpu": [65.1527, 60.9248, 57.4894, 54.4898, 52.0604, 49.7313, 47.8669],
+            "reading": "the higher-skew GPU winner loses 7.4% at q = 80M under a 15e region and wins from the third q point up; with the logI 17 region it loses 1.0% at q = 80M. The sign at low q depends on the siever region (plan: skew above about (I/J)·q)."}},
+        "comparison_dirs": ["comparison/", "comparison_c192_provisional_20261019/"]
+      }
+    },
+    {
+      "job": "C161", "n_prefix": "444898526447", "source": "~/msieve-s/backup_20261101_184336",
+      "unique": 879259,
+      "profile": {"id": "c165_user_20261013", "params": "job:30,31,14,30000000", "lattice": "14,8192", "qband": "30000000,90000000,7"},
+      "wall_s": {"total": 2628, "raw": 59, "sopt_e0": 1016, "index_e0": 100, "resopt": 65, "breadth": 538, "score_breadth": 84, "depth": 651, "score_depth": 4, "murphy": 91, "score_final": 17},
+      "sopt_e0_steady_ms_per_poly": 1.265,
+      "audit": {"initial_sopt_identical_to_cpu": 879259, "different": 0, "depth_exports_cpu_gpu_byte_equal": 3200},
+      "comparison": {"standard_murphy_gpu_over_cpu": 0.999975, "lattice_score_gpu_over_cpu": 0.999895,
+                     "cpu_winner": "msieve_orig index 120 (CADO default MurphyE 1.577019e-12)",
+                     "gpu_winner": "murphy/s0001/0/standard_skew_proposal (1.57698e-12)",
+                     "relation": "same rotation, translation differs by t = 12603 (plan known problem 10)"}
+    }
+  ],
+  "unpaired_comparison_at_threads_2": {
+    "C190 (20261028_existing_jobs, 2,003,990 unique)": {"total": 6558, "sopt_e0": 3935, "score_breadth": 361, "murphy": 193, "sopt_e0_steady_ms_per_poly": 2.090},
+    "C164 (20261028_existing_jobs, 809,721 unique)": {"total": 2985, "sopt_e0": 1269, "score_breadth": 218, "murphy": 171, "sopt_e0_steady_ms_per_poly": 1.697}
+  },
+  "reading": "Per input, sopt_e0 took 1.47x less time than the C190 run and 1.34x less than C164, in line with the paired 1.27x of the release record despite heavier CPU load now. Breadth scoring fell from 218-361 s to 71-84 s and the MurphyE phase from 171-193 s to 91 s. C194 finished in 70.6 min of wall time with 1.6M inputs. These are different composites, so read them as confirmation of the paired measurement, not a new speedup figure.",
+  "decision": "Plan item 1 is complete. Use --sopt-threads 8 --score-threads 8 for queued jobs; the shared template keeps the thread settings blank so the user's normal runs keep their CPU footprint unless they opt in."
+}

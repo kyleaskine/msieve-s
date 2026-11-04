@@ -25,8 +25,10 @@ import threading
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-EXECUTION_SETTINGS = {'device', 'threads', 'workers', 'launch', 'slice', 'ropt_batch_size',
-                      'refine_check', 'murphy_check'}
+EXECUTION_SETTINGS = {'device', 'threads', 'sopt_threads', 'score_threads', 'ropt_threads', 'workers',
+                      'launch', 'slice', 'ropt_batch_size', 'refine_check', 'murphy_check'}
+# Executables whose recorded build must match the current tree before a new run freezes them.
+BUILD_CHECKED = {'s23_sopt', 's23_ropt'}
 EXECUTION_FLAGS = {'-dev', '-t', '-launch', '-slice'}
 EXECUTION_SWITCHES = {'-refine-check', '-murphy-check'}
 # Each new semantic option declares its historical default, dependencies and
@@ -51,6 +53,7 @@ ROPT_OPTIONS = {**SCREEN_OPTIONS, **REFINEMENT_OPTIONS}
 # Source hashes are provenance, not an instruction to repeat expensive work.
 STEP_SCHEMAS = {'index_e0': 1, 'index_resopt': 1, 'seeds': 2, 'score_final': 3, 'export': 3}
 sys.path.insert(0, str(ROOT / 'stage23_bench/tools'))
+import build_provenance
 from content_seeds import content_seeds
 from polyfmt import (cado_murphy_binary, cado_poly_text, iter_sopt,
                      msieve_ms_line, read_cado_blocks, resultant)
@@ -152,6 +155,12 @@ def deduplicate(src, dst, metadata):
     write_json(metadata, dict(n=n, input_count=count, unique_count=kept))
 
 
+def host_threads(args, phase):
+    """Host threads for sopt, ropt or score: the phase's own setting, else --threads."""
+    value = getattr(args, phase + '_threads', None)
+    return args.threads if value is None else value
+
+
 def sopt_text(p, index):
     return (f'### Size-optimized polynomial ({index}) ###\n' + cado_poly_text(p) +
             f"# side 1 lognorm {p['lognorm']:.2f}, exp_E {p['exp_E']:.2f}, "
@@ -192,8 +201,9 @@ def index_sopt(src, index, sorted_path, ms_path, metadata, expected=None):
 
 
 class Run:
-    def __init__(self, directory):
+    def __init__(self, directory, allow_unverified_build=False):
         self.path = directory
+        self.allow_unverified_build = allow_unverified_build
         self.stop = threading.Event()
         self.state_lock = threading.Lock()
         sources = [Path(__file__), ROOT / 'stage23_bench/tools/polyfmt.py',
@@ -256,10 +266,35 @@ class Run:
             source = Path(cado_murphy_binary())
         if not source.is_file() or not os.access(source, os.X_OK):
             raise ValueError(f'missing executable {source}; build stage23_gpu with make s23_sopt s23_ropt')
+        # Checked when first frozen into a run; frozen binaries resume unchecked.
+        # cado_murphy needs no manifest: polyfmt._cado_tool rebuilds it whenever
+        # its command or the content of its sources or CADO's libraries changes.
+        provenance = self.check_build(name, source) if name in BUILD_CHECKED else None
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, dst)
-        write_json(marker, dict(source=str(source), sha256=digest(dst)))
+        record: dict = dict(source=str(source), sha256=digest(dst))
+        if provenance is not None:
+            if provenance['verified'] and record['sha256'] != provenance['sha256']:
+                raise ValueError(f'{source} changed while it was being frozen')
+            record['provenance'] = provenance
+        write_json(marker, record)
         return dst
+
+    def check_build(self, name, source):
+        result: dict
+        try:
+            result = build_provenance.verify(source)
+        except Exception as error:  # an unexpected failure is unverified, not a crash past the override
+            result = dict(verified=False, problems=[f'verification failed: {error!r}'])
+        if result['verified']:
+            print(f'{name}: matches its recorded build ({result["dependencies"]} inputs, {result["origin"]})', flush=True)
+        elif self.allow_unverified_build:
+            print(f'{name}: unverified build accepted: ' + '; '.join(result['problems']), flush=True)
+        else:
+            raise ValueError(f'{source} does not match its recorded build: ' + '; '.join(result['problems']) +
+                             '. Rebuild it with make and run stage23_bench/tools/build_provenance.py record, '
+                             'or pass --allow-unverified-build')
+        return result
 
     def command(self, name, argv, output=None, accepted=(0,), progress=None, pass_fds=()):
         argv = list(map(str, argv))
@@ -409,7 +444,7 @@ def preprocess(run, args):
         expected = read_json(raw_info)['unique_count']
         binary = run.freeze('s23_sopt', args.sopt_binary)
         run.step('sopt_e0', dict(input=digest(deduped), binary=digest(binary)), [unsorted],
-                 lambda: run.command('sopt_e0', [binary, '-sopteffort', 0, '-t', args.threads,
+                 lambda: run.command('sopt_e0', [binary, '-sopteffort', 0, '-t', host_threads(args, 'sopt'),
                                                 '-dev', args.device, '-slice', args.slice,
                                                 '-inputpolys', deduped], unsorted))
     index_outputs = [base / 'index.sqlite', base / 'cado_sopt_output.txt',
@@ -447,7 +482,7 @@ def select_seeds(run, args, info, sopt):
     run.step('select_inputs', dict(index=digest(src), count=count), [raw], extract)
     resopt = work / 'resopt_output.txt'
     run.step('resopt', dict(input=digest(raw), binary=digest(sopt), effort=args.resopt_effort), [resopt],
-             lambda: run.command('resopt', [sopt, '-sopteffort', args.resopt_effort, '-t', args.threads,
+             lambda: run.command('resopt', [sopt, '-sopteffort', args.resopt_effort, '-t', host_threads(args, 'sopt'),
                                            '-dev', args.device, '-slice', args.slice, '-inputpolys', raw], resopt))
     outputs = [work / 'index.sqlite', work / 'resopt_sorted.txt', work / 'resopt_msieve_sorted.ms', work / 'info.json']
     run.step('index_resopt', dict(input=digest(resopt), count=count), outputs,
@@ -581,7 +616,7 @@ def search(run, args, seeds, binary, phase, cap, n, accurate=False, save_pool=Fa
         rerank = max(args.rerank, int(screen.split(',')[0])) if accurate and screen else args.rerank
         argv = [binary, '-poly', src, '-search', '-budget', args.budget, '-maxcells', cap,
                 '-aw', 1.3, '-rerank', rerank, '-top', 3, '-refine', args.keep,
-                '-t', args.threads, '-dev', args.device, '-launch', args.launch,
+                '-t', host_threads(args, 'ropt'), '-dev', args.device, '-launch', args.launch,
                 '-maxlines', args.maxlines, '-umax', args.umax, '-out', partial]
         if replay:
             argv += ['-pool-in', replay]
@@ -694,7 +729,7 @@ def score(run, args, rows, binary, name, final=False):
     pool = dst.with_suffix('.poly')
     tsv = dst.with_suffix('.tsv')
     bounds = score_bounds(args.params)
-    argv = [binary, '-t', args.threads, '-K', 16000 if final else 4000,
+    argv = [binary, '-t', host_threads(args, 'score'), '-K', 16000 if final else 4000,
             '-Keval', 256000 if final else 16000]
     if bounds is not None:
         argv += ['-Bf', bounds['Bf'], '-Bg', bounds['Bg'], '-area', bounds['area']]
@@ -789,7 +824,8 @@ def validate_ropt_features(run, args, ropt):
 
 def pipeline_settings(args):
     return {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items() if k not in
-            ('command', 'input', 'initial_unsorted', 'default_input', 'resume', 'config')}
+            ('command', 'input', 'initial_unsorted', 'default_input', 'resume', 'config',
+             'allow_unverified_build')}
 
 
 def pipeline(run, args, info):
@@ -889,6 +925,19 @@ def parser(argv=None):
     ap.add_argument('--resopt-effort', type=int, default=setting('pipeline', 'resopt_effort', 50))
     ap.add_argument('--seeds', type=int, default=setting('gpu', 'seeds', setting('pipeline', 'msieve_ropt_count', 300)))
     ap.add_argument('-t', '--threads', type=int, default=setting('system', 'threads', 8))
+
+    def optional_count(value):
+        return None if value in ('', None) else int(value)
+
+    # Per-phase host threads; blank/unset uses --threads. ROPT threads apply to
+    # each of the --workers concurrent searches, including the murphy phase.
+    phase_threads = {}
+    for phase, what in (('sopt', 'size optimization and re-optimization'),
+                        ('score', 'the cado_murphy scoring of breadth, depth and finalists'),
+                        ('ropt', 'each root-optimization worker, including the accurate MurphyE searches')):
+        phase_threads[phase + '_threads'] = setting('gpu', f'{phase}_threads', '')
+        ap.add_argument(f'--{phase}-threads', type=optional_count, default=phase_threads[phase + '_threads'],
+                        help=f'host threads for {what} (default: --threads)')
     ap.add_argument('--device', type=int, default=setting('gpu', 'device', 0))
     ap.add_argument('--workers', type=int, default=setting('gpu', 'workers', 2))
     ap.add_argument('--ropt-batch-size', type=int, default=setting('gpu', 'ropt_batch_size', 1),
@@ -936,6 +985,8 @@ def parser(argv=None):
     ap.add_argument('--qband', default=setting('gpu', 'qband', ''), help='QMIN,QMAX,NQ')
     ap.add_argument('--sopt-binary', type=Path, default=ROOT / 'stage23_gpu/build/s23_sopt')
     ap.add_argument('--ropt-binary', type=Path, default=ROOT / 'stage23_gpu/build/s23_ropt')
+    ap.add_argument('--allow-unverified-build', action='store_true',
+                    help="freeze s23_sopt/s23_ropt into a new run even if they don't match their build manifest")
     # A continuation inherits the run's settings; explicit options still win.
     saved = run_dir / 'settings.json'
     if saved.exists():
@@ -949,6 +1000,12 @@ def parser(argv=None):
     execution = run_dir / 'execution.json'
     if execution.exists():
         ap.set_defaults(**{k: v for k, v in read_json(execution).items() if k in EXECUTION_SETTINGS})
+    # An explicit --threads also replaces the per-phase counts a resumed run saved,
+    # except those given again; the configuration's [gpu] values still apply.
+    probe = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
+    probe.add_argument('-t', '--threads')
+    if probe.parse_known_args(argv)[0].threads is not None:
+        ap.set_defaults(**phase_threads)
     args = ap.parse_args(argv)
     for key, option in ROPT_OPTIONS.items():
         if isinstance(option['default'], bool) and isinstance(getattr(args, key), str):
@@ -964,6 +1021,12 @@ def parser(argv=None):
         return args
     if args.threads == 0:
         args.threads = os.cpu_count() or 1
+    for phase in ('sopt', 'score', 'ropt'):
+        key = phase + '_threads'
+        if getattr(args, key) == 0:
+            setattr(args, key, os.cpu_count() or 1)
+        elif getattr(args, key) is not None and getattr(args, key) < 0:
+            ap.error(f'--{phase}-threads must be positive, 0 (all CPUs) or blank (--threads)')
     for key in ('extract', 'seeds', 'threads', 'workers', 'rerank', 'keep', 'score_top', 'finalists', 'maxlines', 'umax', 'ropt_batch_size'):
         if getattr(args, key) < 1:
             ap.error(f'--{key.replace("_", "-")} must be positive')
@@ -1061,9 +1124,13 @@ def main(argv=None):
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
             raise ValueError(f'another pipeline is using {args.run_dir}') from None
-        run = Run(args.run_dir)
+        run = Run(args.run_dir, args.allow_unverified_build)
         try:
             run.state('starting', command=args.command)
+            # Check and freeze s23_sopt before the input snapshot and deduplication,
+            # unless this command only imports existing sopt output.
+            if args.command != 'preprocess' or not args.initial_unsorted:
+                run.freeze('s23_sopt', args.sopt_binary)
             if args.command in ('pipeline', 'all'):
                 # Reject unsupported frozen binaries before an expensive sopt pass.
                 validate_ropt_features(run, args, run.freeze('s23_ropt', args.ropt_binary))

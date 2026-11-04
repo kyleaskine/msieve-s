@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "date": "2026-11-03",
+  "question": "Plan item 1: where do the driver's CPU preprocessing steps spend time, and is an optimization worth choosing now?",
+  "steps": {
+    "raw": "gpu_pipeline.deduplicate: parse raw blocks, validate (resultant divisible by n), CADO text, exact-text SQLite duplicate check, write",
+    "index_e0": "gpu_pipeline.index_sopt: parse sopt pairs, validate raw and optimized, format three texts, SQLite insert, index, two sorted outputs"
+  },
+  "correction": "The plan's 'deduplication 184-570 s, 8-10% of wall' combined both steps. Deduplication proper is the smaller step; indexing the sopt output is larger.",
+  "share_of_job_wall_time": {
+    "source": "October 28 runs under stage23_gpu/runs/20261028_existing_jobs; step seconds are steady clock (6-10% fast on WSL2), job wall from start/completion timestamps",
+    "rows": [
+      {"job": "C190", "inputs": 2003990, "raw_s": 146.9, "index_e0_s": 282.8, "job_wall_s": 6558, "share": 0.066},
+      {"job": "C179 358030", "inputs": 1335975, "raw_s": 98.4, "index_e0_s": 136.0, "job_wall_s": 4372, "share": 0.054},
+      {"job": "C152", "inputs": 371723, "raw_s": 20.5, "index_e0_s": 53.7, "job_wall_s": 2139, "share": 0.035}
+    ],
+    "gpu": "idle during both steps (raw precedes sopt_e0; index_e0 follows it)"
+  },
+  "measurement": {
+    "input": "first 200,000 raw polynomials and sopt pairs of the saved C190 run (10%)",
+    "conditions": "CPU load average about 15.5 on 16 logical CPUs (user's ECM stage 2) and the GPU in use; single-threaded Python; repeated base timings vary by about 20%",
+    "real_functions_s": {"raw": {"wall": 13.55, "cpu": 12.68}, "index_e0": {"wall": 29.55, "cpu": 26.93}},
+    "scaling": "10x the subset (136 s, 296 s) agrees with the full October 28 steps (147 s, 283 s)",
+    "cumulative_ablation_wall_s": {
+      "raw": {"parse": 2.51, "validate": 3.12, "format": 1.24, "sqlite_duplicate_check": 6.15, "write": 4.91},
+      "index_e0": {"parse": 5.62, "validate_x2": 5.37, "format_x3": 7.24, "sqlite_insert": 8.35,
+                   "create_index_and_sorted_outputs": 1.17}
+    },
+    "cprofile_notes": [
+      "validate_poly's regex over dict keys costs about as much as the resultant itself",
+      "the resultant is a 6-term exact sum, not a determinant; Horner form is equivalent",
+      "the exact-text duplicate key shares a 190-digit n prefix and makes a large SQLite B-tree"
+    ]
+  },
+  "exact_prototypes": {
+    "variants": {
+      "validate": "precompiled key check with a short-circuit for c0..c5, Horner resultant",
+      "parse": "iter_sopt skips the statistics regex on coefficient and skew lines",
+      "all": "both"
+    },
+    "output_sha256_prefixes_all_variants": {"raw": ["7c3b3744", "80768865"], "index_e0": ["2cf8fd0e", "b2196132", "f4c100b4"]},
+    "wall_s": {
+      "base": {"raw": [15.23, 17.92], "index_e0": [28.67, 29.14]},
+      "validate": {"raw": [16.50], "index_e0": [23.26]},
+      "parse": {"raw": [17.40], "index_e0": [28.64]},
+      "all": {"raw": [12.40, 10.19], "index_e0": [27.51, 21.91]}
+    },
+    "reading": "Outputs identical. Gains of perhaps 10-25% are within the load noise; the parser change shows none."
+  },
+  "decision": "No preprocessing change now. The largest single components are 60-90 s each on C190, so exact micro-optimizations would save about 1-2 minutes (1-2% of job wall), below the 8-thread SOPT setting (about 14 minutes on C190). Overlapping index_e0 with streaming sopt output, or deduplication with GPU work, could hide most of the 3.5-6.6% but changes checkpoint structure; reconsider after test-sieve calibration.",
+  "raw_artifacts": "stage23_gpu/runs/20261103_preprocess_profile/ (profile_preprocess.py, ablate.py, prototype.py, cProfile outputs)"
+}

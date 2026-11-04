@@ -137,9 +137,12 @@ else:
         self.patcher.start()
         self.addCleanup(self.patcher.stop)
 
-    def invoke(self, command, run, *extra):
+    def invoke(self, command, run, *extra, strict=False):
+        # The fake tool has no build manifest; strict runs exercise the provenance check.
+        override = () if strict else ('--allow-unverified-build',)
         argv = [command, '--config', str(self.config), '--run-dir', str(run),
-                '--sopt-binary', str(self.executable), '--ropt-binary', str(self.executable), *map(str, extra)]
+                '--sopt-binary', str(self.executable), '--ropt-binary', str(self.executable),
+                *override, *map(str, extra)]
         with contextlib.redirect_stdout(io.StringIO()):
             driver.main(argv)
 
@@ -412,6 +415,82 @@ else:
         added = self.calls()[len(before):]
         self.assertEqual(len(added), 1)
         self.assertIn('-t 3 -dev 1 -launch 31', added[0])
+
+    def test_phase_thread_settings_reach_their_commands_and_resume(self):
+        run = self.base / 'run'
+        self.invoke('all', run, '--input', self.raw, *self.params(),
+                    '--threads', 2, '--sopt-threads', 8, '--score-threads', 6)
+        calls = self.calls()
+        for marker, threads in (('-sopteffort', 8), ('-search', 2), ('-Keval', 6)):
+            phase = [c for c in calls if f' {marker} ' in c]
+            self.assertTrue(phase, marker)
+            self.assertTrue(all(f' -t {threads} ' in c for c in phase), marker)
+        execution = driver.read_json(run / 'execution.json')
+        self.assertEqual([execution[k] for k in ('sopt_threads', 'score_threads', 'ropt_threads')], [8, 6, None])
+        # Thread counts are execution settings: changing them reuses every checkpoint.
+        before = self.calls()
+        self.invoke('all', run, '--sopt-threads', 4, '--ropt-threads', 3)
+        self.assertEqual(before, self.calls())
+        self.assertEqual(driver.read_json(run / 'execution.json')['ropt_threads'], 3)
+        # An explicit --threads replaces the saved phase counts that are not given again.
+        self.invoke('all', run, '--threads', 3, '--score-threads', 5)
+        execution = driver.read_json(run / 'execution.json')
+        self.assertEqual([execution[k] for k in ('threads', 'sopt_threads', 'score_threads', 'ropt_threads')],
+                         [3, None, 5, None])
+        self.invoke('all', run)
+        self.assertEqual(driver.read_json(run / 'execution.json'), execution)
+        self.assertEqual(before, self.calls())
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            self.invoke('all', run, '--score-threads', -1)
+
+    def test_new_run_requires_recorded_build_and_resume_skips_check(self):
+        run = self.base / 'run'
+        with self.assertRaisesRegex(ValueError, 'does not match its recorded build: no provenance manifest'):
+            self.invoke('preprocess', run, '--input', self.raw, strict=True)
+        # The check comes before any work: no input snapshot or deduplication.
+        self.assertFalse((run / 'bin/s23_sopt').exists())
+        self.assertFalse((run / 'inputs').exists())
+        self.assertFalse((run / 'checkpoints').exists())
+        verified = dict(verified=True, problems=[], sha256=driver.digest(self.executable),
+                        manifest='fake-tool.provenance.json', origin='make', dependencies=3)
+        with patch.object(driver.build_provenance, 'verify', return_value=verified) as verify:
+            self.invoke('all', run, '--input', self.raw, *self.params(), strict=True)
+        self.assertEqual([c.args[0] for c in verify.call_args_list], [self.executable, self.executable])
+        for name in ('s23_sopt', 's23_ropt'):
+            self.assertEqual(driver.read_json(run / f'bin/{name}.json')['provenance'], verified)
+        self.assertNotIn('allow_unverified_build', driver.read_json(run / 'settings.json'))
+        # Frozen binaries resume unchecked; the override is not a pipeline setting.
+        before = self.calls()
+        self.invoke('all', run, '--resume', strict=True)
+        self.invoke('all', run, '--resume')
+        self.assertEqual(before, self.calls())
+        # A new run with the override records the unverified build.
+        other = self.base / 'other'
+        self.invoke('preprocess', other, '--input', self.raw)
+        provenance = driver.read_json(other / 'bin/s23_sopt.json')['provenance']
+        self.assertFalse(provenance['verified'])
+        self.assertIn('no provenance manifest', provenance['problems'][0])
+        # A verification that cannot run (no make on a rented host) is unverified:
+        # the override still works, and without it the run stops with a clean error.
+        broken = self.base / 'broken'
+        with patch.object(driver.build_provenance, 'verify', side_effect=FileNotFoundError('make')):
+            with self.assertRaisesRegex(ValueError, 'verification failed'):
+                self.invoke('preprocess', broken, '--input', self.raw, strict=True)
+            self.invoke('preprocess', broken, '--input', self.raw)
+        self.assertIn('verification failed', driver.read_json(broken / 'bin/s23_sopt.json')['provenance']['problems'][0])
+        # The check applies whenever a binary is first frozen into a run: after
+        # preprocess, pipeline freezes s23_ropt and checks it then.
+        staged = self.base / 'staged'
+        with patch.object(driver.build_provenance, 'verify', return_value=verified):
+            self.invoke('preprocess', staged, '--input', self.raw, strict=True)
+        self.assertFalse((staged / 'bin/s23_ropt').exists())
+        with self.assertRaisesRegex(ValueError, 'does not match its recorded build'):
+            self.invoke('pipeline', staged, *self.params(), strict=True)
+        # A verified manifest must describe the bytes actually frozen.
+        changed = self.base / 'changed'
+        with patch.object(driver.build_provenance, 'verify', return_value=dict(verified, sha256='0' * 64)):
+            with self.assertRaisesRegex(ValueError, 'changed while it was being frozen'):
+                self.invoke('preprocess', changed, '--input', self.raw, strict=True)
 
     def test_unique_controls_are_selected_before_finalist_limit(self):
         run = self.base / 'run'

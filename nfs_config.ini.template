@@ -103,6 +103,14 @@ cado_ropt_count = 150
 run_dir = stage23_gpu/runs/current
 device = 0
 workers = 2
+# Host threads per phase; blank uses [system] threads (or --threads).
+# [preprocessing] sopt_threads is the CPU path's and is not used here. score_threads
+# covers cado_murphy scoring; ropt_threads applies to each concurrent worker,
+# including the accurate MurphyE searches. Size optimization at 8 threads took
+# 1.27x less wall time than at 2 on C190/C152 with identical output (2026-11-02).
+sopt_threads =
+score_threads =
+ropt_threads =
 # Seeds per persistent ropt process (opt-in); 1 retains separate processes.
 # Requires ropt-batch-v1 and ropt-batch-events-v1; old frozen runs can use 1.
 # Small phases split across workers. Completed seeds keep individual checkpoints.

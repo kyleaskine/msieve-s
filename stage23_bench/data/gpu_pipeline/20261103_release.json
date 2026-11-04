@@ -1,0 +1,288 @@
+{
+ "schema": 1,
+ "date": "2026-11-03",
+ "status": "passed",
+ "scope": "Plan item 1: full current-code SOPT corpus replay at eight host threads, paired 2/8-thread SOPT timing, and promotion of the validated SOPT/ROPT artifacts into stage23_gpu/build. No ROPT search, whole-pipeline timing, deduplication profile or driver change.",
+ "hardware": "NVIDIA GeForce RTX 5070 (sm_120), 16 host threads, WSL2",
+ "sopt_artifact": {
+  "path": "stage23_gpu/runs/20261031_focused_validation/frozen_build/s23_sopt",
+  "sha256": "2107e32fec0d693d183280154373cc89bfa1f9271b0c72adfc4eab9d4c4761bd",
+  "build_manifest_sha256": "febaa801ab8518bf074f96d3e25edfeb83c1f2665b84e5f3845980e51abd11b0",
+  "provenance_check": "All 351 recorded build dependencies and 7 runtime libraries match current files; the nvcc flags match the current Makefile; s23_sopt_cpu already matched the frozen CPU build."
+ },
+ "corpus_replay": {
+  "run_dir": "stage23_gpu/runs/20261102_release/full_corpus_t8",
+  "manifest_sha256": "d7e19ba22574ee51a9bb82aa642eb3aa6a89e17ca0af9e8a9cbda04e4b62c702",
+  "runner_sha256": "31a59083c93aa660edb96bc73447ca756560c667849dccfce06bde9c3fe145d3",
+  "threads": 8,
+  "started_local": "2026-11-02 18:58 EST",
+  "finished_local": "2026-11-02 21:45 EST",
+  "outputs": 8028269,
+  "exact": 8028269,
+  "differences": 0,
+  "wall_seconds": 9464.9,
+  "steady_seconds": 10234.2,
+  "reference": "Checkpoint-verified saved outputs with all audited CPU corrections, as in the October 30 replay.",
+  "jobs": [
+   {
+    "name": "c152",
+    "outputs": 371723,
+    "expected": 371723,
+    "status": "passed",
+    "differences": 0,
+    "wall_seconds": 423.4,
+    "steady_seconds": 460.7,
+    "binary_optimizing_steady_seconds": 376.28,
+    "cado_fallbacks": 0
+   },
+   {
+    "name": "c170_418691",
+    "outputs": 770700,
+    "expected": 770700,
+    "status": "passed",
+    "differences": 0,
+    "wall_seconds": 891.4,
+    "steady_seconds": 963.4,
+    "binary_optimizing_steady_seconds": 788.78,
+    "cado_fallbacks": 0
+   },
+   {
+    "name": "c148",
+    "outputs": 440650,
+    "expected": 440650,
+    "status": "passed",
+    "differences": 0,
+    "wall_seconds": 496.5,
+    "steady_seconds": 537.4,
+    "binary_optimizing_steady_seconds": 439.66,
+    "cado_fallbacks": 1
+   },
+   {
+    "name": "c164",
+    "outputs": 809721,
+    "expected": 809721,
+    "status": "passed",
+    "differences": 0,
+    "wall_seconds": 898.6,
+    "steady_seconds": 976.6,
+    "binary_optimizing_steady_seconds": 794.58,
+    "cado_fallbacks": 1
+   },
+   {
+    "name": "c179_358030",
+    "outputs": 1335975,
+    "expected": 1335975,
+    "status": "passed",
+    "differences": 0,
+    "wall_seconds": 1591.8,
+    "steady_seconds": 1724.4,
+    "binary_optimizing_steady_seconds": 1409.88,
+    "cado_fallbacks": 1
+   },
+   {
+    "name": "c179_576203",
+    "outputs": 1151078,
+    "expected": 1151078,
+    "status": "passed",
+    "differences": 0,
+    "wall_seconds": 1371.9,
+    "steady_seconds": 1486.1,
+    "binary_optimizing_steady_seconds": 1212.46,
+    "cado_fallbacks": 3
+   },
+   {
+    "name": "c181",
+    "outputs": 1144432,
+    "expected": 1144432,
+    "status": "passed",
+    "differences": 0,
+    "wall_seconds": 1362.5,
+    "steady_seconds": 1476.6,
+    "binary_optimizing_steady_seconds": 1217.65,
+    "cado_fallbacks": 4
+   },
+   {
+    "name": "c190",
+    "outputs": 2003990,
+    "expected": 2003990,
+    "status": "passed",
+    "differences": 0,
+    "wall_seconds": 2428.8,
+    "steady_seconds": 2609.0,
+    "binary_optimizing_steady_seconds": 2153.94,
+    "cado_fallbacks": 1
+   }
+  ],
+  "earlier_two_thread_replay_steady_seconds": 15031.6,
+  "comparison_note": "The October 30 two-thread replay is not a matched control: its per-job times ranged 0.83-1.38x the production runs at the same setting. Use the paired timings for the threading effect."
+ },
+ "paired_threads": {
+  "script": "stage23_gpu/runs/20261102_release/paired_threads.py",
+  "binary_sha256": "2107e32fec0d693d183280154373cc89bfa1f9271b0c72adfc4eab9d4c4761bd",
+  "order": [
+   2,
+   8,
+   8,
+   2
+  ],
+  "polynomials_per_run": 32768,
+  "summary": {
+   "c190": {
+    "polynomials": 32768,
+    "median_wall_seconds": {
+     "2": 52.47881627082825,
+     "8": 41.19277226924896
+    },
+    "speedup": 1.2739811714494509,
+    "identical_output": true,
+    "gpu_idle": {
+     "2": 0.32464454976303314,
+     "8": 0.12459239130434782
+    }
+   },
+   "c152": {
+    "polynomials": 32768,
+    "median_wall_seconds": {
+     "2": 50.20319628715515,
+     "8": 39.30448246002197
+    },
+    "speedup": 1.2772893355921595,
+    "identical_output": true,
+    "gpu_idle": {
+     "2": 0.3423645320197044,
+     "8": 0.12333965844402277
+    }
+   }
+  },
+  "runs": [
+   {
+    "job": "c190",
+    "threads": 2,
+    "repeat": 0,
+    "wall_seconds": 52.44819211959839,
+    "steady_seconds": 57.41004734206945,
+    "optimizing_seconds": 37.2,
+    "gpu_idle": 0.3222748815165877,
+    "output_sha256": "7fafc361b9115f89275ba19832b4804bbf55aa32d56090f642eeb4f83ade9147"
+   },
+   {
+    "job": "c190",
+    "threads": 8,
+    "repeat": 1,
+    "wall_seconds": 41.24234914779663,
+    "steady_seconds": 43.72705219697673,
+    "optimizing_seconds": 37.04,
+    "gpu_idle": 0.13043478260869565,
+    "output_sha256": "7fafc361b9115f89275ba19832b4804bbf55aa32d56090f642eeb4f83ade9147"
+   },
+   {
+    "job": "c190",
+    "threads": 8,
+    "repeat": 2,
+    "wall_seconds": 41.143195390701294,
+    "steady_seconds": 43.62161942292005,
+    "optimizing_seconds": 37.01,
+    "gpu_idle": 0.11875,
+    "output_sha256": "7fafc361b9115f89275ba19832b4804bbf55aa32d56090f642eeb4f83ade9147"
+   },
+   {
+    "job": "c190",
+    "threads": 2,
+    "repeat": 3,
+    "wall_seconds": 52.509440422058105,
+    "steady_seconds": 57.47283140209038,
+    "optimizing_seconds": 37.23,
+    "gpu_idle": 0.32701421800947866,
+    "output_sha256": "7fafc361b9115f89275ba19832b4804bbf55aa32d56090f642eeb4f83ade9147"
+   },
+   {
+    "job": "c152",
+    "threads": 2,
+    "repeat": 0,
+    "wall_seconds": 50.221744537353516,
+    "steady_seconds": 55.18534415704198,
+    "optimizing_seconds": 35.33,
+    "gpu_idle": 0.3399014778325123,
+    "output_sha256": "d348cc58e25372014f1767ec04d5b04a3a523db6585256c41b7e282570e175d9"
+   },
+   {
+    "job": "c152",
+    "threads": 8,
+    "repeat": 1,
+    "wall_seconds": 39.1014301776886,
+    "steady_seconds": 41.58246292604599,
+    "optimizing_seconds": 35.07,
+    "gpu_idle": 0.11764705882352941,
+    "output_sha256": "d348cc58e25372014f1767ec04d5b04a3a523db6585256c41b7e282570e175d9"
+   },
+   {
+    "job": "c152",
+    "threads": 8,
+    "repeat": 2,
+    "wall_seconds": 39.50753474235535,
+    "steady_seconds": 41.99169252801221,
+    "optimizing_seconds": 35.45,
+    "gpu_idle": 0.12903225806451613,
+    "output_sha256": "d348cc58e25372014f1767ec04d5b04a3a523db6585256c41b7e282570e175d9"
+   },
+   {
+    "job": "c152",
+    "threads": 2,
+    "repeat": 3,
+    "wall_seconds": 50.18464803695679,
+    "steady_seconds": 55.14716959896032,
+    "optimizing_seconds": 35.21,
+    "gpu_idle": 0.3448275862068966,
+    "output_sha256": "d348cc58e25372014f1767ec04d5b04a3a523db6585256c41b7e282570e175d9"
+   }
+  ],
+  "notes": [
+   "ECM P+1 ran on one of 16 host cores; the GPU was otherwise idle.",
+   "Python time.monotonic ran 6-10% fast against wall time and the ratio changed with load (1.09 at two threads, 1.06 at eight), so wall time is the primary measure.",
+   "Eight threads are busy only in the burst after each GPU batch: a live sample averaged 181% CPU with 740% peaks, so total host CPU work is unchanged."
+  ]
+ },
+ "promotion": {
+  "backup": "stage23_gpu/build/pre_20261103_promotion/",
+  "replaced": {
+   "s23_sopt": {
+    "old": "adf945b0db4e016b6fbfcefd52876cbaea305e390011c26031a5cde049d13dbc",
+    "new": "2107e32fec0d693d183280154373cc89bfa1f9271b0c72adfc4eab9d4c4761bd"
+   },
+   "s23_ropt": {
+    "old": "4863c217062e1146ca299c87eed2555906b7eaa61301ef4c9978e3d7222e076d",
+    "new": "4d9545b874e5545c5bb9c943e478e9db673faf3487aeec2d33bf83626ad8a3d8"
+   },
+   "s23_ropt_cpu": {
+    "old": "0b05f5997162a32bbdf6b7d091d18a60777e47589c0a54c2a56ee99f3c796d5d",
+    "new": "d8d4e9173d810e8eb3f00d7ef8d379b32e2f31ff1e69f317627ae440d6a0c81d"
+   }
+  },
+  "unchanged": {
+   "s23_sopt_cpu": "d3179657430133f9a74f425a927f0995c3b8c2550cecdec36438f1bb502e156c",
+   "murphy_rank.o": "c7c667fddf7f73794c4e4855555dc8f5e6da358d73d87beb43a6add86983db92"
+  },
+  "restored_build_state": {
+   "file": "stage23_gpu/build/ropt-build-flags",
+   "sha256": "b3b6749f1f5bd1acc7f3284faa23fa6c9de411899eaadf49babc3b2b46e909e3",
+   "note": "Copied with murphy_rank.o at the mtimes recorded by the November 1 validation, so make sees the promoted ROPT build as current."
+  },
+  "ropt_source": {
+   "path": "stage23_gpu/runs/20261101_review_validation/normal_snapshot",
+   "reason": "The November 1 suite ran on this build; review_validation/build/ holds the later profiling-toggle rebuild, which differs only in an nvcc temporary filename.",
+   "provenance_check": "Sources equal commit 42f5f59; none of the 531 files in the build dependency lists changed after the validated build.",
+   "capabilities": "ropt-pool-v1 partial-murphy-exit-3 alpha-screen-v1 alpha-screen-exact-size-v1 ropt-batch-v1 ropt-batch-events-v1 alpha-screen-gpu-v1 full-refine-gpu-v1 murphy-gpu-v1"
+  },
+  "checks": [
+   "A real make in a scratch copy rebuilt nothing and left all four binary hashes unchanged.",
+   "The promoted build/s23_sopt reproduced the paired C152 output hash at eight threads; that run shared the GPU with an ECM job, so its time is not a measurement.",
+   "make -n still lists ROPT targets because the always-run flags rule is assumed changed in a dry run; the real build leaves the file and its dependents untouched."
+  ],
+  "caution": "stage23_gpu/Makefile is a prerequisite of the ROPT targets, so any edit to it rebuilds ROPT over the promoted binary. The new corpus-runner test is therefore run directly, not yet from make test."
+ },
+ "remaining": [
+  "Build-provenance check before the driver freezes binaries for a new run.",
+  "Separate SOPT/scoring host threads from ROPT threads in the driver.",
+  "Deduplication profile."
+ ]
+}
