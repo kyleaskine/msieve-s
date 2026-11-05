@@ -1,0 +1,22 @@
+{
+ "recorded": "2026-11-04",
+ "n": "12057754201391704141677715636668856909925195592863780835585452470064709576596216744037842925667418302612322407794147222997139990844440840724375005120116509442118620958064124706280584104821025695606047",
+ "digits": 200,
+ "user_statement": "This will be something like 33/34, 64/96 (because 3 limb math is cheaper than 4 on cuda-sieve), 200/300M, i 16 j 2^14, maybe like 70-400? Should aim for around 1.24B relations?",
+ "settings": {
+  "lpbr": 33,
+  "lpba": 34,
+  "mfbr": 64,
+  "mfba": 96,
+  "rlim": 200000000,
+  "alim": 300000000,
+  "logI": 16,
+  "J": 16384,
+  "q_min": 70000000,
+  "q_max": 400000000,
+  "side": "algebraic",
+  "target_relations": 1240000000
+ },
+ "siever": "cuda-sieve (the user's GPU lattice siever)",
+ "status": "user estimate before test sieving; q range and relation target provisional"
+}

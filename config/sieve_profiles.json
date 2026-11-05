@@ -391,6 +391,73 @@
         "sha256": "874c45a0dd1be79a9979567c0a2438aa652f6e728bf4ee29350a21268baf650a"
       },
       "notes": "LPB/limits inherited from C192 as requested. Approximate 2^30 region and q range. Half-plane coordinates i in [-32768,32768), j in [0,16384); preserve this convention rather than inferring a different aspect ratio from the word square. No test sieve."
+    },
+    {
+      "id": "c205_user_20261008",
+      "digits": 205,
+      "degree": 5,
+      "recorded": "2026-10-08",
+      "evidence": "user_authorized",
+      "lpbr": 33,
+      "lpba": 34,
+      "rlim": 200000000,
+      "alim": 300000000,
+      "side": "algebraic",
+      "region": {
+        "label": "cuda-sieve logI=17 J=32768",
+        "logI": 17,
+        "J": 32768,
+        "points": 4294967296
+      },
+      "q": {
+        "min": 80000000,
+        "max": 1000000000,
+        "model_samples": 9
+      },
+      "source": {
+        "path": "stage23_bench/data/c205/refinement/settings.json",
+        "sha256": "a853dbab88a0200937b5eb5fd3f64135fe776b4fd46ad956019fa697c86c80c1"
+      },
+      "notes": "The user authorized C208's parameters for the first C205 (4785...). Three-window test sieves on the 5070 used these limits and MFBs (stage23_bench/data/c205/testsieve/). Recorded 2026-11-04 for the second C205 (4268...); inheriting it does not confirm it for that number.",
+      "mfbr": 64,
+      "mfba": 96,
+      "additional_sources": [
+        {
+          "path": "stage23_bench/data/c205/testsieve/measured.tsv",
+          "sha256": "939b213c67dc4f7f23fd5e43a95852593d497890369948fad072a2ac8926561d"
+        }
+      ]
+    },
+    {
+      "id": "c200_user_20261104",
+      "digits": 200,
+      "degree": 5,
+      "recorded": "2026-11-04",
+      "evidence": "user_reported",
+      "lpbr": 33,
+      "lpba": 34,
+      "rlim": 200000000,
+      "alim": 300000000,
+      "side": "algebraic",
+      "region": {
+        "label": "cuda-sieve logI=16 J=16384",
+        "logI": 16,
+        "J": 16384,
+        "points": 1073741824
+      },
+      "q": {
+        "min": 70000000,
+        "max": 400000000,
+        "model_samples": 7,
+        "provisional": true
+      },
+      "source": {
+        "path": "stage23_bench/data/c200/sieve_settings_user_20261104.json",
+        "sha256": "104fd833a6c902e294cd2276462abb2aff6cb0717b900cc56c52eaabce980d52"
+      },
+      "notes": "The user's planned settings for the C200 (1205...047), before test sieving. MFB 64/96 because 3-limb arithmetic is cheaper than 4 on cuda-sieve. Target about 1.24B relations; the q range is the user's estimate. The GPU winner's yield test (stage23_bench/data/c200/testsieve_yield_20261104.json) gives about 1.20B raw relations over 70M-400M and reaches 1.24B at q about 412M.",
+      "mfbr": 64,
+      "mfba": 96
     }
   ]
 }

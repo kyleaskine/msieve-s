@@ -1,0 +1,898 @@
+{
+ "schema": 1,
+ "date": "2026-11-04",
+ "question": "GPU pipeline on the second C205 (backup_20261104_161556, CPU pipeline run on another machine) and on the user's C168, and the stage-1 leading-coefficient chains each was searched with, plus the C200 the user copied in at 20:34 with its yield test sieve.",
+ "runs": "stage23_gpu/runs/20261104_new_jobs/ (queue.py, audit_c205.py; ignored)",
+ "settings": {
+  "common": "jobs.py pipeline settings with --threads 2 --sopt-threads 8 --score-threads 8 (as 20261103_new_jobs)",
+  "binaries": "frozen production builds; both printed matches its recorded build (350 / 522 inputs)"
+ },
+ "job": {
+  "n_prefix": "426896891399",
+  "digits": 205,
+  "source": "backup_20261104_161556/msieve.dat.deduped.ms (sha256 6f4f4670cda09481...)",
+  "unique": 2028348,
+  "profile": {
+   "id": "c205_user_20261008",
+   "params": "job:33,34,16.5,80000000",
+   "lattice": "17,32768",
+   "qband": "80000000,1000000000,9",
+   "reason": "no catalog profile at 205 digits; added the settings the user authorized for the first C205 (4785...)"
+  },
+  "wall_s": {
+   "raw": 144,
+   "sopt_e0": 2584,
+   "index_e0": 278,
+   "select_resopt_seeds": 76,
+   "breadth": 783,
+   "score_breadth": 97,
+   "depth": 812,
+   "score_depth": 4,
+   "murphy": 119,
+   "score_final": 26,
+   "total": 4923
+  },
+  "sopt_e0_ms_per_poly": 1.274,
+  "conditions": "GPU idle at start (median 0%); started after the user's C168 stage 1 ended"
+ },
+ "audit": {
+  "initial_sopt": {
+   "identical_to_remote_cpu": 1833612,
+   "different": 194736,
+   "gpu_worse_at_full_precision": 7377,
+   "gpu_better_at_full_precision": 7267,
+   "tail_note": "among outputs with exp_E <= 57.69 (CPU top 1000): 290 differ, remote better 7, GPU better 14",
+   "local_cado_sample": {
+    "size": 1200,
+    "seed": 1,
+    "per_class": 400,
+    "input_sha256": "be20ba67d51cb738dd32ba7af1460c36828b9e607b8d78490eee160c0f18f745",
+    "output_sha256": "2f3eae6798bde89d2cc87e3b3c8bd4e75c45d87a8075b73b955834a8a4a48e53",
+    "outcome": {
+     "tie:gpu": 400,
+     "worse:gpu": 400,
+     "better:gpu": 400
+    }
+   },
+   "conclusion": "GPU effort-0 sopt equals this machine's CADO on every sampled difference; the remote CPU build differs. The user reports the other machine has a newer CADO sopt."
+  },
+  "depth_exports_cpu_gpu_byte_equal": 3200,
+  "note": "jobs.audit stops at the first sopt regression, so audit_c205.py recorded the local-CADO check and ran the depth audit."
+ },
+ "comparison": {
+  "standard_murphy_gpu_over_cpu": 0.9999417875285954,
+  "lattice_score_gpu_over_cpu": 0.9998301888650184,
+  "cpu_winner": "msieve_orig index 1175, Y1 99553664416351816219573, standard 3.401333e-15, lattice 7.820453e9, skew 1.184e8",
+  "gpu_winner": "breadth/depth s0002 declared = the CADO winner's polynomial (lattice 7.819125e9, standard 3.401135e-15, skew 1.144e8)",
+  "reading": "tie: same seed and rotation; msieve is 0.017% ahead at another translation"
+ },
+ "stage1": {
+  "chains": {
+   "60060": "60060*1..4",
+   "360360": "360360*1..4",
+   "1021020": "1021020*1..3 (adds 17)"
+  },
+  "winner_raw_a_d": 3063060,
+  "winner_factors": "2^2*3^2*5*7*11*13*17",
+  "note": "raw a_d joined by Y1; sopt exp_E from the remote CPU initial sopt; top-k ranks within this job",
+  "per_a_d": {
+   "60060": {
+    "factors": "2^2·3·5·7·11·13",
+    "chain": "60060",
+    "hits": 118913,
+    "mean_sopt_exp_E": 61.7174,
+    "best": 56.37,
+    "top100": 5,
+    "top1000": 59,
+    "top10000": 614,
+    "cpu_resopt_top300_seeds": 16
+   },
+   "120120": {
+    "factors": "2^3·3·5·7·11·13",
+    "chain": "60060",
+    "hits": 196795,
+    "mean_sopt_exp_E": 61.654,
+    "best": 55.83,
+    "top100": 12,
+    "top1000": 126,
+    "top10000": 1115,
+    "cpu_resopt_top300_seeds": 36
+   },
+   "180180": {
+    "factors": "2^2·3^2·5·7·11·13",
+    "chain": "60060",
+    "hits": 157351,
+    "mean_sopt_exp_E": 61.6441,
+    "best": 56.3,
+    "top100": 7,
+    "top1000": 95,
+    "top10000": 836,
+    "cpu_resopt_top300_seeds": 29
+   },
+   "240240": {
+    "factors": "2^4·3·5·7·11·13",
+    "chain": "60060",
+    "hits": 204735,
+    "mean_sopt_exp_E": 61.6418,
+    "best": 54.92,
+    "top100": 11,
+    "top1000": 127,
+    "top10000": 1149,
+    "cpu_resopt_top300_seeds": 35
+   },
+   "360360": {
+    "factors": "2^3·3^2·5·7·11·13",
+    "chain": "360360",
+    "hits": 141147,
+    "mean_sopt_exp_E": 61.5817,
+    "best": 55.78,
+    "top100": 13,
+    "top1000": 73,
+    "top10000": 747,
+    "cpu_resopt_top300_seeds": 27
+   },
+   "720720": {
+    "factors": "2^4·3^2·5·7·11·13",
+    "chain": "360360",
+    "hits": 113183,
+    "mean_sopt_exp_E": 61.5591,
+    "best": 55.64,
+    "top100": 4,
+    "top1000": 69,
+    "top10000": 610,
+    "cpu_resopt_top300_seeds": 16
+   },
+   "1021020": {
+    "factors": "2^2·3·5·7·11·13·17",
+    "chain": "1021020",
+    "hits": 220055,
+    "mean_sopt_exp_E": 61.6535,
+    "best": 55.08,
+    "top100": 7,
+    "top1000": 81,
+    "top10000": 900,
+    "cpu_resopt_top300_seeds": 24
+   },
+   "1081080": {
+    "factors": "2^3·3^3·5·7·11·13",
+    "chain": "360360",
+    "hits": 115358,
+    "mean_sopt_exp_E": 61.5788,
+    "best": 56.6,
+    "top100": 3,
+    "top1000": 55,
+    "top10000": 582,
+    "cpu_resopt_top300_seeds": 12
+   },
+   "1441440": {
+    "factors": "2^5·3^2·5·7·11·13",
+    "chain": "360360",
+    "hits": 238208,
+    "mean_sopt_exp_E": 61.5668,
+    "best": 56.06,
+    "top100": 20,
+    "top1000": 119,
+    "top10000": 1244,
+    "cpu_resopt_top300_seeds": 43
+   },
+   "2042040": {
+    "factors": "2^3·3·5·7·11·13·17",
+    "chain": "1021020",
+    "hits": 119582,
+    "mean_sopt_exp_E": 61.5979,
+    "best": 55.98,
+    "top100": 7,
+    "top1000": 55,
+    "top10000": 507,
+    "cpu_resopt_top300_seeds": 16
+   },
+   "3063060": {
+    "factors": "2^2·3^2·5·7·11·13·17",
+    "chain": "1021020",
+    "hits": 403021,
+    "mean_sopt_exp_E": 61.5677,
+    "best": 54.69,
+    "top100": 11,
+    "top1000": 149,
+    "top10000": 1696,
+    "cpu_resopt_top300_seeds": 46
+   }
+  }
+ },
+ "c168": {
+  "n_prefix": "111784520960",
+  "digits": 168,
+  "source": "msieve.dat.ms copied in by copypoly (sha256 289088c3...; 833,621 raw, 773,211 unique)",
+  "profile": {
+   "id": "c165_user_20261013",
+   "params": "job:30,31,14,30000000",
+   "lattice": "14,8192",
+   "qband": "30000000,90000000,7",
+   "reason": "nearest non-assumed profiles tie (c165 30/31 and c171 31/32); c165 matches the 30/31 LPB the user gave for the C170"
+  },
+  "wall_s": 2486,
+  "conditions": "ran alongside the user's CPU pipeline on the same machine",
+  "gpu_winner": {
+   "search": "murphy s0001 declared",
+   "lattice_score": 200998300.0,
+   "job_murphy": 4.310299e-08,
+   "raw_a_d": 27720
+  },
+  "cpu_comparison": {
+   "cpu_source": "backup_20261104_203017 (user CPU pipeline on this machine; msieve.dat.ms sha256 equal to the GPU snapshot)",
+   "audit": {
+    "initial_sopt_identical_to_cpu": 773211,
+    "different": 0,
+    "depth_exports_cpu_gpu_byte_equal": 3200
+   },
+   "lattice_score_gpu_over_cpu": 0.9999303525207164,
+   "standard_murphy_gpu_over_cpu": 1.0033857732575715,
+   "lattice_winners": "CPU msieve_orig 145 (2.010123e8) and GPU murphy/s0001 (2.009983e8): same seed Y1 109412980587497067653, raw a_d 27720 (c5 kept), different translation; CADO 2.009632e8",
+   "standard_murphy_winners": "GPU breadth/s0003/2 (6.48866e-13, skew 5.3e6, raw a_d 60060) vs CPU msieve_orig 1151 (6.466765e-13, raw a_d 27720); the lattice model rates the GPU standard-MurphyE leader 2.8% below the lattice winner",
+   "reading": "tie under the job lattice model; profile c165_user_20261013 is inherited, not confirmed"
+  },
+  "stage1": {
+   "source": "polylocal msieve.log (saved to stage23_gpu/runs/20261104_new_jobs/c168_stage1/); one timestamped found_array line per a_d",
+   "runs": [
+    "hcm 2520 from 2520, stopped by the user after 30240",
+    "hcm 4620 from 4620 to 27719",
+    "hcm 4620 from 27721 to the poly target"
+   ],
+   "note": "sopt exp_E from the GPU initial sopt (equals local CADO); first a_d of each run includes GPU start-up; gpu_top_seeds = the GPU run's 328 seeds",
+   "chains": {
+    "hcm2520": {
+     "seconds": 5019.0,
+     "unique_hits": 356076,
+     "top100": 52,
+     "top1000": 485,
+     "top10000": 4953,
+     "gpu_top_seeds": 154,
+     "per_hour": {
+      "top100": 37.3,
+      "top1000": 347.9,
+      "top10000": 3552.7,
+      "gpu_top_seeds": 110.5
+     }
+    },
+    "hcm4620": {
+     "seconds": 5353.0,
+     "unique_hits": 417135,
+     "top100": 49,
+     "top1000": 524,
+     "top10000": 5098,
+     "gpu_top_seeds": 174,
+     "per_hour": {
+      "top100": 33.0,
+      "top1000": 352.4,
+      "top10000": 3428.5,
+      "gpu_top_seeds": 117.0
+     }
+    }
+   },
+   "per_a_d": {
+    "2520": {
+     "factors": "2^3·3^2·5·7",
+     "chain": "hcm2520",
+     "run": 1,
+     "raw_hits": 10116,
+     "unique_hits": 9429,
+     "seconds": 158.0,
+     "includes_startup": true,
+     "mean_sopt_exp_E": 48.5494,
+     "best": 44.36,
+     "top100": 3,
+     "top1000": 18,
+     "top10000": 167,
+     "gpu_top_seeds": 9
+    },
+    "4620": {
+     "factors": "2^2·3·5·7·11",
+     "chain": "hcm4620",
+     "run": 2,
+     "raw_hits": 17895,
+     "unique_hits": 16480,
+     "seconds": 287.0,
+     "includes_startup": true,
+     "mean_sopt_exp_E": 48.6148,
+     "best": 44.71,
+     "top100": 0,
+     "top1000": 23,
+     "top10000": 246,
+     "gpu_top_seeds": 4
+    },
+    "5040": {
+     "factors": "2^4·3^2·5·7",
+     "chain": "hcm2520",
+     "run": 1,
+     "raw_hits": 31734,
+     "unique_hits": 29212,
+     "seconds": 449.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.5652,
+     "best": 43.52,
+     "top100": 5,
+     "top1000": 52,
+     "top10000": 517,
+     "gpu_top_seeds": 15
+    },
+    "7560": {
+     "factors": "2^3·3^3·5·7",
+     "chain": "hcm2520",
+     "run": 1,
+     "raw_hits": 14443,
+     "unique_hits": 13646,
+     "seconds": 209.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.5892,
+     "best": 43.81,
+     "top100": 3,
+     "top1000": 20,
+     "top10000": 230,
+     "gpu_top_seeds": 5
+    },
+    "9240": {
+     "factors": "2^3·3·5·7·11",
+     "chain": "hcm4620",
+     "run": 2,
+     "raw_hits": 32229,
+     "unique_hits": 29732,
+     "seconds": 438.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.57,
+     "best": 43.47,
+     "top100": 7,
+     "top1000": 55,
+     "top10000": 481,
+     "gpu_top_seeds": 18
+    },
+    "10080": {
+     "factors": "2^5·3^2·5·7",
+     "chain": "hcm2520",
+     "run": 1,
+     "raw_hits": 19348,
+     "unique_hits": 18152,
+     "seconds": 260.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.6097,
+     "best": 44.4,
+     "top100": 4,
+     "top1000": 21,
+     "top10000": 278,
+     "gpu_top_seeds": 8
+    },
+    "12600": {
+     "factors": "2^3·3^2·5^2·7",
+     "chain": "hcm2520",
+     "run": 1,
+     "raw_hits": 61352,
+     "unique_hits": 57337,
+     "seconds": 828.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.6177,
+     "best": 43.52,
+     "top100": 8,
+     "top1000": 88,
+     "top10000": 815,
+     "gpu_top_seeds": 27
+    },
+    "13860": {
+     "factors": "2^2·3^2·5·7·11",
+     "chain": "hcm4620",
+     "run": 2,
+     "raw_hits": 22070,
+     "unique_hits": 20353,
+     "seconds": 290.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.5503,
+     "best": 44.4,
+     "top100": 4,
+     "top1000": 34,
+     "top10000": 336,
+     "gpu_top_seeds": 12
+    },
+    "15120": {
+     "factors": "2^4·3^3·5·7",
+     "chain": "hcm2520",
+     "run": 1,
+     "raw_hits": 66714,
+     "unique_hits": 61841,
+     "seconds": 832.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.6193,
+     "best": 43.95,
+     "top100": 5,
+     "top1000": 85,
+     "top10000": 875,
+     "gpu_top_seeds": 20
+    },
+    "17640": {
+     "factors": "2^3·3^2·5·7^2",
+     "chain": "hcm2520",
+     "run": 1,
+     "raw_hits": 32501,
+     "unique_hits": 29935,
+     "seconds": 423.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.6846,
+     "best": 44.37,
+     "top100": 1,
+     "top1000": 29,
+     "top10000": 356,
+     "gpu_top_seeds": 14
+    },
+    "18480": {
+     "factors": "2^4·3·5·7·11",
+     "chain": "hcm4620",
+     "run": 2,
+     "raw_hits": 26960,
+     "unique_hits": 25150,
+     "seconds": 343.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.5915,
+     "best": 43.88,
+     "top100": 4,
+     "top1000": 45,
+     "top10000": 383,
+     "gpu_top_seeds": 15
+    },
+    "22680": {
+     "factors": "2^3·3^4·5·7",
+     "chain": "hcm2520",
+     "run": 1,
+     "raw_hits": 50004,
+     "unique_hits": 46544,
+     "seconds": 644.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.6835,
+     "best": 44.37,
+     "top100": 8,
+     "top1000": 51,
+     "top10000": 524,
+     "gpu_top_seeds": 18
+    },
+    "23100": {
+     "factors": "2^2·3·5^2·7·11",
+     "chain": "hcm4620",
+     "run": 2,
+     "raw_hits": 23262,
+     "unique_hits": 21768,
+     "seconds": 280.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.6537,
+     "best": 44.57,
+     "top100": 1,
+     "top1000": 20,
+     "top10000": 220,
+     "gpu_top_seeds": 5
+    },
+    "25200": {
+     "factors": "2^4·3^2·5^2·7",
+     "chain": "hcm2520",
+     "run": 1,
+     "raw_hits": 29102,
+     "unique_hits": 26930,
+     "seconds": 386.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.6397,
+     "best": 44.07,
+     "top100": 4,
+     "top1000": 46,
+     "top10000": 325,
+     "gpu_top_seeds": 10
+    },
+    "27720": {
+     "factors": "2^3·3^2·5·7·11",
+     "chain": "hcm2520",
+     "run": 1,
+     "raw_hits": 36769,
+     "unique_hits": 34190,
+     "seconds": 461.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.5215,
+     "best": 43.28,
+     "top100": 8,
+     "top1000": 46,
+     "top10000": 512,
+     "gpu_top_seeds": 18
+    },
+    "30240": {
+     "factors": "2^5·3^3·5·7",
+     "chain": "hcm2520",
+     "run": 1,
+     "raw_hits": 31099,
+     "unique_hits": 28860,
+     "seconds": 369.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.6416,
+     "best": 44.26,
+     "top100": 3,
+     "top1000": 29,
+     "top10000": 354,
+     "gpu_top_seeds": 10
+    },
+    "32340": {
+     "factors": "2^2·3·5·7^2·11",
+     "chain": "hcm4620",
+     "run": 3,
+     "raw_hits": 44062,
+     "unique_hits": 40664,
+     "seconds": 538.0,
+     "includes_startup": true,
+     "mean_sopt_exp_E": 48.7178,
+     "best": 44.55,
+     "top100": 1,
+     "top1000": 42,
+     "top10000": 368,
+     "gpu_top_seeds": 10
+    },
+    "41580": {
+     "factors": "2^2·3^3·5·7·11",
+     "chain": "hcm4620",
+     "run": 3,
+     "raw_hits": 29487,
+     "unique_hits": 27775,
+     "seconds": 360.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.6226,
+     "best": 44.36,
+     "top100": 2,
+     "top1000": 25,
+     "top10000": 314,
+     "gpu_top_seeds": 12
+    },
+    "46200": {
+     "factors": "2^3·3·5^2·7·11",
+     "chain": "hcm4620",
+     "run": 3,
+     "raw_hits": 70150,
+     "unique_hits": 65334,
+     "seconds": 843.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.6289,
+     "best": 44.28,
+     "top100": 7,
+     "top1000": 71,
+     "top10000": 775,
+     "gpu_top_seeds": 29
+    },
+    "50820": {
+     "factors": "2^2·3·5·7·11^2",
+     "chain": "hcm4620",
+     "run": 3,
+     "raw_hits": 26005,
+     "unique_hits": 24407,
+     "seconds": 292.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.7589,
+     "best": 43.75,
+     "top100": 2,
+     "top1000": 25,
+     "top10000": 202,
+     "gpu_top_seeds": 6
+    },
+    "55440": {
+     "factors": "2^4·3^2·5·7·11",
+     "chain": "hcm4620",
+     "run": 3,
+     "raw_hits": 62308,
+     "unique_hits": 57255,
+     "seconds": 661.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.5521,
+     "best": 43.49,
+     "top100": 11,
+     "top1000": 95,
+     "top10000": 820,
+     "gpu_top_seeds": 39
+    },
+    "60060": {
+     "factors": "2^2·3·5·7·11·13",
+     "chain": "hcm4620",
+     "run": 3,
+     "raw_hits": 41629,
+     "unique_hits": 37871,
+     "seconds": 452.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.6095,
+     "best": 43.28,
+     "top100": 6,
+     "top1000": 44,
+     "top10000": 445,
+     "gpu_top_seeds": 15
+    },
+    "64680": {
+     "factors": "2^3·3·5·7^2·11",
+     "chain": "hcm4620",
+     "run": 3,
+     "raw_hits": 54382,
+     "unique_hits": 50346,
+     "seconds": 569.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 48.6858,
+     "best": 44.17,
+     "top100": 4,
+     "top1000": 45,
+     "top10000": 508,
+     "gpu_top_seeds": 9
+    }
+   }
+  }
+ },
+ "c200": {
+  "n_prefix": "120577542013",
+  "digits": 200,
+  "source": "msieve.dat.ms copied in by copypoly at 20:34 (sha256 6fe6442d...; 1,858,222 raw, 1,800,348 unique); stage 1 on the other machine (5070 Ti)",
+  "profile": {
+   "id": "c200_user_20261104",
+   "params": "job:33,34,15.5,70000000",
+   "lattice": "16,16384",
+   "qband": "70000000,400000000,7",
+   "reason": "the user's stated settings (33/34, mfb 64/96, lims 200M/300M, logI 16 J 2^14, q ~70M-400M); first start under c197_provisional_20261024 stopped after 3 min"
+  },
+  "wall_s": {
+   "raw": 137,
+   "sopt_e0": 2273,
+   "index_and_resopt": 310,
+   "breadth_and_score": 732,
+   "depth_and_score": 1004,
+   "murphy_and_final": 109,
+   "total": 4565
+  },
+  "sopt_e0_ms_per_poly": 1.263,
+  "conditions": "GPU idle at start; the user's CPU pipeline for the same job was running on this machine's CPU",
+  "gpu_winner": {
+   "search": "murphy s0001 standard_skew_proposal",
+   "lattice_score": 2043884000.0,
+   "job_murphy": 1.294203e-08,
+   "c5": 1441440,
+   "raw_a_d": 360360,
+   "Y1": "179985802056869266041503",
+   "distinct_finalist_seeds_raw_a_d": {
+    "554400": 1,
+    "240240": 2,
+    "360360": 2,
+    "277200": 1
+   }
+  },
+  "cpu_comparison": {
+   "cpu_source": "user CPU pipeline on this machine, main folder (msieve.dat.ms sha256 equal to the GPU snapshot); attach_cpu_c200.py",
+   "audit": {
+    "initial_sopt_identical_to_cpu": 1800348,
+    "different": 0,
+    "depth_exports_cpu_gpu_byte_equal": 3200
+   },
+   "lattice_score_gpu_over_cpu": 1.0000870966763322,
+   "standard_murphy_gpu_over_cpu": 0.9999998420456978,
+   "lattice_winners": "GPU murphy/s0001 (2.043884e9) and CPU cado_orig 0 (2.043706e9): same seed Y1 179985802056869266041503, raw a_d 360360, translation differs by 4,505,254",
+   "standard_murphy_winners": "CADO cado_orig 0 and GPU depth/s0001 are the same polynomial up to translation 2 (6.330945e-15 vs 6.330944e-15)",
+   "msieve": "best msieve ropt result 1.970582e9 lattice (3.6% lower), Y1 131135645394446898525871 (raw a_d 277200); msieve's 300 seeds included the winning seed",
+   "reading": "tie under both scores"
+  },
+  "testsieve": {
+   "file": "c200/testsieve_yield_20261104.json",
+   "reached_1240M_at_q": 412128247,
+   "raw_relations_70M_400M": 1203892161,
+   "gpu_days_70M_400M": 14.51
+  },
+  "stage1": {
+   "source": "polylocal msieve.log (saved to stage23_gpu/runs/20261104_new_jobs/c200_stage1/); one timestamped found_array line per a_d",
+   "runs": [
+    "hcm 138600: 138600..554400",
+    "hcm 60060: 60060..360360"
+   ],
+   "note": "sopt exp_E from the GPU initial sopt; first a_d of each run includes GPU start-up; gpu_top_seeds = the GPU run's 313 seeds; 120120 and 360360 each ran about twice as long as their neighbours with about twice the hits",
+   "chains": {
+    "hcm138600": {
+     "seconds": 51785.0,
+     "unique_hits": 721828,
+     "top100": 44,
+     "top1000": 376,
+     "top10000": 3832,
+     "gpu_top_seeds": 130,
+     "per_hour": {
+      "top100": 3.1,
+      "top1000": 26.1,
+      "top10000": 266.4,
+      "gpu_top_seeds": 9.0
+     }
+    },
+    "hcm60060": {
+     "seconds": 78517.0,
+     "unique_hits": 1078520,
+     "top100": 57,
+     "top1000": 637,
+     "top10000": 6381,
+     "gpu_top_seeds": 183,
+     "per_hour": {
+      "top100": 2.6,
+      "top1000": 29.2,
+      "top10000": 292.6,
+      "gpu_top_seeds": 8.4
+     }
+    }
+   },
+   "per_hour_ratio_60060_over_138600": {
+    "top100": {
+     "ratio": 0.854,
+     "ci95": [
+      0.58,
+      1.27
+     ]
+    },
+    "top1000": {
+     "ratio": 1.117,
+     "ci95": [
+      0.98,
+      1.27
+     ]
+    },
+    "top10000": {
+     "ratio": 1.098,
+     "ci95": [
+      1.06,
+      1.14
+     ]
+    },
+    "gpu_top_seeds": {
+     "ratio": 0.928,
+     "ci95": [
+      0.74,
+      1.16
+     ]
+    }
+   },
+   "per_a_d": {
+    "138600": {
+     "factors": "2^3·3^2·5^2·7·11",
+     "chain": "hcm138600",
+     "run": 1,
+     "raw_hits": 131778,
+     "unique_hits": 128959,
+     "seconds": 10069.0,
+     "includes_startup": true,
+     "mean_sopt_exp_E": 59.7874,
+     "best": 53.93,
+     "top100": 8,
+     "top1000": 66,
+     "top10000": 735,
+     "gpu_top_seeds": 17
+    },
+    "277200": {
+     "factors": "2^4·3^2·5^2·7·11",
+     "chain": "hcm138600",
+     "run": 1,
+     "raw_hits": 179715,
+     "unique_hits": 174580,
+     "seconds": 12604.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 59.7884,
+     "best": 54.11,
+     "top100": 9,
+     "top1000": 89,
+     "top10000": 949,
+     "gpu_top_seeds": 33
+    },
+    "415800": {
+     "factors": "2^3·3^3·5^2·7·11",
+     "chain": "hcm138600",
+     "run": 1,
+     "raw_hits": 200894,
+     "unique_hits": 194918,
+     "seconds": 13710.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 59.8162,
+     "best": 53.69,
+     "top100": 11,
+     "top1000": 93,
+     "top10000": 996,
+     "gpu_top_seeds": 39
+    },
+    "554400": {
+     "factors": "2^5·3^2·5^2·7·11",
+     "chain": "hcm138600",
+     "run": 1,
+     "raw_hits": 229804,
+     "unique_hits": 223371,
+     "seconds": 15402.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 59.7928,
+     "best": 53.77,
+     "top100": 16,
+     "top1000": 128,
+     "top10000": 1152,
+     "gpu_top_seeds": 41
+    },
+    "60060": {
+     "factors": "2^2·3·5·7·11·13",
+     "chain": "hcm60060",
+     "run": 2,
+     "raw_hits": 128033,
+     "unique_hits": 124200,
+     "seconds": 10505.0,
+     "includes_startup": true,
+     "mean_sopt_exp_E": 59.791,
+     "best": 54.23,
+     "top100": 5,
+     "top1000": 90,
+     "top10000": 769,
+     "gpu_top_seeds": 23
+    },
+    "120120": {
+     "factors": "2^3·3·5·7·11·13",
+     "chain": "hcm60060",
+     "run": 2,
+     "raw_hits": 282224,
+     "unique_hits": 269906,
+     "seconds": 20602.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 59.7678,
+     "best": 54.15,
+     "top100": 15,
+     "top1000": 161,
+     "top10000": 1720,
+     "gpu_top_seeds": 47
+    },
+    "180180": {
+     "factors": "2^2·3^2·5·7·11·13",
+     "chain": "hcm60060",
+     "run": 2,
+     "raw_hits": 125361,
+     "unique_hits": 122157,
+     "seconds": 8772.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 59.7642,
+     "best": 54.3,
+     "top100": 8,
+     "top1000": 67,
+     "top10000": 729,
+     "gpu_top_seeds": 19
+    },
+    "240240": {
+     "factors": "2^4·3·5·7·11·13",
+     "chain": "hcm60060",
+     "run": 2,
+     "raw_hits": 151526,
+     "unique_hits": 147648,
+     "seconds": 10351.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 59.7715,
+     "best": 54.05,
+     "top100": 9,
+     "top1000": 82,
+     "top10000": 852,
+     "gpu_top_seeds": 21
+    },
+    "300300": {
+     "factors": "2^2·3·5^2·7·11·13",
+     "chain": "hcm60060",
+     "run": 2,
+     "raw_hits": 145933,
+     "unique_hits": 141691,
+     "seconds": 9537.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 59.8431,
+     "best": 54.61,
+     "top100": 6,
+     "top1000": 67,
+     "top10000": 645,
+     "gpu_top_seeds": 23
+    },
+    "360360": {
+     "factors": "2^3·3^2·5·7·11·13",
+     "chain": "hcm60060",
+     "run": 2,
+     "raw_hits": 282954,
+     "unique_hits": 272918,
+     "seconds": 18750.0,
+     "includes_startup": false,
+     "mean_sopt_exp_E": 59.715,
+     "best": 53.11,
+     "top100": 14,
+     "top1000": 170,
+     "top10000": 1666,
+     "gpu_top_seeds": 50
+    }
+   }
+  }
+ }
+}

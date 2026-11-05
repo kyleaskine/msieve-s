@@ -73,6 +73,49 @@ settings by `../tools/pair_testsieve.py` and saved with its `--save`.
 - **Raw data:** relation files, logs and command records are in ignored
   `stage23_gpu/runs/20261104_testsieve/`.
 
+The [November 4 new job](gpu_pipeline/20261104_new_jobs.json) is a second C205
+(4268…), whose CPU pipeline ran on another machine. It was scored with the new
+catalog profile `c205_user_20261008`, the settings the user authorized for the
+first C205. The GPU pipeline took 82 minutes. GPU and CPU tie: GPU/CPU is 0.99994
+by standard MurphyE and 0.99983 by the job lattice. The GPU winner is CADO's
+polynomial, and msieve is 0.017% ahead on the same seed and rotation at another
+translation.
+- **Audit:** 9.6% of the initial sopt outputs differ from the remote CPU file, in
+  both directions equally. On a 1,200-poly sample, this machine's CADO sopt matches
+  the GPU every time, and the user says the other machine has a newer CADO sopt. All
+  3,200 depth exports are byte-equal.
+- **Stage 1:** the file also holds the per-coefficient table for the job's three
+  coefficient chains (60060, 360360 and 1021020 multiples). The winner's raw
+  leading coefficient is 3063060 = 2²·3²·5·7·11·13·17.
+- **C168:** the same file records the user's C168 (1117…). The GPU run was made
+  while the CPU pipeline ran, and the CPU results were attached afterwards from
+  `backup_20261104_203017`. It was scored with `c165_user_20261013`. The audit
+  matches all 773,211 sopt outputs and 3,200 depth exports. By the job lattice
+  model the result is a tie (GPU/CPU 0.99993): msieve and the GPU each found the
+  same seed with a different translation. Standard MurphyE prefers a different
+  low-skew GPU polynomial by 0.3%, which the lattice model rates 2.8% lower. Its stage 1
+  ran a 2520 chain and then a 4620 chain. With the per-coefficient times from
+  msieve.log, the two chains tie per GPU-hour: 348 vs 352 top-1000 candidates and
+  110 vs 117 GPU seeds. The GPU winner's raw leading coefficient is
+  27720 = 2³·3²·5·7·11.
+- **C200:** the file also records the C200 (1205…) the user copied in at 20:34,
+  scored with the user's settings as the new profile `c200_user_20261104`. The
+  GPU pipeline took 76 minutes. The winner's raw leading coefficient is
+  360360 = 2³·3²·5·7·11·13 (c5 1441440 after sopt). Stage 1 ran a 138600
+  chain, then a 60060 chain. Per GPU-hour the 60060 chain gave 10% more of
+  the top-10,000 candidates (95% interval 1.06–1.14) and was level on the
+  top 1,000, the top 100 and the GPU's seeds. The user's CPU pipeline ran on
+  this machine and was attached afterwards. The audit matches all 1,800,348 sopt
+  outputs and 3,200 depth exports. GPU and CPU tie: GPU/CPU is 1.00009 by the
+  job lattice and 0.9999998 by standard MurphyE. CADO and the GPU found the same
+  seed. msieve's best is 3.6% lower, from another seed, although the winning
+  seed was among its 300 inputs.
+- **C200 test sieve:** [`c200/testsieve_yield_20261104.json`](c200/testsieve_yield_20261104.json)
+  sieves the GPU winner with the user's settings at eight q from 70M to 630M.
+  It projects 1.20B raw relations over 70M–400M (14.5 days on this 5070 Ti) and
+  reaches 1.24B at q ≈ 412M.
+- **Raw data:** the runs are in ignored `stage23_gpu/runs/20261104_new_jobs/`.
+
 ## October 27–28 evidence consolidation
 
 The pending change originally contained 651 files: 30 source, test, config,

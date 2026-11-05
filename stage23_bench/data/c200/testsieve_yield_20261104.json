@@ -1,0 +1,149 @@
+{
+ "schema": 1,
+ "date": "2026-11-04",
+ "question": "Does q 70M-400M reach the user's ~1.24B relation target for the C200 (1205...) under c200_user_20261104?",
+ "poly": {
+  "source": "GPU pipeline winner, stage23_gpu/runs/20261104_new_jobs/c200/results/best.poly",
+  "sha256": "b7679c353c85ba0bc1dca6b9e6a752ce15e81c20b00553c996f8c695b2fed344",
+  "c5": 1441440,
+  "raw_a_d": 360360,
+  "skew": 110444780.5606894
+ },
+ "settings": {
+  "rlim": 200000000,
+  "alim": 300000000,
+  "lpbr": 33,
+  "lpba": 34,
+  "mfbr": 64,
+  "mfba": 96,
+  "logI": 16,
+  "J": 16384,
+  "special_q_side": "algebraic"
+ },
+ "siever": {
+  "tool": "~/code/cuda-sieve/bench/testsieve.sh (frozen copy)",
+  "commit": "0f8ae2752cc3c8ff5de9fbe1d61e733e27e30bb8",
+  "dirty": [
+   " M bench/RESULTS.md",
+   " M bench/STATUS.md",
+   " M bench/tune.sh"
+  ],
+  "sha256": {
+   "bench": "2c0b13b8cef5af27f6887d06c7e2c39ddcd2d316267d44b9d8fe0b52889a47e7",
+   "c200_gpu.job": "5c3725d02499755c46eaddd32f137b871c61c6f3d5460a1d94373857f1c5238d",
+   "fbgen": "d01b397ddea32b37097618efb0b1d220ee10f3b734e8eddd66fb110363f4f3f8",
+   "fbgen_gpu": "936aeec08adf9d5dc249ec1a9327839747e2dff005a9f6d697cf8795150e09fd",
+   "normscan": "1c002a42cf1c4fd792b8f0bfa76ef0cc44afd5c661dfb05a57c6239cfdbd08ff",
+   "testsieve.sh": "de6f27ff2353d3b23127794fcf552db199f16a22c7ce55ac2f2ac1de9dd86b2f"
+  }
+ },
+ "command": "./testsieve.sh --poly c200_gpu.job --geom \"16,16384\" --qmin 70 --qmax 630 --points 8 --width 4000 --target-rels 1240 --keep",
+ "conditions": "RTX 5070 Ti under WSL2; the user's C200 CPU pipeline (msieve -npr, 8 jobs) and ecm -pp1 were running on the CPU",
+ "normalization": "n_yield = raw relations * (width / ln q0) / observed pairs, per 4000-wide window; relations are raw (duplicates included)",
+ "rows": [
+  {
+   "q0": 70000000,
+   "pairs": 223,
+   "expected_pairs": 221.4,
+   "n_yield": 20009.6,
+   "rel_per_pair": 90.36,
+   "ms_per_pair": 77.29,
+   "rel_per_s": 1169.0,
+   "board_W": 230.8
+  },
+  {
+   "q0": 149999428,
+   "pairs": 210,
+   "expected_pairs": 212.5,
+   "n_yield": 16057.7,
+   "rel_per_pair": 75.58,
+   "ms_per_pair": 73.07,
+   "rel_per_s": 1034.0,
+   "board_W": 237.3
+  },
+  {
+   "q0": 229998857,
+   "pairs": 218,
+   "expected_pairs": 207.8,
+   "n_yield": 13950.0,
+   "rel_per_pair": 67.15,
+   "ms_per_pair": 72.27,
+   "rel_per_s": 929.0,
+   "board_W": 236.6
+  },
+  {
+   "q0": 309998285,
+   "pairs": 202,
+   "expected_pairs": 204.6,
+   "n_yield": 12633.4,
+   "rel_per_pair": 61.75,
+   "ms_per_pair": 71.53,
+   "rel_per_s": 863.0,
+   "board_W": 236.5
+  },
+  {
+   "q0": 389997714,
+   "pairs": 178,
+   "expected_pairs": 202.2,
+   "n_yield": 12089.3,
+   "rel_per_pair": 59.79,
+   "ms_per_pair": 70.82,
+   "rel_per_s": 844.0,
+   "board_W": 239.8
+  },
+  {
+   "q0": 469997142,
+   "pairs": 179,
+   "expected_pairs": 200.3,
+   "n_yield": 11189.8,
+   "rel_per_pair": 55.86,
+   "ms_per_pair": 70.37,
+   "rel_per_s": 794.0,
+   "board_W": 238.7
+  },
+  {
+   "q0": 549996571,
+   "pairs": 186,
+   "expected_pairs": 198.8,
+   "n_yield": 10768.0,
+   "rel_per_pair": 54.18,
+   "ms_per_pair": 70.17,
+   "rel_per_s": 772.0,
+   "board_W": 237.5
+  },
+  {
+   "q0": 629996000,
+   "pairs": 196,
+   "expected_pairs": 197.4,
+   "n_yield": 10104.8,
+   "rel_per_pair": 51.18,
+   "ms_per_pair": 69.55,
+   "rel_per_s": 736.0,
+   "board_W": 240.0
+  }
+ ],
+ "script_projection": {
+  "band": "70M-630M",
+  "raw_relations": 1830000000.0,
+  "gpu_days": 23.83,
+  "energy_kWh": 135.6,
+  "target_1240M_reached_at_q": 412128247,
+  "days_to_target": 15.01
+ },
+ "projections": {
+  "70M-400M": {
+   "raw_relations": 1203892161,
+   "gpu_days": 14.51
+  },
+  "70M-412M": {
+   "raw_relations": 1239999929,
+   "gpu_days": 15.01
+  },
+  "70M-630M": {
+   "raw_relations": 1834904997,
+   "gpu_days": 23.83
+  }
+ },
+ "limits": "Eight single 4000-wide windows (178-223 pairs each); trapezoid between them. Duplicates not removed; timing is one unreplicated run.",
+ "raw_artifacts": "stage23_gpu/runs/20261104_new_jobs/c200_testsieve/ (ignored)"
+}
